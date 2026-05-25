@@ -1,0 +1,21 @@
+{
+  "name": "أسواق ثرا الشرق ون",
+  "short_name": "ثرا الشرق ون",
+  "start_url": "/thara-app/",
+  "display": "standalone",
+  "background_color": "#127443",
+  "theme_color": "#127443",
+  "description": "توصيل طلبات السوبرماركت لباب بيتك في الخفجي",
+  "icons": [
+    {
+      "src": "/thara-app/LOGO.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/thara-app/LOGO.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

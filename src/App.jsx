@@ -267,10 +267,6 @@ const AccountTab = memo(({ user, logout }) => {
           <span>{user.email}</span>
         </div>
       </div>
-      <div className="account-menu">
-        <Link to="/orders" className="account-menu-item">📋 طلباتي</Link>
-        <Link to="/login" className="account-menu-item">🔒 تغيير كلمة المرور</Link>
-      </div>
       <button className="btn account-logout-btn" onClick={logout}>تسجيل الخروج</button>
     </div>
   );
