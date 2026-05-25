@@ -1,0 +1,75 @@
+import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { authApi } from '../supabase/auth';
+
+export default function Register() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (password !== confirm) {
+      setError('كلمة المرور غير متطابقة');
+      return;
+    }
+    if (password.length < 6) {
+      setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      return;
+    }
+    try {
+      await authApi.signUp(email, password);
+      navigate('/login?registered=1');
+    } catch (err) {
+      setError(err.message === 'User already registered'
+        ? 'هذا البريد مسجل مسبقاً'
+        : 'حدث خطأ أثناء إنشاء الحساب');
+    }
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-header">
+          <img src="/LOGO.jpg" alt="" className="auth-logo" />
+          <h1>إنشاء حساب جديد</h1>
+          <p>انضم إلى أسواق ثرا الشرق ون</p>
+        </div>
+
+        <form onSubmit={handleRegister}>
+          <div className="auth-field">
+            <label>البريد الإلكتروني</label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com" required className="auth-input" />
+          </div>
+
+          <div className="auth-field">
+            <label>كلمة المرور</label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••" required className="auth-input" />
+          </div>
+
+          <div className="auth-field">
+            <label>تأكيد كلمة المرور</label>
+            <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
+              placeholder="••••••••" required className="auth-input" />
+          </div>
+
+          {error && <div className="auth-error">{error}</div>}
+
+          <button type="submit" className="auth-btn">إنشاء الحساب</button>
+        </form>
+
+        <div className="auth-footer">
+          لديك حساب بالفعل؟ <Link to="/login">تسجيل الدخول</Link>
+        </div>
+        <div className="auth-back">
+          <Link to="/">← العودة للمتجر</Link>
+        </div>
+      </div>
+    </div>
+  );
+}
