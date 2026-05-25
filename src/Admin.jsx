@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
+import StaffManager from './components/StaffManager.jsx';
 
 export default function Admin() {
   const { 
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
-    chatMessages, sendMessage, logout
+    chatMessages, sendMessage, logout, staffRole
   } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -26,6 +27,9 @@ export default function Admin() {
         <button className={`admin-tab ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>المنتجات</button>
         <button className={`admin-tab ${activeTab === 'offers' ? 'active' : ''}`} onClick={() => setActiveTab('offers')}>العروض الخاصة</button>
         <button className={`admin-tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>خدمة العملاء</button>
+        {staffRole === 'admin' && (
+          <button className={`admin-tab ${activeTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveTab('staff')}>إدارة الموظفين</button>
+        )}
         
         <div className="admin-sidebar-footer">
           <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
@@ -40,6 +44,7 @@ export default function Admin() {
         {activeTab === 'products' && <AdminProducts products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
         {activeTab === 'offers' && <AdminOffers products={allProducts} updateProduct={updateProduct} />}
         {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} />}
+        {activeTab === 'staff' && <StaffManager />}
       </main>
     </div>
   );

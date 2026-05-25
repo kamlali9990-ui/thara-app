@@ -102,11 +102,27 @@ INSERT INTO products (name, category, price, offer_price, is_offer, image_url, s
   ('جبنة كرافت تشيدر علب', 'الألبان', 6.50, NULL, FALSE, 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80', 50, 'علبة'),
    ('شاي ليبتون العلامة الصفراء (100 كيس)', 'المشروبات', 16.00, NULL, FALSE, 'https://images.unsplash.com/photo-1594631252845-29fc4cc8cbf9?w=400&q=80', 60, 'علبة');
 
--- 6. Admin users table
-CREATE TABLE admin_users (
+-- 6. Staff / Admin users table
+CREATE TABLE staff (
   id BIGSERIAL PRIMARY KEY,
   email TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL DEFAULT '',
+  role TEXT NOT NULL DEFAULT 'employee' CHECK (role IN ('admin', 'manager', 'employee')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-INSERT INTO admin_users (email) VALUES ('yaser.haroon79@gmail.com');
+INSERT INTO staff (email, name, role) VALUES ('yaser.haroon79@gmail.com', 'ياسر', 'admin');
+
+ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "staff_select_admin" ON staff
+  FOR SELECT USING (auth.uid() IS NOT NULL);
+
+CREATE POLICY "staff_insert_admin" ON staff
+  FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+
+CREATE POLICY "staff_update_admin" ON staff
+  FOR UPDATE USING (auth.uid() IS NOT NULL);
+
+CREATE POLICY "staff_delete_admin" ON staff
+  FOR DELETE USING (auth.uid() IS NOT NULL);

@@ -1425,3 +1425,64 @@ header {
   margin-bottom: 0.5rem;
   padding: 0.25rem;
 }
+
+/* ==================== Staff Manager ==================== */
+.staff-add-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.staff-input {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  flex: 1;
+  min-width: 150px;
+}
+.staff-select {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+}
+.staff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.staff-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.staff-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.staff-email {
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+.staff-role {
+  font-size: 0.8rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  display: inline-block;
+  width: fit-content;
+}
+.staff-role-admin { background: #127443; color: white; }
+.staff-role-manager { background: #f2a900; color: white; }
+.staff-role-employee { background: #e2e8f0; color: var(--text-main); }
+.staff-actions {
+  display: flex;
+  gap: 0.5rem;
+}

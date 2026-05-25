@@ -5,6 +5,7 @@ import { productsApi } from '../supabase/products.js';
 import { ordersApi } from '../supabase/orders.js';
 import { chatApi } from '../supabase/chat.js';
 import { authApi } from '../supabase/auth.js';
+import { staffApi } from '../supabase/staff.js';
 
 export const StoreContext = createContext();
 
@@ -15,6 +16,8 @@ export function useStore() {
 export const StoreProvider = ({ children }) => {
   // --- Auth ---
   const [user, setUser] = useState(null);
+  const [staffRole, setStaffRole] = useState(null);
+  const [staffList, setStaffList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // --- Data ---
@@ -58,6 +61,10 @@ export const StoreProvider = ({ children }) => {
           // Load auth
           const currentUser = await authApi.getUser();
           setUser(currentUser);
+          if (currentUser) {
+            const staff = await staffApi.getByEmail(currentUser.email).catch(() => null);
+            if (staff) setStaffRole(staff.role);
+          }
           setSupabaseReady(true);
         } catch {
           // fallback to localStorage
@@ -71,8 +78,14 @@ export const StoreProvider = ({ children }) => {
   // Listen for auth changes
   useEffect(() => {
     if (!hasSupabase) return;
-    const sub = authApi.onAuthChange((event, u) => {
+    const sub = authApi.onAuthChange(async (event, u) => {
       setUser(u);
+      if (u) {
+        const staff = await staffApi.getByEmail(u.email).catch(() => null);
+        setStaffRole(staff?.role || null);
+      } else {
+        setStaffRole(null);
+      }
     });
     return () => {
       if (typeof sub.unsubscribe === 'function') sub.unsubscribe();
@@ -233,9 +246,36 @@ export const StoreProvider = ({ children }) => {
     setUser(null);
   }, []);
 
+  // --- Staff Management ---
+  const loadStaff = useCallback(async () => {
+    if (!hasSupabase) return;
+    try {
+      const list = await staffApi.list();
+      setStaffList(list);
+    } catch { /* ignore */ }
+  }, []);
+
+  const addStaff = useCallback(async (staffMember) => {
+    const created = await staffApi.create(staffMember);
+    setStaffList(prev => [created, ...prev]);
+    return created;
+  }, []);
+
+  const updateStaff = useCallback(async (id, updates) => {
+    const updated = await staffApi.update(id, updates);
+    setStaffList(prev => prev.map(s => s.id === id ? { ...s, ...updated } : s));
+    return updated;
+  }, []);
+
+  const removeStaff = useCallback(async (id) => {
+    await staffApi.remove(id);
+    setStaffList(prev => prev.filter(s => s.id !== id));
+  }, []);
+
   return (
     <StoreContext.Provider value={{
       user, loading, login, logout,
+      staffRole, staffList, loadStaff, addStaff, updateStaff, removeStaff,
       products: filteredProducts,
       cart, addToCart, removeFromCart, updateCartQty, cartTotal,
       searchQuery, setSearchQuery,

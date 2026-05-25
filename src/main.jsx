@@ -20,10 +20,10 @@ if ('serviceWorker' in navigator) {
 const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
 
 function ProtectedRoute({ children }) {
-  const { user, loading } = useStore();
+  const { user, loading, staffRole } = useStore();
   if (loading) return null;
   if (!user) return <Navigate to="/admin/login" replace />;
-  if (user.email !== ADMIN_EMAIL) return <Navigate to="/" replace />;
+  if (!staffRole) return <Navigate to="/" replace />;
   return children;
 }
 
