@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../supabase/auth';
 
 export default function Login() {
@@ -113,7 +113,7 @@ export default function Login() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.85rem', color: '#94a3b8' }}>
-          <a href="/" style={{ color: '#127443', textDecoration: 'none', fontWeight: 600 }}>العودة للمتجر</a>
+          <Link to="/" style={{ color: '#127443', textDecoration: 'none', fontWeight: 600 }}>العودة للمتجر</Link>
         </p>
       </div>
     </div>

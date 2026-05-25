@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 
 export default function Admin() {
@@ -28,7 +28,7 @@ export default function Admin() {
         <button className={`admin-tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>خدمة العملاء</button>
         
         <div className="admin-sidebar-footer">
-          <a href="/" className="admin-sidebar-link">العودة للمتجر</a>
+          <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
           <br/><br/>
           <button onClick={handleLogout} className="admin-tab" style={{ color: 'rgba(255,255,255,0.7)' }}>تسجيل الخروج</button>
         </div>

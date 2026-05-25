@@ -13,7 +13,7 @@ import ErrorBoundary from './components/ErrorBoundary.jsx'
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('/thara-app/sw.js').catch(() => {});
   });
 }
 
@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
       <StoreProvider>
-        <BrowserRouter>
+        <BrowserRouter basename="/thara-app">
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/login" element={<CustomerLogin />} />

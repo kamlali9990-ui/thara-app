@@ -1,4 +1,5 @@
 import React, { useContext, useState, useRef, useEffect, memo } from 'react';
+import { Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { categories } from './data/mockData';
 import L from 'leaflet';
@@ -56,7 +57,7 @@ export default function App() {
                 <button className="btn-logout" onClick={logout} title="تسجيل الخروج">🚪</button>
               </div>
             ) : (
-              <a href="/login" className="btn-login-header">دخول</a>
+              <Link to="/login" className="btn-login-header">دخول</Link>
             )}
             <button className="btn-cart-icon" onClick={() => setIsCartOpen(true)}>
               <span className="cart-icon-emoji">🛒</span>
