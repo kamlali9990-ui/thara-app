@@ -108,7 +108,7 @@ export const mockProducts = [
     category: 'المشروبات', 
     price: 16.00, 
     stock_quantity: 60, 
-    imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80', 
+    imageUrl: 'https://placehold.co/400x400/127443/FFFFFF?text=شاي', 
     unit: 'علبة' 
   }
 ];
