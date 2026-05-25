@@ -1046,12 +1046,16 @@ header {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
 .admin-sidebar-title {
   margin-bottom: 2rem;
   text-align: center;
   color: white;
+  font-size: 1.1rem;
 }
 
 .admin-sidebar-footer {
@@ -1071,6 +1075,102 @@ header {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+}
+
+/* Mobile bottom nav for admin */
+.admin-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar {
+    display: none;
+  }
+  .admin-layout {
+    flex-direction: column;
+    padding-bottom: 80px;
+  }
+  .admin-main {
+    padding: 1rem;
+  }
+  .admin-mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--primary);
+    z-index: 100;
+    overflow-x: auto;
+    gap: 0;
+  }
+  .admin-mobile-tab {
+    flex: 1;
+    min-width: 60px;
+    background: transparent;
+    color: rgba(255,255,255,0.7);
+    border: none;
+    padding: 0.5rem 0.25rem;
+    font-family: inherit;
+    font-size: 0.65rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    transition: all 0.2s;
+  }
+  .admin-mobile-tab .tab-icon {
+    font-size: 1.1rem;
+  }
+  .admin-mobile-tab.active {
+    color: white;
+    background: rgba(255,255,255,0.15);
+  }
+  .admin-mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--primary);
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 99;
+  }
+  .admin-mobile-header h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .admin-mobile-header a,
+  .admin-mobile-header button {
+    color: rgba(255,255,255,0.8);
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .admin-card { padding: 1rem; }
+  .admin-card-header { flex-direction: column; gap: 0.5rem; }
+  .admin-card-header .admin-order-right { text-align: right !important; }
+  .admin-products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+  .admin-product-card { padding: 0.75rem; }
+  .admin-product-img { height: 100px; }
+  .admin-input-half { width: 100%; }
+  .admin-input-row { flex-direction: column; gap: 0.35rem; }
+  .admin-offer-row { flex-wrap: wrap; gap: 0.5rem; }
+  .admin-offer-img { width: 40px; height: 40px; }
+  .admin-offer-checkbox { margin-left: 0; }
+  .admin-offer-price-input { width: 100%; }
+  .admin-offer-input { width: 100%; }
+  .admin-products-header { flex-direction: column; gap: 0.75rem; }
+  .staff-add-form { flex-direction: column; }
+  .staff-card { flex-direction: column; align-items: stretch; }
+  .staff-actions { justify-content: flex-end; }
+  .admin-chat-container { height: calc(100vh - 160px); }
+  .admin-bubble { max-width: 85%; font-size: 0.9rem; }
 }
 
 .admin-card {

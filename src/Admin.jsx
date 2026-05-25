@@ -17,20 +17,33 @@ export default function Admin() {
     navigate('/admin/login');
   };
 
+  const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين' };
+  const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
+  const tabs = [
+    { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
+    { id: 'products', label: 'المنتجات', icon: '📦' },
+    { id: 'offers', label: 'العروض', icon: '🏷️' },
+    { id: 'chat', label: 'العملاء', icon: '💬' },
+  ];
+  if (staffRole === 'admin') tabs.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
+
   return (
     <div className="admin-layout">
-      {/* Sidebar */}
+      {/* Mobile header */}
+      <div className="admin-mobile-header">
+        <button onClick={handleLogout} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', fontFamily: 'inherit', fontSize: '0.85rem', cursor: 'pointer' }}>خروج</button>
+        <h2>{tabLabel[activeTab]}</h2>
+        <Link to="/" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '0.85rem' }}>المتجر</Link>
+      </div>
+
+      {/* Sidebar (desktop) */}
       <aside className="admin-sidebar">
         <h2 className="admin-sidebar-title">لوحة التاجر</h2>
-        
-        <button className={`admin-tab ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>الطلبات ({orders.length})</button>
-        <button className={`admin-tab ${activeTab === 'products' ? 'active' : ''}`} onClick={() => setActiveTab('products')}>المنتجات</button>
-        <button className={`admin-tab ${activeTab === 'offers' ? 'active' : ''}`} onClick={() => setActiveTab('offers')}>العروض الخاصة</button>
-        <button className={`admin-tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>خدمة العملاء</button>
-        {staffRole === 'admin' && (
-          <button className={`admin-tab ${activeTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveTab('staff')}>إدارة الموظفين</button>
-        )}
-        
+        {tabs.map(t => (
+          <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
+            {t.icon} {t.label}{t.badge != null ? ` (${t.badge})` : ''}
+          </button>
+        ))}
         <div className="admin-sidebar-footer">
           <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
           <br/><br/>
@@ -46,6 +59,16 @@ export default function Admin() {
         {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} />}
         {activeTab === 'staff' && <StaffManager />}
       </main>
+
+      {/* Mobile bottom nav */}
+      <nav className="admin-mobile-nav">
+        {tabs.map(t => (
+          <button key={t.id} className={`admin-mobile-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
+            <span className="tab-icon">{t.icon}</span>
+            <span>{t.label}{t.badge != null ? ` (${t.badge})` : ''}</span>
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }
