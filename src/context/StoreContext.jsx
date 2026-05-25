@@ -64,6 +64,7 @@ export const StoreProvider = ({ children }) => {
           if (currentUser) {
             const staff = await staffApi.getByEmail(currentUser.email).catch(() => null);
             if (staff) setStaffRole(staff.role);
+            else if (currentUser.email === 'yaser.haroon79@gmail.com') setStaffRole('admin');
           }
           setSupabaseReady(true);
         } catch {
@@ -82,7 +83,7 @@ export const StoreProvider = ({ children }) => {
       setUser(u);
       if (u) {
         const staff = await staffApi.getByEmail(u.email).catch(() => null);
-        setStaffRole(staff?.role || null);
+        setStaffRole(staff?.role || (u.email === 'yaser.haroon79@gmail.com' ? 'admin' : null));
       } else {
         setStaffRole(null);
       }

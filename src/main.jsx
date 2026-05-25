@@ -23,7 +23,8 @@ function ProtectedRoute({ children }) {
   const { user, loading, staffRole } = useStore();
   if (loading) return null;
   if (!user) return <Navigate to="/admin/login" replace />;
-  if (!staffRole) return <Navigate to="/" replace />;
+  const isAdmin = staffRole || user.email === ADMIN_EMAIL;
+  if (!isAdmin) return <Navigate to="/" replace />;
   return children;
 }
 
