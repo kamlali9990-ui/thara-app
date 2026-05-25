@@ -32,7 +32,7 @@ export default function Login() {
         maxWidth: '400px', margin: '1rem', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <img src="/LOGO.jpg" alt="" style={{
+          <img src={`${import.meta.env.BASE_URL || '/'}LOGO.jpg`} alt="" style={{
             width: '80px', height: '80px', borderRadius: '16px',
             objectFit: 'contain', background: 'white', padding: '4px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginBottom: '1rem'

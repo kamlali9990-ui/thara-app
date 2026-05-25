@@ -34,7 +34,7 @@ export default function Register() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <img src="/LOGO.jpg" alt="" className="auth-logo" />
+          <img src={`${import.meta.env.BASE_URL || '/'}LOGO.jpg`} alt="" className="auth-logo" />
           <h1>إنشاء حساب جديد</h1>
           <p>انضم إلى أسواق ثرا الشرق ون</p>
         </div>

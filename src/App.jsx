@@ -4,6 +4,8 @@ import { StoreContext } from './context/StoreContext';
 import { categories } from './data/mockData';
 import L from 'leaflet';
 
+const BASE = import.meta.env.BASE_URL || '/';
+
 export default function App() {
   const { 
     products, 
@@ -28,7 +30,7 @@ export default function App() {
     return (
       <div className="splash-screen">
         <div className="splash-content">
-          <img src="/LOGO.jpg" alt="أسواق ثرا الشرق ون" className="splash-logo" />
+          <img src={`${BASE}LOGO.jpg`} alt="أسواق ثرا الشرق ون" className="splash-logo" />
           <h1 className="splash-title">أسواق ثرا الشرق ون</h1>
           <p className="splash-subtitle">توصيل لباب بيتك في الخفجي</p>
           <div className="splash-loader">
@@ -44,7 +46,7 @@ export default function App() {
       <header>
         <div className="container header-content">
           <div className="logo-section">
-            <img src="/LOGO.jpg" alt="أسواق ثرا الشرق ون" className="logo-img" onError={(e) => { e.target.src = 'https://placehold.co/45x45/127443/FFFFFF?text=ث' }} />
+            <img src={`${BASE}LOGO.jpg`} alt="أسواق ثرا الشرق ون" className="logo-img" onError={(e) => { e.target.src = 'https://placehold.co/45x45/127443/FFFFFF?text=ث' }} />
             <div>
               <h1 className="header-title">ثرا الشرق ون</h1>
               <span className="header-tagline">توصيل الخفجي</span>
@@ -82,7 +84,7 @@ export default function App() {
       <div className="hero-banner">
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <img src="/LOGO.jpg" alt="" className="hero-logo" />
+          <img src={`${BASE}LOGO.jpg`} alt="" className="hero-logo" />
           <div className="hero-text">
             <h2 className="hero-title">أسواق ثرا الشرق ون</h2>
             <p className="hero-desc">كل ما تحتاجه من السوبرماركت يوصلك لباب بيتك 🚛</p>
