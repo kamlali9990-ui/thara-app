@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect, memo } from 'react';
+import React, { useContext, useState, useRef, useEffect, memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { categories } from './data/mockData';
@@ -7,237 +7,238 @@ import L from 'leaflet';
 const BASE = import.meta.env.BASE_URL || '/';
 
 export default function App() {
-  const { 
-    products, 
-    cart, addToCart, removeFromCart, updateCartQty, cartTotal,
-    searchQuery, setSearchQuery,
-    selectedCategory, setSelectedCategory,
-    placeOrder, getProductPrice, chatMessages, sendMessage,
-    user, logout, orders
-  } = useContext(StoreContext);
+  const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
+    searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
+    placeOrder, chatMessages, sendMessage, user, logout, orders } = useContext(StoreContext);
 
-  const [currentTab, setCurrentTab] = useState('home');
+  const [tab, setTab] = useState('home');
+  const [prevTab, setPrevTab] = useState('home');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [slideDir, setSlideDir] = useState('left');
 
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 2400);
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2200); return () => clearTimeout(t); }, []);
 
-  const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
-
-  if (showSplash) {
-    return (
-      <div className="splash-screen">
-        <div className="splash-content">
-          <img src={`${BASE}LOGO.jpg`} alt="أسواق ثرا الشرق ون" className="splash-logo" />
-          <h1 className="splash-title">أسواق ثرا الشرق ون</h1>
-          <p className="splash-subtitle">توصيل لباب بيتك في الخفجي</p>
-          <div className="splash-loader">
-            <div className="splash-loader-bar"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const userOrders = orders.filter(o => o.customerEmail === user?.email);
+
+  const switchTab = useCallback((t) => {
+    const order = ['home', 'orders', 'account'];
+    setSlideDir(order.indexOf(t) > order.indexOf(tab) ? 'left' : 'right');
+    setPrevTab(tab);
+    setTab(t);
+  }, [tab]);
+
+  if (showSplash) return <SplashScreen />;
 
   return (
     <div className="app-wrapper">
-      {/* Header */}
-      <header className="app-header">
-        <div className="app-header-inner">
-          <div className="app-logo">
-            <img src={`${BASE}LOGO.jpg`} alt="" className="app-logo-img"
-              onError={(e) => { e.target.src = 'https://placehold.co/36x36/127443/FFFFFF?text=ث'; }} />
-            <div>
-              <div className="app-title">ثرا الشرق ون</div>
-              <div className="app-subtitle">توصيل الخفجي</div>
-            </div>
-          </div>
-          <div className="app-header-actions">
-            {user ? (
-              <span className="app-user-badge">{user.email?.split('@')[0]}</span>
-            ) : (
-              <Link to="/login" className="app-login-link">دخول</Link>
-            )}
-            <button className="app-cart-btn" onClick={() => setIsCartOpen(true)}>
-              🛒
-              {cartCount > 0 && <span className="app-cart-badge">{cartCount}</span>}
-            </button>
-          </div>
-        </div>
-        {currentTab === 'home' && (
-          <div className="app-search">
-            <input type="text" className="app-search-input"
-              placeholder="🔍 ابحث عن المنتجات..." value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} />
-          </div>
-        )}
-      </header>
+      <AppHeader cartCount={cartCount} user={user} logout={logout}
+        onCartOpen={() => setIsCartOpen(true)} tab={tab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
-      {/* Tab Content */}
-      <div className="app-content">
-        {currentTab === 'home' && (
-          <HomeTab products={products} selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory} addToCart={addToCart} />
-        )}
-        {currentTab === 'orders' && (
-          <OrdersTab orders={userOrders} />
-        )}
-        {currentTab === 'account' && (
-          <AccountTab user={user} logout={logout} />
-        )}
+      <div className={`app-content ${tab === 'home' ? '' : 'app-content-nohome'}`}>
+        <div className={`app-slide ${slideDir === 'left' ? 'slide-in-left' : 'slide-in-right'}`}>
+          {tab === 'home' && <HomeTab key="home" products={products} selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory} addToCart={addToCart} cartCount={cartCount} setIsCartOpen={setIsCartOpen} />}
+        </div>
+        <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
+          {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} />}
+        </div>
       </div>
 
-      {/* Bottom Tab Bar */}
-      <nav className="app-tabbar">
-        <button className={`app-tab ${currentTab === 'home' ? 'active' : ''}`} onClick={() => setCurrentTab('home')}>
-          <span className="app-tab-icon">🏠</span>
-          <span className="app-tab-label">الرئيسية</span>
-        </button>
-        <button className={`app-tab ${currentTab === 'orders' ? 'active' : ''}`} onClick={() => setCurrentTab('orders')}>
-          <span className="app-tab-icon">📋</span>
-          <span className="app-tab-label">طلباتي</span>
-        </button>
-        <button className={`app-tab ${currentTab === 'account' ? 'active' : ''}`} onClick={() => setCurrentTab('account')}>
-          <span className="app-tab-icon">👤</span>
-          <span className="app-tab-label">حسابي</span>
-        </button>
-      </nav>
+      <AppTabbar tab={tab} onTabChange={switchTab} cartCount={cartCount} />
 
-      {/* Cart Drawer */}
-      {isCartOpen && (
-        <div className="cart-overlay" onClick={() => setIsCartOpen(false)}>
-          <div className="cart-drawer" onClick={e => e.stopPropagation()}>
-            <div className="cart-header">
-              <h2>سلة المشتريات</h2>
-              <button className="close-btn" onClick={() => setIsCartOpen(false)}>✕</button>
-            </div>
-            <div className="cart-items">
-              {cart.length === 0 ? <p className="cart-empty">السلة فارغة.</p> : null}
-              {cart.map(item => (
-                <div key={item.id} className="cart-item">
-                  <img src={item.imageUrl} alt={item.name} className="cart-item-img"
-                    onError={(e) => { e.target.src = 'https://placehold.co/100x100/127443/FFFFFF?text=IMG'; }} />
-                  <div className="cart-item-info">
-                    <h4>{item.name}</h4>
-                    <div className="cart-item-price">{(item.currentPrice || item.price).toFixed(2)} ر.س</div>
-                    <div className="qty-controls">
-                      <button className="qty-btn" onClick={() => updateCartQty(item.id, 1)}>+</button>
-                      <span>{item.qty}</span>
-                      <button className="qty-btn" onClick={() => updateCartQty(item.id, -1)}>-</button>
-                      <button className="cart-remove-btn" onClick={() => removeFromCart(item.id)}>حذف</button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="cart-footer">
-              <div className="summary-row">
-                <span>المجموع الفرعي</span>
-                <span>{cartTotal.toFixed(2)} ر.س</span>
-              </div>
-              <div className="summary-row total">
-                <span>الإجمالي</span>
-                <span>{cartTotal.toFixed(2)} ر.س</span>
-              </div>
-              <button className="btn checkout-btn" disabled={cart.length === 0}
-                onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }}>
-                إتمام الطلب
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {isCartOpen && <CartScreen cart={cart} cartTotal={cartTotal} cartCount={cartCount}
+        updateCartQty={updateCartQty} removeFromCart={removeFromCart}
+        onClose={() => setIsCartOpen(false)} onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />}
 
-      {/* Checkout Modal */}
-      {isCheckoutOpen && (
-        <CheckoutModal cartTotal={cartTotal} onClose={() => setIsCheckoutOpen(false)} placeOrder={placeOrder} />
-      )}
+      {isCheckoutOpen && <CheckoutModal cartTotal={cartTotal} onClose={() => setIsCheckoutOpen(false)} placeOrder={placeOrder} />}
 
-      {/* Chat Widget */}
       <ChatWidget chatMessages={chatMessages} sendMessage={sendMessage} />
     </div>
   );
 }
 
-/* ─── Home Tab ─── */
-const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCart }) => (
-  <div>
-    <div className="hero-banner">
-      <div className="hero-overlay"></div>
-      <div className="hero-content">
-        <img src={`${BASE}LOGO.jpg`} alt="" className="hero-logo" />
-        <div className="hero-text">
-          <h2 className="hero-title">أسواق ثرا الشرق ون</h2>
-          <p className="hero-desc">كل ما تحتاجه من السوبرماركت يوصلك لباب بيتك 🚛</p>
-          <div className="hero-badges">
-            <span className="hero-badge">🕐 توصيل سريع</span>
-            <span className="hero-badge">💰 أسعار منافسة</span>
-            <span className="hero-badge">📦 +500 منتج</span>
-          </div>
+/* ─── Splash ─── */
+const SplashScreen = memo(() => (
+  <div className="splash-screen">
+    <div className="splash-content">
+      <img src={`${BASE}LOGO.jpg`} alt="" className="splash-logo" />
+      <h1 className="splash-title">أسواق ثرا الشرق ون</h1>
+      <p className="splash-subtitle">توصيل لباب بيتك في الخفجي</p>
+      <div className="splash-loader"><div className="splash-loader-bar" /></div>
+    </div>
+  </div>
+));
+
+/* ─── Header ─── */
+const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSearchQuery }) => (
+  <header className="app-header">
+    <div className="app-header-inner">
+      <div className="app-logo">
+        <img src={`${BASE}LOGO.jpg`} alt="" className="app-logo-img"
+          onError={(e) => { e.target.src = 'https://placehold.co/36x36/127443/FFFFFF?text=ث'; }} />
+        <div>
+          <div className="app-title">ثرا الشرق ون</div>
+          <div className="app-subtitle">توصيل الخفجي</div>
         </div>
       </div>
+      <div className="app-header-actions">
+        {user ? <span className="app-user-badge">{user.email?.split('@')[0]}</span>
+          : <Link to="/login" className="app-login-link">دخول</Link>}
+        <button className="app-cart-btn" onClick={onCartOpen}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          {cartCount > 0 && <span className="app-cart-badge">{cartCount}</span>}
+        </button>
+      </div>
     </div>
-    <div className="container main-content">
-      <div className="categories">
-        {categories.map(cat => (
-          <button key={cat} className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(cat)}>{cat}</button>
+    {tab === 'home' && (
+      <div className="app-search">
+        <svg className="app-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" className="app-search-input" placeholder="ابحث عن المنتجات..." value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)} />
+      </div>
+    )}
+  </header>
+));
+
+/* ─── Tab Bar ─── */
+const AppTabbar = memo(({ tab, onTabChange, cartCount }) => (
+  <nav className="app-tabbar">
+    <button className={`app-tab ${tab === 'home' ? 'active' : ''}`} onClick={() => onTabChange('home')}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={tab === 'home' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span className="app-tab-label">الرئيسية</span>
+    </button>
+    <button className={`app-tab ${tab === 'orders' ? 'active' : ''}`} onClick={() => onTabChange('orders')}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={tab === 'orders' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span className="app-tab-label">طلباتي</span>
+    </button>
+    <button className={`app-tab ${tab === 'account' ? 'active' : ''}`} onClick={() => onTabChange('account')}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill={tab === 'account' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span className="app-tab-label">حسابي</span>
+    </button>
+  </nav>
+));
+
+/* ─── Cart Screen (full page slide-up) ─── */
+const CartScreen = memo(({ cart, cartTotal, cartCount, updateCartQty, removeFromCart, onClose, onCheckout }) => (
+  <div className="cart-screen-overlay" onClick={onClose}>
+    <div className="cart-screen" onClick={e => e.stopPropagation()}>
+      <div className="cart-screen-header">
+        <div className="cart-screen-handle" />
+        <div className="cart-screen-title-row">
+          <h2>سلة المشتريات</h2>
+          <span className="cart-screen-count">{cartCount} منتج</span>
+        </div>
+        <button className="cart-screen-close" onClick={onClose}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div className="cart-screen-body">
+        {cart.length === 0 ? (
+          <div className="cart-screen-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <p>السلة فارغة</p>
+          </div>
+        ) : cart.map(item => (
+          <div key={item.id} className="cart-screen-item">
+            <img src={item.imageUrl} alt={item.name} className="cart-screen-item-img"
+              onError={(e) => { e.target.src = 'https://placehold.co/80x80/127443/FFFFFF?text=IMG'; }} />
+            <div className="cart-screen-item-info">
+              <div className="cart-screen-item-name">{item.name}</div>
+              <div className="cart-screen-item-price">{(item.currentPrice || item.price).toFixed(2)} ر.س</div>
+              <div className="cart-screen-item-controls">
+                <button className="cart-screen-qty circular" onClick={() => updateCartQty(item.id, -1)}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <span className="cart-screen-qty-value">{item.qty}</span>
+                <button className="cart-screen-qty circular" onClick={() => updateCartQty(item.id, 1)}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <button className="cart-screen-item-remove" onClick={() => removeFromCart(item.id)}>حذف</button>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
-      <div className="product-grid">
-        {products.map(product => (
-          <ProductCard key={product.id} product={product} addToCart={addToCart} />
-        ))}
-        {products.length === 0 && (
-          <div className="no-products"><h3>لا توجد منتجات مطابقة للبحث.</h3></div>
-        )}
+      <div className="cart-screen-footer">
+        <div className="cart-screen-total-row">
+          <span>المجموع</span>
+          <span className="cart-screen-total-price">{cartTotal.toFixed(2)} ر.س</span>
+        </div>
+        <button className="cart-screen-checkout-btn" disabled={cart.length === 0} onClick={onCheckout}>
+          تأكيد الطلب
+        </button>
       </div>
     </div>
   </div>
 ));
 
+/* ─── Home Tab ─── */
+const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCart, cartCount, setIsCartOpen }) => {
+  const [showBanner, setShowBanner] = useState(true);
+  return (
+    <div className="home-tab">
+      {showBanner && (
+        <div className="home-banner">
+          <div className="home-banner-bg" />
+          <div className="home-banner-content">
+            <div className="home-banner-text">
+              <h2>أسواق ثرا الشرق ون</h2>
+              <p>كل ما تحتاجه من السوبرماركت يوصلك لباب بيتك</p>
+            </div>
+            <button className="home-banner-dismiss" onClick={() => setShowBanner(false)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+      )}
+      <div className="home-section">
+        <div className="categories">
+          {categories.map(cat => (
+            <button key={cat} className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}>{cat}</button>
+          ))}
+        </div>
+        <div className="product-grid">
+          {products.map(product => (
+            <ProductCard key={product.id} product={product} addToCart={addToCart} />
+          ))}
+          {products.length === 0 && <div className="no-products"><p>لا توجد منتجات مطابقة للبحث.</p></div>}
+        </div>
+      </div>
+    </div>
+  );
+});
+
 /* ─── Orders Tab ─── */
 const OrdersTab = memo(({ orders }) => {
-  if (!orders.length) {
-    return (
-      <div className="tab-empty-state">
-        <span className="tab-empty-icon">📋</span>
-        <h3>لا توجد طلبات سابقة</h3>
-        <p>عند تقديم طلب جديد، ستظهر طلباتك هنا</p>
-        <Link to="/" className="btn" style={{ display: 'inline-block', marginTop: '1rem' }}>تسوق الآن</Link>
-      </div>
-    );
-  }
+  if (!orders.length) return (
+    <div className="empty-tab">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <h3>لا توجد طلبات سابقة</h3>
+      <p>عند تقديم طلب جديد، ستظهر طلباتك هنا</p>
+    </div>
+  );
   return (
     <div className="orders-tab">
       <h2 className="orders-tab-title">طلباتي</h2>
       {orders.map(order => (
-        <div key={order.id} className="order-card">
-          <div className="order-card-header">
+        <div key={order.id} className="order-card-mini">
+          <div className="order-card-mini-top">
             <div>
-              <strong>طلب #{order.id.slice(-6)}</strong>
-              <div className="order-card-date">{new Date(order.date).toLocaleDateString('ar-SA')}</div>
+              <div className="order-card-mini-id">طلب #{order.id.slice(-6)}</div>
+              <div className="order-card-mini-date">{new Date(order.date).toLocaleDateString('ar-SA')}</div>
             </div>
-            <span className={`order-status order-status-${order.status}`}>{order.status}</span>
+            <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>{order.status}</span>
           </div>
-          <div className="order-card-items">
-            {order.items?.map(item => (
-              <div key={item.id} className="order-card-item">
-                <span>{item.name} × {item.qty}</span>
-                <span>{(item.currentPrice * item.qty).toFixed(2)} ر.س</span>
-              </div>
-            ))}
+          <div className="order-card-mini-items">
+            {order.items?.slice(0, 3).map(item => <span key={item.id}>{item.name} ×{item.qty}</span>)}
+            {order.items?.length > 3 && <span className="order-card-mini-more">+{order.items.length - 3} أخرى</span>}
           </div>
-          <div className="order-card-footer">
-            <span>الإجمالي: <strong>{order.total.toFixed(2)} ر.س</strong></span>
-            <span className="order-card-payment">{order.paymentMethod === 'cod' ? 'الدفع عند الاستلام' : order.paymentMethod}</span>
-          </div>
+          <div className="order-card-mini-total"><strong>{order.total.toFixed(2)} ر.س</strong></div>
         </div>
       ))}
     </div>
@@ -246,87 +247,95 @@ const OrdersTab = memo(({ orders }) => {
 
 /* ─── Account Tab ─── */
 const AccountTab = memo(({ user, logout }) => {
-  if (!user) {
-    return (
-      <div className="tab-empty-state">
-        <span className="tab-empty-icon">👤</span>
-        <h3>تسجيل الدخول</h3>
-        <p>سجل دخولك لمتابعة طلباتك والمزيد</p>
-        <Link to="/login" className="btn" style={{ display: 'inline-block', marginTop: '1rem' }}>تسجيل الدخول</Link>
-        <br/>
-        <Link to="/register" style={{ display: 'inline-block', marginTop: '0.75rem', color: '#127443', fontSize: '0.9rem' }}>إنشاء حساب جديد</Link>
-      </div>
-    );
-  }
+  if (!user) return (
+    <div className="empty-tab">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <h3>تسجيل الدخول</h3>
+      <p>سجل دخولك لمتابعة طلباتك والمزيد</p>
+      <Link to="/login" className="btn" style={{ marginTop: '1rem' }}>تسجيل الدخول</Link>
+      <Link to="/register" className="btn btn-ghost" style={{ marginTop: '0.5rem' }}>إنشاء حساب جديد</Link>
+    </div>
+  );
   return (
     <div className="account-tab">
-      <div className="account-card">
-        <div className="account-avatar">{user.email?.charAt(0).toUpperCase()}</div>
-        <div className="account-info">
-          <strong>{user.email?.split('@')[0]}</strong>
-          <span>{user.email}</span>
-        </div>
+      <div className="account-profile">
+        <div className="account-avatar-lg">{user.email?.charAt(0).toUpperCase()}</div>
+        <div className="account-name">{user.email?.split('@')[0]}</div>
+        <div className="account-email">{user.email}</div>
       </div>
-      <button className="btn account-logout-btn" onClick={logout}>تسجيل الخروج</button>
+      <button className="account-logout-btn" onClick={logout}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        تسجيل الخروج
+      </button>
     </div>
   );
 });
 
 /* ─── Product Card ─── */
-const ProductCard = memo(({ product, addToCart }) => (
-  <div className="product-card">
-    <div className="product-img-wrapper">
-      {product.isOffer && <span className="offer-tag">عرض 🔥</span>}
-      <img src={product.imageUrl} alt={product.name} className="product-img" loading="lazy"
-        onError={(e) => { e.target.src = 'https://placehold.co/400x400/127443/FFFFFF?text=' + encodeURIComponent(product.name); }} />
-      <button className="add-quick-btn" onClick={() => addToCart(product)}>+</button>
-    </div>
-    <div className="product-info">
-      <div className="product-category">{product.category}</div>
-      <h3 className="product-title">{product.name}</h3>
-      <div className="product-footer">
-        <span className="product-price">
+const ProductCard = memo(({ product, addToCart }) => {
+  const [added, setAdded] = useState(false);
+  const handleAdd = () => { addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 600); };
+  return (
+    <div className="product-card-new">
+      <div className="product-card-new-img-wrap">
+        {product.isOffer && <span className="product-badge-offer">%</span>}
+        <img src={product.imageUrl} alt={product.name} className="product-card-new-img" loading="lazy"
+          onError={(e) => { e.target.src = 'https://placehold.co/400x400/f3f7f4/127443/FFFFFF?text='; }} />
+        <button className={`product-card-new-add ${added ? 'added' : ''}`} onClick={handleAdd}>
+          {added ? (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          ) : (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          )}
+        </button>
+      </div>
+      <div className="product-card-new-body">
+        <div className="product-card-new-cat">{product.category}</div>
+        <div className="product-card-new-name">{product.name}</div>
+        <div className="product-card-new-price">
           {product.isOffer ? (
-            <><span className="offer-old-price">{product.price.toFixed(2)}</span>{product.offerPrice.toFixed(2)}</>
-          ) : product.price.toFixed(2)} <small>ر.س</small>
-        </span>
+            <><span className="offer-old">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
+          ) : product.price.toFixed(2)}
+          <span className="product-card-new-currency"> ر.س</span>
+        </div>
       </div>
     </div>
-  </div>
-));
+  );
+});
 
 /* ─── Chat Widget ─── */
 const ChatWidget = memo(({ chatMessages, sendMessage }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [text, setText] = useState('');
-
-  const handleSend = () => {
-    if(!text.trim()) return;
-    sendMessage('customer', text);
-    setText('');
-  };
-
+  const send = () => { if (!text.trim()) return; sendMessage('customer', text); setText(''); };
   return (
     <div className="chat-widget">
-      <button className="chat-fab" onClick={() => setIsOpen(!isOpen)}>💬</button>
-      {isOpen && (
+      {open && (
         <div className="chat-window">
-          <div className="chat-header">تحدث معنا</div>
-          <div className="chat-body">
+          <div className="chat-win-header">
+            <span>تحدث معنا</span>
+            <button onClick={() => setOpen(false)}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div className="chat-win-body">
             {chatMessages.map(m => (
               <div key={m.id} className={`chat-bubble ${m.sender === 'customer' ? 'me' : 'them'}`}>
-                {m.text}
+                <div>{m.text}</div>
                 <div className="chat-time">{m.time}</div>
               </div>
             ))}
           </div>
-          <div className="chat-input-area">
+          <div className="chat-win-input">
             <input type="text" value={text} onChange={e => setText(e.target.value)}
-              onKeyDown={e => e.key==='Enter' && handleSend()} placeholder="اكتب رسالة..." />
-            <button onClick={handleSend}>إرسال</button>
+              onKeyDown={e => e.key === 'Enter' && send()} placeholder="اكتب رسالة..." />
+            <button onClick={send}>إرسال</button>
           </div>
         </div>
       )}
+      <button className="chat-fab" onClick={() => setOpen(!open)}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </button>
     </div>
   );
 });
@@ -334,107 +343,76 @@ const ChatWidget = memo(({ chatMessages, sendMessage }) => {
 /* ─── Khafji Map ─── */
 const KhafjiMap = memo(({ position, setPosition }) => {
   const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const markerRef = useRef(null);
-
+  const inst = useRef(null);
+  const marker = useRef(null);
   useEffect(() => {
-    if (mapInstanceRef.current) return;
-    const khafjiCenter = [28.4355, 48.4988];
-    const khafjiBounds = L.latLngBounds([28.35, 48.40], [28.50, 48.55]);
-    const map = L.map(mapRef.current, {
-      center: khafjiCenter, zoom: 13, maxBounds: khafjiBounds,
-      maxBoundsViscosity: 1.0, minZoom: 12
-    });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+    if (inst.current) return;
+    const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13,
+      maxBounds: L.latLngBounds([28.35, 48.40], [28.50, 48.55]), maxBoundsViscosity: 1, minZoom: 12 });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OSM' }).addTo(map);
     map.on('click', (e) => {
-      const { lat, lng } = e.latlng;
-      setPosition({ lat, lng });
-      if (markerRef.current) markerRef.current.setLatLng([lat, lng]);
-      else {
-        markerRef.current = L.marker([lat, lng], {
-          icon: L.icon({
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-            iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-            iconSize: [25, 41], iconAnchor: [12, 41]
-          })
-        }).addTo(map);
-      }
+      setPosition(e.latlng);
+      if (marker.current) marker.current.setLatLng([e.latlng.lat, e.latlng.lng]);
+      else marker.current = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
-    mapInstanceRef.current = map;
-    setTimeout(() => map.invalidateSize(), 400);
-    return () => { map.remove(); mapInstanceRef.current = null; markerRef.current = null; };
+    inst.current = map;
+    setTimeout(() => map.invalidateSize(), 300);
+    return () => { map.remove(); inst.current = null; marker.current = null; };
   }, []);
-
-  return <div ref={mapRef} className="khafji-map-inner" />;
+  return <div ref={mapRef} className="khafji-map" />;
 });
 
-/* ─── Checkout Modal ─── */
+/* ─── Checkout ─── */
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [position, setPosition] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('mada');
-  const deliveryFee = cartTotal >= 100 ? 0 : 15;
-
+  const fee = cartTotal >= 100 ? 0 : 15;
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
+    <div className="checkout-overlay" onClick={onClose}>
+      <div className="checkout-sheet" onClick={e => e.stopPropagation()}>
+        <div className="checkout-handle" />
+        <div className="checkout-head">
           <h2>إتمام الطلب</h2>
-          <button className="close-btn" onClick={onClose}>✕</button>
+          <button onClick={onClose}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
-        <div className="form-group">
-          <label>1. موقع التوصيل (الخفجي فقط)</label>
-          <p className="map-hint">الرجاء النقر على الخريطة لتحديد موقع بيتك بدقة:</p>
-          <div className={`map-container ${position ? 'map-container-placed' : 'map-container-empty'}`}>
-            <KhafjiMap position={position} setPosition={setPosition} />
+        <div className="checkout-body">
+          <div className="checkout-section">
+            <div className="checkout-section-title"><span className="checkout-num">1</span> موقع التوصيل</div>
+            <p className="checkout-hint">انقر على الخريطة لتحديد موقعك</p>
+            <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
+              <KhafjiMap position={position} setPosition={setPosition} />
+            </div>
+            {position && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
           </div>
-          {position && <div className="location-confirmed">✓ تم تحديد الموقع بنجاح</div>}
+          <div className="checkout-section">
+            <div className="checkout-section-title"><span className="checkout-num">2</span> طريقة الدفع</div>
+            <div className="checkout-payments">
+              {[
+                { id: 'mada', label: 'مدى', icon: '💳' },
+                { id: 'credit_card', label: 'بطاقة ائتمانية', icon: '💳' },
+                { id: 'apple_pay', label: 'Apple Pay', icon: '🍎' },
+                { id: 'bank_transfer', label: 'تحويل بنكي', icon: '🏦' },
+                { id: 'cod', label: 'الدفع عند الاستلام', icon: '💵' },
+              ].map(m => (
+                <button key={m.id} className={`checkout-pay-btn ${paymentMethod === m.id ? 'active' : ''}`}
+                  onClick={() => setPaymentMethod(m.id)}>
+                  <span className="checkout-pay-icon">{m.icon}</span>
+                  <span>{m.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="checkout-total-box">
+            <div className="checkout-total-row"><span>المجموع الفرعي</span><span>{cartTotal.toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row">{fee === 0 ? <span>رسوم التوصيل <span className="checkout-free">مجاناً</span></span> : <span>رسوم التوصيل</span>}<span>{fee === 0 ? '0' : fee.toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
+          </div>
+          <button className="checkout-confirm-btn" onClick={() => {
+            if (!position) return; placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod }); onClose();
+          }} disabled={!position}>تأكيد الطلب</button>
         </div>
-        <div className="form-group">
-          <label>2. طريقة الدفع</label>
-          <div className="payment-methods">
-            {[
-              {id: 'mada', name: 'مدى'}, {id: 'credit_card', name: 'بطاقة ائتمانية'},
-              {id: 'apple_pay', name: 'Apple Pay'}, {id: 'bank_transfer', name: 'تحويل بنكي'},
-              {id: 'cod', name: 'الدفع عند الاستلام'}
-            ].map(method => (
-              <div key={method.id}
-                className={`payment-method ${paymentMethod === method.id ? 'active' : ''}`}
-                onClick={() => setPaymentMethod(method.id)}>{method.name}</div>
-            ))}
-          </div>
-        </div>
-        {paymentMethod === 'bank_transfer' && (
-          <div className="payment-group">
-            <label>إرفاق إيصال التحويل</label>
-            <p className="payment-label">IBAN: SA12 3456 7890 1234 5678 90</p>
-            <input type="file" className="form-control" accept="image/*" />
-          </div>
-        )}
-        <div className="order-summary">
-          <div className="order-summary-row">
-            <span>المجموع الفرعي</span>
-            <span>{cartTotal.toFixed(2)} ر.س</span>
-          </div>
-          <div className={`order-summary-row ${deliveryFee === 0 ? 'delivery' : ''}`}>
-            <span>رسوم التوصيل {deliveryFee === 0 && '(مجاني فوق 100 ر.س)'}</span>
-            <span>{deliveryFee === 0 ? 'مجاناً' : `${deliveryFee.toFixed(2)} ر.س`}</span>
-          </div>
-          <div className="order-summary-total">
-            <span>الإجمالي المطلوب</span>
-            <span>{(cartTotal + deliveryFee).toFixed(2)} ر.س</span>
-          </div>
-        </div>
-        <button className="btn order-confirm-btn"
-          onClick={() => {
-            if(!position) return alert('الرجاء النقر على الخريطة لتحديد موقعك أولاً!');
-            placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod });
-            onClose();
-          }}>
-          تأكيد الطلب
-        </button>
       </div>
     </div>
   );
