@@ -90,7 +90,7 @@ export const mockProducts = [
     category: 'التسالي', 
     price: 7.00, 
     stock_quantity: 55, 
-    imageUrl: 'https://images.unsplash.com/photo-1600959908209-755f3e377e4e?w=400&q=80', 
+    imageUrl: 'https://placehold.co/400x400/f97316/FFFFFF?text=ليز', 
     unit: 'كيس' 
   },
   { 

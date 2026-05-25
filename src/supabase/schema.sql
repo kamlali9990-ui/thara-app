@@ -98,6 +98,6 @@ INSERT INTO products (name, category, price, offer_price, is_offer, image_url, s
   ('دجاج ساديا مجمد (1000 جرام)', 'اللحوم والدواجن', 17.50, NULL, FALSE, 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80', 45, 'حبة'),
   ('بيض الوطنية (30 حبة)', 'الألبان', 19.00, NULL, FALSE, 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&q=80', 25, 'طبق'),
   ('خبز لوزين أبيض شرائح', 'المخبوزات', 4.00, NULL, FALSE, 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', 35, 'كيس'),
-  ('بطاطس ليز بالملح (170 جرام)', 'التسالي', 7.00, NULL, FALSE, 'https://images.unsplash.com/photo-1566478989037-e923e51b594c?w=400&q=80', 55, 'كيس'),
+  ('بطاطس ليز بالملح (170 جرام)', 'التسالي', 7.00, NULL, FALSE, 'https://placehold.co/400x400/f97316/FFFFFF?text=ليز', 55, 'كيس'),
   ('جبنة كرافت تشيدر علب', 'الألبان', 6.50, NULL, FALSE, 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80', 50, 'علبة'),
   ('شاي ليبتون العلامة الصفراء (100 كيس)', 'المشروبات', 16.00, NULL, FALSE, 'https://images.unsplash.com/photo-1594631252845-29fc4cc8cbf9?w=400&q=80', 60, 'علبة');
