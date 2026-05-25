@@ -220,13 +220,300 @@ h1, h2, h3 { color: var(--text-main); }
 }
 
 /* ==================== HEADER ==================== */
-.header-tagline {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.7);
-  font-weight: 500;
-  display: block;
-  margin-top: -2px;
+/* ==================== APP HEADER (Web App) ==================== */
+.app-header {
+  background: var(--primary);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: white;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
 }
+.app-header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+}
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.app-logo-img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: white;
+  padding: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.app-title {
+  font-weight: 800;
+  font-size: 1rem;
+  line-height: 1.2;
+}
+.app-subtitle {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.7);
+}
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.app-user-badge {
+  font-size: 0.75rem;
+  background: rgba(255,255,255,0.15);
+  padding: 0.2rem 0.6rem;
+  border-radius: 99px;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.app-login-link {
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.app-cart-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  position: relative;
+  padding: 0.25rem;
+}
+.app-cart-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  background: var(--secondary);
+  color: white;
+  font-size: 0.6rem;
+  font-weight: 800;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.app-search {
+  padding: 0 1rem 0.6rem;
+}
+.app-search-input {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 99px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  outline: none;
+  transition: background 0.2s;
+}
+.app-search-input::placeholder { color: rgba(255,255,255,0.6); }
+.app-search-input:focus { background: rgba(255,255,255,0.3); }
+
+/* ==================== BOTTOM TAB BAR ==================== */
+.app-tabbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  display: flex;
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.app-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0 0.4rem;
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color 0.2s;
+  gap: 0.1rem;
+}
+.app-tab.active {
+  color: var(--primary);
+}
+.app-tab-icon {
+  font-size: 1.2rem;
+}
+.app-tab-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+/* ==================== APP CONTENT ==================== */
+.app-content {
+  min-height: calc(100vh - 110px);
+  padding-bottom: 60px;
+}
+
+/* ==================== ORDERS TAB ==================== */
+.orders-tab {
+  padding: 1rem;
+}
+.orders-tab-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+.order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 0.75rem;
+}
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.order-card-date {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 0.15rem;
+}
+.order-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+}
+.order-status-جديد { background: #dbeafe; color: #1d4ed8; }
+.order-status-قيد_التحضير { background: #fef3c7; color: #d97706; }
+.order-status-في_الطريق { background: #d1fae5; color: #059669; }
+.order-status-مكتمل { background: #d1fae5; color: #059669; }
+.order-status-ملغي { background: #fee2e2; color: #dc2626; }
+.order-card-items {
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.order-card-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  padding: 0.15rem 0;
+}
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.5rem;
+}
+.order-card-payment {
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+
+/* ==================== ACCOUNT TAB ==================== */
+.account-tab {
+  padding: 1.5rem 1rem;
+}
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: white;
+  padding: 1.25rem;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 1.5rem;
+}
+.account-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.account-info {
+  display: flex;
+  flex-direction: column;
+}
+.account-info strong {
+  font-size: 1rem;
+}
+.account-info span {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+.account-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+.account-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 500;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: transform 0.2s;
+}
+.account-menu-item:active {
+  transform: scale(0.98);
+}
+.account-logout-btn {
+  width: 100%;
+  background: #ef4444;
+}
+.account-logout-btn:hover {
+  background: #dc2626;
+}
+
+/* ==================== TAB EMPTY STATE ==================== */
+.tab-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-light);
+}
+.tab-empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+.tab-empty-state h3 {
+  margin-bottom: 0.5rem;
+  color: var(--text-main);
+}
+
+/* ==================== OLD HEADER (legacy) ==================== */
 
 .btn {
   background: var(--secondary);
@@ -563,6 +850,10 @@ header {
 }
 
 /* Cart Overlay */
+.app-wrapper {
+  background: var(--bg-color);
+}
+
 .cart-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -570,6 +861,11 @@ header {
   z-index: 200;
   display: flex;
   justify-content: flex-start;
+}
+@media (max-width: 480px) {
+  .cart-overlay { justify-content: flex-end; }
+  .cart-drawer { width: 100%; max-width: 100%; }
+  .cart-drawer .cart-header { padding: 1rem; }
 }
 .cart-drawer {
   background: var(--surface);
@@ -720,9 +1016,27 @@ header {
   to { opacity: 1; transform: scale(1); }
 }
 
-.checkout-title {
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+.modal-header h2 {
   color: var(--primary);
+}
+.modal-header .close-btn {
+  background: #f1f5f9;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
 }
 .map-hint {
   font-size: 0.85rem;
