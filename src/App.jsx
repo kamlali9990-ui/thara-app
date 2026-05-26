@@ -626,14 +626,14 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">2</span> رقم الجوال المستلم</div>
             <input className="checkout-phone-input" type="tel" dir="ltr" value="0555555555" readOnly />
-            <div className="checkout-bank-info">
-              <div className="checkout-bank-item">
-                <span className="checkout-bank-label">📱 STC Pay</span>
-                <span className="checkout-bank-value" dir="ltr">0555555555</span>
+            <div className="checkout-payment-info">
+              <div className="checkout-info-row">
+                <span>📱 STC Pay <span className="checkout-info-dot">•</span> 🔄 طرق 360</span>
+                <span className="checkout-info-value" dir="ltr">0555555555</span>
               </div>
-              <div className="checkout-bank-item">
-                <span className="checkout-bank-label">🔄 طرق 360</span>
-                <span className="checkout-bank-value" dir="ltr">SA1234567890123456789012</span>
+              <div className="checkout-info-row">
+                <span>🏦 تحويل بنكي</span>
+                <span className="checkout-info-value checkout-info-iban" dir="ltr">SA1234567890123456789012</span>
               </div>
             </div>
           </div>

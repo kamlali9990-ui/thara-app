@@ -3014,14 +3014,16 @@ header {
 }
 .checkout-phone-input:focus { border-color: var(--primary); }
 .checkout-phone-input[readonly] { background: #f8fafc; color: var(--text-main); cursor: default; }
-.checkout-bank-info { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem; }
-.checkout-bank-item {
+.checkout-payment-info { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem; }
+.checkout-info-row {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0.5rem 0.75rem; background: #f8fafc; border-radius: 10px;
+  padding: 0.45rem 0.75rem; background: #f8fafc; border-radius: 10px;
+  font-size: 0.72rem; font-weight: 600; color: var(--text-secondary);
   border: 1px solid rgba(0,0,0,0.04);
 }
-.checkout-bank-label { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); }
-.checkout-bank-value { font-size: 0.8rem; font-weight: 700; color: var(--text-main); letter-spacing: 0.05em; }
+.checkout-info-value { font-size: 0.78rem; font-weight: 700; color: var(--text-main); letter-spacing: 0.03em; }
+.checkout-info-iban { font-size: 0.7rem; font-weight: 600; direction: ltr; }
+.checkout-info-dot { color: #cbd5e1; margin: 0 0.2rem; }
 .checkout-total-box {
   background: white; border-radius: 14px; padding: 1rem; margin-bottom: 0.6rem;
 }
