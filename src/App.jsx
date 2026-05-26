@@ -345,6 +345,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const mapRef = useRef(null);
   const inst = useRef(null);
   const marker = useRef(null);
+  const autoLocated = useRef(false);
   useEffect(() => {
     if (inst.current) return;
     const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13,
@@ -361,7 +362,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     return () => { map.remove(); inst.current = null; marker.current = null; };
   }, []);
   const locate = useCallback(() => {
-    if (!navigator.geolocation) { alert('الموقع غير متاح'); return; }
+    if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const ll = [pos.coords.latitude, pos.coords.longitude];
@@ -373,6 +374,12 @@ const KhafjiMap = memo(({ position, setPosition }) => {
       () => {},
       { enableHighAccuracy: true, timeout: 10000 }
     );
+  }, []);
+  useEffect(() => {
+    if (autoLocated.current) return;
+    autoLocated.current = true;
+    const t = setTimeout(locate, 500);
+    return () => clearTimeout(t);
   }, []);
   return (
     <div className="khafji-map-wrap">
