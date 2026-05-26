@@ -48,10 +48,6 @@ jobs:
           </html>
           EOF
 
-      - uses: actions/configure-pages@v4
-        with:
-          static_site_generator: vite
-
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
