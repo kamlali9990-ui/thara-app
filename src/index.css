@@ -1915,19 +1915,19 @@ header {
 /* ─── Bottom Tab Bar ─── */
 .app-tabbar {
   position: fixed; bottom: 0; left: 0; right: 0;
-  background: white; border-top: 1px solid #e8ecf0;
-  display: flex; z-index: 100;
+  background: var(--primary); border-top: none;
+  display: flex; z-index: 100; padding: 0.25rem 0;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 .app-tab {
   flex: 1; display: flex; flex-direction: column; align-items: center;
-  padding: 0.4rem 0 0.3rem; background: none; border: none; cursor: pointer;
-  color: #98a2b3; font-family: inherit; transition: color 0.2s; gap: 0.1rem;
+  padding: 0.2rem 0; background: none; border: none; cursor: pointer;
+  color: rgba(255,255,255,0.55); font-family: inherit; transition: color 0.2s; gap: 0.05rem;
 }
-.app-tab.active { color: var(--primary); }
+.app-tab.active { color: white; }
 .app-tab svg { transition: all 0.2s; }
 .app-tab.active svg { stroke-width: 2.5; }
-.app-tab-label { font-size: 0.6rem; font-weight: 600; }
+.app-tab-label { font-size: 0.5rem; font-weight: 600; }
 
 /* ─── Content area with slide transitions ─── */
 .app-content {
@@ -1988,17 +1988,17 @@ header {
 .category-chip:active { transform: scale(0.92); }
 
 /* ─── Product Grid ─── */
-.product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-top: 0.75rem; }
+.product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 0.6rem; }
 .no-products { grid-column: 1 / -1; text-align: center; color: var(--text-light); padding: 2rem; }
 
 /* ─── iOS Product Card ─── */
 .product-card-new {
-  background: white; border-radius: 16px; overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  background: white; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .product-card-new:active { transform: scale(0.96); }
 .product-card-new-img-wrap {
-  position: relative; width: 100%; padding-top: 72%; overflow: hidden;
+  position: relative; width: 100%; padding-top: 60%; overflow: hidden;
   background: #f8f8fa;
 }
 .product-card-new-img {
@@ -2013,24 +2013,24 @@ header {
   justify-content: center; font-size: 0.6rem; font-weight: 800;
 }
 .product-card-new-add {
-  position: absolute; bottom: 0.5rem; left: 0.5rem; z-index: 2;
-  width: 30px; height: 30px; border-radius: 50%; border: none;
+  position: absolute; bottom: 0.4rem; left: 0.4rem; z-index: 2;
+  width: 26px; height: 26px; border-radius: 50%; border: none;
   background: var(--primary); color: white; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 3px 10px rgba(18,116,67,0.35); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(18,116,67,0.3); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .product-card-new-add:active { transform: scale(0.85); }
 .product-card-new-add.added { background: #34c759; }
-.product-card-new-body { padding: 0.6rem; }
-.product-card-new-cat { font-size: 0.55rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.1rem; }
+.product-card-new-body { padding: 0.45rem; }
+.product-card-new-cat { font-size: 0.5rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.05rem; }
 .product-card-new-name {
-  font-size: 0.8rem; font-weight: 600; color: var(--text-main);
+  font-size: 0.72rem; font-weight: 600; color: var(--text-main);
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  margin-bottom: 0.3rem; line-height: 1.35;
+  margin-bottom: 0.2rem; line-height: 1.3;
 }
-.product-card-new-price { font-size: 0.85rem; font-weight: 700; color: var(--primary); }
-.product-card-new-currency { font-size: 0.65rem; font-weight: 500; }
-.offer-old { text-decoration: line-through; color: var(--text-light); font-weight: 400; font-size: 0.65rem; margin-left: 0.3rem; }
+.product-card-new-price { font-size: 0.75rem; font-weight: 700; color: var(--primary); }
+.product-card-new-currency { font-size: 0.55rem; font-weight: 500; }
+.offer-old { text-decoration: line-through; color: var(--text-light); font-weight: 400; font-size: 0.55rem; margin-left: 0.25rem; }
 
 /* ─── iOS Cart Screen ─── */
 .cart-screen-overlay {
