@@ -15,7 +15,8 @@
   --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
   --blur-bg: rgba(255,255,255,0.72);
   --blur-header: rgba(18,116,67,0.92);
-  --font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui, sans-serif;
+  --font-family: 'Cairo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-display: 'IBM Plex Sans Arabic', 'Cairo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 }
 
 * {
@@ -342,8 +343,8 @@ h3 { font-size: 1.1rem; }
   gap: 0.15rem;
 }
 .install-title {
-  color: #127443; font-size: 1.2rem; font-weight: 800; margin-bottom: 0;
-  text-align: right;
+  color: #127443; font-size: 1.2rem; font-weight: 700; margin-bottom: 0;
+  text-align: right; font-family: var(--font-display);
 }
 .install-subtitle {
   color: #64748b; font-size: 0.8rem; margin-bottom: 0;
@@ -746,9 +747,10 @@ header {
 .header-title {
   font-size: 1.15rem;
   margin: 0;
-  font-weight: 800;
+  font-weight: 700;
   color: white;
   line-height: 1.2;
+  font-family: var(--font-display);
 }
 
 .header-actions {
@@ -1890,6 +1892,7 @@ header {
 .admin-section-title {
   margin-bottom: 1.5rem;
   color: var(--text-main);
+  font-family: var(--font-display);
 }
 
 /* ==================== Khafji Map ==================== */
@@ -2281,8 +2284,9 @@ header {
 }
 .home-banner-card-text h2 {
   color: white;
+  font-family: var(--font-display);
   font-size: 0.85rem;
-  font-weight: 900;
+  font-weight: 700;
   margin: 0 0 0.1rem;
   text-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
