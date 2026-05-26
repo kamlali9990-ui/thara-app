@@ -2481,7 +2481,7 @@ header {
 .mini-card-img-wrap {
   position: relative;
   width: 100%;
-  padding-top: 65%;
+  padding-top: 50%;
   overflow: hidden;
   background: #f8f8fa;
   flex-shrink: 0;
@@ -2542,11 +2542,11 @@ header {
   animation: addBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .mini-card-body {
-  padding: 0.35rem 0.4rem 0.45rem;
+  padding: 0.4rem 0.45rem 0.5rem;
 }
 .mini-card-name {
-  font-size: 0.65rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--text-main);
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2562,7 +2562,7 @@ header {
   gap: 0.25rem;
 }
 .mini-card-price {
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #bf360c;
 }
@@ -2674,22 +2674,24 @@ header {
   flex-direction: column;
 }
 .products-horizontal-scroll .product-card-new-img-wrap {
-  padding-top: 65%;
+  padding-top: 50%;
   flex-shrink: 0;
 }
 .products-horizontal-scroll .product-card-new-body {
-  padding: 0.35rem 0.4rem 0.4rem;
+  padding: 0.4rem 0.45rem 0.45rem;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 .products-horizontal-scroll .product-card-new-name {
-  font-size: 0.65rem;
-  margin-bottom: 0.1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
 }
 .products-horizontal-scroll .product-card-new-price {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 .products-horizontal-scroll .product-card-new-cat {
   display: none;
