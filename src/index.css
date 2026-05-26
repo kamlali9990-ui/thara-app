@@ -2384,6 +2384,10 @@ header {
   border: 2px solid var(--primary) !important;
   background: #fafdfb !important;
 }
+.products-list-card {
+  max-height: 320px !important;
+  min-height: 260px !important;
+}
 .categories-card .section-card-header .section-card-title,
 .products-list-card .section-card-header .section-card-title {
   color: var(--primary);
@@ -2626,7 +2630,7 @@ header {
 /* ─── Products Horizontal Scroll ─── */
 .products-horizontal-scroll {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.7rem;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0.1rem 0;
@@ -2638,40 +2642,40 @@ header {
 }
 .products-horizontal-scroll::-webkit-scrollbar { display: none; }
 .products-horizontal-scroll .product-card-new {
-  min-width: 120px;
-  max-width: 120px;
+  min-width: 150px;
+  max-width: 150px;
   flex-shrink: 0;
   scroll-snap-align: start;
-  border-radius: 14px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
 }
 .products-horizontal-scroll .product-card-new-img-wrap {
-  padding-top: 60%;
+  padding-top: 70%;
   flex-shrink: 0;
 }
 .products-horizontal-scroll .product-card-new-body {
-  padding: 0.3rem 0.35rem 0.35rem;
+  padding: 0.45rem 0.5rem 0.5rem;
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 .products-horizontal-scroll .product-card-new-name {
-  font-size: 0.6rem;
-  margin-bottom: 0.1rem;
+  font-size: 0.72rem;
+  margin-bottom: 0.15rem;
 }
 .products-horizontal-scroll .product-card-new-price {
-  font-size: 0.7rem;
+  font-size: 0.8rem;
 }
 .products-horizontal-scroll .product-card-new-cat {
   display: none;
 }
 .products-horizontal-scroll .product-card-new-add {
-  width: 22px;
-  height: 22px;
-  bottom: 0.25rem;
-  left: 0.25rem;
+  width: 26px;
+  height: 26px;
+  bottom: 0.35rem;
+  left: 0.35rem;
 }
 .products-horizontal-scroll .no-products-card {
   min-width: 100%;
