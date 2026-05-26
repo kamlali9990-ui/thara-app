@@ -2,48 +2,33 @@ const { Jimp } = require('jimp');
 const path = require('path');
 
 const LOGO_PATH = path.resolve(__dirname, '..', 'public', 'LOGO.jpg');
-const GREEN = 0xFF127443;
+const DARK_GREEN = 0xFF0A5C34;
 const GOLD = 0xFFD4A017;
 const SIZES = [
-  { size: 192, border: 8, out: path.resolve(__dirname, '..', 'public', 'icon-192.png') },
-  { size: 512, border: 20, out: path.resolve(__dirname, '..', 'public', 'icon-512.png') },
+  { size: 192, border: 10, out: path.resolve(__dirname, '..', 'public', 'icon-192.png') },
+  { size: 512, border: 26, out: path.resolve(__dirname, '..', 'public', 'icon-512.png') },
 ];
 
 async function main() {
   const logo = await Jimp.read(LOGO_PATH);
 
   for (const { size, border, out } of SIZES) {
-    // Gold background
+    // Gold background (becomes the border)
     const icon = new Jimp({ width: size, height: size, color: GOLD });
 
-    // Green inner square
+    // Dark green inner square
     const innerSize = size - border * 2;
-    const greenInner = new Jimp({ width: innerSize, height: innerSize, color: GREEN });
+    const greenInner = new Jimp({ width: innerSize, height: innerSize, color: DARK_GREEN });
 
-    // Logo on green
-    const safeSize = Math.round(innerSize * 0.82);
+    // Logo centered on green
+    const safeSize = Math.round(innerSize * 0.8);
     const logoResized = logo.clone().contain({ w: safeSize, h: safeSize });
     const lx = Math.round((innerSize - logoResized.bitmap.width) / 2);
     const ly = Math.round((innerSize - logoResized.bitmap.height) / 2);
     greenInner.composite(logoResized, lx, ly);
 
-    // Composite green+logo onto gold
+    // Place green+logo onto gold frame
     icon.composite(greenInner, border, border);
-
-    // Shiny gold highlight: lighter overlay on top-left edge
-    const hl = new Jimp({ width: size, height: size, color: 0x00000000 });
-    const hlW = Math.max(2, Math.round(border * 0.45));
-    for (let y = 0; y < size; y++) {
-      for (let x = 0; x < size; x++) {
-        const dT = y, dL = x, dB = size - 1 - y, dR = size - 1 - x;
-        const inBorder = dT < border || dL < border || dB < border || dR < border;
-        if (!inBorder) continue;
-        const isHighlight = (dT < hlW && dL < border) || (dL < hlW && dT < border);
-        if (isHighlight) {
-          icon.setPixelColor(0x66FFF8DC, x, y);
-        }
-      }
-    }
 
     await icon.write(out);
     console.log(`Created ${size}x${size}: ${out}`);
