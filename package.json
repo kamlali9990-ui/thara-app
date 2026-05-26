@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",
+    "jimp": "^1.6.1",
     "leaflet": "^1.9.4",
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
