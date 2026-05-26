@@ -623,7 +623,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             {position && !outside && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
             {outside && <div className="checkout-outside">⚠️ التوصيل فقط داخل مدينة الخفجي</div>}
           </div>
-          {['stc', 'barq'].includes(paymentMethod) && (
+          {['stc', 'barq', '360'].includes(paymentMethod) && (
             <div className="checkout-section">
               <div className="checkout-section-title"><span className="checkout-num">2</span> رقم الجوال المستلم للتحويل</div>
               <input className="checkout-phone-input" type="tel" dir="ltr" value="0555555555" readOnly />
@@ -636,12 +636,13 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             </div>
           )}
           <div className="checkout-section">
-            <div className="checkout-section-title"><span className="checkout-num">{['stc', 'barq', 'bank_transfer'].includes(paymentMethod) ? '3' : '2'}</span> طريقة الدفع</div>
+            <div className="checkout-section-title"><span className="checkout-num">{['stc', 'barq', '360', 'bank_transfer'].includes(paymentMethod) ? '3' : '2'}</span> طريقة الدفع</div>
             <div className="checkout-payments">
               {[
                 { id: 'mada', label: 'مدى', icon: '💳' },
                 { id: 'stc', label: 'STC Pay', icon: '📱' },
                 { id: 'barq', label: 'بنك برق', icon: '💳' },
+                { id: '360', label: 'بنك 360', icon: '🔄' },
                 { id: 'bank_transfer', label: 'تحويل بنكي', icon: '🏦' },
                 { id: 'cod', label: 'الدفع عند الاستلام', icon: '💵' },
               ].map(m => (
