@@ -1848,7 +1848,6 @@ header {
   gap: 0.5rem;
 }
 
-}
 @keyframes splashOut { to { opacity: 0; visibility: hidden; } }
 .splash-content { text-align: center; }
 .splash-logo {

@@ -1,116 +1,949 @@
 export const mockProducts = [
-  { 
-    id: '1', 
-    name: 'أرز مزة بسمتي أبو كاس (5 كجم)', 
-    category: 'المؤن', 
-    price: 40.00, 
-    stock_quantity: 50, 
-    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80', 
+  // ========== المؤن (Pantry Staples) ==========
+  {
+    id: '1',
+    name: 'أرز مزة بسمتي أبو كاس (5 كجم)',
+    category: 'المؤن',
+    price: 40.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
     unit: 'كيس',
     isOffer: true,
     offerPrice: 32.00
   },
-  { 
-    id: '2', 
-    name: 'سمن نباتي مازولا (2 لتر)', 
-    category: 'المؤن', 
-    price: 25.00, 
-    stock_quantity: 30, 
-    imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80', 
-    unit: 'علبة' 
+  {
+    id: '2',
+    name: 'سمن نباتي مازولا (2 لتر)',
+    category: 'المؤن',
+    price: 25.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80',
+    unit: 'علبة'
   },
-  { 
-    id: '3', 
-    name: 'زيت ذرة عافية (1.5 لتر)', 
-    category: 'المؤن', 
-    price: 18.00, 
-    stock_quantity: 60, 
-    imageUrl: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80', 
-    unit: 'حبة' 
+  {
+    id: '3',
+    name: 'زيت ذرة عافية (1.5 لتر)',
+    category: 'المؤن',
+    price: 18.00,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
+    unit: 'حبة'
   },
-  { 
-    id: '4', 
-    name: 'حليب المراعي طازج (2 لتر)', 
-    category: 'الألبان', 
-    price: 11.00, 
-    stock_quantity: 40, 
-    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80', 
-    unit: 'حبة' 
+  {
+    id: '13',
+    name: 'زيت زيتون بكر عافية (500 مل)',
+    category: 'المؤن',
+    price: 22.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80',
+    unit: 'زجاجة'
   },
-  { 
-    id: '5', 
-    name: 'بيبسي كولا (6 × 330 مل)', 
-    category: 'المشروبات', 
-    price: 15.00, 
-    stock_quantity: 100, 
-    imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80', 
+  {
+    id: '14',
+    name: 'دقيق أبيض فاخر الوطنية (2 كجم)',
+    category: 'المؤن',
+    price: 7.50,
+    stock_quantity: 70,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '15',
+    name: 'سكر أبيض ناعم السكر (2 كجم)',
+    category: 'المؤن',
+    price: 6.00,
+    stock_quantity: 80,
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '16',
+    name: 'طحينة سمسم حلواني (500 جرام)',
+    category: 'المؤن',
+    price: 12.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1590779033106-3040a52f1646?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '17',
+    name: 'عسل نحل جبلي شهي (500 جرام)',
+    category: 'المؤن',
+    price: 45.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&q=80',
+    unit: 'علبة',
+    isOffer: true,
+    offerPrice: 38.00
+  },
+  {
+    id: '18',
+    name: 'حليب نستله المكثف المحلى (397 جرام)',
+    category: 'المؤن',
+    price: 8.00,
+    stock_quantity: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '19',
+    name: 'زعتر فلسطيني خلطة (200 جرام)',
+    category: 'المؤن',
+    price: 5.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '20',
+    name: 'بهارات مشكلة أبو جبل (150 جرام)',
+    category: 'المؤن',
+    price: 6.00,
+    stock_quantity: 55,
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '21',
+    name: 'معلقة هريسة سارينة (250 جرام)',
+    category: 'المؤن',
+    price: 4.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1590779033106-3040a52f1646?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '22',
+    name: 'خل أبيض (1 لتر)',
+    category: 'المؤن',
+    price: 3.50,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '23',
+    name: 'مربى فراولة سارينة (350 جرام)',
+    category: 'المؤن',
+    price: 7.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '24',
+    name: 'شوربة دجاج ماجي (24 مكعب)',
+    category: 'المؤن',
+    price: 5.50,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1590779033106-3040a52f1646?w=400&q=80',
+    unit: 'علبة'
+  },
+
+  // ========== الألبان (Dairy) ==========
+  {
+    id: '4',
+    name: 'حليب المراعي طازج (2 لتر)',
+    category: 'الألبان',
+    price: 11.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '25',
+    name: 'حليب الصافي طازج (1 لتر)',
+    category: 'الألبان',
+    price: 6.50,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '26',
+    name: 'روب المراعي طازج (2 كجم)',
+    category: 'الألبان',
+    price: 14.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '27',
+    name: 'زبادي المراعي سادة (600 جرام)',
+    category: 'الألبان',
+    price: 5.50,
+    stock_quantity: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1571210862729-78a52c7a24bc?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '28',
+    name: 'زبادي المراعي فراولة (600 جرام)',
+    category: 'الألبان',
+    price: 6.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1571210862729-78a52c7a24bc?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '29',
+    name: 'جبنة بيضاء المراعي (500 جرام)',
+    category: 'الألبان',
+    price: 10.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '30',
+    name: 'جبنة كرافت تشيدر شرائح (200 جرام)',
+    category: 'الألبان',
+    price: 8.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '11',
+    name: 'جبنة كرافت تشيدر علب',
+    category: 'الألبان',
+    price: 6.50,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '31',
+    name: 'جبنة مثلثات المراعي (12 حبة)',
+    category: 'الألبان',
+    price: 5.00,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '32',
+    name: 'لبنة المراعي (500 جرام)',
+    category: 'الألبان',
+    price: 10.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '8',
+    name: 'بيض الوطنية (30 حبة)',
+    category: 'الألبان',
+    price: 19.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&q=80',
+    unit: 'طبق'
+  },
+  {
+    id: '33',
+    name: 'زبدة لورباك غير مملحة (200 جرام)',
+    category: 'الألبان',
+    price: 14.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1571210862729-78a52c7a24bc?w=400&q=80',
+    unit: 'علبة',
+    isOffer: true,
+    offerPrice: 11.00
+  },
+
+  // ========== المشروبات (Beverages) ==========
+  {
+    id: '5',
+    name: 'بيبسي كولا (6 × 330 مل)',
+    category: 'المشروبات',
+    price: 15.00,
+    stock_quantity: 100,
+    imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80',
     unit: 'كرتون',
     isOffer: true,
     offerPrice: 12.00
   },
-  { 
-    id: '6', 
-    name: 'مياه نوفا (40 × 330 مل)', 
-    category: 'المشروبات', 
-    price: 18.00, 
-    stock_quantity: 80, 
-    imageUrl: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&q=80', 
-    unit: 'كرتون' 
+  {
+    id: '6',
+    name: 'مياه نوفا (40 × 330 مل)',
+    category: 'المشروبات',
+    price: 18.00,
+    stock_quantity: 80,
+    imageUrl: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&q=80',
+    unit: 'كرتون'
   },
-  { 
-    id: '7', 
-    name: 'دجاج ساديا مجمد (1000 جرام)', 
-    category: 'اللحوم والدواجن', 
-    price: 17.50, 
-    stock_quantity: 45, 
-    imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80', 
-    unit: 'حبة' 
+  {
+    id: '34',
+    name: 'مياه بيرين (12 × 330 مل)',
+    category: 'المشروبات',
+    price: 8.00,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&q=80',
+    unit: 'كرتون'
   },
-  { 
-    id: '8', 
-    name: 'بيض الوطنية (30 حبة)', 
-    category: 'الألبان', 
-    price: 19.00, 
-    stock_quantity: 25, 
-    imageUrl: 'https://images.unsplash.com/photo-1506976785307-8732e854ad03?w=400&q=80', 
-    unit: 'طبق' 
+  {
+    id: '35',
+    name: 'مياه نوفا (12 × 1.5 لتر)',
+    category: 'المشروبات',
+    price: 14.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1523362628745-0c100150b504?w=400&q=80',
+    unit: 'كرتون'
   },
-  { 
-    id: '9', 
-    name: 'خبز لوزين أبيض شرائح', 
-    category: 'المخبوزات', 
-    price: 4.00, 
-    stock_quantity: 35, 
-    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80', 
-    unit: 'كيس' 
+  {
+    id: '36',
+    name: 'كوكاكولا (6 × 330 مل)',
+    category: 'المشروبات',
+    price: 15.00,
+    stock_quantity: 90,
+    imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80',
+    unit: 'كرتون'
   },
-  { 
-    id: '10', 
-    name: 'بطاطس ليز بالملح (170 جرام)', 
-    category: 'التسالي', 
-    price: 7.00, 
-    stock_quantity: 55, 
-    imageUrl: 'https://placehold.co/400x400/f97316/FFFFFF?text=ليز', 
-    unit: 'كيس' 
+  {
+    id: '37',
+    name: 'سبرايت (6 × 330 مل)',
+    category: 'المشروبات',
+    price: 15.00,
+    stock_quantity: 70,
+    imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=400&q=80',
+    unit: 'كرتون'
   },
-  { 
-    id: '11', 
-    name: 'جبنة كرافت تشيدر علب', 
-    category: 'الألبان', 
-    price: 6.50, 
-    stock_quantity: 50, 
-    imageUrl: 'https://images.unsplash.com/photo-1618164436241-4473940d1f5c?w=400&q=80', 
-    unit: 'علبة' 
+  {
+    id: '38',
+    name: 'عصير تانج برتقال (450 جرام)',
+    category: 'المشروبات',
+    price: 8.50,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1622597467836-f3285f2131b0?w=400&q=80',
+    unit: 'علبة'
   },
-  { 
-    id: '12', 
-    name: 'شاي ليبتون العلامة الصفراء (100 كيس)', 
-    category: 'المشروبات', 
-    price: 16.00, 
-    stock_quantity: 60, 
-    imageUrl: 'https://placehold.co/400x400/127443/FFFFFF?text=شاي', 
-    unit: 'علبة' 
+  {
+    id: '39',
+    name: 'عصير المراعي برتقال طازج (1 لتر)',
+    category: 'المشروبات',
+    price: 9.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1622597467836-f3285f2131b0?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '40',
+    name: 'عصير راني نكتار مانجو (1 لتر)',
+    category: 'المشروبات',
+    price: 9.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1622597467836-f3285f2131b0?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '12',
+    name: 'شاي ليبتون العلامة الصفراء (100 كيس)',
+    category: 'المشروبات',
+    price: 16.00,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '41',
+    name: 'شاي ربيع الذهبي (100 كيس)',
+    category: 'المشروبات',
+    price: 14.00,
+    stock_quantity: 55,
+    imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '42',
+    name: 'قهوة نسكافيه كلاسيك (200 جرام)',
+    category: 'المشروبات',
+    price: 18.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '43',
+    name: 'قهوة عربية خولاني (250 جرام)',
+    category: 'المشروبات',
+    price: 12.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '44',
+    name: 'هوت شوكلت نستله (300 جرام)',
+    category: 'المشروبات',
+    price: 12.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1542990253-0d0f5be5f0ed?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '45',
+    name: 'حليب بودرة المراعي (2 كجم)',
+    category: 'المشروبات',
+    price: 32.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=400&q=80',
+    unit: 'علبة'
+  },
+
+  // ========== اللحوم والدواجن (Meat & Poultry) ==========
+  {
+    id: '7',
+    name: 'دجاج ساديا مجمد (1000 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 17.50,
+    stock_quantity: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '46',
+    name: 'دجاج ساديا مجمد (1200 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 20.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '47',
+    name: 'دجاج ساديا مجمد (900 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 15.50,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '48',
+    name: 'أجنحة دجاج ساديا مجمدة (500 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 10.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '49',
+    name: 'كفتة لحم بقر طازجة (500 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 22.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '50',
+    name: 'لحم مفروم بقر طازج (500 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 24.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '51',
+    name: 'كباب لحم غنم طازج (500 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 38.00,
+    stock_quantity: 15,
+    imageUrl: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=80',
+    unit: 'علبة',
+    isOffer: true,
+    offerPrice: 32.00
+  },
+  {
+    id: '52',
+    name: 'برجر بقر ساديا (6 حبات)',
+    category: 'اللحوم والدواجن',
+    price: 18.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1529692236671-f1f6cf9683ba?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '53',
+    name: 'نقانق دجاج ساديا (500 جرام)',
+    category: 'اللحوم والدواجن',
+    price: 12.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1604503468506-a8da13d82791?w=400&q=80',
+    unit: 'علبة'
+  },
+
+  // ========== المخبوزات (Bakery) ==========
+  {
+    id: '9',
+    name: 'خبز لوزين أبيض شرائح',
+    category: 'المخبوزات',
+    price: 4.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '54',
+    name: 'خبز لوزين أسمر شرائح',
+    category: 'المخبوزات',
+    price: 5.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '55',
+    name: 'خبز صامولي لوزين (8 حبات)',
+    category: 'المخبوزات',
+    price: 4.50,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '56',
+    name: 'خبز برجر لوزين (6 حبات)',
+    category: 'المخبوزات',
+    price: 5.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '57',
+    name: 'خبز تورتيلا لوزين (10 حبات)',
+    category: 'المخبوزات',
+    price: 7.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '58',
+    name: 'كروسان لوزين زبدة (4 حبات)',
+    category: 'المخبوزات',
+    price: 6.50,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f40380238?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '59',
+    name: 'كيك يمني شهير (500 جرام)',
+    category: 'المخبوزات',
+    price: 8.00,
+    stock_quantity: 15,
+    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f40380238?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '60',
+    name: 'بسكويت شاي دايجستف (400 جرام)',
+    category: 'المخبوزات',
+    price: 5.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f40380238?w=400&q=80',
+    unit: 'علبة'
+  },
+
+  // ========== التسالي (Snacks) ==========
+  {
+    id: '10',
+    name: 'بطاطس ليز بالملح (170 جرام)',
+    category: 'التسالي',
+    price: 7.00,
+    stock_quantity: 55,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d74?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '61',
+    name: 'بطاطس ليز جبنة (170 جرام)',
+    category: 'التسالي',
+    price: 7.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d74?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '62',
+    name: 'بطاطس ليز كاتشب (170 جرام)',
+    category: 'التسالي',
+    price: 7.00,
+    stock_quantity: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d74?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '63',
+    name: 'بطاطس برينجلز أصلي (165 جرام)',
+    category: 'التسالي',
+    price: 10.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d74?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '64',
+    name: 'شوكولاتة كيندر بونو (97 جرام)',
+    category: 'التسالي',
+    price: 6.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '65',
+    name: 'شوكولاتة كيت كات (4 أصابع)',
+    category: 'التسالي',
+    price: 3.50,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '66',
+    name: 'شوكولاتة سنيكرز (50 جرام)',
+    category: 'التسالي',
+    price: 3.00,
+    stock_quantity: 70,
+    imageUrl: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '67',
+    name: 'بسكويت أوريو (144 جرام)',
+    category: 'التسالي',
+    price: 5.50,
+    stock_quantity: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1555507036-ab1f40380238?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '68',
+    name: 'مكسرات مشكلة وفرة (250 جرام)',
+    category: 'التسالي',
+    price: 15.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&q=80',
+    unit: 'علبة',
+    isOffer: true,
+    offerPrice: 12.00
+  },
+  {
+    id: '69',
+    name: 'لوز ني (250 جرام)',
+    category: 'التسالي',
+    price: 18.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '70',
+    name: 'فستق حلبي مملح (250 جرام)',
+    category: 'التسالي',
+    price: 22.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1606312619070-d48b4c652a52?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '71',
+    name: 'حمص شيبس (100 جرام)',
+    category: 'التسالي',
+    price: 3.00,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d74?w=400&q=80',
+    unit: 'كيس'
+  },
+  {
+    id: '72',
+    name: 'فشار مايكرويف (100 جرام)',
+    category: 'التسالي',
+    price: 4.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d74?w=400&q=80',
+    unit: 'كيس'
+  },
+
+  // ========== الخضروات والفواكه (Vegetables & Fruits) ==========
+  {
+    id: '73',
+    name: 'طماطم (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 4.50,
+    stock_quantity: 100,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '74',
+    name: 'بصل أبيض (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 3.00,
+    stock_quantity: 100,
+    imageUrl: 'https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '75',
+    name: 'بطاطس (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 4.00,
+    stock_quantity: 80,
+    imageUrl: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '76',
+    name: 'خيار (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 3.50,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '77',
+    name: 'ليمون (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 5.00,
+    stock_quantity: 70,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '78',
+    name: 'تفاح أحمر فوجي (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 7.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '79',
+    name: 'برتقال (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 5.50,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '80',
+    name: 'موز (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 6.00,
+    stock_quantity: 55,
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '81',
+    name: 'عنب أحمر (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 8.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '82',
+    name: 'باذنجان (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 4.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '83',
+    name: 'كوسا (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 4.50,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '84',
+    name: 'جزر (1 كجم)',
+    category: 'الخضروات والفواكه',
+    price: 3.50,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'كجم'
+  },
+  {
+    id: '85',
+    name: 'خس روماني (حبة)',
+    category: 'الخضروات والفواكه',
+    price: 3.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '86',
+    name: 'فراولة (500 جرام)',
+    category: 'الخضروات والفواكه',
+    price: 8.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&q=80',
+    unit: 'علبة',
+    isOffer: true,
+    offerPrice: 6.00
+  },
+
+  // ========== المنظفات (Cleaning Products) ==========
+  {
+    id: '87',
+    name: 'سائل جلي بريل (500 مل)',
+    category: 'المنظفات',
+    price: 6.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '88',
+    name: 'مسحوق غسيل اريال (3 كجم)',
+    category: 'المنظفات',
+    price: 28.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '89',
+    name: 'مبيض كلوركس عادي (1 لتر)',
+    category: 'المنظفات',
+    price: 4.50,
+    stock_quantity: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '90',
+    name: 'منعم أقمشة كومفورت (1 لتر)',
+    category: 'المنظفات',
+    price: 14.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '91',
+    name: 'سائل تنظيف زجاج ويندكس (500 مل)',
+    category: 'المنظفات',
+    price: 8.00,
+    stock_quantity: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '92',
+    name: 'اسفنج جلي سكوتش برايت (3 حبات)',
+    category: 'المنظفات',
+    price: 5.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '93',
+    name: 'قفازات مطاطية للتنظيف (زوج)',
+    category: 'المنظفات',
+    price: 6.00,
+    stock_quantity: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1585421514284-efb74c2b69ba?w=400&q=80',
+    unit: 'زوج'
+  },
+
+  // ========== العناية الشخصية (Personal Care) ==========
+  {
+    id: '94',
+    name: 'صابون لوكس (125 جرام × 3)',
+    category: 'العناية الشخصية',
+    price: 7.00,
+    stock_quantity: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '95',
+    name: 'شامبو كلير (400 مل)',
+    category: 'العناية الشخصية',
+    price: 16.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '96',
+    name: 'معجون أسنان كولجيت (75 مل)',
+    category: 'العناية الشخصية',
+    price: 7.00,
+    stock_quantity: 60,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '97',
+    name: 'فرشاة أسنان أورال بي (حبة)',
+    category: 'العناية الشخصية',
+    price: 9.00,
+    stock_quantity: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'حبة'
+  },
+  {
+    id: '98',
+    name: 'مزيل عرق فجر السعودي (50 مل)',
+    category: 'العناية الشخصية',
+    price: 10.00,
+    stock_quantity: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'زجاجة'
+  },
+  {
+    id: '99',
+    name: 'مناديل ورقية كلينكس (200 حبة)',
+    category: 'العناية الشخصية',
+    price: 6.00,
+    stock_quantity: 70,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'علبة'
+  },
+  {
+    id: '100',
+    name: 'حفاظات بامبرز مقاس 4 (44 حبة)',
+    category: 'العناية الشخصية',
+    price: 45.00,
+    stock_quantity: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=400&q=80',
+    unit: 'كرتون',
+    isOffer: true,
+    offerPrice: 38.00
   }
 ];
 
-export const categories = ['الكل', 'العروض', 'المؤن', 'الألبان', 'المشروبات', 'اللحوم والدواجن', 'المخبوزات', 'التسالي'];
+export const categories = [
+  'الكل',
+  'العروض',
+  'المؤن',
+  'الألبان',
+  'المشروبات',
+  'اللحوم والدواجن',
+  'المخبوزات',
+  'التسالي',
+  'الخضروات والفواكه',
+  'المنظفات',
+  'العناية الشخصية'
+];
