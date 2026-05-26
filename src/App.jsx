@@ -289,7 +289,30 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
         </div>
       )}
 
-      {/* 2. Special Offers Section Card (Horizontal Scroll) */}
+      {/* 2. Store Categories Section Card */}
+      <div className="home-section-card categories-card">
+        <div className="section-card-header">
+          <div className="section-card-title-group">
+            <span className="section-card-icon">🛍️</span>
+            <h3 className="section-card-title">أقسام المتجر</h3>
+          </div>
+        </div>
+
+        <div className="categories-grid">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              className={`category-pill ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              <span className="category-pill-emoji">{getCategoryEmoji(cat)}</span>
+              <span className="category-pill-text">{cat}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Special Offers Section Card (Horizontal Scroll) */}
       {offerProducts.length > 0 && selectedCategory === 'الكل' && (
         <div className="home-section-card offers-card">
           <div className="section-card-header">
@@ -306,29 +329,6 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
           </div>
         </div>
       )}
-
-      {/* 3. Store Categories Section Card */}
-      <div className="home-section-card categories-card">
-        <div className="section-card-header">
-          <div className="section-card-title-group">
-            <span className="section-card-icon">🛍️</span>
-            <h3 className="section-card-title">أقسام المتجر</h3>
-          </div>
-        </div>
-        <div className="categories-grid">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              className={`category-pill ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}
-            >
-              <span className="category-pill-emoji">{getCategoryEmoji(cat)}</span>
-              <span className="category-pill-text">{cat}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* 4. Products Grid Section Card */}
       <div className="home-section-card products-list-card">
         <div className="section-card-header">
