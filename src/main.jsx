@@ -13,7 +13,20 @@ import ErrorBoundary from './components/ErrorBoundary.jsx'
 // Register Service Worker for PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/thara-app/sw.js').catch(() => {});
+    navigator.serviceWorker.register('/thara-app/sw.js', { updateViaCache: 'none' }).then((reg) => {
+      window.__swRegistration = reg;
+      if (reg.waiting && navigator.serviceWorker.controller) {
+        window.dispatchEvent(new CustomEvent('sw-update'));
+      }
+      reg.addEventListener('updatefound', () => {
+        const newSW = reg.installing;
+        newSW.addEventListener('statechange', () => {
+          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+            window.dispatchEvent(new CustomEvent('sw-update'));
+          }
+        });
+      });
+    }).catch(() => {});
   });
 }
 

@@ -282,6 +282,27 @@ h3 { font-size: 1.1rem; }
 .app-search-input::placeholder { color: rgba(255,255,255,0.5); }
 .app-search-input:focus { background: rgba(255,255,255,0.3); }
 
+/* ─── Update Banner ─── */
+.update-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: #127443; color: white; display: flex;
+  align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transform: translateY(0);
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.update-banner button {
+  background: white; color: #127443; border: none;
+  padding: 0.3rem 1rem; border-radius: 99px;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+}
+
 /* ==================== iOS TAB BAR ==================== */
 .app-tabbar {
   position: fixed; bottom: 0; left: 0; right: 0;

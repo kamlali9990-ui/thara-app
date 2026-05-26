@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-cache-v1';
+const CACHE_NAME = 'thara-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -13,7 +13,6 @@ self.addEventListener('install', (event) => {
       return cache.addAll(STATIC_ASSETS).catch(() => {});
     })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -27,22 +26,42 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
+
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         return response;
-      }).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-        return new Response('غير متصل بالإنترنت', { status: 408 });
-      });
-    })
-  );
+      }).catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match('/'))
+      )
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        return cached || fetch(event.request).then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        }).catch(() => {
+          if (event.request.destination === 'image') {
+            const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#f3f7f4" width="200" height="200"/></svg>';
+            return new Response(svg, { headers: { 'Content-Type': 'image/svg+xml' } });
+          }
+          return new Response('غير متصل', { status: 408 });
+        });
+      })
+    );
+  }
 });

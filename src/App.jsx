@@ -17,12 +17,19 @@ export default function App() {
 
   const [tab, setTab] = useState('home');
   const [prevTab, setPrevTab] = useState('home');
+  const [updateAvailable, setUpdateAvailable] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [slideDir, setSlideDir] = useState('left');
 
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2200); return () => clearTimeout(t); }, []);
+
+  useEffect(() => {
+    const handler = () => setUpdateAvailable(true);
+    window.addEventListener('sw-update', handler);
+    return () => window.removeEventListener('sw-update', handler);
+  }, []);
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const userOrders = orders.filter(o => o.customerEmail === user?.email);
@@ -38,6 +45,7 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
+      {updateAvailable && <UpdateBanner />}
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 
@@ -64,6 +72,22 @@ export default function App() {
     </div>
   );
 }
+
+/* ─── Update Banner ─── */
+const UpdateBanner = memo(() => {
+  const apply = () => {
+    const reg = window.__swRegistration;
+    if (!reg || !reg.waiting) return;
+    reg.waiting.postMessage('SKIP_WAITING');
+    window.location.reload();
+  };
+  return (
+    <div className="update-banner">
+      <span>يتوفر تحديث جديد</span>
+      <button onClick={apply}>تحديث الآن</button>
+    </div>
+  );
+});
 
 /* ─── Splash ─── */
 const SplashScreen = memo(() => (
