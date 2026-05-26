@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { categories } from './data/mockData';
 import L from 'leaflet';
+import InstallPrompt from './components/InstallPrompt';
 
 const BASE = import.meta.env.BASE_URL || '/';
 
@@ -46,6 +47,7 @@ export default function App() {
   return (
     <div className="app-wrapper">
       {updateAvailable && <UpdateBanner />}
+      <InstallPrompt />
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
 

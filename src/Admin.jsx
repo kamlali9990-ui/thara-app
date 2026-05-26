@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import StaffManager from './components/StaffManager.jsx';
+import InstallPrompt from './components/InstallPrompt';
 
 export default function Admin() {
   const { 
@@ -35,6 +36,7 @@ export default function Admin() {
         <h2>{tabLabel[activeTab]}</h2>
         <Link to="/" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '0.85rem' }}>المتجر</Link>
       </div>
+      <InstallPrompt variant="admin" />
 
       {/* Sidebar (desktop) */}
       <aside className="admin-sidebar">

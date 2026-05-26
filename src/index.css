@@ -282,6 +282,33 @@ h3 { font-size: 1.1rem; }
 .app-search-input::placeholder { color: rgba(255,255,255,0.5); }
 .app-search-input:focus { background: rgba(255,255,255,0.3); }
 
+/* ─── Install Prompt ─── */
+.install-prompt {
+  background: linear-gradient(135deg, #0f6b3a, #127443);
+  color: white; padding: 0.75rem 1rem;
+}
+.install-prompt-content {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+}
+.install-prompt-title {
+  font-size: 0.85rem; font-weight: 700; margin-bottom: 0.15rem;
+}
+.install-prompt-desc {
+  font-size: 0.7rem; opacity: 0.8;
+}
+.install-prompt-actions {
+  display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
+}
+.install-prompt-btn {
+  background: white; color: #127443; border: none;
+  padding: 0.35rem 1rem; border-radius: 99px; font-weight: 700;
+  font-size: 0.8rem; cursor: pointer; font-family: inherit;
+}
+.install-prompt-later {
+  background: transparent; color: rgba(255,255,255,0.7); border: none;
+  font-size: 0.75rem; cursor: pointer; font-family: inherit;
+}
+
 /* ─── Update Banner ─── */
 .update-banner {
   position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
