@@ -1,8 +1,10 @@
-const CACHE_NAME = 'thara-v2';
+const CACHE_NAME = 'thara-v3';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/LOGO.jpg',
+  '/thara-app/',
+  '/thara-app/index.html',
+  '/thara-app/LOGO.jpg',
+  '/thara-app/icon-192.png',
+  '/thara-app/icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap'
 ];
