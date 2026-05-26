@@ -335,7 +335,7 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
           <div className="section-card-title-group">
             <span className="section-card-icon">🥬</span>
             <h3 className="section-card-title">
-              {selectedCategory === 'الكل' ? 'كل المنتجات' : selectedCategory}
+              {selectedCategory === 'الكل' ? 'أكثر من 15000 صنف في مكان واحد' : selectedCategory}
             </h3>
           </div>
           <span className="products-count-badge">{products.length} منتج</span>
