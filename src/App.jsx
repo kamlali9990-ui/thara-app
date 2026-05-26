@@ -11,6 +11,65 @@ function imgFallback(w, h, bg, fg, text) {
   return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '"><rect fill="' + bg + '" width="' + w + '" height="' + h + '"/><text fill="' + fg + '" font-family="sans-serif" font-size="' + Math.min(w, h) / 6 + '" x="' + (w / 2) + '" y="' + (h / 2) + '" text-anchor="middle" dominant-baseline="middle">' + text + '</text></svg>');
 }
 
+function AddShortcutButton() {
+  const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+  useEffect(() => {
+    const handler = (e) => {
+      try { e.preventDefault(); } catch(e) {}
+      window.__deferredPrompt = e;
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const onClick = async () => {
+    // If the browser provided the beforeinstallprompt event, show it
+    if (deferredPrompt) {
+      try {
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+      } catch (err) {
+        console.log('install prompt error', err);
+      }
+      window.__deferredPrompt = null;
+      setDeferredPrompt(null);
+      return;
+    }
+
+    // Use Web Share API when available (opens native share sheet)
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: document.title, text: 'تصفح تطبيق أسواق ثرا الشرق ون', url: location.href });
+      } catch (err) {
+        console.log('share cancelled or failed', err);
+      }
+      return;
+    }
+
+    // iOS fallback: show instructions
+    if (isIOS && !isStandalone) {
+      alert('لتثبيت التطبيق: اضغط زر المشاركة في متصفح Safari ثم اختر "إضافة للشاشة الرئيسية".');
+      return;
+    }
+
+    // Generic fallback
+    alert('لا يدعم متصفحك فتح واجهة المشاركة تلقائياً. يمكنك إضافة اختصار يدوياً من قائمة المتصفح.');
+  };
+
+  const show = !isStandalone && (deferredPrompt || navigator.share || isIOS);
+  if (!show) return null;
+
+  return (
+    <button className="app-share-btn" onClick={onClick} style={{ background: 'transparent', border: 'none', cursor: 'pointer', marginRight: '0.5rem' }} title="مشاركة / إضافة للاختصار">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    </button>
+  );
+}
+
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
@@ -116,6 +175,7 @@ const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSear
         </div>
       </div>
       <div className="app-header-actions">
+        <AddShortcutButton />
         {user ? <span className="app-user-badge">{user.email?.split('@')[0]}</span>
           : <Link to="/login" className="app-login-link">دخول</Link>}
         <button className="app-cart-btn" onClick={onCartOpen}>
