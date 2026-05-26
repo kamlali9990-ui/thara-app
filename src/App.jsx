@@ -623,22 +623,20 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             {position && !outside && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
             {outside && <div className="checkout-outside">⚠️ التوصيل فقط داخل مدينة الخفجي</div>}
           </div>
-          <div className="checkout-section">
-            <div className="checkout-section-title"><span className="checkout-num">2</span> رقم الجوال المستلم</div>
-            <input className="checkout-phone-input" type="tel" dir="ltr" value="0555555555" readOnly />
-            <div className="checkout-payment-info">
-              <div className="checkout-info-row">
-                <span>📱 STC Pay <span className="checkout-info-dot">•</span> 💳 بنك برق</span>
-                <span className="checkout-info-value" dir="ltr">0555555555</span>
-              </div>
-              <div className="checkout-info-row">
-                <span>🏦 تحويل بنكي</span>
-                <span className="checkout-info-value checkout-info-iban" dir="ltr">SA1234567890123456789012</span>
-              </div>
+          {['stc', 'barq'].includes(paymentMethod) && (
+            <div className="checkout-section">
+              <div className="checkout-section-title"><span className="checkout-num">2</span> رقم الجوال المستلم للتحويل</div>
+              <input className="checkout-phone-input" type="tel" dir="ltr" value="0555555555" readOnly />
             </div>
-          </div>
+          )}
+          {paymentMethod === 'bank_transfer' && (
+            <div className="checkout-section">
+              <div className="checkout-section-title"><span className="checkout-num">2</span> رقم IBAN للتحويل البنكي</div>
+              <input className="checkout-phone-input" type="text" dir="ltr" value="SA1234567890123456789012" readOnly />
+            </div>
+          )}
           <div className="checkout-section">
-            <div className="checkout-section-title"><span className="checkout-num">3</span> طريقة الدفع</div>
+            <div className="checkout-section-title"><span className="checkout-num">{['stc', 'barq', 'bank_transfer'].includes(paymentMethod) ? '3' : '2'}</span> طريقة الدفع</div>
             <div className="checkout-payments">
               {[
                 { id: 'mada', label: 'مدى', icon: '💳' },
