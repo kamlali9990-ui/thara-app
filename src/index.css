@@ -2260,6 +2260,17 @@ header {
 }
 .checkout-confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
+/* ─── Locate Button ─── */
+.locate-btn {
+  width: 34px; height: 34px; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: white; border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 4px; outline: none; z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.locate-btn:hover { background: #f0f0f0; }
+.locate-btn:active { background: #e0e0e0; }
+
 /* ─── Chat Widget ─── */
 .chat-widget { position: fixed; bottom: 70px; left: 1rem; z-index: 200; }
 .chat-fab {

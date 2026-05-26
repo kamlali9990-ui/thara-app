@@ -356,30 +356,32 @@ const KhafjiMap = memo(({ position, setPosition }) => {
       if (marker.current) marker.current.setLatLng([e.latlng.lat, e.latlng.lng]);
       else marker.current = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
-    const locateBtn = L.control({ position: 'topleft' });
-    locateBtn.onAdd = () => {
-      const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control');
-      btn.innerHTML = '🎯';
-      btn.title = 'تحديد موقعي';
-      btn.style.cssText = 'width:34px;height:34px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;background:white;border:2px solid rgba(0,0,0,0.2);border-radius:4px;';
-      btn.onclick = () => {
-        if (!navigator.geolocation) { alert('الموقع غير متاح'); return; }
-        btn.innerHTML = '⏳';
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const ll = [pos.coords.latitude, pos.coords.longitude];
-            map.setView(ll, 15);
-            if (marker.current) marker.current.setLatLng(ll);
-            else marker.current = L.marker(ll).addTo(map);
-            setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-            btn.innerHTML = '🎯';
-          }, () => { alert('تعذر الحصول على موقعك. تأكد من تشغيل GPS.'); btn.innerHTML = '🎯'; },
-          { enableHighAccuracy: true, timeout: 10000 }
-        );
-      };
-      return btn;
-    };
-    map.addControl(locateBtn);
+    const LocateControl = L.Control.extend({
+      onAdd: function() {
+        const btn = L.DomUtil.create('button', 'locate-btn');
+        btn.innerHTML = '🎯';
+        btn.title = 'تحديد موقعي';
+        L.DomEvent.disableClickPropagation(btn);
+        btn.onclick = () => {
+          if (!navigator.geolocation) { alert('الموقع غير متاح'); return; }
+          btn.innerHTML = '⏳';
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const ll = [pos.coords.latitude, pos.coords.longitude];
+              map.setView(ll, 15);
+              if (marker.current) marker.current.setLatLng(ll);
+              else marker.current = L.marker(ll).addTo(map);
+              setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+              btn.innerHTML = '🎯';
+            },
+            () => { btn.innerHTML = '🎯'; },
+            { enableHighAccuracy: true, timeout: 10000 }
+          );
+        };
+        return btn;
+      }
+    });
+    new LocateControl({ position: 'topleft' }).addTo(map);
     inst.current = map;
     setTimeout(() => map.invalidateSize(), 300);
     return () => { map.remove(); inst.current = null; marker.current = null; };
