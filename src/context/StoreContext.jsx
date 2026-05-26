@@ -57,9 +57,9 @@ export const StoreProvider = ({ children }) => {
             ordersApi.list().catch(() => null),
             chatApi.list().catch(() => null)
           ]);
-          if (supaProducts) setProducts(supaProducts);
-          if (supaOrders) setOrders(supaOrders);
-          if (supaChat) setChatMessages(supaChat);
+          if (supaProducts && supaProducts.length > 0) setProducts(supaProducts);
+          if (supaOrders && supaOrders.length > 0) setOrders(supaOrders);
+          if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
 
           // Load auth
           const currentUser = await authApi.getUser();
