@@ -3,26 +3,47 @@ const path = require('path');
 
 const LOGO_PATH = path.resolve(__dirname, '..', 'public', 'LOGO.jpg');
 const GREEN = 0xFF127443;
+const GOLD = 0xFFD4A017;
 const SIZES = [
-  { size: 192, out: path.resolve(__dirname, '..', 'public', 'icon-192.png') },
-  { size: 512, out: path.resolve(__dirname, '..', 'public', 'icon-512.png') },
+  { size: 192, border: 8, out: path.resolve(__dirname, '..', 'public', 'icon-192.png') },
+  { size: 512, border: 20, out: path.resolve(__dirname, '..', 'public', 'icon-512.png') },
 ];
 
 async function main() {
   const logo = await Jimp.read(LOGO_PATH);
 
-  for (const { size, out } of SIZES) {
-    // Green background canvas
-    const icon = new Jimp({ width: size, height: size, color: GREEN });
+  for (const { size, border, out } of SIZES) {
+    // Gold background
+    const icon = new Jimp({ width: size, height: size, color: GOLD });
 
-    // Resize logo to fit within safe zone (75% of size for padding)
-    const safeSize = Math.round(size * 0.75);
+    // Green inner square
+    const innerSize = size - border * 2;
+    const greenInner = new Jimp({ width: innerSize, height: innerSize, color: GREEN });
+
+    // Logo on green
+    const safeSize = Math.round(innerSize * 0.82);
     const logoResized = logo.clone().contain({ w: safeSize, h: safeSize });
+    const lx = Math.round((innerSize - logoResized.bitmap.width) / 2);
+    const ly = Math.round((innerSize - logoResized.bitmap.height) / 2);
+    greenInner.composite(logoResized, lx, ly);
 
-    // Center on green canvas
-    const x = Math.round((size - logoResized.bitmap.width) / 2);
-    const y = Math.round((size - logoResized.bitmap.height) / 2);
-    icon.composite(logoResized, x, y);
+    // Composite green+logo onto gold
+    icon.composite(greenInner, border, border);
+
+    // Shiny gold highlight: lighter overlay on top-left edge
+    const hl = new Jimp({ width: size, height: size, color: 0x00000000 });
+    const hlW = Math.max(2, Math.round(border * 0.45));
+    for (let y = 0; y < size; y++) {
+      for (let x = 0; x < size; x++) {
+        const dT = y, dL = x, dB = size - 1 - y, dR = size - 1 - x;
+        const inBorder = dT < border || dL < border || dB < border || dR < border;
+        if (!inBorder) continue;
+        const isHighlight = (dT < hlW && dL < border) || (dL < hlW && dT < border);
+        if (isHighlight) {
+          icon.setPixelColor(0x66FFF8DC, x, y);
+        }
+      }
+    }
 
     await icon.write(out);
     console.log(`Created ${size}x${size}: ${out}`);
