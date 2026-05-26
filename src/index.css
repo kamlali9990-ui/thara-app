@@ -2339,7 +2339,6 @@ header {
   padding: 0.6rem 0.7rem;
   margin-bottom: 0.5rem;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   max-height: 150px;
@@ -2369,16 +2368,52 @@ header {
 .section-card-action-link {
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--primary);
   cursor: pointer;
   transition: opacity 0.2s;
   padding: 0.15rem 0.5rem;
-  background: #f0fdf4;
   border-radius: 99px;
 }
 .section-card-action-link:hover {
   opacity: 0.7;
-  background: #dcfce7;
+}
+
+/* ─── Card Color Variants ─── */
+/* Green cards: categories & products */
+.categories-card,
+.products-list-card {
+  border: 2px solid var(--primary) !important;
+  background: #fafdfb !important;
+}
+.categories-card .section-card-header .section-card-title,
+.products-list-card .section-card-header .section-card-title {
+  color: var(--primary);
+}
+.categories-card .section-card-action-link,
+.products-list-card .section-card-action-link {
+  background: #e8f5e9;
+  color: #0d6b32;
+}
+.categories-card .section-card-action-link:hover,
+.products-list-card .section-card-action-link:hover {
+  background: #c8e6c9;
+}
+/* Orange/Red cards: offers */
+.offers-card {
+  border: 2px solid #e65100 !important;
+  background: #fff8f0 !important;
+}
+.offers-card .section-card-header .section-card-title {
+  color: #bf360c;
+}
+.offers-card .section-card-action-link {
+  background: #fff3e0;
+  color: #e65100;
+}
+.offers-card .section-card-action-link:hover {
+  background: #ffe0b2;
+}
+.offers-card .section-card-icon {
+  color: #ff6d00;
 }
 
 /* ─── Offers Horizontal Scroll ─── */
@@ -2460,13 +2495,13 @@ header {
   height: 26px;
   border-radius: 50%;
   border: none;
-  background: var(--primary);
+  background: #d84315;
   color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(18, 116, 67, 0.3);
+  box-shadow: 0 2px 8px rgba(216, 67, 21, 0.3);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .mini-card-add:hover {
@@ -2476,7 +2511,7 @@ header {
   transform: scale(0.85);
 }
 .mini-card-add.added {
-  background: #34c759;
+  background: #e65100;
   animation: addBounce 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .mini-card-body {
@@ -2502,7 +2537,7 @@ header {
 .mini-card-price {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--primary);
+  color: #bf360c;
 }
 .mini-card-currency {
   font-size: 0.55rem;
@@ -2517,10 +2552,8 @@ header {
 
 /* ─── Category Grid ─── */
 .categories-card {
-  border: 2px solid var(--primary) !important;
   border-radius: 14px !important;
   padding: 0.5rem 0.55rem !important;
-  background: #fafdfb !important;
   margin-bottom: 0.5rem !important;
   max-height: 120px !important;
   min-height: 90px !important;
