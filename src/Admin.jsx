@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import StaffManager from './components/StaffManager.jsx';
 import InstallPrompt from './components/InstallPrompt';
+import { categories } from './data/mockData';
 
 export default function Admin() {
   const { 
@@ -20,12 +21,14 @@ export default function Admin() {
 
   const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين' };
   const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
+  const canManageCatalog = staffRole === 'admin' || staffRole === 'manager';
   const tabs = [
     { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
-    { id: 'products', label: 'المنتجات', icon: '📦' },
-    { id: 'offers', label: 'العروض', icon: '🏷️' },
     { id: 'chat', label: 'العملاء', icon: '💬' },
   ];
+  if (canManageCatalog) {
+    tabs.splice(1, 0, { id: 'products', label: 'المنتجات', icon: '📦' }, { id: 'offers', label: 'العروض', icon: '🏷️' });
+  }
   if (staffRole === 'admin') tabs.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
 
   return (
@@ -77,9 +80,21 @@ export default function Admin() {
 
 function AdminOrders({ orders, updateOrderStatus }) {
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
+  const stats = {
+    newOrders: orders.filter(o => o.status === 'جديد').length,
+    preparing: orders.filter(o => o.status === 'قيد التحضير').length,
+    completed: orders.filter(o => o.status === 'مكتمل').length,
+    revenue: orders.filter(o => o.status !== 'ملغي').reduce((sum, o) => sum + Number(o.total || 0), 0)
+  };
   return (
     <div>
       <h2 className="admin-section-title">إدارة الطلبات</h2>
+      <div className="admin-stats-grid">
+        <div className="admin-stat-card"><span>طلبات جديدة</span><strong>{stats.newOrders}</strong></div>
+        <div className="admin-stat-card"><span>قيد التحضير</span><strong>{stats.preparing}</strong></div>
+        <div className="admin-stat-card"><span>مكتملة</span><strong>{stats.completed}</strong></div>
+        <div className="admin-stat-card"><span>المبيعات</span><strong>{stats.revenue.toFixed(2)} ر.س</strong></div>
+      </div>
       <div className="admin-orders-list">
         {orders.map(order => (
           <div key={order.id} className="admin-card">
@@ -113,6 +128,8 @@ function AdminOrders({ orders, updateOrderStatus }) {
             </div>
             <div className="admin-card-info">
               <strong>الدفع:</strong> {order.paymentMethod} | <strong>الموقع:</strong> {order.location}
+              {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span></>}
+              {order.notes && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
             </div>
           </div>
         ))}
@@ -122,24 +139,48 @@ function AdminOrders({ orders, updateOrderStatus }) {
 }
 
 function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
-  const handleAddDummy = () => {
+  const [form, setForm] = useState({
+    name: '',
+    category: categories.find(c => c !== 'الكل' && c !== 'العروض') || 'المؤن',
+    price: '',
+    stock_quantity: '',
+    unit: 'حبة',
+    imageUrl: ''
+  });
+
+  const updateForm = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
+
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) return;
     addProduct({
-      name: 'منتج جديد ' + Math.floor(Math.random() * 1000),
-      category: 'المؤن',
-      price: 10,
-      stock_quantity: 10,
-      imageUrl: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">جديد</text></svg>'),
-      unit: 'حبة',
+      name: form.name.trim(),
+      category: form.category,
+      price: Number(form.price) || 0,
+      stock_quantity: Number(form.stock_quantity) || 0,
+      imageUrl: form.imageUrl.trim() || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">ثرا</text></svg>'),
+      unit: form.unit.trim() || 'حبة',
       isOffer: false
     });
+    setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
   };
 
   return (
     <div>
       <div className="admin-products-header">
         <h2 className="admin-section-title">إدارة المنتجات ({products.length})</h2>
-        <button className="btn" onClick={handleAddDummy}>+ إضافة منتج تجريبي</button>
       </div>
+      <form className="admin-product-form" onSubmit={handleAddProduct}>
+        <input value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder="اسم المنتج" className="admin-product-form-input" required />
+        <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
+          {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <input value={form.price} onChange={e => updateForm('price', e.target.value)} type="number" step="0.01" placeholder="السعر" className="admin-product-form-input" />
+        <input value={form.stock_quantity} onChange={e => updateForm('stock_quantity', e.target.value)} type="number" placeholder="المخزون" className="admin-product-form-input" />
+        <input value={form.unit} onChange={e => updateForm('unit', e.target.value)} placeholder="الوحدة" className="admin-product-form-input" />
+        <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="رابط الصورة" className="admin-product-form-input admin-product-form-wide" />
+        <button className="btn admin-product-form-submit" type="submit">إضافة المنتج</button>
+      </form>
       
       <div className="admin-products-grid">
         {products.map(p => (

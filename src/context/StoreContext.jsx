@@ -167,6 +167,9 @@ export const StoreProvider = ({ children }) => {
 
   // --- Order Actions ---
   const placeOrder = useCallback(async (orderData) => {
+    if (cart.length === 0) {
+      throw new Error('لا يمكن إرسال طلب بدون منتجات');
+    }
     const newOrder = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
@@ -177,15 +180,18 @@ export const StoreProvider = ({ children }) => {
       ...orderData
     };
 
-    // Try Supabase first
     if (hasSupabase && supabaseReady) {
       try {
-        await ordersApi.create(newOrder);
+        const createdOrder = await ordersApi.create(newOrder);
+        setOrders(prev => [createdOrder, ...prev]);
+        setCart([]);
+        return createdOrder;
       } catch { /* fallback to local */ }
     }
 
     setOrders(prev => [newOrder, ...prev]);
     setCart([]);
+    return newOrder;
   }, [cart, cartTotal, hasSupabase, supabaseReady, user]);
 
   const updateOrderStatus = useCallback(async (orderId, newStatus) => {

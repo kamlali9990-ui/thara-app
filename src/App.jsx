@@ -601,8 +601,11 @@ const isInKhafji = (pos) => pos && pos.lat >= KHAFJI_BOUNDS.minLat && pos.lat <=
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [position, setPosition] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('mada');
+  const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
   const fee = cartTotal >= 100 ? 0 : 15;
   const outside = position && !isInKhafji(position);
+  const phoneReady = /^05\d{8}$/.test(phone.trim());
   return (
     <div className="checkout-overlay" onClick={onClose}>
       <div className="checkout-sheet" onClick={e => e.stopPropagation()}>
@@ -636,7 +639,27 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             </div>
           )}
           <div className="checkout-section">
-            <div className="checkout-section-title"><span className="checkout-num">{['stc', 'barq', '360', 'bank_transfer'].includes(paymentMethod) ? '3' : '2'}</span> طريقة الدفع</div>
+            <div className="checkout-section-title"><span className="checkout-num">{['stc', 'barq', '360', 'bank_transfer'].includes(paymentMethod) ? '3' : '2'}</span> بيانات التواصل</div>
+            <input
+              className="checkout-phone-input"
+              type="tel"
+              dir="ltr"
+              inputMode="tel"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="05XXXXXXXX"
+              maxLength={10}
+            />
+            <textarea
+              className="checkout-notes-input"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="ملاحظات الطلب، مثل رقم الشقة أو وقت التوصيل المناسب"
+              rows="3"
+            />
+          </div>
+          <div className="checkout-section">
+            <div className="checkout-section-title"><span className="checkout-num">{['stc', 'barq', '360', 'bank_transfer'].includes(paymentMethod) ? '4' : '3'}</span> طريقة الدفع</div>
             <div className="checkout-payments">
               {[
                 { id: 'mada', label: 'مدى', icon: '💳' },
@@ -660,8 +683,15 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
           <button className="checkout-confirm-btn" onClick={() => {
-            if (!position || outside) return; placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod, phone: '0555555555' }); onClose();
-          }} disabled={!position || outside}>تأكيد الطلب</button>
+            if (!position || outside || !phoneReady) return;
+            placeOrder({
+              location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`,
+              paymentMethod,
+              phone: phone.trim(),
+              notes: notes.trim()
+            });
+            onClose();
+          }} disabled={!position || outside || !phoneReady}>تأكيد الطلب</button>
         </div>
       </div>
     </div>

@@ -23,7 +23,7 @@ export const productsApi = {
   async create(product) {
     const { data, error } = await supabase
       .from('products')
-      .insert([product])
+      .insert([toProductRow(product)])
       .select()
       .single();
     if (error) throw error;
@@ -33,7 +33,7 @@ export const productsApi = {
   async update(id, updates) {
     const { data, error } = await supabase
       .from('products')
-      .update(updates)
+      .update(toProductRow(updates))
       .eq('id', id)
       .select()
       .single();
@@ -49,6 +49,22 @@ export const productsApi = {
     if (error) throw error;
   }
 };
+
+function toProductRow(product) {
+  const row = {};
+  if ('name' in product) row.name = product.name;
+  if ('category' in product) row.category = product.category;
+  if ('price' in product) row.price = Number(product.price) || 0;
+  if ('offerPrice' in product) row.offer_price = product.offerPrice || null;
+  if ('offer_price' in product) row.offer_price = product.offer_price || null;
+  if ('isOffer' in product) row.is_offer = !!product.isOffer;
+  if ('is_offer' in product) row.is_offer = !!product.is_offer;
+  if ('imageUrl' in product) row.image_url = product.imageUrl;
+  if ('image_url' in product) row.image_url = product.image_url;
+  if ('stock_quantity' in product) row.stock_quantity = Number(product.stock_quantity) || 0;
+  if ('unit' in product) row.unit = product.unit;
+  return row;
+}
 
 function mapProduct(p) {
   return {
