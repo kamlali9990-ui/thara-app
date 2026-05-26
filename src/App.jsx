@@ -6,6 +6,10 @@ import L from 'leaflet';
 
 const BASE = import.meta.env.BASE_URL || '/';
 
+function imgFallback(w, h, bg, fg, text) {
+  return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '"><rect fill="' + bg + '" width="' + w + '" height="' + h + '"/><text fill="' + fg + '" font-family="sans-serif" font-size="' + Math.min(w, h) / 6 + '" x="' + (w / 2) + '" y="' + (h / 2) + '" text-anchor="middle" dominant-baseline="middle">' + text + '</text></svg>');
+}
+
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
@@ -79,7 +83,7 @@ const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSear
     <div className="app-header-inner">
       <div className="app-logo">
         <img src={`${BASE}LOGO.jpg`} alt="" className="app-logo-img"
-          onError={(e) => { e.target.src = 'https://placehold.co/36x36/127443/FFFFFF?text=ث'; }} />
+          onError={(e) => { e.target.src = imgFallback(36, 36, '#127443', '#FFFFFF', 'ث'); }} />
         <div>
           <div className="app-title">ثرا الشرق ون</div>
           <div className="app-subtitle">توصيل الخفجي</div>
@@ -145,7 +149,7 @@ const CartScreen = memo(({ cart, cartTotal, cartCount, updateCartQty, removeFrom
         ) : cart.map(item => (
           <div key={item.id} className="cart-screen-item">
             <img src={item.imageUrl} alt={item.name} className="cart-screen-item-img"
-              onError={(e) => { e.target.src = 'https://placehold.co/80x80/127443/FFFFFF?text=IMG'; }} />
+              onError={(e) => { e.target.src = imgFallback(80, 80, '#127443', '#FFFFFF', 'IMG'); }} />
             <div className="cart-screen-item-info">
               <div className="cart-screen-item-name">{item.name}</div>
               <div className="cart-screen-item-price">{(item.currentPrice || item.price).toFixed(2)} ر.س</div>
@@ -280,7 +284,7 @@ const ProductCard = memo(({ product, addToCart }) => {
       <div className="product-card-new-img-wrap">
         {product.isOffer && <span className="product-badge-offer">%</span>}
         <img src={product.imageUrl} alt={product.name} className="product-card-new-img" loading="lazy"
-          onError={(e) => { e.target.src = 'https://placehold.co/400x400/f3f7f4/127443/FFFFFF?text=ث'; }} />
+          onError={(e) => { e.target.src = imgFallback(400, 400, '#f3f7f4', '#127443', 'ثرا'); }} />
         <button className={`product-card-new-add ${added ? 'added' : ''}`} onClick={handleAdd}>
           {added ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>

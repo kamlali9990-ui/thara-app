@@ -126,7 +126,7 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
       category: 'المؤن',
       price: 10,
       stock_quantity: 10,
-      imageUrl: 'https://placehold.co/400x400/127443/FFFFFF?text=جديد',
+      imageUrl: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">جديد</text></svg>'),
       unit: 'حبة',
       isOffer: false
     });
