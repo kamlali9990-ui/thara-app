@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 export default function InstallPrompt({ variant }) {
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [show, setShow] = useState(false);
+  const [installed, setInstalled] = useState(false);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
@@ -26,11 +27,20 @@ export default function InstallPrompt({ variant }) {
       if (!window.__deferredPrompt) setShow(true);
     }, 4000);
 
+    // Listen for appinstalled event
+    const onInstalled = () => {
+      setInstalled(true);
+      setShow(false);
+      setTimeout(() => setInstalled(false), 3500);
+    };
+    window.addEventListener('appinstalled', onInstalled);
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('appinstalled', onInstalled);
       clearTimeout(timer);
     };
-  }, []);
+  }, [isStandalone]);
 
   const install = async () => {
     const prompt = deferredPrompt || window.__deferredPrompt;
@@ -39,10 +49,23 @@ export default function InstallPrompt({ variant }) {
       const result = await prompt.userChoice;
       window.__deferredPrompt = null;
       setDeferredPrompt(null);
-      if (result.outcome === 'accepted') { setShow(false); return; }
+      if (result.outcome === 'accepted') {
+        setInstalled(true);
+        setShow(false);
+        setTimeout(() => setInstalled(false), 3500);
+        return;
+      }
     }
     setShow(false);
   };
+
+  if (installed) {
+    return (
+      <div className="install-success-msg">
+        ✅ تم تثبيت التطبيق بنجاح! يمكنك الآن فتحه من شاشة جهازك الرئيسية.
+      </div>
+    );
+  }
 
   if (!show) return null;
 
