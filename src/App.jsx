@@ -280,7 +280,7 @@ const ProductCard = memo(({ product, addToCart }) => {
       <div className="product-card-new-img-wrap">
         {product.isOffer && <span className="product-badge-offer">%</span>}
         <img src={product.imageUrl} alt={product.name} className="product-card-new-img" loading="lazy"
-          onError={(e) => { e.target.src = 'https://placehold.co/400x400/f3f7f4/127443/FFFFFF?text='; }} />
+          onError={(e) => { e.target.src = 'https://placehold.co/400x400/f3f7f4/127443/FFFFFF?text=ث'; }} />
         <button className={`product-card-new-add ${added ? 'added' : ''}`} onClick={handleAdd}>
           {added ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
