@@ -1,39 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const DISMISSED_KEY = 'thara_install_dismissed';
 
 export default function InstallPrompt({ variant }) {
   const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [show, setShow] = useState(false);
+  const [ready, setReady] = useState(false);
+  const timer = useRef(null);
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
   useEffect(() => {
-    if (isStandalone) return;
-    if (localStorage.getItem(DISMISSED_KEY)) return;
-
-    setShow(true);
+    if (isStandalone || localStorage.getItem(DISMISSED_KEY)) return;
 
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      setReady(true);
+      if (timer.current) clearTimeout(timer.current);
     };
     window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+
+    timer.current = setTimeout(() => setReady(true), 6000);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      if (timer.current) clearTimeout(timer.current);
+    };
   }, []);
 
+  if (!ready) return null;
+
   const install = async () => {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const result = await deferredPrompt.userChoice;
-    setDeferredPrompt(null);
-    if (result.outcome === 'accepted') setShow(false);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const result = await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+      if (result.outcome === 'accepted') return;
+    }
+    dismiss();
   };
 
-  if (!show) return null;
-
   const dismiss = () => {
-    setShow(false);
+    setReady(false);
     localStorage.setItem(DISMISSED_KEY, '1');
   };
 
@@ -44,7 +52,9 @@ export default function InstallPrompt({ variant }) {
       gap: '0.5rem', fontSize: '0.8rem'
     }}>
       <span style={{ lineHeight: 1.4 }}>
-        {isIOS ? '📲 أضف هذه الصفحة للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية)' : '📲 ثبّت التطبيق للوصول السريع'}
+        {isIOS
+          ? '📲 أضف هذه الصفحة للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية)'
+          : '📲 ثبّت التطبيق للوصول السريع'}
       </span>
       <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
         {!isIOS && deferredPrompt && (
@@ -70,16 +80,14 @@ export default function InstallPrompt({ variant }) {
               ? 'اضغط 🚀 في Safari ثم "إضافة للشاشة الرئيسية"'
               : deferredPrompt
                 ? 'للوصول السريع والتصفح بدون إنترنت'
-                : 'افتح في Chrome ← زر القائمة ← "تثبيت التطبيق"'}
+                : 'افتح القائمة ⋮ في Chrome ← تثبيت التطبيق'}
           </div>
         </div>
         <div className="install-prompt-actions">
-          {deferredPrompt ? (
-            <button className="install-prompt-btn" onClick={install}>تثبيت</button>
-          ) : (
-            <button className="install-prompt-btn" onClick={dismiss}>حسناً</button>
-          )}
-          <button className="install-prompt-later" onClick={dismiss}>لاحقاً</button>
+          <button className="install-prompt-btn" onClick={install}>
+            {deferredPrompt ? 'تثبيت' : 'حسناً'}
+          </button>
+          <button className="install-prompt-later" onClick={dismiss}>لا الآن</button>
         </div>
       </div>
     </div>
