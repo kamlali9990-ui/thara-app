@@ -315,7 +315,7 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
             <h3 className="section-card-title">أقسام المتجر</h3>
           </div>
         </div>
-        <div className="categories-horizontal-scroll">
+        <div className="categories-grid">
           {categories.map(cat => (
             <button
               key={cat}
