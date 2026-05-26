@@ -2237,6 +2237,7 @@ header {
 .checkout-map { height: 160px; border-radius: 10px; overflow: hidden; }
 .checkout-map-empty { border: 2px dashed #cbd5e1; }
 .checkout-confirmed { font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-top: 0.5rem; }
+.khafji-map-wrap { position: relative; height: 100%; width: 100%; }
 .khafji-map { height: 100%; width: 100%; }
 .checkout-payments { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
 .checkout-pay-btn {
@@ -2262,11 +2263,11 @@ header {
 
 /* ─── Locate Button ─── */
 .locate-btn {
-  width: 34px; height: 34px; font-size: 18px; cursor: pointer;
+  position: absolute; top: 8px; left: 8px; z-index: 1000;
+  width: 36px; height: 36px; font-size: 18px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  background: white; border: 2px solid rgba(0,0,0,0.2);
-  border-radius: 4px; outline: none; z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  background: white; border: none; border-radius: 6px;
+  outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 .locate-btn:hover { background: #f0f0f0; }
 .locate-btn:active { background: #e0e0e0; }

@@ -356,37 +356,30 @@ const KhafjiMap = memo(({ position, setPosition }) => {
       if (marker.current) marker.current.setLatLng([e.latlng.lat, e.latlng.lng]);
       else marker.current = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
-    const LocateControl = L.Control.extend({
-      onAdd: function() {
-        const btn = L.DomUtil.create('button', 'locate-btn');
-        btn.innerHTML = '🎯';
-        btn.title = 'تحديد موقعي';
-        L.DomEvent.disableClickPropagation(btn);
-        btn.onclick = () => {
-          if (!navigator.geolocation) { alert('الموقع غير متاح'); return; }
-          btn.innerHTML = '⏳';
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const ll = [pos.coords.latitude, pos.coords.longitude];
-              map.setView(ll, 15);
-              if (marker.current) marker.current.setLatLng(ll);
-              else marker.current = L.marker(ll).addTo(map);
-              setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-              btn.innerHTML = '🎯';
-            },
-            () => { btn.innerHTML = '🎯'; },
-            { enableHighAccuracy: true, timeout: 10000 }
-          );
-        };
-        return btn;
-      }
-    });
-    new LocateControl({ position: 'topleft' }).addTo(map);
     inst.current = map;
     setTimeout(() => map.invalidateSize(), 300);
     return () => { map.remove(); inst.current = null; marker.current = null; };
   }, []);
-  return <div ref={mapRef} className="khafji-map" />;
+  const locate = useCallback(() => {
+    if (!navigator.geolocation) { alert('الموقع غير متاح'); return; }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const ll = [pos.coords.latitude, pos.coords.longitude];
+        inst.current?.setView(ll, 15);
+        if (marker.current) marker.current.setLatLng(ll);
+        else marker.current = L.marker(ll).addTo(inst.current);
+        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      },
+      () => {},
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }, []);
+  return (
+    <div className="khafji-map-wrap">
+      <div ref={mapRef} className="khafji-map" />
+      <button className="locate-btn" onClick={locate}>🎯</button>
+    </div>
+  );
 });
 
 /* ─── Checkout ─── */
