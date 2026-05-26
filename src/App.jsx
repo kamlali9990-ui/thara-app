@@ -628,7 +628,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <input className="checkout-phone-input" type="tel" dir="ltr" value="0555555555" readOnly />
             <div className="checkout-payment-info">
               <div className="checkout-info-row">
-                <span>📱 STC Pay <span className="checkout-info-dot">•</span> 🔄 طرق 360</span>
+                <span>📱 STC Pay <span className="checkout-info-dot">•</span> 💳 بنك برق</span>
                 <span className="checkout-info-value" dir="ltr">0555555555</span>
               </div>
               <div className="checkout-info-row">
@@ -643,7 +643,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
               {[
                 { id: 'mada', label: 'مدى', icon: '💳' },
                 { id: 'stc', label: 'STC Pay', icon: '📱' },
-                { id: '360', label: 'طرق 360', icon: '🔄' },
+                { id: 'barq', label: 'بنك برق', icon: '💳' },
                 { id: 'bank_transfer', label: 'تحويل بنكي', icon: '🏦' },
                 { id: 'cod', label: 'الدفع عند الاستلام', icon: '💵' },
               ].map(m => (
