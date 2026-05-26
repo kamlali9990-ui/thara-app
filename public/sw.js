@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v5';
+const CACHE_NAME = 'thara-v6';
 const STATIC_ASSETS = [
   '/thara-app/',
   '/thara-app/index.html',
