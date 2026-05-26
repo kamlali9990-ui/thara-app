@@ -2588,14 +2588,48 @@ header {
   font-weight: 700;
 }
 
-/* ─── Product Grid ─── */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* ─── Products Horizontal Scroll ─── */
+.products-horizontal-scroll {
+  display: flex;
   gap: 0.7rem;
+  overflow-x: auto;
+  padding: 0.2rem 0.1rem 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
 }
-.no-products-card {
-  grid-column: 1 / -1;
+.products-horizontal-scroll::-webkit-scrollbar { display: none; }
+.products-horizontal-scroll .product-card-new {
+  min-width: 145px;
+  max-width: 145px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  border-radius: 16px;
+}
+.products-horizontal-scroll .product-card-new-img-wrap {
+  padding-top: 60%;
+}
+.products-horizontal-scroll .product-card-new-body {
+  padding: 0.4rem 0.45rem 0.5rem;
+}
+.products-horizontal-scroll .product-card-new-name {
+  font-size: 0.68rem;
+  margin-bottom: 0.15rem;
+}
+.products-horizontal-scroll .product-card-new-price {
+  font-size: 0.75rem;
+}
+.products-horizontal-scroll .product-card-new-cat {
+  display: none;
+}
+.products-horizontal-scroll .product-card-new-add {
+  width: 26px;
+  height: 26px;
+  bottom: 0.35rem;
+  left: 0.35rem;
+}
+.products-horizontal-scroll .no-products-card {
+  min-width: 100%;
   text-align: center;
   color: var(--text-light);
   padding: 3rem 1rem;
@@ -2604,7 +2638,7 @@ header {
   align-items: center;
   gap: 0.5rem;
 }
-.no-products-card p {
+.products-horizontal-scroll .no-products-card p {
   font-size: 0.85rem;
 }
 

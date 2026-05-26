@@ -340,7 +340,7 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
           </div>
           <span className="products-count-badge">أكثر من 15000 صنف</span>
         </div>
-        <div className="product-grid">
+        <div className="products-horizontal-scroll">
           {products.map(product => (
             <ProductCard key={product.id} product={product} addToCart={addToCart} />
           ))}
