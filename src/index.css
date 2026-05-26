@@ -2237,6 +2237,7 @@ header {
 .checkout-map { height: 160px; border-radius: 10px; overflow: hidden; }
 .checkout-map-empty { border: 2px dashed #cbd5e1; }
 .checkout-confirmed { font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-top: 0.5rem; }
+.checkout-outside { font-size: 0.8rem; color: #dc2626; font-weight: 600; margin-top: 0.5rem; padding: 0.5rem; background: #fef2f2; border-radius: 8px; text-align: center; }
 .khafji-map-wrap { position: relative; height: 100%; width: 100%; }
 .khafji-map { height: 100%; width: 100%; }
 .checkout-payments { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }

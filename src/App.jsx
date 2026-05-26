@@ -348,8 +348,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const autoLocated = useRef(false);
   useEffect(() => {
     if (inst.current) return;
-    const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13,
-      maxBounds: L.latLngBounds([28.35, 48.40], [28.50, 48.55]), maxBoundsViscosity: 1, minZoom: 12 });
+    const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13, minZoom: 12 });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>' }).addTo(map);
     map.on('click', (e) => {
@@ -390,10 +389,14 @@ const KhafjiMap = memo(({ position, setPosition }) => {
 });
 
 /* ─── Checkout ─── */
+const KHAFJI_BOUNDS = { minLat: 28.35, maxLat: 28.50, minLng: 48.40, maxLng: 48.55 };
+const isInKhafji = (pos) => pos && pos.lat >= KHAFJI_BOUNDS.minLat && pos.lat <= KHAFJI_BOUNDS.maxLat && pos.lng >= KHAFJI_BOUNDS.minLng && pos.lng <= KHAFJI_BOUNDS.maxLng;
+
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [position, setPosition] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('mada');
   const fee = cartTotal >= 100 ? 0 : 15;
+  const outside = position && !isInKhafji(position);
   return (
     <div className="checkout-overlay" onClick={onClose}>
       <div className="checkout-sheet" onClick={e => e.stopPropagation()}>
@@ -411,7 +414,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
               <KhafjiMap position={position} setPosition={setPosition} />
             </div>
-            {position && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
+            {position && !outside && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
+            {outside && <div className="checkout-outside">⚠️ التوصيل فقط داخل مدينة الخفجي</div>}
           </div>
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">2</span> طريقة الدفع</div>
@@ -435,8 +439,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
           <button className="checkout-confirm-btn" onClick={() => {
-            if (!position) return; placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod }); onClose();
-          }} disabled={!position}>تأكيد الطلب</button>
+            if (!position || outside) return; placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod }); onClose();
+          }} disabled={!position || outside}>تأكيد الطلب</button>
         </div>
       </div>
     </div>
