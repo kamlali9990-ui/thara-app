@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect, memo, useCallback } from 'react';
+import React, { useContext, useState, useRef, useEffect, useMemo, memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreContext, useStore } from './context/StoreContext';
 import { categories } from './data/mockData';
