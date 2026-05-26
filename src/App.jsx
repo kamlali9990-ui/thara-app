@@ -338,7 +338,7 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
               {selectedCategory === 'الكل' ? 'أكثر من 15000 صنف في مكان واحد' : selectedCategory}
             </h3>
           </div>
-          <span className="products-count-badge">{products.length} منتج</span>
+          <span className="products-count-badge">أكثر من 15000 صنف</span>
         </div>
         <div className="product-grid">
           {products.map(product => (
