@@ -1,69 +1,120 @@
 import { useState, useEffect, useRef } from 'react';
 
+const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
 export default function InstallPrompt({ variant }) {
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [show, setShow] = useState(false);
   const timerRef = useRef(null);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+  const dismissedTime = localStorage.getItem('pwa-install-prompt-dismissed');
+  const isRecentlyDismissed = dismissedTime && (Date.now() - parseInt(dismissedTime, 10) < DISMISS_DURATION_MS);
 
   useEffect(() => {
     if (isStandalone) return;
 
     const handler = (e) => {
       e.preventDefault();
+      window.__deferredPrompt = e;
       setDeferredPrompt(e);
-      setShow(true);
+      if (!isRecentlyDismissed) {
+        setShow(true);
+      }
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-    window.addEventListener('beforeinstallprompt', handler);
+    const showHandler = () => {
+      setShow(true);
+    };
 
-    timerRef.current = setTimeout(() => setShow(true), 2000);
+    window.addEventListener('beforeinstallprompt', handler);
+    window.addEventListener('show-pwa-install-prompt', showHandler);
+
+    // If not recently dismissed, show after 3 seconds as a gentle slide-up bottom sheet
+    if (!isRecentlyDismissed) {
+      timerRef.current = setTimeout(() => setShow(true), 3000);
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('show-pwa-install-prompt', showHandler);
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, []);
+  }, [isStandalone, isRecentlyDismissed]);
 
   const install = async () => {
     if (deferredPrompt) {
-      deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') return;
+      try {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          setShow(false);
+          return;
+        }
+      } catch (err) {
+        console.error('PWA install error:', err);
+      }
     }
+    // Fallback: Web Share if supported
     if (navigator.share) {
-      navigator.share({ title: 'أسواق ثرا الشرق ون', url: window.location.href });
+      try {
+        await navigator.share({ 
+          title: 'أسواق ثرا الشرق ون', 
+          text: 'حمل تطبيق أسواق ثرا الشرق ون وتصفح أحدث العروض والمنتجات', 
+          url: window.location.origin + '/thara-app/' 
+        });
+      } catch (err) {
+        console.log('Share canceled:', err);
+      }
     }
   };
 
-  const dismiss = () => setShow(false);
+  const dismiss = () => {
+    localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString());
+    setShow(false);
+  };
 
   const canInstall = !!deferredPrompt;
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 
   if (variant === 'admin') {
     return (
-      <div style={{
-        background: '#127443', color: 'white', padding: '0.6rem 1rem',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        gap: '0.5rem', fontSize: '0.8rem'
+      <div className="admin-install-banner" style={{
+        background: 'linear-gradient(90deg, #127443 0%, #1a9e5c 100%)', 
+        color: 'white', 
+        padding: '0.75rem 1.25rem',
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        gap: '1rem', 
+        fontSize: '0.85rem',
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
       }}>
-        <span>
-          {isIOS
-            ? '📲 أضف للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية)'
-            : canInstall
-              ? '📲 ثبّت التطبيق للوصول السريع'
-              : '📲 افتح ⋮ ← تثبيت التطبيق'}
-        </span>
-        <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
-          {!isIOS && canInstall && (
-            <button onClick={install} style={{
-              background: 'white', color: '#127443', border: 'none',
-              padding: '0.3rem 1rem', borderRadius: 99, fontWeight: 700,
-              fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit'
-            }}>تثبيت</button>
-          )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '1.2rem' }}>📲</span>
+          <span>
+            {isIOS
+              ? 'أضف لوحة التحكم للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية)'
+              : canInstall
+                ? 'ثبّت التطبيق للوصول السريع ومتابعة الطلبات بشكل أسرع'
+                : 'افتح قائمة المتصفح ⋮ ← تثبيت التطبيق'}
+          </span>
         </div>
+        {!isIOS && canInstall && (
+          <button onClick={install} style={{
+            background: 'white', 
+            color: '#127443', 
+            border: 'none',
+            padding: '0.35rem 1.2rem', 
+            borderRadius: '12px', 
+            fontWeight: 700,
+            fontSize: '0.8rem', 
+            cursor: 'pointer', 
+            fontFamily: 'inherit',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+            transition: 'transform 0.1s'
+          }}>تثبيت</button>
+        )}
       </div>
     );
   }
@@ -73,23 +124,33 @@ export default function InstallPrompt({ variant }) {
   return (
     <div className="install-overlay">
       <div className="install-card">
+        <button className="install-close-btn" onClick={dismiss} aria-label="إغلاق">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
         <div className="install-card-inner">
-          <img src="/thara-app/icon-192.png" alt="" className="install-logo" />
-          <h2 className="install-title">أسواق ثرا الشرق ون</h2>
-          <p className="install-subtitle">توصيل لباب بيتك في الخفجي</p>
+          <div className="install-header-section">
+            <img src="/thara-app/LOGO.jpg" alt="" className="install-logo" onError={(e) => { e.target.src = '/thara-app/icon-192.png'; }} />
+            <div className="install-app-info">
+              <h2 className="install-title">تطبيق أسواق ثرا الشرق ون</h2>
+              <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
+            </div>
+          </div>
 
           <div className="install-benefits">
             <div className="benefit-item">
               <span className="benefit-icon">⚡</span>
-              <span>تصفح أسرع وأداء أفضل</span>
+              <span>تصفح سريع وأداء فائق بدون انتظار</span>
             </div>
             <div className="benefit-item">
               <span className="benefit-icon">🔔</span>
-              <span>تنبيهات فورية بحالة الطلب</span>
+              <span>تنبيهات فورية بحالة الطلب والعروض المميزة</span>
             </div>
             <div className="benefit-item">
               <span className="benefit-icon">📱</span>
-              <span>سهولة الوصول من الشاشة الرئيسية</span>
+              <span>سهولة الوصول بلمسة واحدة من شاشة هاتفك</span>
             </div>
           </div>
 
@@ -99,16 +160,25 @@ export default function InstallPrompt({ variant }) {
 
           {!canInstall && isIOS && (
             <div className="ios-instructions">
-              <p>للتثبيت على iPhone/iPad:</p>
-              <ol>
-                <li>اضغط على زر المشاركة <span className="share-icon">⎋</span> أسفل الشاشة</li>
-                <li>اختر <strong>"إضافة للشاشة الرئيسية"</strong></li>
-              </ol>
+              <p className="ios-instructions-title">للتثبيت على جهاز iPhone أو iPad:</p>
+              <div className="ios-steps">
+                <div className="ios-step">
+                  <span className="ios-step-num">1</span>
+                  <span>اضغط على زر المشاركة <span className="share-icon">⎋</span> أسفل الشاشة في Safari.</span>
+                </div>
+                <div className="ios-step">
+                  <span className="ios-step-num">2</span>
+                  <span>اسحب القائمة للأعلى واختر <strong>"إضافة للشاشة الرئيسية"</strong>.</span>
+                </div>
+              </div>
             </div>
           )}
 
           {!canInstall && !isIOS && (
-            <p className="install-instructions">افتح قائمة المتصفح ⋮ ← تثبيت التطبيق</p>
+            <div className="fallback-instructions">
+              <p>لتثبيت التطبيق على جهازك:</p>
+              <p className="install-instructions">افتح قائمة خيارات المتصفح (⋮ أو ⋯) ثم اختر <strong>"تثبيت التطبيق"</strong> أو <strong>"إضافة للشاشة الرئيسية"</strong>.</p>
+            </div>
           )}
 
           <button className="install-skip-btn" onClick={dismiss}>متابعة عبر المتصفح</button>

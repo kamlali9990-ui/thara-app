@@ -285,55 +285,189 @@ h3 { font-size: 1.1rem; }
 /* ─── Install Overlay (Force Prompt) ─── */
 .install-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
   z-index: 99999; display: flex; align-items: center; justify-content: center;
   padding: 1.5rem; animation: fadeIn 0.4s ease;
 }
 .install-card {
-  background: white; width: 100%; max-width: 400px;
+  background: white; width: 100%; max-width: 420px;
   border-radius: 24px; overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.25);
   animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.install-close-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #f1f5f9;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+.install-close-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
 }
 .install-card-inner {
-  padding: 2rem; text-align: center;
+  padding: 2.25rem 2rem 2rem; text-align: center;
 }
-.install-logo {
-  width: 80px; height: 80px; border-radius: 20px;
-  margin-bottom: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+.install-header-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: right;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1.25rem;
+}
+.install-header-section .install-logo {
+  margin-bottom: 0;
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(18, 116, 67, 0.15);
+}
+.install-app-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 .install-title {
-  color: #127443; font-size: 1.5rem; font-weight: 800; margin-bottom: 0.25rem;
+  color: #127443; font-size: 1.2rem; font-weight: 800; margin-bottom: 0;
+  text-align: right;
 }
 .install-subtitle {
-  color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem;
+  color: #64748b; font-size: 0.8rem; margin-bottom: 0;
+  text-align: right;
 }
 .install-benefits {
-  text-align: right; background: #f8fafc; padding: 1rem;
+  text-align: right; background: #f8fafc; padding: 1.1rem;
   border-radius: 16px; margin-bottom: 1.5rem;
+  border: 1px solid #f1f5f9;
 }
 .benefit-item {
   display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;
-  font-size: 0.85rem; font-weight: 600; color: #334155;
+  font-size: 0.8rem; font-weight: 600; color: #475569;
 }
 .benefit-item:last-child { margin-bottom: 0; }
-.benefit-icon { font-size: 1.2rem; }
+.benefit-icon { font-size: 1.1rem; }
 .install-instructions {
-  margin-bottom: 2rem; font-size: 0.85rem; color: #475569; line-height: 1.6;
+  font-size: 0.8rem; color: #64748b; line-height: 1.6;
 }
-.ios-instructions ol {
-  display: inline-block; text-align: right; margin-top: 0.5rem;
+.ios-instructions {
+  text-align: right;
+  background: #f8fafc;
+  padding: 1.1rem;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f1f5f9;
 }
-.share-icon { font-size: 1.2rem; vertical-align: middle; color: #007aff; }
+.ios-instructions-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #334155;
+  margin-bottom: 0.6rem;
+}
+.ios-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.ios-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: #475569;
+  line-height: 1.5;
+}
+.ios-step-num {
+  background: #127443;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.share-icon { font-size: 1.1rem; vertical-align: middle; color: #007aff; }
+.fallback-instructions {
+  text-align: right;
+  background: #f8fafc;
+  padding: 1.1rem;
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  font-size: 0.8rem;
+  color: #475569;
+  border: 1px solid #f1f5f9;
+}
+.fallback-instructions p:first-child {
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.4rem;
+}
 .install-main-btn {
   width: 100%; background: #127443; color: white; border: none;
-  padding: 1rem; border-radius: 14px; font-weight: 700; font-size: 1rem;
-  cursor: pointer; margin-bottom: 0.75rem; transition: transform 0.2s;
+  padding: 0.9rem; border-radius: 14px; font-weight: 700; font-size: 0.95rem;
+  cursor: pointer; margin-bottom: 0.75rem; transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 4px 12px rgba(18, 116, 67, 0.25);
 }
+.install-main-btn:hover { background: #0a5c34; }
 .install-main-btn:active { transform: scale(0.98); }
 .install-skip-btn {
   background: none; border: none; color: #94a3b8; font-size: 0.8rem;
   cursor: pointer; text-decoration: underline;
+}
+
+/* ─── App Install Header Button ─── */
+.app-install-header-btn {
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(230, 92, 0, 0.2);
+  margin-left: 0.5rem;
+}
+.app-install-header-btn:hover {
+  background: #d65500;
+  box-shadow: 0 4px 10px rgba(230, 92, 0, 0.3);
+}
+.app-install-header-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 640px) {
+  .app-install-header-text {
+    display: none;
+  }
+  .app-install-header-btn {
+    padding: 0.45rem;
+    border-radius: 50%;
+    margin-left: 0.25rem;
+  }
 }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }

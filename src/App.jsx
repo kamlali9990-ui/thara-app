@@ -13,12 +13,11 @@ function imgFallback(w, h, bg, fg, text) {
 
 function AddShortcutButton() {
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
   useEffect(() => {
     const handler = (e) => {
-      try { e.preventDefault(); } catch(e) {}
+      try { e.preventDefault(); } catch(err) {}
       window.__deferredPrompt = e;
       setDeferredPrompt(e);
     };
@@ -27,45 +26,34 @@ function AddShortcutButton() {
   }, []);
 
   const onClick = async () => {
-    // If the browser provided the beforeinstallprompt event, show it
     if (deferredPrompt) {
       try {
         deferredPrompt.prompt();
-        await deferredPrompt.userChoice;
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          window.__deferredPrompt = null;
+          setDeferredPrompt(null);
+        }
       } catch (err) {
         console.log('install prompt error', err);
       }
-      window.__deferredPrompt = null;
-      setDeferredPrompt(null);
       return;
     }
 
-    // Use Web Share API when available (opens native share sheet)
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: document.title, text: 'تصفح تطبيق أسواق ثرا الشرق ون', url: location.href });
-      } catch (err) {
-        console.log('share cancelled or failed', err);
-      }
-      return;
-    }
-
-    // iOS fallback: show instructions
-    if (isIOS && !isStandalone) {
-      alert('لتثبيت التطبيق: اضغط زر المشاركة في متصفح Safari ثم اختر "إضافة للشاشة الرئيسية".');
-      return;
-    }
-
-    // Generic fallback
-    alert('لا يدعم متصفحك فتح واجهة المشاركة تلقائياً. يمكنك إضافة اختصار يدوياً من قائمة المتصفح.');
+    // Trigger custom event to display custom install instructions (iOS or other browsers)
+    window.dispatchEvent(new CustomEvent('show-pwa-install-prompt'));
   };
 
-  const show = !isStandalone && (deferredPrompt || navigator.share || isIOS);
-  if (!show) return null;
+  if (isStandalone) return null;
 
   return (
-    <button className="app-share-btn" onClick={onClick} style={{ background: 'transparent', border: 'none', cursor: 'pointer', marginRight: '0.5rem' }} title="مشاركة / إضافة للاختصار">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    <button className="app-install-header-btn" onClick={onClick} title="تثبيت التطبيق على جهازك">
+      <svg className="app-install-header-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="7 10 12 15 17 10" />
+        <line x1="12" y1="15" x2="12" y2="3" />
+      </svg>
+      <span className="app-install-header-text">تثبيت</span>
     </button>
   );
 }
