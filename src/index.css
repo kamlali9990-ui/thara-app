@@ -1848,7 +1848,9 @@ header {
   gap: 0.5rem;
 }
 
-@keyframes splashOut { to { opacity: 0; visibility: hidden; } }
+@keyframes splashOut {
+  to { opacity: 0; visibility: hidden; }
+}
 .splash-content { text-align: center; }
 .splash-logo {
   width: 100px; height: 100px; border-radius: 24px;
@@ -1866,7 +1868,10 @@ header {
 .splash-subtitle { font-size: 1rem; color: rgba(255,255,255,0.8); margin-bottom: 2rem; }
 .splash-loader { width: 160px; height: 3px; background: rgba(255,255,255,0.2); border-radius: 99px; margin: 0 auto; overflow: hidden; }
 .splash-loader-bar { height: 100%; background: white; border-radius: 99px; animation: splashLoad 1.8s ease forwards; }
-@keyframes splashLoad { 0% { width: 0; } 100% { width: 100%; } }
+@keyframes splashLoad {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
 
 /* ─── App Header ─── */
 .app-header {
@@ -1936,8 +1941,14 @@ header {
 }
 .slide-in-left { animation: slideLeftIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 .slide-in-right { animation: slideRightIn 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes slideLeftIn { from { transform: translateX(80px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-@keyframes slideRightIn { from { transform: translateX(-80px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes slideLeftIn {
+  from { transform: translateX(80px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+@keyframes slideRightIn {
+  from { transform: translateX(-80px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
 
 /* ─── Home Tab ─── */
 .home-tab { padding-top: 0; }
@@ -2032,7 +2043,10 @@ header {
   display: flex; flex-direction: column;
   animation: cartSlideUp 0.4s cubic-bezier(0.32, 0.72, 0, 1);
 }
-@keyframes cartSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes cartSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
 .cart-screen-header {
   position: relative; padding: 1rem 1rem 0.6rem;
   background: white; border-radius: 22px 22px 0 0;
