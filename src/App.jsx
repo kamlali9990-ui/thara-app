@@ -601,7 +601,6 @@ const isInKhafji = (pos) => pos && pos.lat >= KHAFJI_BOUNDS.minLat && pos.lat <=
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [position, setPosition] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('mada');
-  const [recipientPhone, setRecipientPhone] = useState('0555555555');
   const fee = cartTotal >= 100 ? 0 : 15;
   const outside = position && !isInKhafji(position);
   return (
@@ -626,7 +625,17 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
           </div>
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">2</span> رقم الجوال المستلم</div>
-            <input className="checkout-phone-input" type="tel" dir="ltr" value={recipientPhone} onChange={e => setRecipientPhone(e.target.value)} placeholder="05XXXXXXXX" />
+            <input className="checkout-phone-input" type="tel" dir="ltr" value="0555555555" readOnly />
+            <div className="checkout-bank-info">
+              <div className="checkout-bank-item">
+                <span className="checkout-bank-label">📱 STC Pay</span>
+                <span className="checkout-bank-value" dir="ltr">0555555555</span>
+              </div>
+              <div className="checkout-bank-item">
+                <span className="checkout-bank-label">🔄 طرق 360</span>
+                <span className="checkout-bank-value" dir="ltr">SA1234567890123456789012</span>
+              </div>
+            </div>
           </div>
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">3</span> طريقة الدفع</div>
@@ -652,7 +661,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
           <button className="checkout-confirm-btn" onClick={() => {
-            if (!position || outside) return; placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod, phone: recipientPhone }); onClose();
+            if (!position || outside) return; placeOrder({ location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`, paymentMethod, phone: '0555555555' }); onClose();
           }} disabled={!position || outside}>تأكيد الطلب</button>
         </div>
       </div>
