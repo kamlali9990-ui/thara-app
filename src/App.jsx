@@ -257,34 +257,102 @@ const CartScreen = memo(({ cart, cartTotal, cartCount, updateCartQty, removeFrom
 /* ─── Home Tab ─── */
 const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCart, cartCount, setIsCartOpen }) => {
   const [showBanner, setShowBanner] = useState(true);
+  const { allProducts } = useStore();
+
+  const offerProducts = useMemo(() => {
+    if (!allProducts) return [];
+    return allProducts.filter(p => p.isOffer);
+  }, [allProducts]);
+
   return (
-    <div className="home-tab">
+    <div className="home-tab-container">
+      {/* 1. Hero Welcome Banner Card */}
       {showBanner && (
-        <div className="home-banner">
-          <div className="home-banner-bg" />
-          <div className="home-banner-content">
-            <div className="home-banner-text">
+        <div className="home-banner-card">
+          <div className="home-banner-card-bg" />
+          <div className="home-banner-card-content">
+            <div className="home-banner-card-text">
               <h2>أسواق ثرا الشرق ون</h2>
-              <p>كل ما تحتاجه من السوبرماركت يوصلك لباب بيتك</p>
+              <p>كل ما تحتاجه من السوبرماركت يوصلك لباب بيتك بالخفجي 📦</p>
+              <div className="home-banner-badge-row">
+                <span className="banner-badge">⏱️ توصيل سريع</span>
+                <span className="banner-badge">🚚 مجاني فوق ١٠٠ ر.س</span>
+              </div>
             </div>
-            <button className="home-banner-dismiss" onClick={() => setShowBanner(false)}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button className="home-banner-card-dismiss" onClick={() => setShowBanner(false)} aria-label="إغلاق البانر">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
             </button>
           </div>
         </div>
       )}
-      <div className="home-section">
-        <div className="categories">
+
+      {/* 2. Special Offers Section Card (Horizontal Scroll) */}
+      {offerProducts.length > 0 && selectedCategory === 'الكل' && (
+        <div className="home-section-card offers-card">
+          <div className="section-card-header">
+            <div className="section-card-title-group">
+              <span className="section-card-icon">🔥</span>
+              <h3 className="section-card-title">العروض المميزة اليومية</h3>
+            </div>
+            <span className="section-card-action-link" onClick={() => setSelectedCategory('العروض')}>عرض الكل</span>
+          </div>
+          <div className="offers-horizontal-scroll">
+            {offerProducts.map(product => (
+              <ProductCardMini key={`offer-${product.id}`} product={product} addToCart={addToCart} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 3. Store Categories Section Card */}
+      <div className="home-section-card categories-card">
+        <div className="section-card-header">
+          <div className="section-card-title-group">
+            <span className="section-card-icon">🛍️</span>
+            <h3 className="section-card-title">أقسام المتجر</h3>
+          </div>
+        </div>
+        <div className="categories-horizontal-scroll">
           {categories.map(cat => (
-            <button key={cat} className={`category-chip ${selectedCategory === cat ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat)}>{cat}</button>
+            <button
+              key={cat}
+              className={`category-pill ${selectedCategory === cat ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(cat)}
+            >
+              <span className="category-pill-emoji">{getCategoryEmoji(cat)}</span>
+              <span className="category-pill-text">{cat}</span>
+            </button>
           ))}
+        </div>
+      </div>
+
+      {/* 4. Products Grid Section Card */}
+      <div className="home-section-card products-list-card">
+        <div className="section-card-header">
+          <div className="section-card-title-group">
+            <span className="section-card-icon">🥬</span>
+            <h3 className="section-card-title">
+              {selectedCategory === 'الكل' ? 'كل المنتجات' : selectedCategory}
+            </h3>
+          </div>
+          <span className="products-count-badge">{products.length} منتج</span>
         </div>
         <div className="product-grid">
           {products.map(product => (
             <ProductCard key={product.id} product={product} addToCart={addToCart} />
           ))}
-          {products.length === 0 && <div className="no-products"><p>لا توجد منتجات مطابقة للبحث.</p></div>}
+          {products.length === 0 && (
+            <div className="no-products-card">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <p>عذراً، لم نجد أي منتجات تطابق بحثك.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -345,6 +413,57 @@ const AccountTab = memo(({ user, logout }) => {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         تسجيل الخروج
       </button>
+    </div>
+  );
+});
+
+/* ─── Product Card Emoji Helper ─── */
+const getCategoryEmoji = (category) => {
+  switch (category) {
+    case 'الكل': return '🏪';
+    case 'العروض': return '🔥';
+    case 'المؤن': return '🥫';
+    case 'الألبان': return '🥛';
+    case 'المشروبات': return '🥤';
+    case 'اللحوم والدواجن': return '🥩';
+    case 'المخبوزات': return '🍞';
+    case 'التسالي': return '🍿';
+    case 'الخضروات والفواكه': return '🥦';
+    case 'المنظفات': return '🧼';
+    default: return '📦';
+  }
+};
+
+/* ─── Product Card Mini ─── */
+const ProductCardMini = memo(({ product, addToCart }) => {
+  const [added, setAdded] = useState(false);
+  const handleAdd = (e) => { 
+    e.stopPropagation();
+    addToCart(product); 
+    setAdded(true); 
+    setTimeout(() => setAdded(false), 600); 
+  };
+  return (
+    <div className="product-card-mini-item">
+      <div className="mini-card-img-wrap">
+        <span className="mini-card-badge-offer">%</span>
+        <img src={product.imageUrl} alt={product.name} className="mini-card-img" loading="lazy"
+          onError={(e) => { e.target.src = imgFallback(150, 150, '#f3f7f4', '#127443', 'ثرا'); }} />
+        <button className={`mini-card-add ${added ? 'added' : ''}`} onClick={handleAdd}>
+          {added ? (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          ) : (
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          )}
+        </button>
+      </div>
+      <div className="mini-card-body">
+        <div className="mini-card-name">{product.name}</div>
+        <div className="mini-card-price-row">
+          <span className="mini-card-price">{product.offerPrice ? product.offerPrice.toFixed(2) : product.price.toFixed(2)}<span className="mini-card-currency"> ر.س</span></span>
+          {product.offerPrice && <span className="mini-card-old-price">{product.price.toFixed(2)}</span>}
+        </div>
+      </div>
     </div>
   );
 });
