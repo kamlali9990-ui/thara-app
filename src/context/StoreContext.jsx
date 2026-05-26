@@ -35,7 +35,10 @@ export const StoreProvider = ({ children }) => {
   });
 
   // --- Session ---
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem('thara_cart');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -112,6 +115,9 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => { storage.set('thara_products', products); }, [products]);
   useEffect(() => { storage.set('thara_orders', orders); }, [orders]);
   useEffect(() => { storage.set('thara_chat', chatMessages); }, [chatMessages]);
+
+  // Persist cart to localStorage
+  useEffect(() => { localStorage.setItem('thara_cart', JSON.stringify(cart)); }, [cart]);
 
   // Debounce search (300ms)
   useEffect(() => {
