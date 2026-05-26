@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useEffect, memo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { StoreContext } from './context/StoreContext';
+import { StoreContext, useStore } from './context/StoreContext';
 import { categories } from './data/mockData';
 import L from 'leaflet';
 import InstallPrompt from './components/InstallPrompt';
