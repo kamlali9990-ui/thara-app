@@ -1370,50 +1370,55 @@ header {
   }
   .admin-layout {
     flex-direction: column;
-    padding-bottom: 80px;
+    padding-bottom: 64px;
   }
   .admin-main {
-    padding: 1rem;
+    padding: 0.75rem;
   }
+
+  /* iOS-style bottom tab bar */
   .admin-mobile-nav {
     display: flex;
     position: fixed;
     bottom: 0;
     left: 0;
     right: 0;
-    background: var(--primary);
+    background: white;
+    border-top: 0.5px solid rgba(0,0,0,0.08);
     z-index: 100;
-    overflow-x: auto;
-    gap: 0;
+    padding: 0.3rem 0;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
   }
   .admin-mobile-tab {
     flex: 1;
-    min-width: 60px;
     background: transparent;
-    color: rgba(255,255,255,0.7);
+    color: #98a2b3;
     border: none;
-    padding: 0.5rem 0.25rem;
+    padding: 0.15rem 0;
     font-family: inherit;
-    font-size: 0.65rem;
+    font-size: 0.55rem;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.15rem;
-    transition: all 0.2s;
+    gap: 0.05rem;
+    transition: color 0.2s;
   }
   .admin-mobile-tab .tab-icon {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
   .admin-mobile-tab.active {
-    color: white;
-    background: rgba(255,255,255,0.15);
+    color: var(--primary);
   }
+
+  /* iOS-style header */
   .admin-mobile-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 1rem;
     background: var(--primary);
     color: white;
     position: sticky;
@@ -1421,38 +1426,65 @@ header {
     z-index: 99;
   }
   .admin-mobile-header h2 {
-    font-size: 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
     margin: 0;
   }
   .admin-mobile-header a,
   .admin-mobile-header button {
-    color: rgba(255,255,255,0.8);
+    color: rgba(255,255,255,0.85);
     background: none;
     border: none;
     font-family: inherit;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: none;
   }
-  .admin-card { padding: 1rem; }
+
+  /* Orders */
+  .admin-card { padding: 0.75rem; border-radius: 10px; }
   .admin-card-header { flex-direction: column; gap: 0.5rem; }
   .admin-card-header .admin-order-right { text-align: right !important; }
-  .admin-products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
-  .admin-product-card { padding: 0.75rem; }
-  .admin-product-img { height: 100px; }
-  .admin-input-half { width: 100%; }
-  .admin-input-row { flex-direction: column; gap: 0.35rem; }
-  .admin-offer-row { flex-wrap: wrap; gap: 0.5rem; }
-  .admin-offer-img { width: 40px; height: 40px; }
+  .admin-card-info { font-size: 0.8rem; padding: 0.6rem; }
+
+  /* Products grid */
+  .admin-products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .admin-product-card { padding: 0.5rem; border-radius: 10px; }
+  .admin-product-img { height: 80px; }
+  .admin-product-field { font-size: 0.75rem; padding: 0.2rem; }
+  .admin-input-half { width: 100%; font-size: 0.75rem; }
+  .admin-input-row { flex-direction: column; gap: 0.3rem; }
+  .admin-delete-btn { padding: 0.2rem; font-size: 0.75rem; }
+  .admin-products-header { flex-direction: column; gap: 0.5rem; }
+  .admin-products-header .btn { font-size: 0.8rem; padding: 0.5rem 1rem; }
+
+  /* Offers */
+  .admin-offer-row { flex-wrap: wrap; gap: 0.5rem; padding: 0.6rem; }
+  .admin-offer-img { width: 36px; height: 36px; }
   .admin-offer-checkbox { margin-left: 0; }
   .admin-offer-price-input { width: 100%; }
   .admin-offer-input { width: 100%; }
-  .admin-products-header { flex-direction: column; gap: 0.75rem; }
+  .admin-offer-name { font-size: 0.85rem; }
+
+  /* Chat */
+  .admin-chat-container { height: calc(100vh - 140px); }
+  .admin-bubble { max-width: 85%; font-size: 0.85rem; padding: 0.6rem 0.85rem; }
+
+  /* Section title */
+  .admin-section-title { font-size: 1rem; margin-bottom: 1rem; }
+
+  /* Order status select */
+  .order-status-select { padding: 0.4rem; font-size: 0.85rem; width: 100%; }
+
+  /* Staff */
   .staff-add-form { flex-direction: column; }
   .staff-card { flex-direction: column; align-items: stretch; }
   .staff-actions { justify-content: flex-end; }
-  .admin-chat-container { height: calc(100vh - 160px); }
-  .admin-bubble { max-width: 85%; font-size: 0.9rem; }
+}
+
+@media (max-width: 380px) {
+  .admin-products-grid { grid-template-columns: 1fr; }
 }
 
 .admin-card {
