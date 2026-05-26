@@ -78,23 +78,48 @@ export default function InstallPrompt({ variant }) {
       </div>
     </div>
   ) : (
-    <div className="install-prompt">
-      <div className="install-prompt-content">
-        <div>
-          <div className="install-prompt-title">ثبّت تطبيق ثرا الشرق ون</div>
-          <div className="install-prompt-desc">
-            {isIOS
-              ? 'اضغط 🚀 في Safari ثم "إضافة للشاشة الرئيسية"'
-              : canInstall
-                ? 'للوصول السريع والتصفح بدون إنترنت'
-                : 'افتح القائمة ⋮ في Chrome ← تثبيت التطبيق'}
+    <div className="install-overlay">
+      <div className="install-card">
+        <div className="install-card-inner">
+          <img src="/thara-app/LOGO.jpg" alt="Logo" className="install-logo" />
+          <h2 className="install-title">أسواق ثرا الشرق ون</h2>
+          <p className="install-subtitle">توصيل لباب بيتك في الخفجي</p>
+          
+          <div className="install-benefits">
+            <div className="benefit-item">
+              <span className="benefit-icon">⚡</span>
+              <span>تصفح أسرع وأداء أفضل</span>
+            </div>
+            <div className="benefit-item">
+              <span className="benefit-icon">🔔</span>
+              <span>تنبيهات فورية بحالة الطلب</span>
+            </div>
+            <div className="benefit-item">
+              <span className="benefit-icon">📦</span>
+              <span>سهولة تتبع الطلبات</span>
+            </div>
           </div>
-        </div>
-        <div className="install-prompt-actions">
-          <button className="install-prompt-btn" onClick={install}>
-            {canInstall ? 'تثبيت' : 'حسناً'}
-          </button>
-          <button className="install-prompt-later" onClick={dismiss}>لا الآن</button>
+
+          <div className="install-instructions">
+            {isIOS ? (
+              <div className="ios-instructions">
+                <p>للتثبيت على iPhone:</p>
+                <ol>
+                  <li>اضغط على زر المشاركة <span className="share-icon">⎋</span> أسفل الشاشة</li>
+                  <li>اختر <strong>"إضافة للشاشة الرئيسية"</strong></li>
+                </ol>
+              </div>
+            ) : (
+              <p>{canInstall ? 'ثبّت التطبيق الآن للحصول على أفضل تجربة تسوق' : 'افتح القائمة ⋮ في المتصفح ثم اختر "تثبيت التطبيق"'}</p>
+            )}
+          </div>
+
+          <div className="install-footer">
+            {canInstall && !isIOS && (
+              <button className="install-main-btn" onClick={install}>تثبيت التطبيق الآن</button>
+            )}
+            <button className="install-skip-btn" onClick={dismiss}>المتابعة عبر المتصفح</button>
+          </div>
         </div>
       </div>
     </div>

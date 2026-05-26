@@ -1,0 +1,36 @@
+# Repository Guidelines
+
+## Project Overview
+**Thara Al-Sharq One Markets (أسواق ثرا الشرق ون)** is a Progressive Web App (PWA) designed for supermarket delivery services in Khafji. It features a customer-facing interface, an admin panel, and integration with Supabase for data management and Leaflet for location services.
+
+## Project Structure & Module Organization
+- **`.\src\main.jsx`**: Application entry point. Handles Service Worker registration, routing configuration, and global providers.
+- **`.\src\App.jsx`**: Main customer-facing application logic, including tab navigation (Home, Orders, Account) and cart management.
+- **`.\src\Admin.jsx`**: Admin dashboard implementation for managing orders, products, and staff roles.
+- **`.\src\components\`**: Reusable UI components (e.g., `.\src\components\InstallPrompt.jsx`, `.\src\components\ErrorBoundary.jsx`).
+- **`.\src\context\StoreContext.jsx`**: Centralized state management using React Context API for products, cart, user authentication, and orders.
+- **`.\src\supabase\`**: Supabase client configuration and database interaction logic.
+- **`.\src\data\mockData.js`**: Fallback and initial data structures for products and categories.
+- **`.\public\`**: Static assets and PWA-specific files like `.\public\sw.js` and `.\public\manifest.json`.
+
+## Build, Test, and Development Commands
+- **Development**: `npm run dev` (Starts Vite dev server)
+- **Production Build**: `npm run build` (Outputs to `dist/`)
+- **Preview Build**: `npm run preview` (Locally preview production build)
+- **Scripts**: `node scripts\generate-sql.js` (Utility for generating SQL migrations)
+
+## Coding Style & Naming Conventions
+- **Framework**: React 18 with Vite. Uses Functional Components and Hooks.
+- **Language**: JavaScript (ES Modules).
+- **Styling**: Vanilla CSS in `.\src\index.css`. RTL (Right-to-Left) is enforced via `dir="rtl"` in `.\index.html`.
+- **Optimization**: Vite manual chunking is configured for `supabase`, `leaflet`, and `vendor` libraries in `.\vite.config.js`.
+- **PWA**: Strict adherence to PWA standards for offline support and installation prompts.
+
+## Deployment & Environments
+- **Base URL**: The application is configured to run under the `/thara-app/` base path.
+- **CI/CD**: GitHub Actions workflow defined in `.\.github\workflows\deploy.yml`.
+
+## Commit & Pull Request Guidelines
+- **Language**: Commit messages are primarily in Arabic.
+- **Conventions**: Messages often start with functional descriptions (e.g., "إصلاح" for Fix, "إضافة" for Add, "تحسين" for Improve).
+- **Branching**: Direct commits to the main branch appear common for feature updates and fixes.
