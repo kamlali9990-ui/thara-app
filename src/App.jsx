@@ -345,45 +345,54 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const mapRef = useRef(null);
   const inst = useRef(null);
   const marker = useRef(null);
-  const autoLocated = useRef(false);
+  const userInteracted = useRef(false);
   useEffect(() => {
     if (inst.current) return;
     const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13, minZoom: 12 });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; <a href="https://carto.com/">CARTO</a>' }).addTo(map);
     map.on('click', (e) => {
+      userInteracted.current = true;
       setPosition(e.latlng);
       if (marker.current) marker.current.setLatLng([e.latlng.lat, e.latlng.lng]);
       else marker.current = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
     });
     inst.current = map;
-    setTimeout(() => map.invalidateSize(), 300);
     return () => { map.remove(); inst.current = null; marker.current = null; };
   }, []);
+  const syncMarker = useCallback((pos) => {
+    if (!inst.current) return;
+    inst.current.setView([pos.lat, pos.lng], 15);
+    if (marker.current) marker.current.setLatLng([pos.lat, pos.lng]);
+    else marker.current = L.marker([pos.lat, pos.lng]).addTo(inst.current);
+  }, []);
   const locate = useCallback(() => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation || userInteracted.current) return;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const ll = [pos.coords.latitude, pos.coords.longitude];
-        inst.current?.setView(ll, 15);
-        if (marker.current) marker.current.setLatLng(ll);
-        else marker.current = L.marker(ll).addTo(inst.current);
-        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        if (userInteracted.current) return;
+        const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        syncMarker(p);
+        setPosition(p);
       },
       () => {},
       { enableHighAccuracy: true, timeout: 10000 }
     );
   }, []);
   useEffect(() => {
-    if (autoLocated.current) return;
-    autoLocated.current = true;
+    if (!inst.current || userInteracted.current) return;
     const t = setTimeout(locate, 500);
     return () => clearTimeout(t);
+  }, [inst.current]);
+  useEffect(() => {
+    const ro = new ResizeObserver(() => inst.current?.invalidateSize());
+    if (mapRef.current) ro.observe(mapRef.current);
+    return () => ro.disconnect();
   }, []);
   return (
     <div className="khafji-map-wrap">
       <div ref={mapRef} className="khafji-map" />
-      <button className="locate-btn" onClick={locate}>🎯</button>
+      <button className="locate-btn" onClick={() => { userInteracted.current = false; locate(); }}>🎯</button>
     </div>
   );
 });
