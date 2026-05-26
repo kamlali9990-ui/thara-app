@@ -298,7 +298,7 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
           </div>
         </div>
 
-        <div className="categories-grid">
+        <div className="categories-scroll">
           {categories.map(cat => (
             <button
               key={cat}
