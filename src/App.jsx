@@ -418,8 +418,6 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="checkout-payments">
               {[
                 { id: 'mada', label: 'مدى', icon: '💳' },
-                { id: 'credit_card', label: 'بطاقة ائتمانية', icon: '💳' },
-                { id: 'apple_pay', label: 'Apple Pay', icon: '🍎' },
                 { id: 'bank_transfer', label: 'تحويل بنكي', icon: '🏦' },
                 { id: 'cod', label: 'الدفع عند الاستلام', icon: '💵' },
               ].map(m => (
