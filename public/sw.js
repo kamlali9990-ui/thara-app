@@ -1,10 +1,10 @@
 const CACHE_NAME = 'thara-v6';
 const STATIC_ASSETS = [
-  '/thara-app/',
-  '/thara-app/index.html',
-  '/thara-app/LOGO.jpg',
-  '/thara-app/icon-192.png',
-  '/thara-app/icon-512.png',
+  '/alkhfji/',
+  '/alkhfji/index.html',
+  '/alkhfji/LOGO.jpg',
+  '/alkhfji/icon-192.png',
+  '/alkhfji/icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap'
 ];
