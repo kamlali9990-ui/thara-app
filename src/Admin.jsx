@@ -159,7 +159,7 @@ export default function Admin() {
 
       {/* Main Content */}
       <main className="admin-main">
-        {activeTab === 'orders' && <AdminOrders orders={orders} updateOrderStatus={updateOrderStatus} />}
+        {activeTab === 'orders' && <AdminOrders orders={orders} updateOrderStatus={updateOrderStatus} staffRole={staffRole} />}
         {activeTab === 'products' && <AdminProducts products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
         {activeTab === 'offers' && <AdminOffers products={allProducts} updateProduct={updateProduct} />}
         {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} />}
@@ -189,12 +189,13 @@ function parseLocation(loc) {
   return null;
 }
 
-function AdminOrders({ orders, updateOrderStatus }) {
+function AdminOrders({ orders, updateOrderStatus, staffRole }) {
   const { chatMessages, sendMessage } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
+  const [showCompleted, setShowCompleted] = useState(false);
 
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
@@ -245,6 +246,87 @@ function AdminOrders({ orders, updateOrderStatus }) {
   };
 
   const orderChatMessages = (orderId) => chatMessages.filter(m => !m.orderId || m.orderId === orderId);
+  const senderRole = staffRole === 'driver' ? 'driver' : 'admin';
+  const activeOrders = orders.filter(o => o.status !== 'مكتمل');
+  const completedOrders = orders.filter(o => o.status === 'مكتمل');
+
+  const getStatusClass = (status) => {
+    if (status === 'جديد') return 'status-new';
+    if (status === 'قيد التحضير') return 'status-preparing';
+    if (status === 'في الطريق') return 'status-route';
+    if (status === 'ملغي') return 'status-cancelled';
+    if (status === 'مكتمل') return 'status-completed';
+    return '';
+  };
+
+  const renderOrderCard = (order, { compact = false } = {}) => (
+    <div
+      key={order.id}
+      className={`admin-card order-card ${order.status === 'مكتمل' ? 'order-card-completed' : 'order-card-active'} ${getStatusClass(order.status)}`}
+    >
+      <div className="admin-card-header">
+        <div>
+          <strong>طلب رقم:</strong> #{order.id.slice(-6)} <br/>
+          <small>{new Date(order.date).toLocaleString('ar-SA')}</small>
+          {order.estimatedDelivery && (
+            <div className="admin-eta-badge">
+              🕐 التوصيل خلال {order.estimatedDelivery} دقيقة
+            </div>
+          )}
+        </div>
+        <div className="admin-order-right" style={{ textAlign: 'left' }}>
+          <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
+          {!compact && (order.status === 'جديد' ? (
+            <button
+              onClick={() => doUpdate(order, 'قيد التحضير')}
+              className="btn btn-accept"
+            >
+              استلام الطلب
+            </button>
+          ) : (
+            <select
+              value={order.status}
+              onChange={(e) => handleStatusChange(order, e.target.value)}
+              className="order-status-select"
+            >
+              <option value="جديد">جديد</option>
+              <option value="قيد التحضير">قيد التحضير</option>
+              <option value="في الطريق">في الطريق</option>
+              <option value="مكتمل">مكتمل</option>
+              <option value="ملغي">ملغي</option>
+            </select>
+          ))}
+        </div>
+      </div>
+      {!compact && (
+        <div>
+          <strong>المنتجات المطلوبة:</strong>
+          <ul className="order-items-list">
+            {order.items.map(item => (
+              <li key={item.id}>{item.name} (الكمية: {item.qty})</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <div className="admin-card-info">
+        <strong>الدفع:</strong> {order.paymentMethod} | <strong>الموقع:</strong> {order.location}
+        {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" className="whatsapp-link" title="واتساب">💬</a></>}
+        {order.notes && !compact && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
+        {!compact && (() => {
+          const coords = parseLocation(order.location);
+          if (coords) return (
+            <div className="admin-location-actions">
+              <a href={`https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`} target="_blank" className="map-link">📍 فتح في خرائط جوجل</a>
+            </div>
+          );
+          return null;
+        })()}
+        <div style={{ marginTop: '0.4rem' }}>
+          <button className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div>
@@ -278,9 +360,9 @@ function AdminOrders({ orders, updateOrderStatus }) {
             </div>
             <div className="order-chat-input">
               <input type="text" value={chatText} onChange={e => setChatText(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter') { sendMessage('driver', chatText, chatOrder); setChatText(''); } }}
+                onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } } }}
                 placeholder="اكتب رسالة..." />
-              <button onClick={() => { if (chatText.trim()) { sendMessage('driver', chatText, chatOrder); setChatText(''); } }}>إرسال</button>
+              <button onClick={() => { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } }}>إرسال</button>
             </div>
           </div>
         </div>
@@ -293,70 +375,27 @@ function AdminOrders({ orders, updateOrderStatus }) {
         <div className="admin-stat-card"><span>المبيعات</span><strong>{stats.revenue.toFixed(2)} ر.س</strong></div>
       </div>
       <div className="admin-orders-list">
-        {orders.map(order => (
-          <div key={order.id} className="admin-card">
-            <div className="admin-card-header">
-              <div>
-                <strong>طلب رقم:</strong> #{order.id.slice(-6)} <br/>
-                <small>{new Date(order.date).toLocaleString('ar-SA')}</small>
-                {order.estimatedDelivery && (
-                  <div className="admin-eta-badge">
-                    🕐 التوصيل خلال {order.estimatedDelivery} دقيقة
-                  </div>
-                )}
-              </div>
-              <div className="admin-order-right" style={{textAlign: 'left'}}>
-                <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
-                {order.status === 'جديد' ? (
-                  <button
-                    onClick={() => doUpdate(order, 'قيد التحضير')}
-                    className="btn btn-accept"
-                  >
-                    استلام الطلب
-                  </button>
-                ) : (
-                  <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order, e.target.value)}
-                    className="order-status-select"
-                  >
-                    <option value="جديد">جديد</option>
-                    <option value="قيد التحضير">قيد التحضير</option>
-                    <option value="في الطريق">في الطريق</option>
-                    <option value="مكتمل">مكتمل</option>
-                    <option value="ملغي">ملغي</option>
-                  </select>
-                )}
-              </div>
-            </div>
-            <div>
-              <strong>المنتجات المطلوبة:</strong>
-              <ul className="order-items-list">
-                {order.items.map(item => (
-                  <li key={item.id}>{item.name} (الكمية: {item.qty})</li>
-                ))}
-              </ul>
-            </div>
-            <div className="admin-card-info">
-              <strong>الدفع:</strong> {order.paymentMethod} | <strong>الموقع:</strong> {order.location}
-              {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" className="whatsapp-link" title="واتساب">💬</a></>}
-              {order.notes && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
-              {(() => {
-                const coords = parseLocation(order.location);
-                if (coords) return (
-                  <div className="admin-location-actions">
-                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`} target="_blank" className="map-link">📍 فتح في خرائط جوجل</a>
-                  </div>
-                );
-                return null;
-              })()}
-              <div style={{ marginTop: '0.4rem' }}>
-                <button className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
-              </div>
-            </div>
-          </div>
-        ))}
+        {activeOrders.length === 0 && (
+          <div className="empty-orders">لا توجد طلبات نشطة حالياً.</div>
+        )}
+        {activeOrders.map(order => renderOrderCard(order))}
       </div>
+
+      {completedOrders.length > 0 && (
+        <div className="completed-orders-section">
+          <button
+            className="completed-toggle-btn"
+            onClick={() => setShowCompleted(prev => !prev)}
+          >
+            {showCompleted ? '▾' : '▸'} الطلبات المكتملة ({completedOrders.length})
+          </button>
+          {showCompleted && (
+            <div className="admin-orders-list completed-orders-list">
+              {completedOrders.map(order => renderOrderCard(order, { compact: true }))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

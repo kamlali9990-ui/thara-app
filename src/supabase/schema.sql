@@ -242,6 +242,67 @@ BEGIN
 END;
 $$;
 
+-- Direct signup without email confirmation (matches requested UX)
+CREATE OR REPLACE FUNCTION public.create_customer_auth_rpc(p_email TEXT, p_password TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, extensions
+AS $$
+DECLARE
+  user_id UUID;
+  identity_id UUID;
+  clean_email TEXT;
+  pw_hash TEXT;
+BEGIN
+  clean_email := lower(trim(p_email));
+  IF clean_email = '' OR position('@' in clean_email) = 0 THEN
+    RAISE EXCEPTION 'Invalid email';
+  END IF;
+  IF p_password IS NULL OR length(p_password) < 6 THEN
+    RAISE EXCEPTION 'Password must be at least 6 characters';
+  END IF;
+
+  SELECT id INTO user_id FROM auth.users WHERE lower(email) = clean_email LIMIT 1;
+  IF user_id IS NOT NULL THEN
+    RAISE EXCEPTION 'User already registered';
+  END IF;
+
+  pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf'));
+  user_id := extensions.gen_random_uuid();
+
+  INSERT INTO auth.users (
+    instance_id, id, aud, role, email, encrypted_password,
+    email_confirmed_at, confirmation_sent_at, confirmation_token,
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+  ) VALUES (
+    '00000000-0000-0000-0000-000000000000',
+    user_id, 'authenticated', 'authenticated', clean_email, pw_hash,
+    now(), now(), '', '{"provider":"email","providers":["email"]}', '{}',
+    now(), now()
+  );
+
+  SELECT i.id INTO identity_id
+  FROM auth.identities i
+  WHERE i.user_id = user_id AND i.provider = 'email'
+  LIMIT 1;
+
+  IF identity_id IS NULL THEN
+    INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
+    VALUES (
+      extensions.gen_random_uuid(),
+      user_id,
+      json_build_object('sub', user_id::TEXT, 'email', clean_email),
+      'email',
+      clean_email,
+      now(), now(), now()
+    );
+  END IF;
+
+  RETURN json_build_object('id', user_id, 'email', clean_email);
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION public.get_customer_rpc(p_email TEXT)
 RETURNS JSON
 LANGUAGE plpgsql
@@ -274,6 +335,7 @@ $$;
 GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.create_customer_auth_rpc TO anon, authenticated;
 
 -- Loyalty: add column if not exists
 DO $$ BEGIN

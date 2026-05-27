@@ -26,15 +26,15 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      const { user } = await authApi.signUp(email, password);
-      if (user) {
-        try {
-          await customersApi.create(email, name, phone);
-        } catch {
-          console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
-        }
+      const normalizedEmail = email.trim().toLowerCase();
+      await authApi.signUpDirect(normalizedEmail, password);
+      await authApi.signIn(normalizedEmail, password);
+      try {
+        await customersApi.create(normalizedEmail, name, phone);
+      } catch {
+        console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
-      navigate('/login?registered=1');
+      navigate('/');
     } catch (err) {
       setError(err.message === 'User already registered'
         ? 'هذا البريد مسجل مسبقاً'

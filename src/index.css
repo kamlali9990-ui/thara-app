@@ -1149,6 +1149,54 @@ header {
   margin-top: 0.75rem;
   color: #94a3b8;
 }
+.order-card {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.order-card-active {
+  border-width: 1px;
+}
+.order-card-active.status-new {
+  border-color: rgba(59, 130, 246, 0.65);
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.22), rgba(59, 130, 246, 0.08));
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.22);
+}
+.order-card-active.status-preparing {
+  border-color: rgba(245, 158, 11, 0.65);
+  background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(245, 158, 11, 0.1));
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2);
+}
+.order-card-active.status-route {
+  border-color: rgba(34, 197, 94, 0.65);
+  background: linear-gradient(135deg, rgba(21, 128, 61, 0.22), rgba(34, 197, 94, 0.1));
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
+}
+.order-card-active.status-cancelled {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(127, 29, 29, 0.2);
+}
+.order-card-completed {
+  border-color: rgba(148, 163, 184, 0.35);
+  background: rgba(100, 116, 139, 0.12);
+  box-shadow: none;
+}
+.completed-orders-section {
+  margin-top: 1.25rem;
+}
+.completed-toggle-btn {
+  width: 100%;
+  border: 0.5px solid rgba(148, 163, 184, 0.35);
+  background: rgba(148, 163, 184, 0.14);
+  color: #cbd5e1;
+  border-radius: 14px;
+  padding: 0.75rem 1rem;
+  text-align: right;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.completed-orders-list {
+  margin-top: 0.85rem;
+}
 .admin-product-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1875,6 +1923,18 @@ header {
   transition: transform 0.2s;
 }
 .chat-fab:hover { transform: scale(1.1); }
+.whatsapp-fab {
+  background: #25d366 !important;
+  color: #ffffff !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 26px rgba(37, 211, 102, 0.38) !important;
+}
+.whatsapp-fab:hover {
+  filter: brightness(0.95);
+}
 
 .chat-window {
   position: absolute;

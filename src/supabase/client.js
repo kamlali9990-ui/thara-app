@@ -14,7 +14,19 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   );
 }
 
+function resolveAuthStorageKey() {
+  if (typeof window === 'undefined') return 'thara-auth-store';
+  const path = window.location.pathname || '';
+  // Keep admin and storefront sessions isolated between tabs/routes.
+  return path.includes('/admin') ? 'thara-auth-admin' : 'thara-auth-store';
+}
+
 export const supabase = createClient(
   SUPABASE_URL || 'https://placeholder.supabase.co',
-  SUPABASE_ANON_KEY || 'placeholder-key'
+  SUPABASE_ANON_KEY || 'placeholder-key',
+  {
+    auth: {
+      storageKey: resolveAuthStorageKey(),
+    }
+  }
 );

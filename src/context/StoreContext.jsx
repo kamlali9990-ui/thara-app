@@ -420,7 +420,8 @@ export const StoreProvider = ({ children }) => {
 
   // Load customers list on init if staff
   useEffect(() => {
-    if (!supabaseReady || !staffRole) return;
+    const canLoadCustomers = staffRole === 'admin' || staffRole === 'manager' || staffRole === 'employee';
+    if (!supabaseReady || !canLoadCustomers) return;
     loadCustomers();
   }, [supabaseReady, staffRole]);
 

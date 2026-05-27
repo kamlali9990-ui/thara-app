@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import App from './App.jsx'
 import Login from './pages/Login.jsx'
 import CustomerLogin from './pages/CustomerLogin.jsx'
@@ -34,6 +34,35 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
 
 const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
 
+function LeaveGuard() {
+  const location = useLocation();
+
+  React.useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  React.useEffect(() => {
+    window.history.pushState({ tharaGuard: true }, '', window.location.href);
+
+    const handlePopState = () => {
+      const shouldLeave = window.confirm('هل تريد المغادرة؟');
+      if (!shouldLeave) {
+        window.history.pushState({ tharaGuard: true }, '', window.location.href);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [location.pathname]);
+
+  return null;
+}
+
 function ProtectedRoute({ children }) {
   const { user, loading, staffRole } = useStore();
   if (loading) return <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
@@ -48,6 +77,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ErrorBoundary>
       <StoreProvider>
         <BrowserRouter basename={BASENAME}>
+          <LeaveGuard />
           <Routes>
             <Route path="/" element={<App />} />
             <Route path="/login" element={<CustomerLogin />} />

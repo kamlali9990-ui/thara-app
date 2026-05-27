@@ -15,6 +15,16 @@ export const authApi = {
     return data;
   },
 
+  async signUpDirect(email, password) {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const { data, error } = await supabase.rpc('create_customer_auth_rpc', {
+      p_email: normalizedEmail,
+      p_password: password
+    });
+    if (error) throw error;
+    return data;
+  },
+
   async signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
