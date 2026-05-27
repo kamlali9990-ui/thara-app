@@ -366,7 +366,10 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
 
 /* ─── Orders Tab ─── */
 const OrdersTab = memo(({ orders, loadOrders }) => {
+  const { chatMessages, sendMessage } = useContext(StoreContext);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
+  const [chatOrder, setChatOrder] = useState(null);
+  const [chatText, setChatText] = useState('');
 
   useEffect(() => {
     if (!loadOrders) return;
@@ -384,6 +387,8 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
     return now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
   };
 
+  const orderChatMsgs = (orderId) => chatMessages.filter(m => !m.orderId || m.orderId === orderId);
+
   if (!orders.length) return (
     <div className="empty-tab">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -394,6 +399,31 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
   return (
     <div className="orders-tab">
       <h2 className="orders-tab-title">طلباتي</h2>
+      {chatOrder && (
+        <div className="custom-chat-overlay" onClick={() => { setChatOrder(null); setChatText(''); }}>
+          <div className="custom-chat-dialog" onClick={e => e.stopPropagation()}>
+            <div className="custom-chat-header">
+              <strong>محادثة الطلب #{chatOrder.slice(-6)}</strong>
+              <button className="custom-chat-close" onClick={() => { setChatOrder(null); setChatText(''); }}>✕</button>
+            </div>
+            <div className="custom-chat-body">
+              {orderChatMsgs(chatOrder).length === 0 && <p className="custom-chat-empty">لا توجد رسائل بعد.</p>}
+              {orderChatMsgs(chatOrder).map(m => (
+                <div key={m.id} className={`custom-chat-bubble ${m.sender === 'customer' ? 'me' : 'them'}`}>
+                  <div>{m.text}</div>
+                  <div className="custom-chat-time">{m.time}</div>
+                </div>
+              ))}
+            </div>
+            <div className="custom-chat-input">
+              <input type="text" value={chatText} onChange={e => setChatText(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { sendMessage('customer', chatText, chatOrder); setChatText(''); } }}
+                placeholder="اكتب رسالة..." />
+              <button onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder); setChatText(''); } }}>إرسال</button>
+            </div>
+          </div>
+        </div>
+      )}
       {orders.map(order => (
         <div key={order.id} className="order-card-mini">
           <div className="order-card-mini-top">
@@ -412,7 +442,10 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
             {order.items?.slice(0, 3).map(item => <span key={item.id}>{item.name} ×{item.qty}</span>)}
             {order.items?.length > 3 && <span className="order-card-mini-more">+{order.items.length - 3} أخرى</span>}
           </div>
-          <div className="order-card-mini-total"><strong>{order.total.toFixed(2)} ر.س</strong></div>
+          <div className="order-card-mini-total">
+            <strong>{order.total.toFixed(2)} ر.س</strong>
+            <button className="order-chat-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة</button>
+          </div>
         </div>
       ))}
     </div>

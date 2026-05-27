@@ -1,35 +1,35 @@
 import { supabase } from './client';
 
 export const chatApi = {
-  async list() {
-    const { data, error } = await supabase
-      .from('chat_messages')
-      .select('*')
-      .order('created_at', { ascending: true });
+  async list(orderId = null) {
+    let q = supabase.from('chat_messages').select('*').order('created_at', { ascending: true });
+    if (orderId) q = q.eq('order_id', orderId);
+    const { data, error } = await q;
     if (error) throw error;
     return data.map(mapMessage);
   },
 
-  async send(sender, text) {
+  async send(sender, text, orderId = null) {
+    const payload = { sender, text };
+    if (orderId) payload.order_id = orderId;
     const { data, error } = await supabase
       .from('chat_messages')
-      .insert([{ sender, text }])
+      .insert([payload])
       .select()
       .single();
     if (error) throw error;
     return mapMessage(data);
   },
 
-  subscribe(onMessage) {
+  subscribe(orderId = null, onMessage) {
+    const filter = orderId
+      ? { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `order_id=eq.${orderId}` }
+      : { event: 'INSERT', schema: 'public', table: 'chat_messages' };
     return supabase
-      .channel('chat_messages')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'chat_messages' },
-        (payload) => {
-          onMessage(mapMessage(payload.new));
-        }
-      )
+      .channel('chat_messages' + (orderId ? `_${orderId}` : ''))
+      .on('postgres_changes', filter, (payload) => {
+        onMessage(mapMessage(payload.new));
+      })
       .subscribe();
   }
 };
@@ -39,6 +39,7 @@ function mapMessage(m) {
     id: String(m.id),
     sender: m.sender,
     text: m.text,
+    orderId: m.order_id ? String(m.order_id) : null,
     time: new Date(m.created_at).toLocaleTimeString('ar-SA')
   };
 }

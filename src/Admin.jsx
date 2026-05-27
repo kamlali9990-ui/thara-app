@@ -35,11 +35,12 @@ export default function Admin() {
   const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين' };
   const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
   const canManageCatalog = staffRole === 'admin' || staffRole === 'manager';
+  const isDriver = staffRole === 'driver';
   const tabs = [
     { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
-    { id: 'chat', label: 'العملاء', icon: '💬' },
-    { id: 'users', label: 'المستخدمين', icon: '👤' },
   ];
+  if (!isDriver) tabs.push({ id: 'chat', label: 'العملاء', icon: '💬' });
+  if (!isDriver) tabs.push({ id: 'users', label: 'المستخدمين', icon: '👤' });
   if (canManageCatalog) {
     tabs.splice(1, 0,
       { id: 'products', label: 'المنتجات', icon: '📦' },
@@ -104,8 +105,11 @@ function parseLocation(loc) {
 }
 
 function AdminOrders({ orders, updateOrderStatus }) {
+  const { chatMessages, sendMessage } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
+  const [chatOrder, setChatOrder] = useState(null);
+  const [chatText, setChatText] = useState('');
 
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
@@ -155,6 +159,8 @@ function AdminOrders({ orders, updateOrderStatus }) {
     }
   };
 
+  const orderChatMessages = (orderId) => chatMessages.filter(m => !m.orderId || m.orderId === orderId);
+
   return (
     <div>
       {confirmMsg && (
@@ -164,6 +170,32 @@ function AdminOrders({ orders, updateOrderStatus }) {
             <div className="confirm-actions">
               <button className="confirm-btn confirm-yes" onClick={confirmMsg.onConfirm}>تأكيد</button>
               <button className="confirm-btn confirm-no" onClick={() => setConfirmMsg(null)}>إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {chatOrder && (
+        <div className="confirm-overlay" onClick={() => { setChatOrder(null); setChatText(''); }}>
+          <div className="order-chat-dialog" onClick={e => e.stopPropagation()}>
+            <div className="order-chat-header">
+              <strong>محادثة الطلب #{chatOrder.slice(-6)}</strong>
+              <button className="chat-close-btn" onClick={() => { setChatOrder(null); setChatText(''); }}>✕</button>
+            </div>
+            <div className="order-chat-body">
+              {orderChatMessages(chatOrder).length === 0 && <p className="empty-chat">لا توجد رسائل بعد.</p>}
+              {orderChatMessages(chatOrder).map(m => (
+                <div key={m.id} className={`admin-bubble ${m.sender === 'admin' || m.sender === 'driver' ? 'admin' : 'customer'}`}>
+                  <div className="admin-bubble-sender">{m.sender === 'admin' || m.sender === 'driver' ? 'أنت' : 'العميل'}</div>
+                  <div>{m.text}</div>
+                  <div className="admin-bubble-time">{m.time}</div>
+                </div>
+              ))}
+            </div>
+            <div className="order-chat-input">
+              <input type="text" value={chatText} onChange={e => setChatText(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { sendMessage('driver', chatText, chatOrder); setChatText(''); } }}
+                placeholder="اكتب رسالة..." />
+              <button onClick={() => { if (chatText.trim()) { sendMessage('driver', chatText, chatOrder); setChatText(''); } }}>إرسال</button>
             </div>
           </div>
         </div>
@@ -233,6 +265,9 @@ function AdminOrders({ orders, updateOrderStatus }) {
                 );
                 return null;
               })()}
+              <div style={{ marginTop: '0.4rem' }}>
+                <button className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
+              </div>
             </div>
           </div>
         ))}

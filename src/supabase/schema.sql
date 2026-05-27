@@ -482,8 +482,9 @@ GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TE
 -- 5. Chat Messages
 CREATE TABLE IF NOT EXISTS chat_messages (
   id BIGSERIAL PRIMARY KEY,
-  sender TEXT NOT NULL CHECK (sender IN ('customer', 'admin')),
+  sender TEXT NOT NULL CHECK (sender IN ('customer', 'admin', 'driver')),
   text TEXT NOT NULL,
+  order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

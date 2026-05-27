@@ -384,11 +384,11 @@ export const StoreProvider = ({ children }) => {
   }, [hasSupabase, supabaseReady]);
 
   // --- Chat ---
-  const sendMessage = useCallback(async (sender, text) => {
-    const msg = { id: Date.now().toString(), sender, text, time: new Date().toLocaleTimeString() };
+  const sendMessage = useCallback(async (sender, text, orderId) => {
+    const msg = { id: Date.now().toString(), sender, text, orderId: orderId || null, time: new Date().toLocaleTimeString() };
     if (hasSupabase && supabaseReady) {
       try {
-        const sent = await chatApi.send(sender, text);
+        const sent = await chatApi.send(sender, text, orderId);
         msg.id = sent.id;
         msg.time = sent.time;
       } catch { /* fallback */ }

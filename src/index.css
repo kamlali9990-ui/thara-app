@@ -2459,6 +2459,46 @@ header {
   text-align: left;
 }
 
+.order-chat-dialog {
+  background: #1a2332; color: white;
+  width: 90%; max-width: 400px;
+  border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column;
+  max-height: 80vh;
+}
+.order-chat-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 1rem; background: rgba(0,0,0,0.3);
+}
+.chat-close-btn { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
+.order-chat-body {
+  flex: 1; overflow-y: auto; padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
+  min-height: 200px;
+}
+.order-chat-input {
+  display: flex; gap: 0.5rem; padding: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.order-chat-input input {
+  flex: 1; padding: 0.5rem 0.75rem; border-radius: 8px;
+  border: none; background: rgba(255,255,255,0.1); color: white;
+  font-family: inherit; font-size: 0.9rem;
+}
+.order-chat-input input::placeholder { color: rgba(255,255,255,0.4); }
+.order-chat-input button {
+  padding: 0.5rem 1rem; border-radius: 8px; border: none;
+  background: var(--primary); color: white; cursor: pointer;
+  font-family: inherit;
+}
+.chat-order-btn {
+  background: rgba(96,165,250,0.15); color: #60a5fa;
+  border: none; padding: 0.3rem 0.6rem; border-radius: 6px;
+  cursor: pointer; font-family: inherit; font-size: 0.85rem;
+}
+.chat-order-btn:hover { background: rgba(96,165,250,0.25); }
+.empty-chat { text-align: center; opacity: 0.5; padding: 2rem; }
+
 .admin-offers-list {
   background: rgba(255,255,255,0.06);
   border-radius: 12px;
@@ -3810,7 +3850,58 @@ header {
 .order-card-mini-more { color: var(--text-light); font-size: 0.72rem; }
 .order-eta { font-size: 0.75rem; color: #f59e0b; margin-top: 0.2rem; }
 [data-theme="dark"] .order-eta { color: #fbbf24; }
-.order-card-mini-total { font-size: 1.05rem; font-weight: 850; color: var(--primary); }
+.order-card-mini-total { font-size: 1.05rem; font-weight: 850; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+.order-chat-btn { background: none; border: 1px solid rgba(0,0,0,0.1); padding: 0.25rem 0.5rem; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-family: inherit; color: var(--text-main); }
+.order-chat-btn:hover { background: rgba(0,0,0,0.05); }
+
+.custom-chat-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+}
+.custom-chat-dialog {
+  background: var(--bg-card); color: var(--text-main);
+  width: 100%; max-width: 400px; border-radius: 16px; overflow: hidden;
+  display: flex; flex-direction: column; max-height: 80vh;
+  box-shadow: var(--shadow-lg);
+}
+.custom-chat-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.75rem 1rem; border-bottom: 1px solid var(--border);
+}
+.custom-chat-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-light); }
+.custom-chat-body {
+  flex: 1; overflow-y: auto; padding: 1rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
+  min-height: 200px;
+}
+.custom-chat-bubble {
+  padding: 0.6rem 0.85rem; border-radius: 12px;
+  max-width: 80%; font-size: 0.9rem;
+}
+.custom-chat-bubble.me {
+  align-self: flex-end; background: var(--primary); color: white;
+}
+.custom-chat-bubble.them {
+  align-self: flex-start; background: var(--bg-color); color: var(--text-main);
+}
+.custom-chat-time { font-size: 0.65rem; opacity: 0.6; margin-top: 0.2rem; text-align: left; }
+.custom-chat-input {
+  display: flex; gap: 0.5rem; padding: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.custom-chat-input input {
+  flex: 1; padding: 0.5rem 0.75rem; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface-2);
+  font-family: inherit; font-size: 0.9rem; color: var(--text-main);
+}
+.custom-chat-input button {
+  padding: 0.5rem 1rem; border-radius: 8px; border: none;
+  background: var(--primary); color: white; cursor: pointer;
+  font-family: inherit;
+}
+.custom-chat-empty { text-align: center; opacity: 0.5; padding: 2rem; font-size: 0.85rem; }
 
 /* ─── iOS Empty Tab ─── */
 .empty-tab {
