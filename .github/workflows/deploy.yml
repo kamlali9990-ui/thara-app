@@ -20,11 +20,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-      - run: |
-          cd dist
-          git init
-          git config user.name "kamlali9990-ui"
-          git config user.email "kamlali9990-ui@users.noreply.github.com"
-          git add -A
-          git commit -m "deploy $(date)"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/kamlali9990-ui/thara-app.git HEAD:gh-pages --force
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          force_orphan: true
