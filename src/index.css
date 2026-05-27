@@ -5057,7 +5057,19 @@ header {
 .confirm-no { background: rgba(255,255,255,0.12); color: white; }
 .confirm-no:active { background: rgba(255,255,255,0.2); }
 .admin-eta-badge {
-  font-size: 0.75rem; color: #fbbf24; margin-top: 0.25rem;
+  font-size: 0.85rem; color: #fbbf24; margin-top: 0.35rem; font-weight: 700; letter-spacing: 0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Thicker visual identity for Admin and Driver pages */
+.admin-layout, .admin-card, .admin-stat-card {
+  font-weight: 500;
+}
+.admin-layout h1, .admin-layout h2, .admin-layout h3, .admin-layout strong, .driver-sub-title, .admin-section-title {
+  font-weight: 700;
+}
+.admin-layout .order-total-text {
+  font-weight: 800;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 /* Processing pulse for يتم تجهيز طلبك badge */
