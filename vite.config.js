@@ -6,16 +6,17 @@ export default defineConfig(({ mode }) => {
   return {
     base: isVercel ? '/' : (mode === 'production' ? '/thara-app/' : '/'),
     plugins: [react()],
-  build: {
-    chunkSizeWarningLimit: 600,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          supabase: ['@supabase/supabase-js'],
-          leaflet: ['leaflet'],
-          vendor: ['react', 'react-dom', 'react-router-dom']
+    build: {
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            supabase: ['@supabase/supabase-js'],
+            leaflet: ['leaflet'],
+            vendor: ['react', 'react-dom', 'react-router-dom']
+          }
         }
       }
     }
-  }
+  };
 })
