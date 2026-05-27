@@ -743,12 +743,6 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const inst = useRef(null);
   const marker = useRef(null);
   const locating = useRef(false);
-  const [q, setQ] = useState('');
-  const [results, setResults] = useState([]);
-  const [searching, setSearching] = useState(false);
-  const [searchErr, setSearchErr] = useState('');
-
-  const KHAFJI_VIEWBOX = { minLat: 28.35, maxLat: 28.50, minLng: 48.40, maxLng: 48.55 };
 
   useEffect(() => {
     if (inst.current) return;
@@ -770,41 +764,11 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     else marker.current = L.marker([pos.lat, pos.lng]).addTo(inst.current);
   }, []);
 
-  const doSearch = useCallback(async () => {
-    const query = q.trim();
-    if (!query) return;
-    setSearching(true);
-    setSearchErr('');
-    try {
-      const viewbox = `${KHAFJI_VIEWBOX.minLng},${KHAFJI_VIEWBOX.maxLat},${KHAFJI_VIEWBOX.maxLng},${KHAFJI_VIEWBOX.minLat}`;
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&accept-language=ar&countrycodes=sa&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(query + ' الخفجي')}`;
-      const r = await fetch(url, {
-        headers: {
-          // Nominatim usage policy prefers a UA/Referer; browsers restrict UA, keep it simple.
-          'Accept': 'application/json',
-        }
-      });
-      const data = await r.json();
-      const mapped = Array.isArray(data) ? data.map(x => ({
-        display: x.display_name,
-        lat: parseFloat(x.lat),
-        lng: parseFloat(x.lon),
-      })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lng)) : [];
-      setResults(mapped);
-      if (mapped.length === 0) setSearchErr('لا توجد نتائج داخل الخفجي');
-    } catch {
-      setSearchErr('تعذر البحث حالياً');
-    } finally {
-      setSearching(false);
-    }
-  }, [q]);
-
-  const pickResult = useCallback((r) => {
-    const p = { lat: r.lat, lng: r.lng };
-    syncMarker(p);
-    setPosition(p);
-    setResults([]);
-  }, [syncMarker, setPosition]);
+  // If position is set from UI (search), reflect it on the map.
+  useEffect(() => {
+    if (!position) return;
+    syncMarker(position);
+  }, [position, syncMarker]);
   const locate = useCallback(() => {
     if (!navigator.geolocation || locating.current) return;
     locating.current = true;
@@ -832,30 +796,6 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   return (
     <div className="khafji-map-wrap">
       <div ref={mapRef} className="khafji-map" />
-      <div className="khafji-search">
-        <div className="khafji-search-row">
-          <input
-            className="khafji-search-input"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="ابحث عن حي/منطقة داخل الخفجي"
-            onKeyDown={(e) => { if (e.key === 'Enter') doSearch(); }}
-          />
-          <button className="khafji-search-btn" type="button" onClick={doSearch} disabled={searching || !q.trim()}>
-            {searching ? '...' : 'بحث'}
-          </button>
-        </div>
-        {searchErr && <div className="khafji-search-err">{searchErr}</div>}
-        {results.length > 0 && (
-          <div className="khafji-search-results">
-            {results.map((r, i) => (
-              <button key={i} type="button" className="khafji-search-item" onClick={() => pickResult(r)}>
-                {r.display}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
       <button className="locate-btn" onClick={locate} title="تحديد موقعي">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
       </button>
@@ -872,9 +812,58 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [paymentMethod, setPaymentMethod] = useState('mada');
   const [phone, setPhone] = useState('');
   const [notes, setNotes] = useState('');
+  const [areaQuery, setAreaQuery] = useState('');
+  const [areaResults, setAreaResults] = useState([]);
+  const [areaSearching, setAreaSearching] = useState(false);
+  const [areaErr, setAreaErr] = useState('');
   const fee = cartTotal >= 100 ? 0 : 15;
   const outside = position && !isInKhafji(position);
   const phoneReady = /^05\d{8}$/.test(phone.trim());
+
+  const quickNeighborhoods = [
+    'العزيزية',
+    'الفيصلية',
+    'النهضة',
+    'الروضة',
+    'السلام',
+    'الخالدية',
+    'اليرموك',
+    'الخفجي',
+  ];
+
+  const fetchAreaSuggestions = useCallback(async (q) => {
+    const query = String(q || '').trim();
+    if (!query) { setAreaResults([]); setAreaErr(''); return; }
+    setAreaSearching(true);
+    setAreaErr('');
+    try {
+      const viewbox = `${KHAFJI_BOUNDS.minLng},${KHAFJI_BOUNDS.maxLat},${KHAFJI_BOUNDS.maxLng},${KHAFJI_BOUNDS.minLat}`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&accept-language=ar&countrycodes=sa&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(query + ' الخفجي')}`;
+      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const data = await r.json();
+      const mapped = Array.isArray(data) ? data.map(x => ({
+        display: x.display_name,
+        lat: parseFloat(x.lat),
+        lng: parseFloat(x.lon),
+      })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lng)) : [];
+      setAreaResults(mapped);
+      if (mapped.length === 0) setAreaErr('لا توجد نتائج داخل الخفجي');
+    } catch {
+      setAreaErr('تعذر البحث حالياً');
+    } finally {
+      setAreaSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const t = setTimeout(() => fetchAreaSuggestions(areaQuery), 250);
+    return () => clearTimeout(t);
+  }, [areaQuery, fetchAreaSuggestions]);
+
+  const pickArea = useCallback((r) => {
+    setPosition({ lat: r.lat, lng: r.lng });
+    setAreaResults([]);
+  }, []);
   return (
     <div className="checkout-overlay" onClick={onClose}>
       <div className="checkout-sheet" onClick={e => e.stopPropagation()}>
@@ -889,6 +878,41 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">1</span> موقع التوصيل</div>
             <p className="checkout-hint">سيتم تحديد موقعك تلقائياً — يمكنك التعديل بالنقر على الخريطة</p>
+            <div className="checkout-area-search">
+              <div className="checkout-area-search-row">
+                <input
+                  className="checkout-area-input"
+                  value={areaQuery}
+                  onChange={(e) => setAreaQuery(e.target.value)}
+                  placeholder="ابحث عن حي/منطقة داخل الخفجي"
+                />
+                <button
+                  type="button"
+                  className="checkout-area-btn"
+                  onClick={() => fetchAreaSuggestions(areaQuery)}
+                  disabled={areaSearching || !areaQuery.trim()}
+                >
+                  {areaSearching ? '...' : 'بحث'}
+                </button>
+              </div>
+              <div className="checkout-area-quick">
+                {quickNeighborhoods.map(n => (
+                  <button key={n} type="button" className="checkout-area-chip" onClick={() => setAreaQuery(n)}>
+                    {n}
+                  </button>
+                ))}
+              </div>
+              {areaErr && <div className="checkout-area-err">{areaErr}</div>}
+              {areaResults.length > 0 && (
+                <div className="checkout-area-results">
+                  {areaResults.map((r, i) => (
+                    <button key={i} type="button" className="checkout-area-item" onClick={() => pickArea(r)}>
+                      {r.display}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
               <KhafjiMap position={position} setPosition={setPosition} />
             </div>

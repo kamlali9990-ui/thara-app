@@ -4164,6 +4164,90 @@ header {
 .checkout-outside { font-size: 0.8rem; color: #dc2626; font-weight: 600; margin-top: 0.4rem; padding: 0.4rem; background: #fef2f2; border-radius: 8px; text-align: center; }
 .khafji-map-wrap { position: relative; height: 100%; width: 100%; }
 .khafji-map { height: 100%; width: 100%; }
+.checkout-area-search {
+  margin-bottom: 0.6rem;
+}
+.checkout-area-search-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+.checkout-area-input {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  background: #fff;
+}
+.checkout-area-input:focus { border-color: var(--primary); }
+.checkout-area-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: var(--primary);
+  color: #fff;
+  white-space: nowrap;
+}
+.checkout-area-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.checkout-area-quick {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-top: 0.45rem;
+}
+.checkout-area-chip {
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #f8fafc;
+  color: var(--text-main);
+  border-radius: 999px;
+  padding: 0.35rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.checkout-area-chip:hover { background: #eef2f7; }
+.checkout-area-err {
+  margin-top: 0.45rem;
+  background: #fef2f2;
+  border: 1px solid rgba(220, 38, 38, 0.18);
+  color: #dc2626;
+  padding: 0.4rem 0.6rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.checkout-area-results {
+  margin-top: 0.45rem;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 160px;
+  overflow-y: auto;
+}
+.checkout-area-item {
+  width: 100%;
+  text-align: right;
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+.checkout-area-item:last-child { border-bottom: none; }
+.checkout-area-item:hover { background: rgba(18,116,67,0.07); }
 .khafji-search {
   position: absolute;
   top: 0.75rem;
