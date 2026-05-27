@@ -96,6 +96,13 @@ export default function Admin() {
 
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
 
+function parseLocation(loc) {
+  if (!loc) return null;
+  const m = loc.match(/Lat:\s*([\d.]+).*Lng:\s*([\d.]+)/i);
+  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+  return null;
+}
+
 function AdminOrders({ orders, updateOrderStatus }) {
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
@@ -215,8 +222,17 @@ function AdminOrders({ orders, updateOrderStatus }) {
             </div>
             <div className="admin-card-info">
               <strong>الدفع:</strong> {order.paymentMethod} | <strong>الموقع:</strong> {order.location}
-              {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span></>}
+              {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" className="whatsapp-link" title="واتساب">💬</a></>}
               {order.notes && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
+              {(() => {
+                const coords = parseLocation(order.location);
+                if (coords) return (
+                  <div className="admin-location-actions">
+                    <a href={`https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`} target="_blank" className="map-link">📍 فتح في خرائط جوجل</a>
+                  </div>
+                );
+                return null;
+              })()}
             </div>
           </div>
         ))}
