@@ -15,9 +15,10 @@ export default function StaffManager() {
 
   const handleAdd = async (e) => {
     e.preventDefault();
-    if (!email.trim() || !name.trim()) return;
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail || !name.trim()) return;
     try {
-      await addStaff({ email: email.trim(), name: name.trim(), role });
+      await addStaff({ email: normalizedEmail, name: name.trim(), role });
       alert(`تمت إضافة الموظف بنجاح.\nكلمة المرور المبدئية: ${STAFF_DEFAULT_PASSWORD}`);
       setEmail(''); setName(''); setRole('employee');
     } catch (err) {

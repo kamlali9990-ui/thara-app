@@ -2,13 +2,15 @@ import { supabase } from './client';
 
 export const authApi = {
   async signIn(email, password) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const { data, error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
     if (error) throw error;
     return data;
   },
 
   async signUp(email, password) {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const { data, error } = await supabase.auth.signUp({ email: normalizedEmail, password });
     if (error) throw error;
     return data;
   },

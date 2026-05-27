@@ -70,11 +70,12 @@ export const staffApi = {
   },
 
   async create(staffMember) {
+    const normalizedEmail = String(staffMember.email || '').trim().toLowerCase();
     // Must create/repair auth user first; otherwise staff row exists without login account.
-    await rpc('confirm_auth_user', { p_email: staffMember.email, p_password: STAFF_DEFAULT_PASSWORD });
+    await rpc('confirm_auth_user', { p_email: normalizedEmail, p_password: STAFF_DEFAULT_PASSWORD });
     try {
       const data = await rpc('create_staff_rpc', {
-        p_email: staffMember.email,
+        p_email: normalizedEmail,
         p_name: staffMember.name,
         p_role: staffMember.role
       });
