@@ -872,38 +872,158 @@ function AdminOffers({ products, updateProduct }) {
 
 function AdminChat({ chatMessages, sendMessage }) {
   const [text, setText] = useState('');
+  const [activeCustomer, setActiveCustomer] = useState(null);
+  const chatBodyRef = useRef(null);
+
+  // Group support messages (non-order) by customer_email
+  const supportMessages = chatMessages.filter(m => !m.orderId && m.customerEmail);
+  const threads = {};
+  supportMessages.forEach(m => {
+    const key = m.customerEmail;
+    if (!threads[key]) threads[key] = [];
+    threads[key].push(m);
+  });
+  const threadList = Object.entries(threads)
+    .map(([email, msgs]) => ({
+      email,
+      lastMsg: msgs[msgs.length - 1],
+      unread: msgs.filter(m => m.sender === 'customer').length,
+      messages: msgs
+    }))
+    .sort((a, b) => (b.lastMsg.timestamp || 0) > (a.lastMsg.timestamp || 0) ? 1 : -1);
+
+  // Auto-scroll chat body when messages change
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [activeCustomer, chatMessages]);
+
+  const activeThread = activeCustomer ? (threads[activeCustomer] || []) : [];
 
   const handleSend = () => {
-    if(!text.trim()) return;
-    sendMessage('admin', text);
+    if (!text.trim() || !activeCustomer) return;
+    sendMessage('admin', text, null, activeCustomer);
     setText('');
   };
 
   return (
     <div className="admin-chat-container">
-      <h2 className="admin-section-title">خدمة العملاء (محادثات مباشرة)</h2>
-      
-      <div className="admin-chat-body">
-        {chatMessages.length === 0 && <p className="empty-chat">لا توجد رسائل بعد.</p>}
-        {chatMessages.map(m => (
-          <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
-            <div className="admin-bubble-sender">{m.sender === 'admin' ? 'أنت (التاجر)' : 'العميل'}</div>
-            <div>{m.text}</div>
-            <div className="admin-bubble-time">{m.time}</div>
+      <h2 className="admin-section-title">خدمة العملاء (محادثات خاصة)</h2>
+
+      <div style={{ display: 'flex', gap: '1rem', height: 'calc(70vh - 4rem)', minHeight: '350px' }}>
+        {/* Thread List (Left Panel) */}
+        <div style={{
+          width: '280px', minWidth: '220px', maxWidth: '320px',
+          background: 'rgba(255,255,255,0.04)', borderRadius: '16px',
+          border: '0.5px solid rgba(255,255,255,0.1)',
+          display: 'flex', flexDirection: 'column', overflow: 'hidden'
+        }}>
+          <div style={{
+            padding: '0.85rem 1rem', borderBottom: '0.5px solid rgba(255,255,255,0.08)',
+            fontWeight: 700, fontSize: '0.95rem', color: '#e2e8f0'
+          }}>
+            💬 المحادثات ({threadList.length})
           </div>
-        ))}
-      </div>
-      
-      <div className="admin-chat-input-area">
-        <input 
-          type="text" 
-          value={text} 
-          onChange={e => setText(e.target.value)} 
-          onKeyDown={e => e.key==='Enter' && handleSend()}
-          placeholder="اكتب ردك للعميل هنا..."
-          className="admin-chat-input"
-        />
-        <button className="btn" onClick={handleSend}>إرسال</button>
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {threadList.length === 0 && (
+              <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+                لا توجد محادثات دعم بعد.
+              </div>
+            )}
+            {threadList.map(t => (
+              <div
+                key={t.email}
+                onClick={() => setActiveCustomer(t.email)}
+                style={{
+                  padding: '0.75rem 1rem',
+                  borderBottom: '0.5px solid rgba(255,255,255,0.06)',
+                  cursor: 'pointer',
+                  background: activeCustomer === t.email ? 'rgba(251,191,36,0.1)' : 'transparent',
+                  borderRight: activeCustomer === t.email ? '3px solid #fbbf24' : '3px solid transparent',
+                  transition: 'all 0.15s'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                  <span style={{ fontWeight: 700, fontSize: '0.85rem', color: activeCustomer === t.email ? '#fbbf24' : '#e2e8f0' }}>
+                    {t.email.split('@')[0]}
+                  </span>
+                  <span style={{ fontSize: '0.65rem', color: '#64748b' }}>{t.lastMsg.time}</span>
+                </div>
+                <div style={{
+                  fontSize: '0.78rem', color: '#94a3b8',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '220px'
+                }}>
+                  {t.lastMsg.sender === 'admin' ? 'أنت: ' : ''}{t.lastMsg.text}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Active Chat (Right Panel) */}
+        <div style={{
+          flex: 1, display: 'flex', flexDirection: 'column',
+          background: 'rgba(255,255,255,0.03)', borderRadius: '16px',
+          border: '0.5px solid rgba(255,255,255,0.1)', overflow: 'hidden'
+        }}>
+          {!activeCustomer ? (
+            <div style={{
+              flex: 1, display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', color: '#64748b', gap: '0.75rem'
+            }}>
+              <span style={{ fontSize: '2.5rem' }}>💬</span>
+              <p style={{ fontSize: '0.95rem' }}>اختر محادثة عميل من القائمة</p>
+            </div>
+          ) : (
+            <>
+              {/* Chat Header */}
+              <div style={{
+                padding: '0.75rem 1rem',
+                borderBottom: '0.5px solid rgba(255,255,255,0.08)',
+                background: 'rgba(0,0,0,0.2)',
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#e2e8f0', fontSize: '0.95rem' }}>
+                    {activeCustomer.split('@')[0]}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{activeCustomer}</div>
+                </div>
+                <button onClick={() => setActiveCustomer(null)}
+                  style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.1rem', cursor: 'pointer' }}>✕</button>
+              </div>
+
+              {/* Messages Body */}
+              <div ref={chatBodyRef} style={{
+                flex: 1, overflowY: 'auto', padding: '1rem',
+                display: 'flex', flexDirection: 'column', gap: '0.5rem'
+              }}>
+                {activeThread.length === 0 && <p className="empty-chat">لا توجد رسائل بعد.</p>}
+                {activeThread.map(m => (
+                  <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
+                    <div className="admin-bubble-sender">{m.sender === 'admin' ? 'أنت (التاجر)' : 'العميل'}</div>
+                    <div>{m.text}</div>
+                    <div className="admin-bubble-time">{m.time}</div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Input */}
+              <div className="admin-chat-input-area" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
+                <input
+                  type="text"
+                  value={text}
+                  onChange={e => setText(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  placeholder="اكتب ردك للعميل هنا..."
+                  className="admin-chat-input"
+                />
+                <button className="btn" onClick={handleSend}>إرسال</button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

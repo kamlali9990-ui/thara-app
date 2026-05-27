@@ -2224,12 +2224,41 @@ header {
   color: #127443;
 }
 
-/* ==================== ADMIN PANEL ── Always dark green ==================== */
 .admin-layout {
   min-height: 100vh;
   background: #0a2e1a;
   display: flex;
-  color: #e2e8f0;
+  color: #e2e8f0 !important;
+}
+
+/* Ensure always-dark admin/driver panels never inherit black text/borders from light theme */
+.admin-layout h1,
+.admin-layout h2,
+.admin-layout h3,
+.admin-layout h4,
+.admin-layout h5,
+.admin-layout h6 {
+  color: #ffffff !important;
+}
+
+.admin-layout strong {
+  color: #ffffff !important;
+}
+
+.admin-layout label {
+  color: #cbd5e1 !important;
+}
+
+.admin-layout p {
+  color: #cbd5e1 !important;
+}
+
+.admin-layout .admin-section-title {
+  color: #ffffff !important;
+}
+
+.admin-layout .admin-sidebar-title {
+  color: #ffffff !important;
 }
 
 .admin-sidebar {

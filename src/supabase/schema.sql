@@ -585,20 +585,42 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   sender TEXT NOT NULL CHECK (sender IN ('customer', 'admin', 'driver')),
   text TEXT NOT NULL,
   order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+  customer_email TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 
--- Anyone can insert (customers can send messages)
-DROP POLICY IF EXISTS "chat_insert_public" ON chat_messages;
-CREATE POLICY "chat_insert_public" ON chat_messages
-  FOR INSERT WITH CHECK (true);
-
--- Anyone can read chat messages (both admin and customer)
+-- Select policy: Staff can read all messages; Customers can only read messages belonging to their email or their orders
 DROP POLICY IF EXISTS "chat_select_public" ON chat_messages;
-CREATE POLICY "chat_select_public" ON chat_messages
-  FOR SELECT USING (true);
+DROP POLICY IF EXISTS "chat_select_policy" ON chat_messages;
+CREATE POLICY "chat_select_policy" ON chat_messages
+  FOR SELECT USING (
+    public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver'])
+    OR lower(customer_email) = lower(auth.jwt() ->> 'email')
+    OR (order_id IS NOT NULL AND EXISTS (
+      SELECT 1 FROM orders WHERE id = order_id AND (
+        lower(orders.customer_email) = lower(auth.jwt() ->> 'email')
+      )
+    ))
+  );
+
+-- Insert policy: Staff can insert any message; Customers can insert if they are the sender and it matches their email or their orders
+DROP POLICY IF EXISTS "chat_insert_public" ON chat_messages;
+DROP POLICY IF EXISTS "chat_insert_policy" ON chat_messages;
+CREATE POLICY "chat_insert_policy" ON chat_messages
+  FOR INSERT WITH CHECK (
+    public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver'])
+    OR (
+      sender = 'customer' 
+      AND (
+        lower(customer_email) = lower(auth.jwt() ->> 'email')
+        OR (order_id IS NOT NULL AND EXISTS (
+          SELECT 1 FROM orders WHERE id = order_id AND lower(orders.customer_email) = lower(auth.jwt() ->> 'email')
+        ))
+      )
+    )
+  );
 
 -- =============================================
 -- Driver assignment system + ETA + role-scoped order visibility

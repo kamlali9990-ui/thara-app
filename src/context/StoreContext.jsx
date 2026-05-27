@@ -160,14 +160,54 @@ export const StoreProvider = ({ children }) => {
     };
   }, []);
 
+  // Helper to play premium synthesized chime sound via Web Audio API
+  const playNotificationSound = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+      const ctx = new AudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.1);
+      
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
+      
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.6);
+      setTimeout(() => { try { ctx.close(); } catch {} }, 700);
+    } catch (e) {
+      console.error('Audio play failed:', e);
+    }
+  };
+
   // --- Real-time chat subscription ---
   useEffect(() => {
     if (!hasSupabase || !supabaseReady) return;
-    const sub = chatApi.subscribe((msg) => {
-      setChatMessages(prev => [...prev, msg]);
+    const sub = chatApi.subscribe(null, null, (msg) => {
+      setChatMessages(prev => {
+        if (prev.some(m => m.id === msg.id)) return prev;
+
+        // Play chime and trigger notification if message received from others
+        const isSelf = (msg.sender === 'admin' && staffRole) || (msg.sender === 'customer' && !staffRole);
+        if (!isSelf) {
+          playNotificationSound();
+          try {
+            window.dispatchEvent(new CustomEvent('thara:new-message', { detail: msg }));
+          } catch {}
+        }
+
+        return [...prev, msg];
+      });
     });
     return () => sub.unsubscribe();
-  }, [supabaseReady]);
+  }, [supabaseReady, staffRole]);
 
   // --- Real-time orders subscription (replaces 20s polling) ---
   useEffect(() => {
@@ -468,17 +508,28 @@ export const StoreProvider = ({ children }) => {
   }, [hasSupabase, supabaseReady]);
 
   // --- Chat ---
-  const sendMessage = useCallback(async (sender, text, orderId) => {
-    const msg = { id: Date.now().toString(), sender, text, orderId: orderId || null, time: new Date().toLocaleTimeString() };
+  const sendMessage = useCallback(async (sender, text, orderId, customerEmail) => {
+    const emailToUse = customerEmail || (sender === 'customer' ? user?.email : null);
+    const msg = { 
+      id: Date.now().toString(), 
+      sender, 
+      text, 
+      orderId: orderId || null, 
+      customerEmail: emailToUse || null,
+      time: new Date().toLocaleTimeString() 
+    };
     if (hasSupabase && supabaseReady) {
       try {
-        const sent = await chatApi.send(sender, text, orderId);
+        const sent = await chatApi.send(sender, text, orderId, emailToUse);
         msg.id = sent.id;
         msg.time = sent.time;
       } catch { /* fallback */ }
     }
-    setChatMessages(prev => [...prev, msg]);
-  }, [hasSupabase, supabaseReady]);
+    setChatMessages(prev => {
+      if (prev.some(m => m.id === msg.id)) return prev;
+      return [...prev, msg];
+    });
+  }, [hasSupabase, supabaseReady, user]);
 
   // --- Auth Actions ---
   const login = useCallback(async (email, password) => {
