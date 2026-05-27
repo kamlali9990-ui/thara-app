@@ -4544,6 +4544,45 @@ header {
 }
 [data-theme="dark"] .acc-toggle-moon { opacity: 1; }
 
+/* Contact Card */
+.acc-contact-card {
+  background: white; border-radius: 16px; padding: 1rem 1.25rem;
+  margin-top: 0.75rem;
+}
+[data-theme="dark"] .acc-contact-card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.acc-contact-title {
+  font-size: 0.85rem; font-weight: 700; color: var(--text-light);
+  margin-bottom: 0.75rem; text-align: center;
+}
+.acc-contact-row {
+  display: flex; gap: 0.75rem;
+}
+.acc-contact-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  gap: 0.5rem; padding: 0.7rem; border-radius: 14px;
+  font-size: 0.85rem; font-weight: 700; cursor: pointer;
+  text-decoration: none; transition: opacity 0.2s;
+}
+.acc-contact-btn:active { opacity: 0.7; }
+.acc-contact-phone {
+  background: #e8f5e9; color: #1b5e20;
+}
+.acc-contact-whatsapp {
+  background: #dcf8c6; color: #075e54;
+}
+
+[data-theme="dark"] .acc-contact-phone {
+  background: rgba(27,94,32,0.25); color: #66bb6a;
+}
+[data-theme="dark"] .acc-contact-whatsapp {
+  background: rgba(7,94,84,0.3); color: #25d366;
+}
+
 /* Accept order button */
 .btn-accept {
   background: #22c55e;
