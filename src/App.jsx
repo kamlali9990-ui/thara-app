@@ -730,8 +730,8 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   useEffect(() => {
     if (inst.current) return;
     const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13, minZoom: 12 });
-    L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=' + (import.meta.env.VITE_MAPTILER_KEY || 'YOUR_KEY'), {
-      attribution: '&copy; <a href="https://www.maptiler.com/copyright/" target="_blank">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>' }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
     map.on('click', (e) => {
       userInteracted.current = true;
       setPosition(e.latlng);
