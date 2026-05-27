@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/thara-app/' : '/',
-  plugins: [react()],
+export default defineConfig(({ mode }) => {
+  const isVercel = process.env.VERCEL === '1' || process.env.VERCEL === 'true';
+  return {
+    base: isVercel ? '/' : (mode === 'production' ? '/thara-app/' : '/'),
+    plugins: [react()],
   build: {
     chunkSizeWarningLimit: 600,
     rollupOptions: {
@@ -16,4 +18,4 @@ export default defineConfig(({ mode }) => ({
       }
     }
   }
-}))
+})
