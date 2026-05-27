@@ -88,6 +88,20 @@ export const StoreProvider = ({ children }) => {
     init();
   }, []);
 
+  // Sync orders & products across tabs via localStorage events
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'thara_products' && e.newValue) {
+        try { setProducts(JSON.parse(e.newValue)); } catch {}
+      }
+      if (e.key === 'thara_orders' && e.newValue) {
+        try { setOrders(JSON.parse(e.newValue)); } catch {}
+      }
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
+
   // Listen for auth changes
   useEffect(() => {
     if (!hasSupabase) return;
