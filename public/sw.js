@@ -1,11 +1,12 @@
-const CACHE_NAME = 'thara-v8';
+const CACHE_NAME = 'thara-v9';
 const STATIC_ASSETS = [
   '/thara-app/',
   '/thara-app/index.html',
-  '/thara-app/LOGO.jpg',
+  '/thara-app/manifest.json',
   '/thara-app/icon.png',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap'
+  '/thara-app/LOGO.jpg',
+  '/thara-app/leaflet.css',
+  'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
