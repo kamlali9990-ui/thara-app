@@ -3953,6 +3953,16 @@ header {
 .checkout-outside { font-size: 0.8rem; color: #dc2626; font-weight: 600; margin-top: 0.4rem; padding: 0.4rem; background: #fef2f2; border-radius: 8px; text-align: center; }
 .khafji-map-wrap { position: relative; height: 100%; width: 100%; }
 .khafji-map { height: 100%; width: 100%; }
+.locate-btn {
+  position: absolute; bottom: 1rem; left: 1rem; z-index: 1000;
+  width: 42px; height: 42px; border-radius: 50%; border: none;
+  background: white; color: var(--primary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  transition: transform 0.2s;
+}
+.locate-btn:hover { transform: scale(1.1); }
+.locate-btn:active { transform: scale(0.95); }
 .checkout-payments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
 .checkout-pay-btn {
   display: flex; flex-direction: column; align-items: center; gap: 0.25rem;

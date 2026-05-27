@@ -726,14 +726,13 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const mapRef = useRef(null);
   const inst = useRef(null);
   const marker = useRef(null);
-  const userInteracted = useRef(false);
+  const locating = useRef(false);
   useEffect(() => {
     if (inst.current) return;
     const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13, minZoom: 12 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
     map.on('click', (e) => {
-      userInteracted.current = true;
       setPosition(e.latlng);
       if (marker.current) marker.current.setLatLng([e.latlng.lat, e.latlng.lng]);
       else marker.current = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
@@ -748,20 +747,21 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     else marker.current = L.marker([pos.lat, pos.lng]).addTo(inst.current);
   }, []);
   const locate = useCallback(() => {
-    if (!navigator.geolocation || userInteracted.current) return;
+    if (!navigator.geolocation || locating.current) return;
+    locating.current = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        if (userInteracted.current) return;
+        locating.current = false;
         const p = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         syncMarker(p);
         setPosition(p);
       },
-      () => {},
-      { enableHighAccuracy: true, timeout: 10000 }
+      () => { locating.current = false; },
+      { enableHighAccuracy: true, timeout: 15000 }
     );
   }, []);
   useEffect(() => {
-    if (!inst.current || userInteracted.current) return;
+    if (!inst.current) return;
     const t = setTimeout(locate, 500);
     return () => clearTimeout(t);
   }, [inst.current]);
@@ -773,7 +773,9 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   return (
     <div className="khafji-map-wrap">
       <div ref={mapRef} className="khafji-map" />
-      <button className="locate-btn" onClick={() => { userInteracted.current = false; locate(); }}>🎯</button>
+      <button className="locate-btn" onClick={locate} title="تحديد موقعي">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+      </button>
     </div>
   );
 });
@@ -803,7 +805,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         <div className="checkout-body">
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">1</span> موقع التوصيل</div>
-            <p className="checkout-hint">انقر على الخريطة لتحديد موقعك</p>
+            <p className="checkout-hint">سيتم تحديد موقعك تلقائياً — يمكنك التعديل بالنقر على الخريطة</p>
             <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
               <KhafjiMap position={position} setPosition={setPosition} />
             </div>
