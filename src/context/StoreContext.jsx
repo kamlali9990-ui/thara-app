@@ -65,7 +65,14 @@ export const StoreProvider = ({ children }) => {
           if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
 
           // Load auth
-          const currentUser = await authApi.getUser();
+          let currentUser = null;
+          try {
+            currentUser = await authApi.getUser();
+          } catch {
+            // Invalid session — clean up
+            localStorage.removeItem('thara_user');
+            localStorage.removeItem('thara_session');
+          }
           setUser(currentUser);
           if (currentUser) {
             const staff = await staffApi.getByEmail(currentUser.email).catch(() => null);
@@ -106,6 +113,14 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => {
     if (!hasSupabase) return;
     const sub = authApi.onAuthChange(async (event, u) => {
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setStaffRole(null);
+        setCustomerProfile(null);
+        localStorage.removeItem('thara_user');
+        localStorage.removeItem('thara_session');
+        return;
+      }
       setUser(u);
       if (u) {
         const staff = await staffApi.getByEmail(u.email).catch(() => null);
