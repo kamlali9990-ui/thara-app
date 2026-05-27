@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { StoreContext } from '../context/StoreContext';
+import { STAFF_DEFAULT_PASSWORD } from '../supabase/staff';
 
 export default function StaffManager() {
   const { staffList, staffRole, loadStaff, addStaff, updateStaff, removeStaff } = useContext(StoreContext);
@@ -17,6 +18,7 @@ export default function StaffManager() {
     if (!email.trim() || !name.trim()) return;
     try {
       await addStaff({ email: email.trim(), name: name.trim(), role });
+      alert(`تمت إضافة الموظف بنجاح.\nكلمة المرور المبدئية: ${STAFF_DEFAULT_PASSWORD}`);
       setEmail(''); setName(''); setRole('employee');
     } catch (err) {
       alert(err.message === 'duplicate key value violates unique constraint "staff_email_key"'

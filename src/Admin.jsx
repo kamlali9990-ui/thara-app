@@ -17,6 +17,10 @@ export default function Admin() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('orders');
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const handleLogout = async () => {
     await logout();
@@ -31,6 +35,53 @@ export default function Admin() {
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
+
+  useEffect(() => {
+    const initDriverPrompt = async () => {
+      if (staffRole !== 'driver') return;
+      const { data } = await supabase.auth.getUser();
+      const email = data?.user?.email;
+      if (!email) return;
+      const key = `thara_driver_password_prompt_dismissed_${email}`;
+      if (localStorage.getItem(key) === '1') return;
+      setShowPasswordPrompt(true);
+    };
+    initDriverPrompt();
+  }, [staffRole]);
+
+  const handleSkipPasswordChange = async () => {
+    const { data } = await supabase.auth.getUser();
+    const email = data?.user?.email;
+    if (email) localStorage.setItem(`thara_driver_password_prompt_dismissed_${email}`, '1');
+    setShowPasswordPrompt(false);
+  };
+
+  const handlePasswordChange = async () => {
+    if (newPassword.length < 6) {
+      alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      alert('كلمتا المرور غير متطابقتين');
+      return;
+    }
+    setPasswordLoading(true);
+    try {
+      const { data } = await supabase.auth.getUser();
+      const email = data?.user?.email;
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      if (email) localStorage.setItem(`thara_driver_password_prompt_dismissed_${email}`, '1');
+      setShowPasswordPrompt(false);
+      setNewPassword('');
+      setConfirmPassword('');
+      alert('تم تحديث كلمة المرور بنجاح');
+    } catch (err) {
+      alert('فشل تحديث كلمة المرور: ' + (err.message || 'خطأ غير معروف'));
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين' };
   const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
@@ -51,6 +102,40 @@ export default function Admin() {
 
   return (
     <div className="admin-layout">
+      {showPasswordPrompt && (
+        <div className="confirm-overlay" onClick={handleSkipPasswordChange}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
+            <p style={{ marginBottom: '0.75rem', fontWeight: 700 }}>تحديث كلمة المرور (اختياري)</p>
+            <p style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
+              يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
+            </p>
+            <input
+              type="password"
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              placeholder="كلمة المرور الجديدة"
+              className="auth-input"
+              style={{ marginBottom: '0.5rem' }}
+            />
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={e => setConfirmPassword(e.target.value)}
+              placeholder="تأكيد كلمة المرور"
+              className="auth-input"
+              style={{ marginBottom: '1rem' }}
+            />
+            <div className="confirm-actions">
+              <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading}>
+                {passwordLoading ? 'جاري التحديث...' : 'تحديث الآن'}
+              </button>
+              <button className="confirm-btn confirm-no" onClick={handleSkipPasswordChange}>
+                التخطي الآن
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Mobile header */}
       <div className="admin-mobile-header">
         <button onClick={handleLogout} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', fontFamily: 'inherit', fontSize: '0.85rem', cursor: 'pointer' }}>خروج</button>

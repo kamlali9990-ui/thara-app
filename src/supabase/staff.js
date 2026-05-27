@@ -1,6 +1,6 @@
 import { supabase } from './client';
 
-const STAFF_DEFAULT_PASSWORD = '123456';
+export const STAFF_DEFAULT_PASSWORD = '123456';
 const CACHE_KEY = 'thara_staff_cache';
 
 function getCache() {
@@ -70,9 +70,8 @@ export const staffApi = {
   },
 
   async create(staffMember) {
-    try {
-      await rpc('confirm_auth_user', { p_email: staffMember.email, p_password: STAFF_DEFAULT_PASSWORD });
-    } catch (err) { console.warn('confirm_auth_user warning:', err); }
+    // Must create/repair auth user first; otherwise staff row exists without login account.
+    await rpc('confirm_auth_user', { p_email: staffMember.email, p_password: STAFF_DEFAULT_PASSWORD });
     try {
       const data = await rpc('create_staff_rpc', {
         p_email: staffMember.email,
