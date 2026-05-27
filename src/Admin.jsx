@@ -583,21 +583,29 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
       {isDriver && (
         <p className="driver-orders-hint">يتم تحديث القائمة تلقائياً كل 20 ثانية. الموقع المعروض هو نفس ما حدده العميل على خريطة المتجر.</p>
       )}
-      <div className="admin-stats-grid">
-        <div className="admin-stat-card"><span>طلبات جديدة</span><strong>{stats.newOrders}</strong></div>
-        <div className="admin-stat-card"><span>قيد التحضير</span><strong>{stats.preparing}</strong></div>
-        {isDriver ? (
-          <div className="admin-stat-card"><span>في الطريق</span><strong>{stats.onRoute}</strong></div>
-        ) : (
+      {isDriver ? (
+        <div className="driver-stats-container" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', width: '100%' }}>
+          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderColor: 'rgba(59, 130, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>متاحة</span>
+            <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.newOrders + stats.preparing}</strong>
+          </div>
+          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(139, 92, 246, 0.15)', borderColor: 'rgba(139, 92, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>مكلف بها</span>
+            <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.onRoute}</strong>
+          </div>
+          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(16, 185, 129, 0.15)', borderColor: 'rgba(16, 185, 129, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>مكتملة</span>
+            <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.completed}</strong>
+          </div>
+        </div>
+      ) : (
+        <div className="admin-stats-grid">
+          <div className="admin-stat-card"><span>طلبات جديدة</span><strong>{stats.newOrders}</strong></div>
+          <div className="admin-stat-card"><span>قيد التحضير</span><strong>{stats.preparing}</strong></div>
           <div className="admin-stat-card"><span>مكتملة</span><strong>{stats.completed}</strong></div>
-        )}
-        {!isDriver && (
           <div className="admin-stat-card"><span>المبيعات</span><strong>{stats.revenue.toFixed(2)} ر.س</strong></div>
-        )}
-        {isDriver && (
-          <div className="admin-stat-card"><span>مكتملة اليوم</span><strong>{stats.completed}</strong></div>
-        )}
-      </div>
+        </div>
+      )}
 
       {isDriver ? (
         <>
