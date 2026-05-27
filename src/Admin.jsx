@@ -276,6 +276,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
   const [showCompleted, setShowCompleted] = useState(false);
+  const [activeDriverTab, setActiveDriverTab] = useState('available');
 
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
@@ -580,22 +581,19 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
         </div>
       )}
       <h2 className="admin-section-title">{isDriver ? 'طلبات التوصيل' : 'إدارة الطلبات'}</h2>
-      {isDriver && (
-        <p className="driver-orders-hint">يتم تحديث القائمة تلقائياً كل 20 ثانية. الموقع المعروض هو نفس ما حدده العميل على خريطة المتجر.</p>
-      )}
       {isDriver ? (
         <div className="driver-stats-container" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', width: '100%' }}>
-          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderColor: 'rgba(59, 130, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
+          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: activeDriverTab === 'available' ? 'rgba(37, 99, 235, 0.4)' : 'rgba(37, 99, 235, 0.15)', borderColor: activeDriverTab === 'available' ? '#3b82f6' : 'rgba(37, 99, 235, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setActiveDriverTab('available')}>
             <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
               متاحة {(stats.newOrders + stats.preparing) > 0 && <span className="bell-ring">🔔</span>}
             </span>
             <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.newOrders + stats.preparing}</strong>
           </div>
-          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(139, 92, 246, 0.15)', borderColor: 'rgba(139, 92, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
+          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: activeDriverTab === 'assigned' ? 'rgba(139, 92, 246, 0.4)' : 'rgba(139, 92, 246, 0.15)', borderColor: activeDriverTab === 'assigned' ? '#c084fc' : 'rgba(139, 92, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setActiveDriverTab('assigned')}>
             <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>مكلف بها</span>
             <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.onRoute}</strong>
           </div>
-          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(16, 185, 129, 0.15)', borderColor: 'rgba(16, 185, 129, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
+          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: activeDriverTab === 'completed' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.15)', borderColor: activeDriverTab === 'completed' ? '#34d399' : 'rgba(16, 185, 129, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setActiveDriverTab('completed')}>
             <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>مكتملة</span>
             <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.completed}</strong>
           </div>
@@ -610,25 +608,46 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
       )}
 
       {isDriver ? (
-        <>
-          <h3 className="driver-sub-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem', color: '#60a5fa', fontWeight: 'bold' }}>🏍️ طلباتي المكلف بها حالياً ({orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length})</h3>
-          <div className="admin-orders-list" style={{ marginBottom: '2rem' }}>
-            {orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length === 0 ? (
-              <div className="empty-orders" style={{ color: '#fff' }}>لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
-            ) : (
-              orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).map(order => renderOrderCard(order))
-            )}
-          </div>
+        <div className="driver-tab-content" style={{ minHeight: '300px' }}>
+          {activeDriverTab === 'available' && (
+            <>
+              <h3 className="driver-sub-title" style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#3b82f6', fontWeight: 'bold' }}>📦 طلبات متوفرة ومتاحة للتوصيل ({orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length})</h3>
+              <div className="admin-orders-list">
+                {orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length === 0 ? (
+                  <div className="empty-orders" style={{ color: '#fff' }}>لا توجد طلبات متوفرة للتوصيل حالياً.</div>
+                ) : (
+                  orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).map(order => renderOrderCard(order))
+                )}
+              </div>
+            </>
+          )}
 
-          <h3 className="driver-sub-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem', color: '#10b981', fontWeight: 'bold' }}>📦 طلبات متوفرة ومتاحة للتوصيل ({orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length})</h3>
-          <div className="admin-orders-list">
-            {orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length === 0 ? (
-              <div className="empty-orders" style={{ color: '#fff' }}>لا توجد طلبات متوفرة للتوصيل حالياً.</div>
-            ) : (
-              orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).map(order => renderOrderCard(order))
-            )}
-          </div>
-        </>
+          {activeDriverTab === 'assigned' && (
+            <>
+              <h3 className="driver-sub-title" style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#c084fc', fontWeight: 'bold' }}>🏍️ طلباتي المكلف بها حالياً ({orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length})</h3>
+              <div className="admin-orders-list">
+                {orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length === 0 ? (
+                  <div className="empty-orders" style={{ color: '#fff' }}>لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
+                ) : (
+                  orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).map(order => renderOrderCard(order))
+                )}
+              </div>
+            </>
+          )}
+
+          {activeDriverTab === 'completed' && (
+            <>
+              <h3 className="driver-sub-title" style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#34d399', fontWeight: 'bold' }}>✅ أرشيف الطلبات المكتملة ({completedOrders.length})</h3>
+              <div className="admin-orders-list completed-orders-list">
+                {completedOrders.length === 0 ? (
+                  <div className="empty-orders" style={{ color: '#fff' }}>لا توجد طلبات مكتملة.</div>
+                ) : (
+                  completedOrders.map(order => renderOrderCard(order, { compact: true }))
+                )}
+              </div>
+            </>
+          )}
+        </div>
       ) : (
         <div className="admin-orders-list">
           {activeOrders.length === 0 && (
@@ -638,7 +657,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
         </div>
       )}
 
-      {completedOrders.length > 0 && (
+      {completedOrders.length > 0 && !isDriver && (
         <div className="completed-orders-section">
           <button
             className="completed-toggle-btn"
