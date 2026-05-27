@@ -10,58 +10,14 @@ const BASE = import.meta.env.BASE_URL || '/';
 function imgFallback(w, h, bg, fg, text) {
   return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '"><rect fill="' + bg + '" width="' + w + '" height="' + h + '"/><text fill="' + fg + '" font-family="sans-serif" font-size="' + Math.min(w, h) / 6 + '" x="' + (w / 2) + '" y="' + (h / 2) + '" text-anchor="middle" dominant-baseline="middle">' + text + '</text></svg>');
 }
-
-function AddShortcutButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
-
-  useEffect(() => {
-    const handler = (e) => {
-      try { e.preventDefault(); } catch(err) {}
-      window.__deferredPrompt = e;
-      setDeferredPrompt(e);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
-
-  const onClick = async () => {
-    if (deferredPrompt) {
-      try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          window.__deferredPrompt = null;
-          setDeferredPrompt(null);
-        }
-      } catch (err) {
-        console.log('install prompt error', err);
-      }
-      return;
-    }
-
-    // Trigger custom event to display custom install instructions (iOS or other browsers)
-    window.dispatchEvent(new CustomEvent('show-pwa-install-prompt'));
-  };
-
-  if (isStandalone) return null;
-
-  return (
-    <button className="app-install-header-btn" onClick={onClick} title="تثبيت التطبيق على جهازك">
-      <svg className="app-install-header-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-        <polyline points="7 10 12 15 17 10" />
-        <line x1="12" y1="15" x2="12" y2="3" />
-      </svg>
-      <span className="app-install-header-text">تثبيت</span>
-    </button>
-  );
-}
+const logoPath = BASE + 'LOGO.jpg';
+function productImgError(e) { if (e.target.src !== logoPath) e.target.src = logoPath; }
 
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
-    placeOrder, chatMessages, sendMessage, user, logout, orders } = useContext(StoreContext);
+    placeOrder, chatMessages, sendMessage, user, logout, orders,
+    customerProfile, updateCustomerProfile } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [prevTab, setPrevTab] = useState('home');
@@ -70,6 +26,18 @@ export default function App() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [slideDir, setSlideDir] = useState('left');
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c1220' : '#127443');
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(t => t === 'light' ? 'dark' : 'light');
+  }, []);
 
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2200); return () => clearTimeout(t); }, []);
 
@@ -105,7 +73,7 @@ export default function App() {
         </div>
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} />}
-          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} />}
         </div>
       </div>
 
@@ -163,7 +131,6 @@ const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSear
         </div>
       </div>
       <div className="app-header-actions">
-        <AddShortcutButton />
         {user ? <span className="app-user-badge">{user.email?.split('@')[0]}</span>
           : <Link to="/login" className="app-login-link">دخول</Link>}
         <button className="app-cart-btn" onClick={onCartOpen}>
@@ -223,7 +190,7 @@ const CartScreen = memo(({ cart, cartTotal, cartCount, updateCartQty, removeFrom
         ) : cart.map(item => (
           <div key={item.id} className="cart-screen-item">
             <img src={item.imageUrl} alt={item.name} className="cart-screen-item-img"
-              onError={(e) => { e.target.src = imgFallback(80, 80, '#127443', '#FFFFFF', 'IMG'); }} />
+              onError={productImgError} />
             <div className="cart-screen-item-info">
               <div className="cart-screen-item-name">{item.name}</div>
               <div className="cart-screen-item-price">{(item.currentPrice || item.price).toFixed(2)} ر.س</div>
@@ -263,6 +230,10 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
     if (!allProducts) return [];
     return allProducts.filter(p => p.isOffer);
   }, [allProducts]);
+
+  const bestSellerProducts = useMemo(() => {
+    return products.slice(0, 6);
+  }, [products]);
 
   return (
     <div className="home-tab-container">
@@ -330,17 +301,32 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
         </div>
       )}
       {/* 4. Products Grid Section Card */}
-      <div className="home-section-card products-list-card">
-        <div className="section-card-header">
-          <div className="section-card-title-group">
-            <span className="section-card-icon">🥬</span>
-            <h3 className="section-card-title">
-              {selectedCategory === 'الكل' ? 'أكثر من 15000 صنف في مكان واحد' : selectedCategory}
-            </h3>
+      {selectedCategory === 'الكل' ? (
+        <div className="home-section-card products-list-card">
+          <div className="section-card-header">
+            <div className="section-card-title-group">
+              <span className="section-card-icon">🥬</span>
+              <h3 className="section-card-title">أكثر من 15000 صنف في مكان واحد</h3>
+            </div>
+            <span className="products-count-badge">أكثر من 15000 صنف</span>
           </div>
-          <span className="products-count-badge">أكثر من 15000 صنف</span>
+          <div className="products-horizontal-scroll">
+            {products.map(product => (
+              <ProductCard key={product.id} product={product} addToCart={addToCart} />
+            ))}
+            {products.length === 0 && (
+              <div className="no-products-card">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="1.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <p>عذراً، لم نجد أي منتجات تطابق بحثك.</p>
+              </div>
+            )}
+          </div>
         </div>
-        <div className="products-horizontal-scroll">
+      ) : (
+        <div className="vertical-products-list">
           {products.map(product => (
             <ProductCard key={product.id} product={product} addToCart={addToCart} />
           ))}
@@ -354,7 +340,24 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
             </div>
           )}
         </div>
-      </div>
+      )}
+
+      {selectedCategory === 'الكل' && bestSellerProducts.length > 0 && (
+        <div className="home-section-card bestsellers-card">
+          <div className="section-card-header">
+            <div className="section-card-title-group">
+              <span className="section-card-icon">🏆</span>
+              <h3 className="section-card-title">الأكثر مبيعا</h3>
+            </div>
+            <span className="section-card-action-link" onClick={() => setSelectedCategory('الكل')}>عرض الكل</span>
+          </div>
+          <div className="offers-horizontal-scroll">
+            {bestSellerProducts.map(product => (
+              <ProductCardMini key={`bestseller-${product.id}`} product={product} addToCart={addToCart} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 });
@@ -376,9 +379,11 @@ const OrdersTab = memo(({ orders }) => {
           <div className="order-card-mini-top">
             <div>
               <div className="order-card-mini-id">طلب #{order.id.slice(-6)}</div>
-              <div className="order-card-mini-date">{new Date(order.date).toLocaleDateString('ar-SA')}</div>
+              <div className="order-card-mini-date">{order.date ? new Date(order.date).toLocaleDateString('ar-SA') : ''}</div>
             </div>
-            <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>{order.status}</span>
+            <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>
+              {order.status === 'قيد التحضير' ? 'يتم تجهيز طلبك' : order.status}
+            </span>
           </div>
           <div className="order-card-mini-items">
             {order.items?.slice(0, 3).map(item => <span key={item.id}>{item.name} ×{item.qty}</span>)}
@@ -392,7 +397,31 @@ const OrdersTab = memo(({ orders }) => {
 });
 
 /* ─── Account Tab ─── */
-const AccountTab = memo(({ user, logout }) => {
+const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme }) => {
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editPhone, setEditPhone] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const displayName = customerProfile?.name || user?.email?.split('@')[0] || '';
+  const displayPhone = customerProfile?.phone || '';
+  const avatarLetter = (customerProfile?.name || user?.email || '?').charAt(0).toUpperCase();
+
+  const startEdit = () => {
+    setEditName(customerProfile?.name || '');
+    setEditPhone(customerProfile?.phone || '');
+    setEditing(true);
+  };
+
+  const saveProfile = async () => {
+    setSaving(true);
+    try {
+      await updateCustomerProfile(editName, editPhone);
+      setEditing(false);
+    } catch { /* ignore */ }
+    setSaving(false);
+  };
+
   if (!user) return (
     <div className="empty-tab">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -402,15 +431,92 @@ const AccountTab = memo(({ user, logout }) => {
       <Link to="/register" className="btn btn-ghost" style={{ marginTop: '0.5rem' }}>إنشاء حساب جديد</Link>
     </div>
   );
+
+  const points = customerProfile?.loyalty_points ?? 0;
+
   return (
     <div className="account-tab">
-      <div className="account-profile">
-        <div className="account-avatar-lg">{user.email?.charAt(0).toUpperCase()}</div>
-        <div className="account-name">{user.email?.split('@')[0]}</div>
-        <div className="account-email">{user.email}</div>
-      </div>
-      <button className="account-logout-btn" onClick={logout}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      {editing ? (
+        <div className="acc-card acc-edit-card">
+          <h3 className="acc-section-title">تعديل البيانات</h3>
+          <div className="acc-field">
+            <label>الاسم الكامل</label>
+            <input type="text" value={editName} onChange={e => setEditName(e.target.value)}
+              placeholder="الاسم الكامل" className="acc-input" />
+          </div>
+          <div className="acc-field">
+            <label>رقم الجوال</label>
+            <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)}
+              placeholder="05xxxxxxxx" className="acc-input ltr" dir="ltr" />
+          </div>
+          <div className="acc-edit-actions">
+            <button className="acc-btn acc-btn-primary" onClick={saveProfile} disabled={saving}>
+              {saving ? 'جاري الحفظ...' : 'حفظ التعديلات'}
+            </button>
+            <button className="acc-btn acc-btn-ghost" onClick={() => setEditing(false)}>إلغاء</button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="acc-profile-header">
+            <div className="acc-avatar-ring">
+              <div className="acc-avatar">{avatarLetter}</div>
+            </div>
+            <div className="acc-name">{displayName}</div>
+            <div className="acc-phone">{displayPhone || 'رقم الجوال غير مضاف'}</div>
+            <div className="acc-email">{user.email}</div>
+            <button className="acc-edit-btn" onClick={startEdit}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              تعديل
+            </button>
+          </div>
+
+          <div className="acc-loyalty-card">
+            <div className="acc-loyalty-header">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#b8860b" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span>نقاط الولاء</span>
+            </div>
+            <div className="acc-loyalty-body">
+              <span className="acc-loyalty-points">{points.toLocaleString()}</span>
+              <span className="acc-loyalty-unit">نقطة</span>
+            </div>
+            <div className="acc-loyalty-footer">
+              كل ريال = نقطة • استخدم النقاط في الخصومات قريبًا
+            </div>
+          </div>
+
+            <div className="acc-card acc-info-card">
+              <div className="acc-info-row">
+                <span className="acc-info-label">تاريخ التسجيل</span>
+                <span className="acc-info-value">
+                  {customerProfile?.created_at && !isNaN(new Date(customerProfile.created_at))
+                    ? new Date(customerProfile.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
+                    : 'غير متاح'}
+                </span>
+              </div>
+            </div>
+
+            <div className="acc-theme-card" onClick={toggleTheme} role="button" tabIndex={0}>
+              <div className="acc-theme-left">
+                <div className="acc-theme-icon">{theme === 'light' ? '🌙' : '☀️'}</div>
+                <div className="acc-theme-text">
+                  <span className="acc-theme-label">{theme === 'light' ? 'المظهر الداكن' : 'المظهر الفاتح'}</span>
+                  <span className="acc-theme-sub">{theme === 'light' ? 'بطاقات زجاجية داكنة' : 'المظهر الأبيض الافتراضي'}</span>
+                </div>
+              </div>
+              <div className="acc-toggle-wrap">
+                <div className="acc-toggle-track">
+                  <div className="acc-toggle-thumb" />
+                  <span className="acc-toggle-icon acc-toggle-sun">☀️</span>
+                  <span className="acc-toggle-icon acc-toggle-moon">🌙</span>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+      
+      <button className="acc-logout-btn" onClick={logout}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         تسجيل الخروج
       </button>
     </div>
@@ -422,6 +528,11 @@ const getCategoryEmoji = (category) => {
   switch (category) {
     case 'الكل': return '🏪';
     case 'العروض': return '🔥';
+    case 'بحث سريع': return '🔎';
+    case 'بقالة وجاهز': return '🛒';
+    case 'ثلاجة ومجمدات': return '❄️';
+    case 'منظفات ومنزل': return '🧹';
+    case 'مشروبات وحلويات': return '🥤';
     case 'المؤن': return '🥫';
     case 'الألبان': return '🥛';
     case 'المشروبات': return '🥤';
@@ -448,7 +559,7 @@ const ProductCardMini = memo(({ product, addToCart }) => {
       <div className="mini-card-img-wrap">
         <span className="mini-card-badge-offer">%</span>
         <img src={product.imageUrl} alt={product.name} className="mini-card-img" loading="lazy"
-          onError={(e) => { e.target.src = imgFallback(150, 150, '#f3f7f4', '#127443', 'ثرا'); }} />
+          onError={productImgError} />
         <button className={`mini-card-add ${added ? 'added' : ''}`} onClick={handleAdd}>
           {added ? (
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -460,8 +571,11 @@ const ProductCardMini = memo(({ product, addToCart }) => {
       <div className="mini-card-body">
         <div className="mini-card-name">{product.name}</div>
         <div className="mini-card-price-row">
-          <span className="mini-card-price">{product.offerPrice ? product.offerPrice.toFixed(2) : product.price.toFixed(2)}<span className="mini-card-currency"> ر.س</span></span>
-          {product.offerPrice && <span className="mini-card-old-price">{product.price.toFixed(2)}</span>}
+          <div>
+            <span className="mini-card-price">{product.offerPrice ? product.offerPrice.toFixed(2) : product.price.toFixed(2)}<span className="mini-card-currency"> ر.س</span></span>
+            {product.offerPrice && <span className="mini-card-old-price">{product.price.toFixed(2)}</span>}
+          </div>
+          <div className="mini-card-unit">{product.unit}</div>
         </div>
       </div>
     </div>
@@ -471,13 +585,13 @@ const ProductCardMini = memo(({ product, addToCart }) => {
 /* ─── Product Card ─── */
 const ProductCard = memo(({ product, addToCart }) => {
   const [added, setAdded] = useState(false);
-  const handleAdd = () => { addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 600); };
+  const handleAdd = (e) => { e?.stopPropagation(); addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 600); };
   return (
     <div className="product-card-new">
       <div className="product-card-new-img-wrap">
         {product.isOffer && <span className="product-badge-offer">%</span>}
         <img src={product.imageUrl} alt={product.name} className="product-card-new-img" loading="lazy"
-          onError={(e) => { e.target.src = imgFallback(400, 400, '#f3f7f4', '#127443', 'ثرا'); }} />
+          onError={productImgError} />
         <button className={`product-card-new-add ${added ? 'added' : ''}`} onClick={handleAdd}>
           {added ? (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -489,11 +603,14 @@ const ProductCard = memo(({ product, addToCart }) => {
       <div className="product-card-new-body">
         <div className="product-card-new-cat">{product.category}</div>
         <div className="product-card-new-name">{product.name}</div>
-        <div className="product-card-new-price">
-          {product.isOffer ? (
-            <><span className="offer-old">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
-          ) : product.price.toFixed(2)}
-          <span className="product-card-new-currency"> ر.س</span>
+        <div className="product-card-new-price-row">
+          <div className="product-card-new-price">
+            {product.isOffer ? (
+              <><span className="offer-old">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
+            ) : product.price.toFixed(2)}
+            <span className="product-card-new-currency"> ر.س</span>
+          </div>
+          <div className="product-card-new-unit">{product.unit}</div>
         </div>
       </div>
     </div>

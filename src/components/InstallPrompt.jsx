@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 export default function InstallPrompt({ variant }) {
+  const BASE = import.meta.env.BASE_URL || '/';
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [show, setShow] = useState(false);
   const timerRef = useRef(null);
@@ -61,7 +62,7 @@ export default function InstallPrompt({ variant }) {
         await navigator.share({ 
           title: 'أسواق ثرا الشرق ون', 
           text: 'حمل تطبيق أسواق ثرا الشرق ون وتصفح أحدث العروض والمنتجات', 
-          url: window.location.origin + '/thara-app/' 
+          url: window.location.origin + BASE
         });
       } catch (err) {
         console.log('Share canceled:', err);
@@ -75,7 +76,7 @@ export default function InstallPrompt({ variant }) {
   };
 
   const canInstall = !!deferredPrompt;
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
 
   if (variant === 'admin') {
     return (
@@ -132,7 +133,7 @@ export default function InstallPrompt({ variant }) {
         </button>
         <div className="install-card-inner">
           <div className="install-header-section">
-            <img src="/thara-app/LOGO.jpg" alt="" className="install-logo" onError={(e) => { e.target.src = '/thara-app/icon-192.png'; }} />
+            <img src={`${BASE}LOGO.jpg`} alt="" className="install-logo" onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
             <div className="install-app-info">
               <h2 className="install-title">تطبيق أسواق ثرا الشرق ون</h2>
               <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>

@@ -1,14 +1,18 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
+import { supabase } from './supabase/client';
+import * as XLSX from 'xlsx';
 import StaffManager from './components/StaffManager.jsx';
-import InstallPrompt from './components/InstallPrompt';
 import { categories } from './data/mockData';
+
+const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 
 export default function Admin() {
   const { 
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
-    chatMessages, sendMessage, logout, staffRole
+    chatMessages, sendMessage, logout, staffRole,
+    allCustomers, loadCustomers
   } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -25,9 +29,13 @@ export default function Admin() {
   const tabs = [
     { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
     { id: 'chat', label: 'العملاء', icon: '💬' },
+    { id: 'users', label: 'المستخدمين', icon: '👤' },
   ];
   if (canManageCatalog) {
-    tabs.splice(1, 0, { id: 'products', label: 'المنتجات', icon: '📦' }, { id: 'offers', label: 'العروض', icon: '🏷️' });
+    tabs.splice(1, 0,
+      { id: 'products', label: 'المنتجات', icon: '📦' },
+      { id: 'offers', label: 'العروض', icon: '🏷️' }
+    );
   }
   if (staffRole === 'admin') tabs.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
 
@@ -39,8 +47,6 @@ export default function Admin() {
         <h2>{tabLabel[activeTab]}</h2>
         <Link to="/" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '0.85rem' }}>المتجر</Link>
       </div>
-      <InstallPrompt variant="admin" />
-
       {/* Sidebar (desktop) */}
       <aside className="admin-sidebar">
         <h2 className="admin-sidebar-title">لوحة التاجر</h2>
@@ -63,6 +69,7 @@ export default function Admin() {
         {activeTab === 'offers' && <AdminOffers products={allProducts} updateProduct={updateProduct} />}
         {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} />}
         {activeTab === 'staff' && <StaffManager />}
+        {activeTab === 'users' && <AdminUsers customers={allCustomers} loadCustomers={loadCustomers} />}
       </main>
 
       {/* Mobile bottom nav */}
@@ -105,17 +112,26 @@ function AdminOrders({ orders, updateOrderStatus }) {
               </div>
               <div className="admin-order-right" style={{textAlign: 'left'}}>
                 <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
-                <select 
-                  value={order.status} 
-                  onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                  className="order-status-select"
-                >
-                  <option value="جديد">جديد</option>
-                  <option value="قيد التحضير">قيد التحضير</option>
-                  <option value="في الطريق">في الطريق</option>
-                  <option value="مكتمل">مكتمل</option>
-                  <option value="ملغي">ملغي</option>
-                </select>
+                {order.status === 'جديد' ? (
+                  <button
+                    onClick={() => updateOrderStatus(order.id, 'قيد التحضير')}
+                    className="btn btn-accept"
+                  >
+                    استلام الطلب
+                  </button>
+                ) : (
+                  <select
+                    value={order.status}
+                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                    className="order-status-select"
+                  >
+                    <option value="جديد">جديد</option>
+                    <option value="قيد التحضير">قيد التحضير</option>
+                    <option value="في الطريق">في الطريق</option>
+                    <option value="مكتمل">مكتمل</option>
+                    <option value="ملغي">ملغي</option>
+                  </select>
+                )}
               </div>
             </div>
             <div>
@@ -139,6 +155,7 @@ function AdminOrders({ orders, updateOrderStatus }) {
 }
 
 function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
+  const { bulkImportProducts } = useContext(StoreContext);
   const [form, setForm] = useState({
     name: '',
     category: categories.find(c => c !== 'الكل' && c !== 'العروض') || 'المؤن',
@@ -147,6 +164,10 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
     unit: 'حبة',
     imageUrl: ''
   });
+  const [showImport, setShowImport] = useState(false);
+  const [previewRows, setPreviewRows] = useState([]);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef(null);
 
   const updateForm = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -165,11 +186,122 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
     setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
   };
 
+  const handleFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const wb = XLSX.read(ev.target.result, { type: 'binary' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        setPreviewRows(rows.map((r, i) => ({ _row: i + 1, ...r })));
+      } catch {
+        alert('فشل قراءة الملف. تأكد من أن الملف بصيغة Excel أو CSV صحيحة.');
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
+  const handlePaste = (text) => {
+    try {
+      const lines = text.trim().split('\n');
+      const rows = lines.map((line, i) => {
+        const parts = line.split('\t');
+        if (parts.length < 2) parts.push(...line.split(','));
+        return { _row: i + 1, name: parts[0], category: parts[1], price: parts[2], stock_quantity: parts[3], unit: parts[4], imageUrl: parts[5] };
+      });
+      setPreviewRows(rows);
+    } catch {
+      alert('فشل تحليل النص. تأكد من استخدام تبويب أو فاصلة بين الأعمدة.');
+    }
+  };
+
+  const doImport = async () => {
+    if (!previewRows.length) return;
+    setImporting(true);
+    const mapped = previewRows.map(r => ({
+      name: String(r.name || r.الاسم || '').trim(),
+      category: String(r.category || r.القسم || r.التصنيف || r.الصنف || 'المؤن').trim(),
+      price: parseFloat(r.price || r.السعر || 0) || 0,
+      stock_quantity: parseInt(r.stock_quantity || r.المخزون || r.الكمية || 0, 10) || 0,
+      unit: String(r.unit || r.الوحدة || 'حبة').trim(),
+      imageUrl: String(r.imageUrl || r.image_url || r.الصورة || '').trim(),
+      isOffer: !!(r.isOffer || r.is_offer || r.عرض)
+    }));
+    try {
+      const created = await bulkImportProducts(mapped);
+      alert(`تم استيراد ${created.length} منتج بنجاح`);
+      setPreviewRows([]);
+      setShowImport(false);
+    } catch (err) {
+      alert('فشل الاستيراد: ' + (err.message || 'خطأ غير معروف'));
+    }
+    setImporting(false);
+  };
+
   return (
     <div>
       <div className="admin-products-header">
         <h2 className="admin-section-title">إدارة المنتجات ({products.length})</h2>
+        <button className="btn" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }} onClick={() => { setShowImport(!showImport); setPreviewRows([]); }}>استيراد</button>
       </div>
+
+      {showImport && (
+        <div className="admin-card" style={{ marginBottom: '1rem' }}>
+          <h3 style={{ marginBottom: '0.75rem', color: '#f1f5f9', fontSize: '1rem' }}>استيراد منتجات</h3>
+          
+          {/* File upload */}
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.4rem', color: '#94a3b8', fontSize: '0.85rem' }}>رفع ملف Excel أو CSV</label>
+            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} style={{ color: '#e2e8f0' }} />
+          </div>
+
+          {/* Paste area */}
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.4rem', color: '#94a3b8', fontSize: '0.85rem' }}>أو لصق نص (اسم، قسم، سعر، مخزون، وحدة، رابط صورة)</label>
+            <textarea
+              rows={4}
+              style={{ width: '100%', background: 'rgba(0,0,0,0.35)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '0.5rem', color: '#e2e8f0', fontFamily: 'inherit', fontSize: '0.85rem' }}
+              placeholder={"أرز بسمتي, المؤن, 40, 50, كيس, https://..."}
+              onBlur={(e) => e.target.value.trim() && handlePaste(e.target.value)}
+            />
+          </div>
+
+          {/* Preview */}
+          {previewRows.length > 0 && (
+            <>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>تم تحديد {previewRows.length} منتج:</p>
+              <div style={{ maxHeight: 200, overflowY: 'auto', marginBottom: '0.75rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                  <thead>
+                    <tr style={{ color: '#94a3b8', borderBottom: '0.5px solid rgba(255,255,255,0.12)' }}>
+                      <th style={{ padding: '0.3rem', textAlign: 'right' }}>الاسم</th>
+                      <th style={{ padding: '0.3rem', textAlign: 'right' }}>القسم</th>
+                      <th style={{ padding: '0.3rem', textAlign: 'left' }}>السعر</th>
+                      <th style={{ padding: '0.3rem', textAlign: 'left' }}>المخزون</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {previewRows.slice(0, 20).map(r => (
+                      <tr key={r._row} style={{ borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
+                        <td style={{ padding: '0.3rem', color: '#e2e8f0' }}>{r.name || r.الاسم || '—'}</td>
+                        <td style={{ padding: '0.3rem', color: '#94a3b8' }}>{r.category || r.القسم || '—'}</td>
+                        <td style={{ padding: '0.3rem', color: '#fbbf24', textAlign: 'left' }}>{r.price || r.السعر || '—'}</td>
+                        <td style={{ padding: '0.3rem', textAlign: 'left' }}>{r.stock_quantity || r.المخزون || '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {previewRows.length > 20 && <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.3rem' }}>و {previewRows.length - 20} منتج آخر...</p>}
+              </div>
+              <button className="btn" onClick={doImport} disabled={importing}>
+                {importing ? 'جاري الاستيراد...' : `استيراد ${previewRows.length} منتج`}
+              </button>
+            </>
+          )}
+        </div>
+      )}
       <form className="admin-product-form" onSubmit={handleAddProduct}>
         <input value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder="اسم المنتج" className="admin-product-form-input" required />
         <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
@@ -185,7 +317,7 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
       <div className="admin-products-grid">
         {products.map(p => (
           <div key={p.id} className="admin-product-card">
-            <img src={p.imageUrl} alt="" className="admin-product-img" />
+            <img src={p.imageUrl} alt="" className="admin-product-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
             <input 
               type="text" 
               value={p.name} 
@@ -276,6 +408,64 @@ function AdminChat({ chatMessages, sendMessage }) {
           className="admin-chat-input"
         />
         <button className="btn" onClick={handleSend}>إرسال</button>
+      </div>
+    </div>
+  );
+}
+
+function AdminUsers({ customers, loadCustomers }) {
+  const [resettingEmail, setResettingEmail] = useState(null);
+
+  const handleResetPassword = async (email) => {
+    if (!window.confirm(`إرسال رابط إعادة تعيين كلمة المرور إلى ${email}؟`)) return;
+    setResettingEmail(email);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + '/thara-app/'
+      });
+      if (error) throw error;
+      alert('تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني');
+    } catch (err) {
+      alert('فشل إرسال الرابط: ' + err.message);
+    }
+    setResettingEmail(null);
+  };
+
+  React.useEffect(() => { loadCustomers(); }, [loadCustomers]);
+
+  if (!customers.length) return <div><h2 className="admin-section-title">المستخدمين</h2><p>لا يوجد مستخدمين مسجلين.</p></div>;
+
+  return (
+    <div>
+      <h2 className="admin-section-title">المستخدمين ({customers.length})</h2>
+      <div className="admin-orders-list">
+        {customers.map(c => (
+          <div key={c.id} className="admin-card">
+            <div className="admin-card-header" style={{ alignItems: 'center' }}>
+              <div>
+                <strong style={{ fontSize: '1rem' }}>{c.name || 'بدون اسم'}</strong>
+                <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.2rem' }}>{c.email}</div>
+              </div>
+              <div style={{ textAlign: 'left', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                <div>
+                  <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>نقاط الولاء</span><br/>
+                  <strong style={{ color: '#fbbf24', fontSize: '1.2rem' }}>{c.loyalty_points ?? 0}</strong>
+                </div>
+                <button
+                  onClick={() => handleResetPassword(c.email)}
+                  disabled={resettingEmail === c.email}
+                  className="btn"
+                  style={{ fontSize: '0.8rem', padding: '0.5rem 0.8rem', whiteSpace: 'nowrap' }}
+                >
+                  {resettingEmail === c.email ? 'جاري الإرسال...' : 'إعادة تعيين كلمة المرور'}
+                </button>
+              </div>
+            </div>
+            <div className="admin-card-info">
+              <strong>الهاتف:</strong> {c.phone || 'غير محدد'} | <strong>تاريخ التسجيل:</strong> {c.created_at ? new Date(c.created_at).toLocaleDateString('ar-SA') : '—'}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

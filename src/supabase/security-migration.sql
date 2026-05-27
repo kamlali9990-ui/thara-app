@@ -38,6 +38,9 @@ AS $$
   SELECT COALESCE(public.current_staff_role() = ANY(allowed_roles), FALSE);
 $$;
 
+GRANT EXECUTE ON FUNCTION public.current_staff_role TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.is_staff TO anon, authenticated;
+
 DROP POLICY IF EXISTS "staff_select_admin" ON staff;
 DROP POLICY IF EXISTS "staff_insert_admin" ON staff;
 DROP POLICY IF EXISTS "staff_update_admin" ON staff;

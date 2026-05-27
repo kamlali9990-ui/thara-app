@@ -6,6 +6,7 @@ import { ordersApi } from '../supabase/orders.js';
 import { chatApi } from '../supabase/chat.js';
 import { authApi } from '../supabase/auth.js';
 import { staffApi } from '../supabase/staff.js';
+import { customersApi } from '../supabase/customers.js';
 
 export const StoreContext = createContext();
 
@@ -18,6 +19,8 @@ export const StoreProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [staffRole, setStaffRole] = useState(null);
   const [staffList, setStaffList] = useState([]);
+  const [allCustomers, setAllCustomers] = useState([]);
+  const [customerProfile, setCustomerProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // --- Data ---
@@ -68,6 +71,12 @@ export const StoreProvider = ({ children }) => {
             const staff = await staffApi.getByEmail(currentUser.email).catch(() => null);
             if (staff) setStaffRole(staff.role);
             else if (currentUser.email === 'yaser.haroon79@gmail.com') setStaffRole('admin');
+            if (!staff) {
+              try {
+                const p = await customersApi.get(currentUser.email);
+                if (p) setCustomerProfile(p);
+              } catch { /* no profile yet */ }
+            }
           }
           setSupabaseReady(true);
         } catch {
@@ -87,8 +96,15 @@ export const StoreProvider = ({ children }) => {
       if (u) {
         const staff = await staffApi.getByEmail(u.email).catch(() => null);
         setStaffRole(staff?.role || (u.email === 'yaser.haroon79@gmail.com' ? 'admin' : null));
+        if (!staff) {
+          try {
+            const p = await customersApi.get(u.email);
+            if (p) setCustomerProfile(p);
+          } catch { /* no profile yet */ }
+        }
       } else {
         setStaffRole(null);
+        setCustomerProfile(null);
       }
     });
     return () => {
@@ -126,13 +142,29 @@ export const StoreProvider = ({ children }) => {
   }, [searchQuery]);
 
   // --- Filtered Products ---
+  const categoryGroupMap = {
+    'المؤن': 'بقالة وجاهز',
+    'المخبوزات': 'بقالة وجاهز',
+    'التسالي': 'مشروبات وحلويات',
+    'المشروبات': 'مشروبات وحلويات',
+    'الألبان': 'ثلاجة ومجمدات',
+    'اللحوم والدواجن': 'ثلاجة ومجمدات',
+    'الخضروات والفواكه': 'ثلاجة ومجمدات',
+    'المنظفات': 'منظفات ومنزل',
+    'العناية الشخصية': 'منظفات ومنزل'
+  };
+
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
+      const group = categoryGroupMap[p.category] || p.category;
+
       if (selectedCategory === 'العروض') {
         if (!p.isOffer) return false;
-      } else if (selectedCategory !== 'الكل') {
-        if (p.category !== selectedCategory) return false;
+      } else if (selectedCategory !== 'الكل' && selectedCategory !== 'بحث سريع') {
+        if (group !== selectedCategory) return false;
       }
+
+      if (!debouncedSearch) return true;
       return p.name.toLowerCase().includes(debouncedSearch.toLowerCase());
     });
   }, [debouncedSearch, selectedCategory, products]);
@@ -165,6 +197,17 @@ export const StoreProvider = ({ children }) => {
     return cart.reduce((total, item) => total + (item.currentPrice * item.qty), 0);
   }, [cart]);
 
+  // --- Loyalty Points ---
+  const addLoyaltyPoints = useCallback(async (total) => {
+    if (!user || !hasSupabase) return;
+    const points = Math.floor(total);
+    if (points <= 0) return;
+    try {
+      const updated = await customersApi.addPoints(user.email, points);
+      if (updated) setCustomerProfile(updated);
+    } catch { /* ignore */ }
+  }, [user, hasSupabase]);
+
   // --- Order Actions ---
   const placeOrder = useCallback(async (orderData) => {
     if (cart.length === 0) {
@@ -185,14 +228,16 @@ export const StoreProvider = ({ children }) => {
         const createdOrder = await ordersApi.create(newOrder);
         setOrders(prev => [createdOrder, ...prev]);
         setCart([]);
+        addLoyaltyPoints(newOrder.total);
         return createdOrder;
       } catch { /* fallback to local */ }
     }
 
     setOrders(prev => [newOrder, ...prev]);
     setCart([]);
+    addLoyaltyPoints(newOrder.total);
     return newOrder;
-  }, [cart, cartTotal, hasSupabase, supabaseReady, user]);
+  }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints]);
 
   const updateOrderStatus = useCallback(async (orderId, newStatus) => {
     if (hasSupabase && supabaseReady) {
@@ -233,6 +278,20 @@ export const StoreProvider = ({ children }) => {
     setProducts(prev => prev.filter(p => p.id !== id));
   }, [hasSupabase, supabaseReady]);
 
+  const bulkImportProducts = useCallback(async (products) => {
+    if (!products.length) return [];
+    if (hasSupabase && supabaseReady) {
+      try {
+        const created = await productsApi.bulkCreate(products);
+        setProducts(prev => [...created, ...prev]);
+        return created;
+      } catch { /* fallback */ }
+    }
+    const localProducts = products.map(p => ({ ...p, id: Date.now().toString() + Math.random() }));
+    setProducts(prev => [...localProducts, ...prev]);
+    return localProducts;
+  }, [hasSupabase, supabaseReady]);
+
   // --- Chat ---
   const sendMessage = useCallback(async (sender, text) => {
     const msg = { id: Date.now().toString(), sender, text, time: new Date().toLocaleTimeString() };
@@ -258,6 +317,21 @@ export const StoreProvider = ({ children }) => {
     if (hasSupabase) await authApi.signOut();
     setUser(null);
   }, []);
+
+  // --- Customers Management ---
+  const loadCustomers = useCallback(async () => {
+    if (!hasSupabase) return;
+    try {
+      const list = await customersApi.list();
+      setAllCustomers(list);
+    } catch { /* ignore */ }
+  }, []);
+
+  // Load customers list on init if staff
+  useEffect(() => {
+    if (!supabaseReady || !staffRole) return;
+    loadCustomers();
+  }, [supabaseReady, staffRole]);
 
   // --- Staff Management ---
   const loadStaff = useCallback(async () => {
@@ -285,10 +359,21 @@ export const StoreProvider = ({ children }) => {
     setStaffList(prev => prev.filter(s => s.id !== id));
   }, []);
 
+  const updateCustomerProfile = useCallback(async (name, phone) => {
+    if (!user) return;
+    try {
+      const updated = await customersApi.update(user.email, name, phone);
+      setCustomerProfile(updated);
+      return updated;
+    } catch { return null; }
+  }, [user]);
+
   return (
     <StoreContext.Provider value={{
       user, loading, login, logout,
       staffRole, staffList, loadStaff, addStaff, updateStaff, removeStaff,
+      allCustomers, loadCustomers,
+      customerProfile, updateCustomerProfile,
       products: filteredProducts,
       cart, addToCart, removeFromCart, updateCartQty, cartTotal,
       searchQuery, setSearchQuery,
@@ -296,7 +381,7 @@ export const StoreProvider = ({ children }) => {
       placeOrder, getProductPrice,
       allProducts: products,
       orders, updateOrderStatus,
-      addProduct, updateProduct, deleteProduct,
+      addProduct, updateProduct, deleteProduct, bulkImportProducts,
       chatMessages, sendMessage
     }}>
       {children}

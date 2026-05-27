@@ -36,10 +36,114 @@ AS $$
   SELECT COALESCE(public.current_staff_role() = ANY(allowed_roles), FALSE);
 $$;
 
+GRANT EXECUTE ON FUNCTION public.current_staff_role TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_staff TO authenticated;
+
+-- RPC bypass RLS لجلب بيانات الموظفين للواجهة
+CREATE OR REPLACE FUNCTION public.get_staff_by_email_rpc(target_email TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+  caller_email TEXT;
+BEGIN
+  caller_email := auth.jwt() ->> 'email';
+  IF caller_email IS NULL OR NOT (public.is_staff() OR caller_email = target_email) THEN
+    RETURN NULL;
+  END IF;
+  SELECT row_to_json(s)::JSON INTO result FROM staff s WHERE s.email = target_email;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.list_staff_rpc()
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_staff() THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+  RETURN COALESCE(
+    (SELECT json_agg(row_to_json(s) ORDER BY s.created_at DESC) FROM staff s),
+    '[]'::JSON
+  );
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.create_staff_rpc(
+  p_email TEXT, p_name TEXT, p_role TEXT
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  IF NOT public.is_staff(ARRAY['admin']) THEN
+    RAISE EXCEPTION 'Unauthorized: admin only';
+  END IF;
+  INSERT INTO staff (email, name, role)
+  VALUES (p_email, p_name, p_role)
+  RETURNING row_to_json(staff)::JSON INTO result;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.update_staff_rpc(
+  p_id BIGINT, p_email TEXT, p_name TEXT, p_role TEXT
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  IF NOT public.is_staff(ARRAY['admin']) THEN
+    RAISE EXCEPTION 'Unauthorized: admin only';
+  END IF;
+  UPDATE staff
+  SET email = p_email, name = p_name, role = p_role
+  WHERE id = p_id
+  RETURNING row_to_json(staff)::JSON INTO result;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.delete_staff_rpc(p_id BIGINT)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT public.is_staff(ARRAY['admin']) THEN
+    RAISE EXCEPTION 'Unauthorized: admin only';
+  END IF;
+  DELETE FROM staff WHERE id = p_id;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_staff_by_email_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.list_staff_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_staff_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_staff_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.delete_staff_rpc TO authenticated;
+
 DROP POLICY IF EXISTS "staff_select_admin" ON staff;
 DROP POLICY IF EXISTS "staff_insert_admin" ON staff;
 DROP POLICY IF EXISTS "staff_update_admin" ON staff;
 DROP POLICY IF EXISTS "staff_delete_admin" ON staff;
+DROP POLICY IF EXISTS "staff_select_staff" ON staff;
 
 CREATE POLICY "staff_select_staff" ON staff
   FOR SELECT USING (public.is_staff());
@@ -53,8 +157,134 @@ CREATE POLICY "staff_update_admin" ON staff
 CREATE POLICY "staff_delete_admin" ON staff
   FOR DELETE USING (public.is_staff(ARRAY['admin']));
 
--- 1. Categories
-CREATE TABLE categories (
+-- 1. Customers
+CREATE TABLE IF NOT EXISTS customers (
+  id BIGSERIAL PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL DEFAULT '',
+  phone TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
+
+-- Customer can read/update own record
+DROP POLICY IF EXISTS "customers_select_self" ON customers;
+CREATE POLICY "customers_select_self" ON customers
+  FOR SELECT USING (auth.jwt() ->> 'email' = email);
+
+DROP POLICY IF EXISTS "customers_insert_self" ON customers;
+CREATE POLICY "customers_insert_self" ON customers
+  FOR INSERT WITH CHECK (auth.jwt() ->> 'email' = email);
+
+DROP POLICY IF EXISTS "customers_update_self" ON customers;
+CREATE POLICY "customers_update_self" ON customers
+  FOR UPDATE USING (auth.jwt() ->> 'email' = email);
+
+-- Staff can read all customers
+DROP POLICY IF EXISTS "customers_select_staff" ON customers;
+CREATE POLICY "customers_select_staff" ON customers
+  FOR SELECT USING (public.is_staff());
+
+-- RPC bypass RLS للتسجيل — ينشئ سجل عميل بعد الاشتراك
+CREATE OR REPLACE FUNCTION public.create_customer_rpc(p_email TEXT, p_name TEXT, p_phone TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  INSERT INTO customers (email, name, phone)
+  VALUES (p_email, p_name, p_phone)
+  ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, phone = EXCLUDED.phone
+  RETURNING row_to_json(customers)::JSON INTO result;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.get_customer_rpc(p_email TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  SELECT row_to_json(c)::JSON INTO result FROM customers c WHERE c.email = p_email;
+  RETURN result;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.update_customer_rpc(p_email TEXT, p_name TEXT, p_phone TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  UPDATE customers SET name = p_name, phone = p_phone WHERE email = p_email
+  RETURNING row_to_json(customers)::JSON INTO result;
+  RETURN result;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO anon, authenticated;
+
+-- Loyalty: add column if not exists
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='customers' AND column_name='loyalty_points') THEN
+    ALTER TABLE customers ADD COLUMN loyalty_points INTEGER DEFAULT 0;
+  END IF;
+END $$;
+
+CREATE OR REPLACE FUNCTION public.add_loyalty_points_rpc(p_email TEXT, p_points INTEGER)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  UPDATE customers
+  SET loyalty_points = COALESCE(loyalty_points, 0) + p_points
+  WHERE email = p_email
+  RETURNING row_to_json(customers)::JSON INTO result;
+  RETURN result;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.add_loyalty_points_rpc TO anon, authenticated;
+
+-- List all customers (staff only)
+CREATE OR REPLACE FUNCTION public.list_customers_rpc()
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+BEGIN
+  IF NOT public.is_staff() THEN
+    RAISE EXCEPTION 'Staff only';
+  END IF;
+  SELECT COALESCE(json_agg(row_to_json(c) ORDER BY c.created_at DESC), '[]'::JSON)
+  INTO result FROM customers c;
+  RETURN result;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.list_customers_rpc TO authenticated;
+
+-- 2. Categories
+CREATE TABLE IF NOT EXISTS categories (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -62,10 +292,11 @@ CREATE TABLE categories (
 
 INSERT INTO categories (name) VALUES
   ('الكل'), ('العروض'), ('المؤن'), ('الألبان'),
-  ('المشروبات'), ('اللحوم والدواجن'), ('المخبوزات'), ('التسالي');
+  ('المشروبات'), ('اللحوم والدواجن'), ('المخبوزات'), ('التسالي')
+ON CONFLICT (name) DO NOTHING;
 
--- 2. Products
-CREATE TABLE products (
+-- 3. Products
+CREATE TABLE IF NOT EXISTS products (
   id BIGSERIAL PRIMARY KEY,
   name TEXT NOT NULL,
   category TEXT NOT NULL,
@@ -81,21 +312,25 @@ CREATE TABLE products (
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 
 -- Public read access
+DROP POLICY IF EXISTS "products_select_public" ON products;
 CREATE POLICY "products_select_public" ON products
   FOR SELECT USING (true);
 
 -- Staff write access
+DROP POLICY IF EXISTS "products_insert_admin" ON products;
 CREATE POLICY "products_insert_admin" ON products
   FOR INSERT WITH CHECK (public.is_staff(ARRAY['admin', 'manager']));
 
+DROP POLICY IF EXISTS "products_update_admin" ON products;
 CREATE POLICY "products_update_admin" ON products
   FOR UPDATE USING (public.is_staff(ARRAY['admin', 'manager']));
 
+DROP POLICY IF EXISTS "products_delete_admin" ON products;
 CREATE POLICY "products_delete_admin" ON products
   FOR DELETE USING (public.is_staff(ARRAY['admin']));
 
--- 3. Orders
-CREATE TABLE orders (
+-- 4. Orders
+CREATE TABLE IF NOT EXISTS orders (
   id BIGSERIAL PRIMARY KEY,
   customer_email TEXT,
   items JSONB NOT NULL DEFAULT '[]',
@@ -111,6 +346,7 @@ CREATE TABLE orders (
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can insert an order (no auth required for customers)
+DROP POLICY IF EXISTS "orders_insert_public" ON orders;
 CREATE POLICY "orders_insert_public" ON orders
   FOR INSERT WITH CHECK (true);
 
@@ -224,8 +460,8 @@ $$;
 
 GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT) TO anon, authenticated;
 
--- 4. Chat Messages
-CREATE TABLE chat_messages (
+-- 5. Chat Messages
+CREATE TABLE IF NOT EXISTS chat_messages (
   id BIGSERIAL PRIMARY KEY,
   sender TEXT NOT NULL CHECK (sender IN ('customer', 'admin')),
   text TEXT NOT NULL,
@@ -235,18 +471,23 @@ CREATE TABLE chat_messages (
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can insert (customers can send messages)
+DROP POLICY IF EXISTS "chat_insert_public" ON chat_messages;
 CREATE POLICY "chat_insert_public" ON chat_messages
   FOR INSERT WITH CHECK (true);
 
 -- Anyone can read chat messages (both admin and customer)
+DROP POLICY IF EXISTS "chat_select_public" ON chat_messages;
 CREATE POLICY "chat_select_public" ON chat_messages
   FOR SELECT USING (true);
 
--- 5. Seed products — ⚠️ AUTO-GENERATED, DO NOT EDIT BY HAND
+-- 6. Seed products — ⚠️ AUTO-GENERATED, DO NOT EDIT BY HAND
 -- Source: src/data/products-data.json
 -- To update: node scripts/generate-sql.js
 -- @@SEED_START@@
-INSERT INTO products (name, category, price, offer_price, is_offer, image_url, stock_quantity, unit) VALUES
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM products LIMIT 1) THEN
+    INSERT INTO products (name, category, price, offer_price, is_offer, image_url, stock_quantity, unit) VALUES
   ('أرز مزة بسمتي أبو كاس (5 كجم)', 'المؤن', 40, 32, TRUE, 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80', 50, 'كيس'),
   ('سمن نباتي مازولا (2 لتر)', 'المؤن', 25, NULL, FALSE, 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&q=80', 30, 'علبة'),
   ('زيت ذرة عافية (1.5 لتر)', 'المؤن', 18, NULL, FALSE, 'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80', 60, 'حبة'),
@@ -347,4 +588,6 @@ INSERT INTO products (name, category, price, offer_price, is_offer, image_url, s
   ('مزيل عرق فجر السعودي (50 مل)', 'العناية الشخصية', 10, NULL, FALSE, 'https://images.unsplash.com/photo-1608571424878-e338ecb1e5d4?w=400&q=80', 35, 'زجاجة'),
   ('مناديل ورقية كلينكس (200 حبة)', 'العناية الشخصية', 6, NULL, FALSE, 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80', 70, 'علبة'),
   ('حفاظات بامبرز مقاس 4 (44 حبة)', 'العناية الشخصية', 45, 38, TRUE, 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&q=80', 25, 'كرتون');
+  END IF;
+END $$;
 /* @@SEED_END@@ */

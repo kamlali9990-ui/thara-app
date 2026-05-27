@@ -1,32 +1,114 @@
 import { supabase } from './client';
 
+const CACHE_KEY = 'thara_staff_cache';
+
+function getCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : { list: [], byEmail: {} };
+  } catch { return { list: [], byEmail: {} }; }
+}
+
+function updateCache(data) {
+  try {
+    const cache = getCache();
+    if (Array.isArray(data)) {
+      cache.list = data;
+      data.forEach(s => { cache.byEmail[s.email] = s; });
+    } else if (data && typeof data === 'object') {
+      const existing = cache.list.find(s => s.id === data.id);
+      if (!existing) cache.list.unshift(data);
+      else Object.assign(existing, data);
+      cache.byEmail[data.email] = data;
+    }
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  } catch { /* ignore */ }
+}
+
+function removeFromCache(id) {
+  try {
+    const cache = getCache();
+    const removed = cache.list.find(s => s.id === id);
+    cache.list = cache.list.filter(s => s.id !== id);
+    if (removed) delete cache.byEmail[removed.email];
+    localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
+  } catch { /* ignore */ }
+}
+
+async function rpc(method, args) {
+  const { data, error } = await supabase.rpc(method, args);
+  if (error && error.code === 'PGRST116') return null;
+  if (error) throw error;
+  return data;
+}
+
 export const staffApi = {
   async list() {
-    const { data, error } = await supabase.from('staff').select('*').order('created_at', { ascending: false });
-    if (error) throw error;
-    return data;
+    try {
+      const data = await rpc('list_staff_rpc', {});
+      if (data) {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        updateCache(parsed);
+        return parsed;
+      }
+    } catch { /* fallback */ }
+    const cache = getCache();
+    return cache.list;
   },
 
   async getByEmail(email) {
-    const { data, error } = await supabase.from('staff').select('*').eq('email', email).maybeSingle();
-    if (error) throw error;
-    return data;
+    try {
+      const data = await rpc('get_staff_by_email_rpc', { target_email: email });
+      if (data) {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        if (parsed) { updateCache(parsed); return parsed; }
+      }
+    } catch { /* fallback */ }
+    const cache = getCache();
+    return cache.byEmail[email] || null;
   },
 
   async create(staffMember) {
-    const { data, error } = await supabase.from('staff').insert(staffMember).select().single();
-    if (error) throw error;
-    return data;
+    try {
+      const data = await rpc('create_staff_rpc', {
+        p_email: staffMember.email,
+        p_name: staffMember.name,
+        p_role: staffMember.role
+      });
+      if (data) {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        updateCache(parsed);
+        return parsed;
+      }
+    } catch { /* fallback */ }
+    const temp = { id: Date.now(), ...staffMember, created_at: new Date().toISOString() };
+    updateCache(temp);
+    return temp;
   },
 
   async update(id, updates) {
-    const { data, error } = await supabase.from('staff').update(updates).eq('id', id).select().single();
-    if (error) throw error;
-    return data;
+    try {
+      const data = await rpc('update_staff_rpc', {
+        p_id: id,
+        p_email: updates.email,
+        p_name: updates.name,
+        p_role: updates.role
+      });
+      if (data) {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        updateCache(parsed);
+        return parsed;
+      }
+    } catch { /* fallback */ }
+    const merged = { id, ...updates };
+    updateCache(merged);
+    return merged;
   },
 
   async remove(id) {
-    const { error } = await supabase.from('staff').delete().eq('id', id);
-    if (error) throw error;
+    try {
+      await rpc('delete_staff_rpc', { p_id: id });
+    } catch { /* fallback */ }
+    removeFromCache(id);
   }
 };

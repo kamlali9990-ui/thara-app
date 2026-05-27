@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../supabase/auth';
+import { customersApi } from '../supabase/customers';
 
 export default function Register() {
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -20,13 +24,23 @@ export default function Register() {
       setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
       return;
     }
+    setLoading(true);
     try {
-      await authApi.signUp(email, password);
+      const { user } = await authApi.signUp(email, password);
+      if (user) {
+        try {
+          await customersApi.create(email, name, phone);
+        } catch {
+          console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
+        }
+      }
       navigate('/login?registered=1');
     } catch (err) {
       setError(err.message === 'User already registered'
         ? 'هذا البريد مسجل مسبقاً'
         : 'حدث خطأ أثناء إنشاء الحساب');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,6 +54,18 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleRegister}>
+          <div className="auth-field">
+            <label>الاسم الكامل</label>
+            <input type="text" value={name} onChange={e => setName(e.target.value)}
+              placeholder="محمد أحمد" required className="auth-input" />
+          </div>
+
+          <div className="auth-field">
+            <label>رقم الجوال</label>
+            <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+              placeholder="05xxxxxxxx" required className="auth-input" dir="ltr" />
+          </div>
+
           <div className="auth-field">
             <label>البريد الإلكتروني</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
@@ -60,7 +86,9 @@ export default function Register() {
 
           {error && <div className="auth-error">{error}</div>}
 
-          <button type="submit" className="auth-btn">إنشاء الحساب</button>
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'جاري إنشاء الحساب...' : 'إنشاء الحساب'}
+          </button>
         </form>
 
         <div className="auth-footer">

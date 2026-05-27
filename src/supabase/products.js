@@ -47,6 +47,17 @@ export const productsApi = {
       .delete()
       .eq('id', id);
     if (error) throw error;
+  },
+
+  async bulkCreate(products) {
+    if (!products.length) return [];
+    const rows = products.map(p => toProductRow(p));
+    const { data, error } = await supabase
+      .from('products')
+      .insert(rows)
+      .select();
+    if (error) throw error;
+    return (data || []).map(mapProduct);
   }
 };
 
