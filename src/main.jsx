@@ -39,7 +39,7 @@ function ProtectedRoute({ children }) {
   if (loading) return <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
   if (!user) return <Navigate to="/admin/login" replace />;
   const isAdmin = staffRole === 'admin' || staffRole === 'manager' || staffRole === 'driver' || user.email === ADMIN_EMAIL;
-  if (!isAdmin) return <Navigate to="/" replace />;
+  if (!isAdmin) return <Navigate to="/admin/login" replace />;
   return children;
 }
 
