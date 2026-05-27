@@ -1,1 +1,0 @@
-إصلاح مسارات icon.png و leaflet.css في index.html إلى مسار مطلق

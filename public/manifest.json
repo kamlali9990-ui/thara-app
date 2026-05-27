@@ -8,13 +8,13 @@
   "description": "توصيل طلبات السوبرماركت لباب بيتك في الخفجي",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "/thara-app/icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon.png",
+      "src": "/thara-app/icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

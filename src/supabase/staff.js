@@ -38,7 +38,7 @@ function removeFromCache(id) {
 async function rpc(method, args) {
   const { data, error } = await supabase.rpc(method, args);
   if (error && error.code === 'PGRST116') return null;
-  if (error) throw error;
+  if (error) { console.error(`RPC ${method} failed:`, error.message, error.details, error.hint, error.code); throw error; }
   return data;
 }
 
@@ -80,7 +80,7 @@ export const staffApi = {
         updateCache(parsed);
         return parsed;
       }
-    } catch { /* fallback */ }
+    } catch (err) { console.error('create staff error:', err); throw err; }
     const temp = { id: Date.now(), ...staffMember, created_at: new Date().toISOString() };
     updateCache(temp);
     return temp;
