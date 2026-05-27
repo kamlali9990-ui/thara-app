@@ -612,7 +612,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
           <h3 className="driver-sub-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem', color: '#60a5fa', fontWeight: 'bold' }}>🏍️ طلباتي المكلف بها حالياً ({orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length})</h3>
           <div className="admin-orders-list" style={{ marginBottom: '2rem' }}>
             {orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length === 0 ? (
-              <div className="empty-orders">لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
+              <div className="empty-orders" style={{ color: '#fff' }}>لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
             ) : (
               orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).map(order => renderOrderCard(order))
             )}
@@ -621,7 +621,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
           <h3 className="driver-sub-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem', color: '#10b981', fontWeight: 'bold' }}>📦 طلبات متوفرة ومتاحة للتوصيل ({orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length})</h3>
           <div className="admin-orders-list">
             {orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length === 0 ? (
-              <div className="empty-orders">لا توجد طلبات متوفرة للتوصيل حالياً.</div>
+              <div className="empty-orders" style={{ color: '#fff' }}>لا توجد طلبات متوفرة للتوصيل حالياً.</div>
             ) : (
               orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).map(order => renderOrderCard(order))
             )}
