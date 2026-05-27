@@ -21,8 +21,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-          force_orphan: true
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git --work-tree dist add --all
+          git --work-tree dist commit -m "deploy $(date)"
+          git push origin HEAD:gh-pages --force

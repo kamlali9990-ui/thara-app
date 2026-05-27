@@ -399,7 +399,10 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
               <input type="number" value={p.price} onChange={e => updateProduct(p.id, {price: parseFloat(e.target.value) || 0})} className="admin-input-half" placeholder="السعر" />
               <input type="text" value={p.category} onChange={e => updateProduct(p.id, {category: e.target.value})} className="admin-input-half" />
             </div>
-            <button className="admin-delete-btn" onClick={() => deleteProduct(p.id)}>حذف</button>
+            <div className="admin-input-row">
+              <input type="number" value={p.stock_quantity || 0} onChange={e => updateProduct(p.id, {stock_quantity: parseInt(e.target.value) || 0})} className="admin-input-half" placeholder="المخزون" />
+              <button className="admin-delete-btn" onClick={() => deleteProduct(p.id)}>حذف</button>
+            </div>
           </div>
         ))}
       </div>

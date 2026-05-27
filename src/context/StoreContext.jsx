@@ -186,11 +186,22 @@ export const StoreProvider = ({ children }) => {
   // --- Cart Actions ---
   const getProductPrice = (p) => p.isOffer && p.offerPrice ? p.offerPrice : p.price;
 
+  const getStock = (productId) => {
+    const p = products.find(x => x.id === productId);
+    return p ? p.stock_quantity : 999;
+  };
+
   const addToCart = (product) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
+      const newQty = existing ? existing.qty + 1 : 1;
+      const stock = getStock(product.id);
+      if (newQty > stock) {
+        alert(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`);
+        return prev;
+      }
       if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, qty: item.qty + 1 } : item);
+        return prev.map(item => item.id === product.id ? { ...item, qty: newQty } : item);
       }
       return [...prev, { ...product, qty: 1, currentPrice: getProductPrice(product) }];
     });
@@ -201,7 +212,13 @@ export const StoreProvider = ({ children }) => {
   const updateCartQty = (id, delta) => {
     setCart(prev => prev.map(item => {
       if (item.id === id) {
-        return { ...item, qty: Math.max(1, item.qty + delta) };
+        const newQty = Math.max(1, item.qty + delta);
+        const stock = getStock(id);
+        if (newQty > stock) {
+          alert(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`);
+          return item;
+        }
+        return { ...item, qty: newQty };
       }
       return item;
     }));
@@ -235,6 +252,14 @@ export const StoreProvider = ({ children }) => {
     if (cart.length === 0) {
       throw new Error('لا يمكن إرسال طلب بدون منتجات');
     }
+    const overStock = cart.filter(item => {
+      const p = products.find(x => x.id === item.id);
+      return p && item.qty > p.stock_quantity;
+    });
+    if (overStock.length > 0) {
+      throw new Error(`بعض المنتجات غير متوفرة بالكمية المطلوبة: ${overStock.map(i => i.name || i.id).join('، ')}`);
+    }
+
     const newOrder = {
       id: Date.now().toString(),
       date: new Date().toISOString(),
@@ -251,15 +276,23 @@ export const StoreProvider = ({ children }) => {
         setOrders(prev => [createdOrder, ...prev]);
         setCart([]);
         addLoyaltyPoints(newOrder.total);
+        const updatedProducts = await productsApi.list().catch(() => null);
+        if (updatedProducts) setProducts(updatedProducts);
         return createdOrder;
-      } catch { /* fallback to local */ }
+      } catch (err) {
+        if (err?.message?.includes('غير متوفرة')) throw err;
+      }
     }
 
     setOrders(prev => [newOrder, ...prev]);
     setCart([]);
     addLoyaltyPoints(newOrder.total);
+    setProducts(prev => prev.map(p => {
+      const inCart = cart.find(c => c.id === p.id);
+      return inCart ? { ...p, stock_quantity: Math.max(0, p.stock_quantity - inCart.qty) } : p;
+    }));
     return newOrder;
-  }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints]);
+  }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints, products]);
 
   const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
 

@@ -382,18 +382,30 @@ DECLARE
   computed_total NUMERIC(10,2);
   delivery_fee NUMERIC(10,2);
   created_order orders;
+  missing TEXT;
 BEGIN
   IF cart_items IS NULL OR jsonb_array_length(cart_items) = 0 THEN
     RAISE EXCEPTION 'Cart is empty';
   END IF;
 
-  WITH requested AS (
-    SELECT
-      (item ->> 'id')::BIGINT AS product_id,
-      GREATEST(COALESCE((item ->> 'qty')::INT, 1), 1) AS qty
-    FROM jsonb_array_elements(cart_items) AS item
-  ),
-  priced AS (
+  CREATE TEMP TABLE _requested ON COMMIT DROP AS
+  SELECT
+    (item ->> 'id')::BIGINT AS product_id,
+    GREATEST(COALESCE((item ->> 'qty')::INT, 1), 1) AS qty
+  FROM jsonb_array_elements(cart_items) AS item;
+
+  SELECT string_agg('المنتج رقم ' || p.id::TEXT || ' (الموجود: ' || p.stock_quantity || ', المطلوب: ' || r.qty || ')', '; ')
+  INTO missing
+  FROM _requested r
+  JOIN products p ON p.id = r.product_id
+  WHERE r.qty > p.stock_quantity;
+
+  IF missing IS NOT NULL THEN
+    DROP TABLE _requested;
+    RAISE EXCEPTION 'بعض المنتجات غير متوفرة بالكمية المطلوبة: %', missing;
+  END IF;
+
+  WITH priced AS (
     SELECT
       p.id,
       p.name,
@@ -408,7 +420,7 @@ BEGIN
         WHEN p.is_offer AND p.offer_price IS NOT NULL THEN p.offer_price
         ELSE p.price
       END AS current_price
-    FROM requested r
+    FROM _requested r
     JOIN products p ON p.id = r.product_id
   )
   SELECT
@@ -429,6 +441,7 @@ BEGIN
   FROM priced;
 
   IF jsonb_array_length(clean_items) = 0 THEN
+    DROP TABLE _requested;
     RAISE EXCEPTION 'No valid products in cart';
   END IF;
 
@@ -454,6 +467,12 @@ BEGIN
   )
   RETURNING * INTO created_order;
 
+  UPDATE products p
+  SET stock_quantity = p.stock_quantity - r.qty
+  FROM _requested r
+  WHERE p.id = r.product_id;
+
+  DROP TABLE _requested;
   RETURN created_order;
 END;
 $$;

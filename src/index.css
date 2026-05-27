@@ -3591,6 +3591,30 @@ header {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
 }
+.product-badge-out {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.4rem;
+  z-index: 2;
+  background: #555;
+  color: white;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+}
+.product-badge-low {
+  position: absolute;
+  bottom: 0.4rem;
+  left: 0.4rem;
+  z-index: 2;
+  background: #e65c00;
+  color: white;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  font-weight: 700;
+}
 .product-card-new-add {
   position: absolute;
   bottom: 0.5rem;
