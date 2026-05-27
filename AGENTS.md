@@ -1,5 +1,18 @@
 # Repository Guidelines
 
+## Getting Started on a New Machine
+1. **Clone**: `git clone https://github.com/kamlali9990-ui/thara-app.git`
+2. **Install deps**: `npm install` (includes Supabase CLI as devDependency)
+3. **.env file**: Copy `.env.example` to `.env` (already has correct values)
+4. **Supabase login** (one-time per machine):
+   - Create a PAT at `https://supabase.com/dashboard/account/tokens`
+   - `set SUPABASE_ACCESS_TOKEN=sbp_your_token`
+   - `npm run supabase:login`
+   - `npm run supabase:link`
+5. **Run**: `npm run dev`
+
+> Save your Supabase PAT in a **password manager** (Bitwarden, etc.) — you'll need it on every new machine.
+
 ## Project Overview
 **Thara Al-Sharq One Markets (أسواق ثرا الشرق ون)** is a Progressive Web App (PWA) designed for supermarket delivery services in Khafji. It features a customer-facing interface, an admin panel, and integration with Supabase for data management and Leaflet for location services.
 
@@ -17,6 +30,11 @@
 - **Development**: `npm run dev` (Starts Vite dev server)
 - **Production Build**: `npm run build` (Outputs to `dist/`)
 - **Preview Build**: `npm run preview` (Locally preview production build)
+- **Setup on new machine**: `npm run setup` (Installs deps + links Supabase project)
+- **Supabase CLI** (via npx, no global install needed):
+  - `npm run supabase:login` — Login with PAT (set `SUPABASE_ACCESS_TOKEN` env var first)
+  - `npm run supabase:link` — Link to remote project
+  - `npm run supabase:query` — Run SQL against remote DB
 - **Scripts**: `node scripts\generate-sql.js` (Utility for generating SQL migrations)
 
 ## Coding Style & Naming Conventions
