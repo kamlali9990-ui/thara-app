@@ -133,6 +133,42 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.confirm_auth_user(p_email TEXT, p_password TEXT DEFAULT '123456')
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, extensions
+AS $$
+DECLARE
+  user_id UUID;
+  pw_hash TEXT;
+BEGIN
+  pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf'));
+  SELECT id INTO user_id FROM auth.users WHERE email = p_email;
+  IF user_id IS NULL THEN
+    INSERT INTO auth.users (
+      instance_id, id, aud, role, email, encrypted_password,
+      email_confirmed_at, confirmation_sent_at, confirmation_token,
+      raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+    ) VALUES (
+      '00000000-0000-0000-0000-000000000000',
+      extensions.gen_random_uuid(), 'authenticated', 'authenticated', p_email,
+      pw_hash,
+      now(), now(), '', '{"provider":"email","providers":["email"]}', '{}',
+      now(), now()
+    ) RETURNING id INTO user_id;
+  ELSE
+    UPDATE auth.users SET email_confirmed_at = COALESCE(email_confirmed_at, now()), encrypted_password = pw_hash WHERE id = user_id;
+  END IF;
+  INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
+  VALUES (extensions.gen_random_uuid(), user_id, json_build_object('sub', user_id::TEXT, 'email', p_email), 'email', p_email, now(), now(), now())
+  ON CONFLICT DO NOTHING;
+  RETURN json_build_object('id', user_id, 'email', p_email);
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.confirm_auth_user TO authenticated;
+
 GRANT EXECUTE ON FUNCTION public.get_staff_by_email_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.list_staff_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_staff_rpc TO authenticated;

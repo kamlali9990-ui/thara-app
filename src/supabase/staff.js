@@ -70,17 +70,9 @@ export const staffApi = {
   },
 
   async create(staffMember) {
-    const sessionRes = await supabase.auth.getSession();
-    const oldSession = sessionRes?.data?.session;
-    const { error: signUpErr } = await supabase.auth.signUp({
-      email: staffMember.email, password: STAFF_DEFAULT_PASSWORD
-    });
-    if (oldSession) {
-      try { await supabase.auth.setSession({ access_token: oldSession.access_token, refresh_token: oldSession.refresh_token }); } catch {}
-    }
-    if (signUpErr && !signUpErr.message?.includes('already registered') && !signUpErr.message?.includes('already exists')) {
-      console.warn('signUp warning:', signUpErr.message);
-    }
+    try {
+      await rpc('confirm_auth_user', { p_email: staffMember.email, p_password: STAFF_DEFAULT_PASSWORD });
+    } catch (err) { console.warn('confirm_auth_user warning:', err); }
     try {
       const data = await rpc('create_staff_rpc', {
         p_email: staffMember.email,
