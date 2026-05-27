@@ -28,7 +28,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  IF NOT public.is_staff() THEN
+  IF NOT public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver']) THEN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
   RETURN COALESCE(
