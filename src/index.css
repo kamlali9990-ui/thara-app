@@ -1197,6 +1197,57 @@ header {
 .completed-orders-list {
   margin-top: 0.85rem;
 }
+.order-location-block {
+  margin-top: 0.75rem;
+}
+.order-location-map {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 0.65rem;
+  z-index: 1;
+}
+.order-location-missing {
+  margin-top: 0.5rem;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+.admin-location-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.map-link-google {
+  background: rgba(37, 99, 235, 0.2);
+}
+.map-link-osm {
+  background: rgba(34, 197, 94, 0.18);
+}
+.driver-orders-hint {
+  color: #94a3b8;
+  font-size: 0.88rem;
+  margin: -0.35rem 0 0.85rem;
+  line-height: 1.5;
+}
+.driver-action-btn {
+  width: 100%;
+  max-width: 240px;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.driver-action-route {
+  background: #2563eb !important;
+}
+.driver-action-done {
+  background: #16a34a !important;
+}
+.driver-status-done {
+  color: #86efac;
+  font-weight: 700;
+}
 .admin-product-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

@@ -4,7 +4,9 @@ import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
 import * as XLSX from 'xlsx';
 import StaffManager from './components/StaffManager.jsx';
+import OrderLocationMap from './components/OrderLocationMap.jsx';
 import { categories } from './data/mockData';
+import { parseOrderLocation, getMapLinks } from './utils/location.js';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 
@@ -12,7 +14,7 @@ export default function Admin() {
   const { 
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
     chatMessages, sendMessage, logout, staffRole,
-    allCustomers, loadCustomers
+    allCustomers, loadCustomers, loadOrders
   } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -87,6 +89,13 @@ export default function Admin() {
   const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
   const canManageCatalog = staffRole === 'admin' || staffRole === 'manager';
   const isDriver = staffRole === 'driver';
+
+  useEffect(() => {
+    if (!loadOrders) return;
+    loadOrders();
+    const interval = setInterval(() => loadOrders(), 20000);
+    return () => clearInterval(interval);
+  }, [loadOrders]);
   const tabs = [
     { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
   ];
@@ -144,7 +153,7 @@ export default function Admin() {
       </div>
       {/* Sidebar (desktop) */}
       <aside className="admin-sidebar">
-        <h2 className="admin-sidebar-title">لوحة التاجر</h2>
+        <h2 className="admin-sidebar-title">{isDriver ? 'لوحة السائق' : 'لوحة التاجر'}</h2>
         {tabs.map(t => (
           <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
             {t.icon} {t.label}{t.badge != null ? ` (${t.badge})` : ''}
@@ -159,7 +168,14 @@ export default function Admin() {
 
       {/* Main Content */}
       <main className="admin-main">
-        {activeTab === 'orders' && <AdminOrders orders={orders} updateOrderStatus={updateOrderStatus} staffRole={staffRole} />}
+        {activeTab === 'orders' && (
+          <AdminOrders
+            orders={orders}
+            updateOrderStatus={updateOrderStatus}
+            staffRole={staffRole}
+            isDriver={isDriver}
+          />
+        )}
         {activeTab === 'products' && <AdminProducts products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
         {activeTab === 'offers' && <AdminOffers products={allProducts} updateProduct={updateProduct} />}
         {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} />}
@@ -182,14 +198,7 @@ export default function Admin() {
 
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
 
-function parseLocation(loc) {
-  if (!loc) return null;
-  const m = loc.match(/Lat:\s*([\d.]+).*Lng:\s*([\d.]+)/i);
-  if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
-  return null;
-}
-
-function AdminOrders({ orders, updateOrderStatus, staffRole }) {
+function AdminOrders({ orders, updateOrderStatus, staffRole, isDriver }) {
   const { chatMessages, sendMessage } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
@@ -201,6 +210,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole }) {
   const stats = {
     newOrders: orders.filter(o => o.status === 'جديد').length,
     preparing: orders.filter(o => o.status === 'قيد التحضير').length,
+    onRoute: orders.filter(o => o.status === 'في الطريق').length,
     completed: orders.filter(o => o.status === 'مكتمل').length,
     revenue: orders.filter(o => o.status !== 'ملغي').reduce((sum, o) => sum + Number(o.total || 0), 0)
   };
@@ -259,6 +269,52 @@ function AdminOrders({ orders, updateOrderStatus, staffRole }) {
     return '';
   };
 
+  const renderLocationBlock = (order, { showMap = true } = {}) => {
+    const coords = parseOrderLocation(order.location);
+    if (!coords) {
+      return order.location ? <p className="order-location-missing">الموقع: {order.location}</p> : null;
+    }
+    const links = getMapLinks(coords);
+    return (
+      <div className="order-location-block">
+        {showMap && <OrderLocationMap lat={coords.lat} lng={coords.lng} />}
+        <div className="admin-location-actions">
+          <a href={links.googleDir} target="_blank" rel="noopener noreferrer" className="map-link map-link-google">
+            📍 توجيه Google Maps
+          </a>
+          <a href={links.osmView} target="_blank" rel="noopener noreferrer" className="map-link map-link-osm">
+            🗺️ عرض OpenStreetMap
+          </a>
+        </div>
+      </div>
+    );
+  };
+
+  const renderDriverActions = (order) => {
+    if (order.status === 'جديد') {
+      return (
+        <button type="button" className="btn driver-action-btn" onClick={() => doUpdate(order, 'قيد التحضير')}>
+          استلام الطلب
+        </button>
+      );
+    }
+    if (order.status === 'قيد التحضير') {
+      return (
+        <button type="button" className="btn driver-action-btn driver-action-route" onClick={() => doUpdate(order, 'في الطريق')}>
+          بدء التوصيل
+        </button>
+      );
+    }
+    if (order.status === 'في الطريق') {
+      return (
+        <button type="button" className="btn driver-action-btn driver-action-done" onClick={() => doUpdate(order, 'مكتمل')}>
+          تم التسليم
+        </button>
+      );
+    }
+    return <span className="driver-status-done">مكتمل</span>;
+  };
+
   const renderOrderCard = (order, { compact = false } = {}) => (
     <div
       key={order.id}
@@ -276,26 +332,30 @@ function AdminOrders({ orders, updateOrderStatus, staffRole }) {
         </div>
         <div className="admin-order-right" style={{ textAlign: 'left' }}>
           <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
-          {!compact && (order.status === 'جديد' ? (
-            <button
-              onClick={() => doUpdate(order, 'قيد التحضير')}
-              className="btn btn-accept"
-            >
-              استلام الطلب
-            </button>
-          ) : (
-            <select
-              value={order.status}
-              onChange={(e) => handleStatusChange(order, e.target.value)}
-              className="order-status-select"
-            >
-              <option value="جديد">جديد</option>
-              <option value="قيد التحضير">قيد التحضير</option>
-              <option value="في الطريق">في الطريق</option>
-              <option value="مكتمل">مكتمل</option>
-              <option value="ملغي">ملغي</option>
-            </select>
-          ))}
+          {!compact && (
+            isDriver ? renderDriverActions(order) : (
+              order.status === 'جديد' ? (
+                <button
+                  onClick={() => doUpdate(order, 'قيد التحضير')}
+                  className="btn btn-accept"
+                >
+                  استلام الطلب
+                </button>
+              ) : (
+                <select
+                  value={order.status}
+                  onChange={(e) => handleStatusChange(order, e.target.value)}
+                  className="order-status-select"
+                >
+                  <option value="جديد">جديد</option>
+                  <option value="قيد التحضير">قيد التحضير</option>
+                  <option value="في الطريق">في الطريق</option>
+                  <option value="مكتمل">مكتمل</option>
+                  <option value="ملغي">ملغي</option>
+                </select>
+              )
+            )
+          )}
         </div>
       </div>
       {!compact && (
@@ -309,20 +369,17 @@ function AdminOrders({ orders, updateOrderStatus, staffRole }) {
         </div>
       )}
       <div className="admin-card-info">
-        <strong>الدفع:</strong> {order.paymentMethod} | <strong>الموقع:</strong> {order.location}
-        {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" className="whatsapp-link" title="واتساب">💬</a></>}
+        <strong>الدفع:</strong> {order.paymentMethod}
+        {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" className="whatsapp-link" title="واتساب">💬 واتساب</a></>}
         {order.notes && !compact && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
-        {!compact && (() => {
-          const coords = parseLocation(order.location);
-          if (coords) return (
-            <div className="admin-location-actions">
-              <a href={`https://www.google.com/maps/dir/?api=1&destination=${coords.lat},${coords.lng}`} target="_blank" className="map-link">📍 فتح في خرائط جوجل</a>
-            </div>
-          );
-          return null;
-        })()}
+        {!compact && renderLocationBlock(order, { showMap: !compact })}
+        {compact && parseOrderLocation(order.location) && (
+          <div className="admin-location-actions" style={{ marginTop: '0.5rem' }}>
+            <a href={getMapLinks(parseOrderLocation(order.location)).googleDir} target="_blank" rel="noopener noreferrer" className="map-link">📍 خرائط</a>
+          </div>
+        )}
         <div style={{ marginTop: '0.4rem' }}>
-          <button className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
+          <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
         </div>
       </div>
     </div>
@@ -367,12 +424,24 @@ function AdminOrders({ orders, updateOrderStatus, staffRole }) {
           </div>
         </div>
       )}
-      <h2 className="admin-section-title">إدارة الطلبات</h2>
+      <h2 className="admin-section-title">{isDriver ? 'طلبات التوصيل' : 'إدارة الطلبات'}</h2>
+      {isDriver && (
+        <p className="driver-orders-hint">يتم تحديث القائمة تلقائياً كل 20 ثانية. الموقع المعروض هو نفس ما حدده العميل على خريطة المتجر.</p>
+      )}
       <div className="admin-stats-grid">
         <div className="admin-stat-card"><span>طلبات جديدة</span><strong>{stats.newOrders}</strong></div>
         <div className="admin-stat-card"><span>قيد التحضير</span><strong>{stats.preparing}</strong></div>
-        <div className="admin-stat-card"><span>مكتملة</span><strong>{stats.completed}</strong></div>
-        <div className="admin-stat-card"><span>المبيعات</span><strong>{stats.revenue.toFixed(2)} ر.س</strong></div>
+        {isDriver ? (
+          <div className="admin-stat-card"><span>في الطريق</span><strong>{stats.onRoute}</strong></div>
+        ) : (
+          <div className="admin-stat-card"><span>مكتملة</span><strong>{stats.completed}</strong></div>
+        )}
+        {!isDriver && (
+          <div className="admin-stat-card"><span>المبيعات</span><strong>{stats.revenue.toFixed(2)} ر.س</strong></div>
+        )}
+        {isDriver && (
+          <div className="admin-stat-card"><span>مكتملة اليوم</span><strong>{stats.completed}</strong></div>
+        )}
       </div>
       <div className="admin-orders-list">
         {activeOrders.length === 0 && (
