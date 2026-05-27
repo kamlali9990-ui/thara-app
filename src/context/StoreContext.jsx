@@ -209,6 +209,14 @@ export const StoreProvider = ({ children }) => {
   }, [user, hasSupabase]);
 
   // --- Order Actions ---
+  const loadOrders = useCallback(async () => {
+    if (!hasSupabase || !supabaseReady) return;
+    try {
+      const supaOrders = await ordersApi.list();
+      if (supaOrders && supaOrders.length > 0) setOrders(supaOrders);
+    } catch { /* ignore */ }
+  }, [hasSupabase, supabaseReady]);
+
   const placeOrder = useCallback(async (orderData) => {
     if (cart.length === 0) {
       throw new Error('لا يمكن إرسال طلب بدون منتجات');
@@ -239,14 +247,35 @@ export const StoreProvider = ({ children }) => {
     return newOrder;
   }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints]);
 
-  const updateOrderStatus = useCallback(async (orderId, newStatus) => {
+  const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
+
+  const getStatusIndex = (s) => STATUS_ORDER.indexOf(s);
+
+  const isValidStatusTransition = (current, next) => {
+    if (next === 'ملغي') return true;
+    const ci = getStatusIndex(current);
+    const ni = getStatusIndex(next);
+    if (ci === -1 || ni === -1) return false;
+    return ni >= ci;
+  };
+
+  const updateOrderStatus = useCallback(async (orderId, newStatus, eta) => {
+    const order = orders.find(o => o.id === orderId);
+    if (order && !isValidStatusTransition(order.status, newStatus)) {
+      throw new Error('لا يمكن الرجوع إلى حالة سابقة');
+    }
     if (hasSupabase && supabaseReady) {
       try {
         await ordersApi.updateStatus(orderId, newStatus);
       } catch { /* fallback */ }
     }
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
-  }, [hasSupabase, supabaseReady]);
+    setOrders(prev => prev.map(o => {
+      if (o.id !== orderId) return o;
+      const updated = { ...o, status: newStatus };
+      if (eta !== undefined) updated.estimatedDelivery = eta;
+      return updated;
+    }));
+  }, [hasSupabase, supabaseReady, orders]);
 
   // --- Product CRUD ---
   const addProduct = useCallback(async (product) => {
@@ -380,9 +409,9 @@ export const StoreProvider = ({ children }) => {
       selectedCategory, setSelectedCategory,
       placeOrder, getProductPrice,
       allProducts: products,
-      orders, updateOrderStatus,
+      orders, updateOrderStatus, loadOrders,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
-      chatMessages, sendMessage
+      chatMessages, sendMessage, refreshOrders: loadOrders, setOrders
     }}>
       {children}
     </StoreContext.Provider>

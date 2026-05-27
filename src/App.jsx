@@ -17,7 +17,7 @@ export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
     placeOrder, chatMessages, sendMessage, user, logout, orders,
-    customerProfile, updateCustomerProfile } = useContext(StoreContext);
+    customerProfile, updateCustomerProfile, loadOrders } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [prevTab, setPrevTab] = useState('home');
@@ -72,7 +72,7 @@ export default function App() {
             setSelectedCategory={setSelectedCategory} addToCart={addToCart} cartCount={cartCount} setIsCartOpen={setIsCartOpen} />}
         </div>
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
-          {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} />}
+          {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
           {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} />}
         </div>
       </div>
@@ -363,7 +363,25 @@ const HomeTab = memo(({ products, selectedCategory, setSelectedCategory, addToCa
 });
 
 /* ─── Orders Tab ─── */
-const OrdersTab = memo(({ orders }) => {
+const OrdersTab = memo(({ orders, loadOrders }) => {
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  useEffect(() => {
+    if (!loadOrders) return;
+    const interval = setInterval(() => {
+      loadOrders();
+      setLastUpdate(Date.now());
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [loadOrders]);
+
+  const formatETA = (minutes) => {
+    if (!minutes) return null;
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + Number(minutes));
+    return now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+  };
+
   if (!orders.length) return (
     <div className="empty-tab">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -380,6 +398,9 @@ const OrdersTab = memo(({ orders }) => {
             <div>
               <div className="order-card-mini-id">طلب #{order.id.slice(-6)}</div>
               <div className="order-card-mini-date">{order.date ? new Date(order.date).toLocaleDateString('ar-SA') : ''}</div>
+              {order.status === 'في الطريق' && order.estimatedDelivery && (
+                <div className="order-eta">🕐 وصول متوقع {formatETA(order.estimatedDelivery)}</div>
+              )}
             </div>
             <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>
               {order.status === 'قيد التحضير' ? 'يتم تجهيز طلبك' : order.status}

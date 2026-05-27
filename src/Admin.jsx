@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef } from 'react';
+import React, { useContext, useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
@@ -22,6 +22,15 @@ export default function Admin() {
     await logout();
     navigate('/admin/login');
   };
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, []);
 
   const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين' };
   const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
@@ -85,7 +94,12 @@ export default function Admin() {
   );
 }
 
+const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
+
 function AdminOrders({ orders, updateOrderStatus }) {
+  const [etaInputs, setEtaInputs] = useState({});
+  const [confirmMsg, setConfirmMsg] = useState(null);
+
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
     newOrders: orders.filter(o => o.status === 'جديد').length,
@@ -93,8 +107,60 @@ function AdminOrders({ orders, updateOrderStatus }) {
     completed: orders.filter(o => o.status === 'مكتمل').length,
     revenue: orders.filter(o => o.status !== 'ملغي').reduce((sum, o) => sum + Number(o.total || 0), 0)
   };
+
+  const handleStatusChange = (order, newStatus) => {
+    const ci = STATUS_ORDER.indexOf(order.status);
+    const ni = STATUS_ORDER.indexOf(newStatus);
+    if (newStatus !== 'ملغي' && ni < ci) {
+      setConfirmMsg({
+        text: `هل أنت متأكد من إرجاع الطلب #${order.id.slice(-6)} من "${order.status}" إلى "${newStatus}"؟`,
+        onConfirm: () => { setConfirmMsg(null); doUpdate(order, newStatus); }
+      });
+      return;
+    }
+    if (newStatus !== 'ملغي' && ni > ci) {
+      setConfirmMsg({
+        text: `تغيير حالة الطلب #${order.id.slice(-6)} إلى "${newStatus}"؟`,
+        onConfirm: () => { setConfirmMsg(null); doUpdate(order, newStatus); }
+      });
+      return;
+    }
+    if (newStatus === 'ملغي') {
+      setConfirmMsg({
+        text: `هل أنت متأكد من إلغاء الطلب #${order.id.slice(-6)}؟`,
+        onConfirm: () => { setConfirmMsg(null); doUpdate(order, 'ملغي'); }
+      });
+      return;
+    }
+  };
+
+  const doUpdate = (order, newStatus) => {
+    let eta = etaInputs[order.id];
+    if (newStatus === 'في الطريق' && (!eta || eta <= 0)) {
+      eta = prompt('أدخل وقت التوصيل المقدر بالدقائق:', '30');
+      if (!eta || isNaN(eta) || eta <= 0) return;
+      setEtaInputs(prev => ({ ...prev, [order.id]: eta }));
+    }
+    try {
+      updateOrderStatus(order.id, newStatus, eta ? Number(eta) : undefined);
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
   return (
     <div>
+      {confirmMsg && (
+        <div className="confirm-overlay" onClick={() => setConfirmMsg(null)}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
+            <p>{confirmMsg.text}</p>
+            <div className="confirm-actions">
+              <button className="confirm-btn confirm-yes" onClick={confirmMsg.onConfirm}>تأكيد</button>
+              <button className="confirm-btn confirm-no" onClick={() => setConfirmMsg(null)}>إلغاء</button>
+            </div>
+          </div>
+        </div>
+      )}
       <h2 className="admin-section-title">إدارة الطلبات</h2>
       <div className="admin-stats-grid">
         <div className="admin-stat-card"><span>طلبات جديدة</span><strong>{stats.newOrders}</strong></div>
@@ -109,12 +175,17 @@ function AdminOrders({ orders, updateOrderStatus }) {
               <div>
                 <strong>طلب رقم:</strong> #{order.id.slice(-6)} <br/>
                 <small>{new Date(order.date).toLocaleString('ar-SA')}</small>
+                {order.estimatedDelivery && (
+                  <div className="admin-eta-badge">
+                    🕐 التوصيل خلال {order.estimatedDelivery} دقيقة
+                  </div>
+                )}
               </div>
               <div className="admin-order-right" style={{textAlign: 'left'}}>
                 <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
                 {order.status === 'جديد' ? (
                   <button
-                    onClick={() => updateOrderStatus(order.id, 'قيد التحضير')}
+                    onClick={() => doUpdate(order, 'قيد التحضير')}
                     className="btn btn-accept"
                   >
                     استلام الطلب
@@ -122,7 +193,7 @@ function AdminOrders({ orders, updateOrderStatus }) {
                 ) : (
                   <select
                     value={order.status}
-                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                    onChange={(e) => handleStatusChange(order, e.target.value)}
                     className="order-status-select"
                   >
                     <option value="جديد">جديد</option>
