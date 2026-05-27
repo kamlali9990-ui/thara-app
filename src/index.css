@@ -5084,3 +5084,16 @@ header {
 /* ─── Dark theme admin overrides no longer needed (admin is always green) ─── */
 [data-theme="dark"] .btn { color: #78350f; }
 [data-theme="dark"] .btn:hover { background: #f59e0b; box-shadow: 0 4px 14px rgba(251,191,36,0.35); }
+
+/* Bell animation for available orders */
+.bell-ring {
+  display: inline-block;
+  animation: bell-shake 1.5s ease-in-out infinite;
+  transform-origin: top center;
+}
+@keyframes bell-shake {
+  0%, 100% { transform: rotate(0deg); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(15deg); }
+  20%, 40%, 60%, 80% { transform: rotate(-15deg); }
+}
+

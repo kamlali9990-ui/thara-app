@@ -586,7 +586,9 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
       {isDriver ? (
         <div className="driver-stats-container" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', width: '100%' }}>
           <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(59, 130, 246, 0.15)', borderColor: 'rgba(59, 130, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>متاحة</span>
+            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              متاحة {(stats.newOrders + stats.preparing) > 0 && <span className="bell-ring">🔔</span>}
+            </span>
             <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.newOrders + stats.preparing}</strong>
           </div>
           <div className="admin-stat-card" style={{ flex: '1', backgroundColor: 'rgba(139, 92, 246, 0.15)', borderColor: 'rgba(139, 92, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center' }}>

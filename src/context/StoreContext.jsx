@@ -231,6 +231,7 @@ export const StoreProvider = ({ children }) => {
         }
         // INSERT — fire a window event so the UI (admin) can play sound/notify
         if (eventType === 'INSERT') {
+          if (staffRole) playNotificationSound();
           try { window.dispatchEvent(new CustomEvent('thara:new-order', { detail: nextOrder })); } catch { /* ignore */ }
         }
         return [nextOrder, ...prev];
@@ -243,7 +244,7 @@ export const StoreProvider = ({ children }) => {
     return () => {
       try { channel.unsubscribe(); } catch { /* ignore */ }
     };
-  }, [supabaseReady]);
+  }, [supabaseReady, staffRole]);
 
   // --- localStorage fallback saves ---
   useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_products', JSON.stringify(products)); }, [products, supabaseReady]);
