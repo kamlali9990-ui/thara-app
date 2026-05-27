@@ -26,7 +26,7 @@ LANGUAGE SQL
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT role FROM staff WHERE email = auth.jwt() ->> 'email' LIMIT 1;
+  SELECT role FROM staff WHERE lower(email) = lower(auth.jwt() ->> 'email') LIMIT 1;
 $$;
 
 CREATE OR REPLACE FUNCTION public.is_staff(allowed_roles TEXT[] DEFAULT ARRAY['admin', 'manager', 'employee'])

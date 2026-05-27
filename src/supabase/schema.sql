@@ -24,7 +24,7 @@ LANGUAGE SQL
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT role FROM staff WHERE email = auth.jwt() ->> 'email' LIMIT 1;
+  SELECT role FROM staff WHERE lower(email) = lower(auth.jwt() ->> 'email') LIMIT 1;
 $$;
 
 CREATE OR REPLACE FUNCTION public.is_staff(allowed_roles TEXT[] DEFAULT ARRAY['admin', 'manager', 'employee'])
@@ -49,12 +49,14 @@ AS $$
 DECLARE
   result JSON;
   caller_email TEXT;
+  target_lower TEXT;
 BEGIN
-  caller_email := auth.jwt() ->> 'email';
-  IF caller_email IS NULL OR NOT (public.is_staff() OR caller_email = target_email) THEN
+  caller_email := lower(auth.jwt() ->> 'email');
+  target_lower := lower(target_email);
+  IF caller_email IS NULL OR NOT (public.is_staff() OR caller_email = target_lower) THEN
     RETURN NULL;
   END IF;
-  SELECT row_to_json(s)::JSON INTO result FROM staff s WHERE s.email = target_email;
+  SELECT row_to_json(s)::JSON INTO result FROM staff s WHERE lower(s.email) = target_lower LIMIT 1;
   RETURN result;
 END;
 $$;
