@@ -9,7 +9,26 @@ import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 
-const Admin = lazy(() => import('./Admin.jsx'))
+// A helper to automatically retry lazy imports by forcing a page reload when a chunk 404s (e.g. after a new deployment)
+const lazyWithRetry = (componentImport) => {
+  return lazy(async () => {
+    const hasReloaded = sessionStorage.getItem('thara_chunk_reload');
+    try {
+      const component = await componentImport();
+      sessionStorage.removeItem('thara_chunk_reload');
+      return component;
+    } catch (error) {
+      console.error("Failed to load chunk, forcing reload...", error);
+      if (!hasReloaded) {
+        sessionStorage.setItem('thara_chunk_reload', 'true');
+        window.location.reload();
+      }
+      throw error;
+    }
+  });
+};
+
+const Admin = lazyWithRetry(() => import('./Admin.jsx'))
 
 const BASENAME = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 
