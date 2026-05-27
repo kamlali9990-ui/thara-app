@@ -10,11 +10,46 @@ import { parseOrderLocation, getMapLinks } from './utils/location.js';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 
+// Short beep using Web Audio API — no asset file needed.
+function playNewOrderBeep() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.value = 0.0001;
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
+    osc.stop(ctx.currentTime + 0.5);
+    setTimeout(() => { try { ctx.close(); } catch { /* noop */ } }, 600);
+  } catch { /* ignore */ }
+}
+
+function notifyNewOrder(order) {
+  try {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    const total = order?.total != null ? Number(order.total).toFixed(2) + ' ر.س' : '';
+    new Notification('طلب جديد', {
+      body: `طلب رقم ${(order?.id || '').toString().slice(-6)} — ${total}`,
+      tag: 'thara-new-order',
+      icon: (import.meta.env.BASE_URL || '/') + 'icon.png',
+      lang: 'ar'
+    });
+  } catch { /* ignore */ }
+}
+
 export default function Admin() {
   const { 
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
-    chatMessages, sendMessage, logout, staffRole,
-    allCustomers, loadCustomers, loadOrders
+    chatMessages, sendMessage, logout, staffRole, currentStaff,
+    allCustomers, loadCustomers, loadOrders,
+    drivers, assignDriverToOrder, claimOrder, loadDrivers
   } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -93,9 +128,17 @@ export default function Admin() {
   useEffect(() => {
     if (!loadOrders) return;
     loadOrders();
-    const interval = setInterval(() => loadOrders(), 20000);
+    if (staffRole === 'admin' || staffRole === 'manager' || staffRole === 'driver') {
+      try { loadDrivers(); } catch { /* ignore */ }
+    }
+    const interval = setInterval(() => {
+      loadOrders();
+      if (staffRole === 'admin' || staffRole === 'manager' || staffRole === 'driver') {
+        try { loadDrivers(); } catch { /* ignore */ }
+      }
+    }, 20000);
     return () => clearInterval(interval);
-  }, [loadOrders]);
+  }, [loadOrders, staffRole, loadDrivers]);
   const tabs = [
     { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
   ];
@@ -113,9 +156,9 @@ export default function Admin() {
     <div className="admin-layout">
       {showPasswordPrompt && (
         <div className="confirm-overlay" onClick={handleSkipPasswordChange}>
-          <div className="confirm-dialog" onClick={e => e.stopPropagation()}>
-            <p style={{ marginBottom: '0.75rem', fontWeight: 700 }}>تحديث كلمة المرور (اختياري)</p>
-            <p style={{ marginBottom: '1rem', color: '#64748b', fontSize: '0.9rem' }}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>تحديث كلمة المرور (اختياري)</p>
+            <p style={{ marginBottom: '1.25rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
               يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
             </p>
             <input
@@ -123,22 +166,46 @@ export default function Admin() {
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
               placeholder="كلمة المرور الجديدة"
-              className="auth-input"
-              style={{ marginBottom: '0.5rem' }}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                border: '1.5px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '12px',
+                fontSize: '0.95rem',
+                fontFamily: 'inherit',
+                background: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                outline: 'none',
+                marginBottom: '0.5rem',
+                boxSizing: 'border-box',
+                textAlign: 'right'
+              }}
             />
             <input
               type="password"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
               placeholder="تأكيد كلمة المرور"
-              className="auth-input"
-              style={{ marginBottom: '1rem' }}
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                border: '1.5px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: '12px',
+                fontSize: '0.95rem',
+                fontFamily: 'inherit',
+                background: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                outline: 'none',
+                marginBottom: '1.25rem',
+                boxSizing: 'border-box',
+                textAlign: 'right'
+              }}
             />
             <div className="confirm-actions">
-              <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading}>
+              <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
                 {passwordLoading ? 'جاري التحديث...' : 'تحديث الآن'}
               </button>
-              <button className="confirm-btn confirm-no" onClick={handleSkipPasswordChange}>
+              <button className="confirm-btn confirm-no" onClick={handleSkipPasswordChange} style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
                 التخطي الآن
               </button>
             </div>
@@ -173,7 +240,11 @@ export default function Admin() {
             orders={orders}
             updateOrderStatus={updateOrderStatus}
             staffRole={staffRole}
+            currentStaff={currentStaff}
             isDriver={isDriver}
+            drivers={drivers}
+            assignDriverToOrder={assignDriverToOrder}
+            claimOrder={claimOrder}
           />
         )}
         {activeTab === 'products' && <AdminProducts products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
@@ -198,7 +269,7 @@ export default function Admin() {
 
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
 
-function AdminOrders({ orders, updateOrderStatus, staffRole, isDriver }) {
+function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder }) {
   const { chatMessages, sendMessage } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
@@ -291,10 +362,32 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, isDriver }) {
   };
 
   const renderDriverActions = (order) => {
+    if (!order.assignedDriverId) {
+      return (
+        <button
+          type="button"
+          className="btn driver-action-btn driver-action-claim"
+          onClick={async () => {
+            if (window.confirm('هل أنت متأكد من رغبتك في قبول واستلام هذا الطلب لتوصيله؟')) {
+              try {
+                await claimOrder(order.id);
+                alert('تم قبول الطلب وإضافته لطلباتك بنجاح!');
+              } catch (err) {
+                alert('فشل قبول الطلب: ' + (err.message || 'خطأ غير معروف'));
+              }
+            }
+          }}
+          style={{ backgroundColor: '#127443', color: '#fff', fontWeight: 'bold' }}
+        >
+          قبول واستلام الطلب
+        </button>
+      );
+    }
+
     if (order.status === 'جديد') {
       return (
         <button type="button" className="btn driver-action-btn" onClick={() => doUpdate(order, 'قيد التحضير')}>
-          استلام الطلب
+          تجهيز الطلب
         </button>
       );
     }
@@ -378,6 +471,52 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, isDriver }) {
             <a href={getMapLinks(parseOrderLocation(order.location)).googleDir} target="_blank" rel="noopener noreferrer" className="map-link">📍 خرائط</a>
           </div>
         )}
+
+        {/* Driver assignment dropdown for admin/manager */}
+        {!compact && !isDriver && (
+          <div className="admin-assign-driver-block" style={{ marginTop: '0.75rem', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <strong style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🚚 تعيين السائق:</strong>
+            <select
+              value={order.assignedDriverId || ''}
+              onChange={async (e) => {
+                const val = e.target.value;
+                try {
+                  await assignDriverToOrder(order.id, val ? Number(val) : null);
+                  alert('تم تحديث تعيين السائق بنجاح');
+                } catch (err) {
+                  alert('فشل تعيين السائق: ' + (err.message || 'خطأ غير معروف'));
+                }
+              }}
+              style={{
+                padding: '0.25rem 0.5rem',
+                fontSize: '0.85rem',
+                borderRadius: '4px',
+                background: '#0f172a',
+                color: '#e2e8f0',
+                border: '1px solid rgba(255,255,255,0.1)',
+                fontFamily: 'inherit'
+              }}
+            >
+              <option value="">-- غير معين --</option>
+              {drivers.map(d => (
+                <option key={d.id} value={d.id}>{d.name || d.email}</option>
+              ))}
+            </select>
+            {order.assignedDriverId && (
+              <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 'bold' }}>
+                ✓ معين لـ {drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'سائق'}
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Display assigned driver name for drivers */}
+        {!compact && isDriver && order.assignedDriverId && (
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#60a5fa' }}>
+            🏍️ السائق المكلف بالطلب: <strong>{String(order.assignedDriverId) === String(currentStaff?.id) ? 'أنت' : (drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'سائق آخر')}</strong>
+          </div>
+        )}
+
         <div style={{ marginTop: '0.4rem' }}>
           <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
         </div>
@@ -407,13 +546,29 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, isDriver }) {
             </div>
             <div className="order-chat-body">
               {orderChatMessages(chatOrder).length === 0 && <p className="empty-chat">لا توجد رسائل بعد.</p>}
-              {orderChatMessages(chatOrder).map(m => (
-                <div key={m.id} className={`admin-bubble ${m.sender === 'admin' || m.sender === 'driver' ? 'admin' : 'customer'}`}>
-                  <div className="admin-bubble-sender">{m.sender === 'admin' || m.sender === 'driver' ? 'أنت' : 'العميل'}</div>
-                  <div>{m.text}</div>
-                  <div className="admin-bubble-time">{m.time}</div>
-                </div>
-              ))}
+              {orderChatMessages(chatOrder).map(m => {
+                const isMe = m.sender === senderRole;
+                const getSenderLabel = (msg) => {
+                  if (msg.sender === senderRole) return 'أنت';
+                  if (msg.sender === 'customer') return 'العميل';
+                  if (msg.sender === 'driver') {
+                    const o = orders.find(x => x.id === chatOrder);
+                    const dName = o ? drivers.find(d => String(d.id) === String(o.assignedDriverId))?.name : null;
+                    return dName ? `السائق (${dName})` : 'السائق';
+                  }
+                  if (msg.sender === 'admin') {
+                    return 'المتجر / الدعم';
+                  }
+                  return msg.sender;
+                };
+                return (
+                  <div key={m.id} className={`admin-bubble ${isMe ? 'admin' : 'customer'}`}>
+                    <div className="admin-bubble-sender">{getSenderLabel(m)}</div>
+                    <div>{m.text}</div>
+                    <div className="admin-bubble-time">{m.time}</div>
+                  </div>
+                );
+              })}
             </div>
             <div className="order-chat-input">
               <input type="text" value={chatText} onChange={e => setChatText(e.target.value)}
@@ -443,12 +598,35 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, isDriver }) {
           <div className="admin-stat-card"><span>مكتملة اليوم</span><strong>{stats.completed}</strong></div>
         )}
       </div>
-      <div className="admin-orders-list">
-        {activeOrders.length === 0 && (
-          <div className="empty-orders">لا توجد طلبات نشطة حالياً.</div>
-        )}
-        {activeOrders.map(order => renderOrderCard(order))}
-      </div>
+
+      {isDriver ? (
+        <>
+          <h3 className="driver-sub-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem', color: '#60a5fa', fontWeight: 'bold' }}>🏍️ طلباتي المكلف بها حالياً ({orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length})</h3>
+          <div className="admin-orders-list" style={{ marginBottom: '2rem' }}>
+            {orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length === 0 ? (
+              <div className="empty-orders">لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
+            ) : (
+              orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).map(order => renderOrderCard(order))
+            )}
+          </div>
+
+          <h3 className="driver-sub-title" style={{ marginTop: '1.5rem', marginBottom: '0.75rem', color: '#10b981', fontWeight: 'bold' }}>📦 طلبات متوفرة ومتاحة للتوصيل ({orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length})</h3>
+          <div className="admin-orders-list">
+            {orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length === 0 ? (
+              <div className="empty-orders">لا توجد طلبات متوفرة للتوصيل حالياً.</div>
+            ) : (
+              orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).map(order => renderOrderCard(order))
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="admin-orders-list">
+          {activeOrders.length === 0 && (
+            <div className="empty-orders">لا توجد طلبات نشطة حالياً.</div>
+          )}
+          {activeOrders.map(order => renderOrderCard(order))}
+        </div>
+      )}
 
       {completedOrders.length > 0 && (
         <div className="completed-orders-section">

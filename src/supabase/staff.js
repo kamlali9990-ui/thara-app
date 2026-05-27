@@ -114,5 +114,17 @@ export const staffApi = {
       await rpc('delete_staff_rpc', { p_id: id });
     } catch { /* fallback */ }
     removeFromCache(id);
+  },
+
+  async listDrivers() {
+    try {
+      const data = await rpc('list_drivers_rpc', {});
+      if (data) {
+        const parsed = typeof data === 'string' ? JSON.parse(data) : data;
+        return Array.isArray(parsed) ? parsed : [];
+      }
+    } catch { /* fallback to cached list filter */ }
+    const cache = getCache();
+    return cache.list.filter(s => s.role === 'driver');
   }
 };

@@ -408,12 +408,20 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
             </div>
             <div className="custom-chat-body">
               {orderChatMsgs(chatOrder).length === 0 && <p className="custom-chat-empty">لا توجد رسائل بعد.</p>}
-              {orderChatMsgs(chatOrder).map(m => (
-                <div key={m.id} className={`custom-chat-bubble ${m.sender === 'customer' ? 'me' : 'them'}`}>
-                  <div>{m.text}</div>
-                  <div className="custom-chat-time">{m.time}</div>
-                </div>
-              ))}
+              {orderChatMsgs(chatOrder).map(m => {
+                const isMe = m.sender === 'customer';
+                return (
+                  <div key={m.id} className={`custom-chat-bubble ${isMe ? 'me' : 'them'}`}>
+                    {!isMe && (
+                      <div className="custom-chat-sender-label" style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#127443', marginBottom: '0.2rem' }}>
+                        {m.sender === 'driver' ? '🏍️ السائق' : '🏪 المتجر (الدعم)'}
+                      </div>
+                    )}
+                    <div>{m.text}</div>
+                    <div className="custom-chat-time">{m.time}</div>
+                  </div>
+                );
+              })}
             </div>
             <div className="custom-chat-input">
               <input type="text" value={chatText} onChange={e => setChatText(e.target.value)}

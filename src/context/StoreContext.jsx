@@ -18,7 +18,9 @@ export const StoreProvider = ({ children }) => {
   // --- Auth ---
   const [user, setUser] = useState(null);
   const [staffRole, setStaffRole] = useState(null);
+  const [currentStaff, setCurrentStaff] = useState(null);
   const [staffList, setStaffList] = useState([]);
+  const [drivers, setDrivers] = useState([]);
   const [allCustomers, setAllCustomers] = useState([]);
   const [customerProfile, setCustomerProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -76,8 +78,13 @@ export const StoreProvider = ({ children }) => {
           setUser(currentUser);
           if (currentUser) {
             const staff = await staffApi.getByEmail(currentUser.email).catch(() => null);
-            if (staff) setStaffRole(staff.role);
-            else if (currentUser.email === 'yaser.haroon79@gmail.com') setStaffRole('admin');
+            if (staff) {
+              setStaffRole(staff.role);
+              setCurrentStaff(staff);
+            } else if (currentUser.email === 'yaser.haroon79@gmail.com') {
+              setStaffRole('admin');
+              setCurrentStaff({ email: currentUser.email, name: 'ياسر', role: 'admin' });
+            }
             if (!staff) {
               try {
                 const p = await customersApi.get(currentUser.email);
@@ -116,6 +123,7 @@ export const StoreProvider = ({ children }) => {
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setStaffRole(null);
+        setCurrentStaff(null);
         setCustomerProfile(null);
         localStorage.removeItem('thara_user');
         localStorage.removeItem('thara_session');
@@ -124,7 +132,16 @@ export const StoreProvider = ({ children }) => {
       setUser(u);
       if (u) {
         const staff = await staffApi.getByEmail(u.email).catch(() => null);
-        setStaffRole(staff?.role || (u.email === 'yaser.haroon79@gmail.com' ? 'admin' : null));
+        if (staff) {
+          setStaffRole(staff.role);
+          setCurrentStaff(staff);
+        } else if (u.email === 'yaser.haroon79@gmail.com') {
+          setStaffRole('admin');
+          setCurrentStaff({ email: u.email, name: 'ياسر', role: 'admin' });
+        } else {
+          setStaffRole(null);
+          setCurrentStaff(null);
+        }
         if (!staff) {
           try {
             const p = await customersApi.get(u.email);
@@ -133,6 +150,7 @@ export const StoreProvider = ({ children }) => {
         }
       } else {
         setStaffRole(null);
+        setCurrentStaff(null);
         setCustomerProfile(null);
       }
     });
@@ -149,6 +167,36 @@ export const StoreProvider = ({ children }) => {
       setChatMessages(prev => [...prev, msg]);
     });
     return () => sub.unsubscribe();
+  }, [supabaseReady]);
+
+  // --- Real-time orders subscription (replaces 20s polling) ---
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    const channel = ordersApi.subscribe(({ eventType, new: nextOrder, old: prevOrder }) => {
+      setOrders(prev => {
+        if (eventType === 'DELETE') {
+          const id = String(prevOrder?.id || '');
+          return prev.filter(o => o.id !== id);
+        }
+        if (!nextOrder) return prev;
+        const exists = prev.find(o => o.id === nextOrder.id);
+        if (exists) {
+          return prev.map(o => o.id === nextOrder.id ? { ...o, ...nextOrder } : o);
+        }
+        // INSERT — fire a window event so the UI (admin) can play sound/notify
+        if (eventType === 'INSERT') {
+          try { window.dispatchEvent(new CustomEvent('thara:new-order', { detail: nextOrder })); } catch { /* ignore */ }
+        }
+        return [nextOrder, ...prev];
+      });
+      // Fire status-change event for the customer notification layer
+      if (eventType === 'UPDATE' && prevOrder && nextOrder && prevOrder.status !== nextOrder.status) {
+        try { window.dispatchEvent(new CustomEvent('thara:order-status', { detail: nextOrder })); } catch { /* ignore */ }
+      }
+    });
+    return () => {
+      try { channel.unsubscribe(); } catch { /* ignore */ }
+    };
   }, [supabaseReady]);
 
   // --- localStorage fallback saves ---
@@ -259,7 +307,8 @@ export const StoreProvider = ({ children }) => {
     if (!hasSupabase || !supabaseReady) return;
     try {
       const supaOrders = await ordersApi.list();
-      if (supaOrders && supaOrders.length > 0) setOrders(supaOrders);
+      // Always sync — even an empty array must clear stale local orders.
+      if (Array.isArray(supaOrders)) setOrders(supaOrders);
     } catch { /* ignore */ }
   }, [hasSupabase, supabaseReady]);
 
@@ -309,7 +358,7 @@ export const StoreProvider = ({ children }) => {
     return newOrder;
   }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints, products]);
 
-  const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
+  const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
 
   const getStatusIndex = (s) => STATUS_ORDER.indexOf(s);
 
@@ -318,26 +367,61 @@ export const StoreProvider = ({ children }) => {
     const ci = getStatusIndex(current);
     const ni = getStatusIndex(next);
     if (ci === -1 || ni === -1) return false;
-    return ni >= ci;
+    // Allow forward moves and one step backward (manager corrections).
+    return ni >= ci - 1;
   };
 
   const updateOrderStatus = useCallback(async (orderId, newStatus, eta) => {
     const order = orders.find(o => o.id === orderId);
     if (order && !isValidStatusTransition(order.status, newStatus)) {
-      throw new Error('لا يمكن الرجوع إلى حالة سابقة');
+      throw new Error('لا يمكن إرجاع الطلب أكثر من خطوة واحدة');
     }
+    let updatedFromServer = null;
     if (hasSupabase && supabaseReady) {
       try {
-        await ordersApi.updateStatus(orderId, newStatus);
-      } catch { /* fallback */ }
+        updatedFromServer = await ordersApi.updateStatus(orderId, newStatus, eta);
+      } catch (err) {
+        // Surface RPC errors (unauthorized / etc.) so the UI can show them.
+        throw err;
+      }
     }
     setOrders(prev => prev.map(o => {
       if (o.id !== orderId) return o;
+      if (updatedFromServer) return { ...o, ...updatedFromServer };
       const updated = { ...o, status: newStatus };
-      if (eta !== undefined) updated.estimatedDelivery = eta;
+      if (eta !== undefined && eta !== null) updated.estimatedDelivery = Number(eta);
       return updated;
     }));
   }, [hasSupabase, supabaseReady, orders]);
+
+  // --- Driver assignment (admin/manager) ---
+  const loadDrivers = useCallback(async () => {
+    if (!hasSupabase || !supabaseReady) return;
+    try {
+      const list = await staffApi.listDrivers();
+      setDrivers(Array.isArray(list) ? list : []);
+    } catch { /* ignore */ }
+  }, [hasSupabase, supabaseReady]);
+
+  const assignDriverToOrder = useCallback(async (orderId, driverId) => {
+    if (!hasSupabase || !supabaseReady) throw new Error('Supabase غير مهيأ');
+    const updated = await ordersApi.assignDriver(orderId, driverId);
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o));
+    return updated;
+  }, [hasSupabase, supabaseReady]);
+
+  const claimOrder = useCallback(async (orderId) => {
+    if (!hasSupabase || !supabaseReady) throw new Error('Supabase غير مهيأ');
+    const updated = await ordersApi.claim(orderId);
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o));
+    return updated;
+  }, [hasSupabase, supabaseReady]);
+
+  // Load drivers list when an admin/manager is ready
+  useEffect(() => {
+    if (!supabaseReady) return;
+    if (staffRole === 'admin' || staffRole === 'manager') loadDrivers();
+  }, [supabaseReady, staffRole, loadDrivers]);
 
   // --- Product CRUD ---
   const addProduct = useCallback(async (product) => {
@@ -463,7 +547,7 @@ export const StoreProvider = ({ children }) => {
   return (
     <StoreContext.Provider value={{
       user, loading, login, logout,
-      staffRole, staffList, loadStaff, addStaff, updateStaff, removeStaff,
+      staffRole, currentStaff, staffList, loadStaff, addStaff, updateStaff, removeStaff,
       allCustomers, loadCustomers,
       customerProfile, updateCustomerProfile,
       products: filteredProducts,
@@ -473,6 +557,7 @@ export const StoreProvider = ({ children }) => {
       placeOrder, getProductPrice,
       allProducts: products,
       orders, updateOrderStatus, loadOrders,
+      drivers, loadDrivers, assignDriverToOrder, claimOrder,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
       chatMessages, sendMessage, refreshOrders: loadOrders, setOrders
     }}>
