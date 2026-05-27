@@ -2,3 +2,7 @@ node_modules
 dist
 .env
 *.local
+npm
+thara-al-sharq-one-markets@*
+.DS_Store
+*.log
