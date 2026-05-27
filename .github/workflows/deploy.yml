@@ -20,10 +20,16 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_MAPTILER_KEY: ${{ secrets.VITE_MAPTILER_KEY }}
       - name: Deploy to gh-pages
         run: |
+          git checkout --orphan gh-pages-temp
+          git rm -rf .
+          cp -r dist/* .
+          git add .
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git --work-tree dist add --all
-          git --work-tree dist commit -m "deploy $(date)"
-          git push origin HEAD:gh-pages --force
+          git commit -m "deploy $(date)"
+          git push origin gh-pages-temp:gh-pages --force
+          git checkout main
+          git branch -D gh-pages-temp
