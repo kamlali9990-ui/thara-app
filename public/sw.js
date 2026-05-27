@@ -1,11 +1,12 @@
 const CACHE_NAME = 'thara-v10';
+const BASE_PATH = new URL(self.registration.scope).pathname;
 const STATIC_ASSETS = [
-  '/thara-app/',
-  '/thara-app/index.html',
-  '/thara-app/manifest.json',
-  '/thara-app/icon.png',
-  '/thara-app/LOGO.jpg',
-  '/thara-app/leaflet.css',
+  BASE_PATH,
+  `${BASE_PATH}index.html`.replace(/\/+/g, '/'),
+  `${BASE_PATH}manifest.json`.replace(/\/+/g, '/'),
+  `${BASE_PATH}icon.png`.replace(/\/+/g, '/'),
+  `${BASE_PATH}LOGO.jpg`.replace(/\/+/g, '/'),
+  `${BASE_PATH}leaflet.css`.replace(/\/+/g, '/'),
   'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap'
 ];
 
@@ -51,7 +52,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() =>
-          caches.match(event.request).then((cached) => cached || caches.match('/thara-app/index.html') || caches.match('/thara-app/'))
+          caches.match(event.request).then((cached) => cached || caches.match(`${BASE_PATH}index.html`.replace(/\/+/g, '/')) || caches.match(BASE_PATH))
         )
     );
   } else {
