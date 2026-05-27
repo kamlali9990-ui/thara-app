@@ -463,7 +463,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
       )}
       <div className="admin-card-info">
         <strong>الدفع:</strong> {order.paymentMethod}
-        {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" className="whatsapp-link" title="واتساب">💬 واتساب</a></>}
+        {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" className="whatsapp-link" title="واتساب" style={{ padding: '0.1rem 0.3rem', borderRadius: '4px', background: 'rgba(34, 197, 94, 0.15)' }}>💬</a></>}
         {order.notes && !compact && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
         {!compact && renderLocationBlock(order, { showMap: !compact })}
         {compact && parseOrderLocation(order.location) && (
@@ -512,7 +512,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
 
         {/* Display assigned driver name for drivers */}
         {!compact && isDriver && order.assignedDriverId && (
-          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#60a5fa' }}>
+          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#fbbf24' }}>
             🏍️ السائق المكلف بالطلب: <strong>{String(order.assignedDriverId) === String(currentStaff?.id) ? 'أنت' : (drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'سائق آخر')}</strong>
           </div>
         )}
