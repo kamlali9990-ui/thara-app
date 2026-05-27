@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authApi } from '../supabase/auth';
+import { useStore } from '../context/StoreContext';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     try {
-      await authApi.signIn(email, password);
+      await login(email, password);
       navigate('/admin');
     } catch (err) {
       setError(err.message === 'Invalid login credentials'

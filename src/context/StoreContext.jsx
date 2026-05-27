@@ -129,29 +129,35 @@ export const StoreProvider = ({ children }) => {
         localStorage.removeItem('thara_session');
         return;
       }
+      setLoading(true);
       setUser(u);
       if (u) {
-        const staff = await staffApi.getByEmail(u.email).catch(() => null);
-        if (staff) {
-          setStaffRole(staff.role);
-          setCurrentStaff(staff);
-        } else if (u.email === 'yaser.haroon79@gmail.com') {
-          setStaffRole('admin');
-          setCurrentStaff({ email: u.email, name: 'ياسر', role: 'admin' });
-        } else {
-          setStaffRole(null);
-          setCurrentStaff(null);
-        }
-        if (!staff) {
-          try {
-            const p = await customersApi.get(u.email);
-            if (p) setCustomerProfile(p);
-          } catch { /* no profile yet */ }
+        try {
+          const staff = await staffApi.getByEmail(u.email).catch(() => null);
+          if (staff) {
+            setStaffRole(staff.role);
+            setCurrentStaff(staff);
+          } else if (u.email === 'yaser.haroon79@gmail.com') {
+            setStaffRole('admin');
+            setCurrentStaff({ email: u.email, name: 'ياسر', role: 'admin' });
+          } else {
+            setStaffRole(null);
+            setCurrentStaff(null);
+          }
+          if (!staff) {
+            try {
+              const p = await customersApi.get(u.email);
+              if (p) setCustomerProfile(p);
+            } catch { /* no profile yet */ }
+          }
+        } finally {
+          setLoading(false);
         }
       } else {
         setStaffRole(null);
         setCurrentStaff(null);
         setCustomerProfile(null);
+        setLoading(false);
       }
     });
     return () => {
