@@ -892,8 +892,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
               <KhafjiMap position={position} setPosition={setPosition} />
             </div>
-            {position && !outside && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
-            {outside && <div className="checkout-outside">⚠️ التوصيل فقط داخل مدينة الخفجي</div>}
+            {position && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
+            {outside && <div className="checkout-outside">⚠️ الموقع خارج الخفجي — سيتم التواصل معك لتأكيد إمكانية ووقت التوصيل</div>}
           </div>
           {['stc', 'barq', '360'].includes(paymentMethod) && (
             <div className="checkout-section">
@@ -952,15 +952,15 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
           <button className="checkout-confirm-btn" onClick={() => {
-            if (!position || outside || !phoneReady) return;
+            if (!position || !phoneReady) return;
             placeOrder({
               location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`,
               paymentMethod,
               phone: phone.trim(),
-              notes: notes.trim()
+              notes: `${notes.trim()}${outside ? (notes.trim() ? ' — ' : '') + 'ملاحظة: الموقع خارج الخفجي' : ''}`
             });
             onClose();
-          }} disabled={!position || outside || !phoneReady}>تأكيد الطلب</button>
+          }} disabled={!position || !phoneReady}>تأكيد الطلب</button>
         </div>
       </div>
     </div>
