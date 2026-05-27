@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v9';
+const CACHE_NAME = 'thara-v10';
 const STATIC_ASSETS = [
   '/thara-app/',
   '/thara-app/index.html',
@@ -15,6 +15,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(STATIC_ASSETS).catch(() => {});
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -36,18 +37,43 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+
+  // Never cache API/auth traffic.
+  if (url.hostname.includes('supabase.co')) return;
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request).then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        return response;
-      }).catch(() =>
-        caches.match(event.request).then((cached) => cached || caches.match('/thara-app/'))
-      )
+      fetch(event.request, { cache: 'no-store' })
+        .then((response) => {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() =>
+          caches.match(event.request).then((cached) => cached || caches.match('/thara-app/index.html') || caches.match('/thara-app/'))
+        )
     );
   } else {
+    const isStaticAsset = /\.(?:js|css|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico)$/i.test(url.pathname);
+    const isHtml = event.request.destination === 'document';
+
+    // For HTML/static assets, prefer network then fallback to cache so users see new deploys quickly.
+    if (isStaticAsset || isHtml) {
+      event.respondWith(
+        fetch(event.request, { cache: 'no-store' })
+          .then((response) => {
+            if (response && response.status === 200) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+            }
+            return response;
+          })
+          .catch(() => caches.match(event.request))
+      );
+      return;
+    }
+
     event.respondWith(
       caches.match(event.request).then((cached) => {
         return cached || fetch(event.request).then((response) => {

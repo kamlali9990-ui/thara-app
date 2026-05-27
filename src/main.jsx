@@ -17,6 +17,9 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`, { updateViaCache: 'none' }).then((reg) => {
       window.__swRegistration = reg;
+      // Proactively check for new deployments.
+      reg.update().catch(() => {});
+      setInterval(() => reg.update().catch(() => {}), 60 * 1000);
       if (reg.waiting && navigator.serviceWorker.controller) {
         window.dispatchEvent(new CustomEvent('sw-update'));
       }
