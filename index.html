@@ -9,6 +9,18 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="description" content="أسواق ثرا الشرق ون - توصيل طلبات السوبرماركت لباب بيتك في الخفجي" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="أسواق ثرا الشرق ون | توصيل الخفجي" />
+    <meta property="og:description" content="توصيل طلبات السوبرماركت لباب بيتك في الخفجي - سوقك القريب في ثرا الشرق ون" />
+    <meta property="og:image" content="./cart-icon-512.png" />
+    <meta property="og:locale" content="ar_SA" />
+    <meta property="og:site_name" content="أسواق ثرا الشرق ون" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="أسواق ثرا الشرق ون | توصيل الخفجي" />
+    <meta name="twitter:description" content="توصيل طلبات السوبرماركت لباب بيتك في الخفجي" />
+    <meta name="twitter:image" content="./cart-icon-512.png" />
     <link rel="icon" type="image/png" href="./cart-icon-192.png" sizes="192x192" />
     <link rel="apple-touch-icon" href="./cart-icon-192.png" sizes="180x180" />
     <link rel="manifest" href="./manifest.json" />
@@ -19,7 +31,14 @@
     <title>أسواق ثرا الشرق ون | توصيل الخفجي</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <noscript>
+        <div style="text-align:center;padding:3rem;font-family:'Cairo',sans-serif;background:#f6f7f9;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <h1 style="color:#127443;margin-bottom:1rem">يجب تفعيل JavaScript</h1>
+          <p style="color:#5f5f66">لعملية التطبيق، يرجى تفعيل JavaScript في إعدادات المتصفح.</p>
+        </div>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

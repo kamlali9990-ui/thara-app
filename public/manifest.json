@@ -6,7 +6,40 @@
   "display": "standalone",
   "background_color": "#127443",
   "theme_color": "#127443",
+  "lang": "ar",
+  "dir": "rtl",
   "description": "توصيل طلبات السوبرماركت لباب بيتك في الخفجي",
+  "categories": ["shopping", "food"],
+  "shortcuts": [
+    {
+      "name": "طلباتي",
+      "short_name": "الطلبات",
+      "url": "/",
+      "description": "عرض طلباتك وحالة التوصيل"
+    },
+    {
+      "name": "سلة التسوق",
+      "short_name": "السلة",
+      "url": "/",
+      "description": "عرض منتجات السلة والذهاب للدفع"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "cart-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "واجهة المتجر"
+    },
+    {
+      "src": "cart-icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "أيقونة التطبيق"
+    }
+  ],
   "icons": [
     {
       "src": "cart-icon-192.png",
