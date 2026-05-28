@@ -1,10 +1,6 @@
 import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import App from './App.jsx'
-import Login from './pages/Login.jsx'
-import CustomerLogin from './pages/CustomerLogin.jsx'
-import Register from './pages/Register.jsx'
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
@@ -29,7 +25,13 @@ const lazyWithRetry = (componentImport) => {
   });
 };
 
+const App = lazyWithRetry(() => import('./App.jsx'))
+const Login = lazyWithRetry(() => import('./pages/Login.jsx'))
+const CustomerLogin = lazyWithRetry(() => import('./pages/CustomerLogin.jsx'))
+const Register = lazyWithRetry(() => import('./pages/Register.jsx'))
 const Admin = lazyWithRetry(() => import('./Admin.jsx'))
+
+const PageLoader = <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
 
 const BASENAME = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 
@@ -103,10 +105,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <BrowserRouter basename={BASENAME}>
             <LeaveGuard />
             <Routes>
-              <Route path="/" element={<App />} />
-              <Route path="/login" element={<CustomerLogin />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/admin/login" element={<Login />} />
+              <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
+              <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
+              <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
+              <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
               <Route path="/admin/*" element={
               <ProtectedRoute>
                 <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>

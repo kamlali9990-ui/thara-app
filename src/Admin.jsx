@@ -2,7 +2,6 @@ import React, { useContext, useState, useRef, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
-import * as XLSX from 'xlsx';
 import StaffManager from './components/StaffManager.jsx';
 import OrderLocationMap from './components/OrderLocationMap.jsx';
 import { categories } from './data/mockData';
@@ -131,13 +130,6 @@ export default function Admin() {
     if (staffRole === 'admin' || staffRole === 'manager' || staffRole === 'driver') {
       try { loadDrivers(); } catch { /* ignore */ }
     }
-    const interval = setInterval(() => {
-      loadOrders();
-      if (staffRole === 'admin' || staffRole === 'manager' || staffRole === 'driver') {
-        try { loadDrivers(); } catch { /* ignore */ }
-      }
-    }, 20000);
-    return () => clearInterval(interval);
   }, [loadOrders, staffRole, loadDrivers]);
 
   // Sound + browser notification on new order (from Realtime subscription)
@@ -778,9 +770,10 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
     setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
   };
 
-  const handleFile = (e) => {
+  const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const XLSX = await import('xlsx');
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
