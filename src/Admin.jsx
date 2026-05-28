@@ -38,7 +38,7 @@ function notifyNewOrder(order) {
     new Notification('طلب جديد', {
       body: `طلب رقم ${(order?.id || '').toString().slice(-6)} — ${total}`,
       tag: 'thara-new-order',
-      icon: (import.meta.env.BASE_URL || '/') + 'icon.png',
+      icon: (import.meta.env.BASE_URL || '/') + 'cart-icon-192.png',
       lang: 'ar'
     });
   } catch { /* ignore */ }

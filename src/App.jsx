@@ -73,7 +73,7 @@ export default function App() {
           body = eta ? `السائق في الطريق — الوصول خلال ${eta} دقيقة` : 'السائق في الطريق إليك';
         } else if (order.status === 'مكتمل') body = 'تم توصيل طلبك بنجاح ✓';
         else body = `تحديث الطلب: ${order.status}`;
-        new Notification('ثرا الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'icon.png' });
+        new Notification('ثرا الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'cart-icon-192.png' });
       } catch { /* ignore */ }
     };
     window.addEventListener('thara:order-status', handler);
