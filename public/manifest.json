@@ -2,6 +2,7 @@
   "name": "أسواق ثرا الشرق ون",
   "short_name": "ثرا الشرق ون",
   "start_url": ".",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#127443",
   "theme_color": "#127443",

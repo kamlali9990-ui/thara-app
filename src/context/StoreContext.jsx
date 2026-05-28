@@ -549,17 +549,19 @@ export const StoreProvider = ({ children }) => {
       return data;
     } catch (err) {
       if (err.message === 'Invalid login credentials' && supabase) {
-        const { data: staffRow } = await supabase
-          .from('staff')
-          .select('id')
-          .ilike('email', normalizedEmail)
-          .maybeSingle();
-        if (staffRow) {
-          await supabase.rpc('confirm_auth_user', { p_email: normalizedEmail, p_password: password });
-          const data = await authApi.signIn(normalizedEmail, password);
-          setUser(data.user);
-          return data;
-        }
+        try {
+          const { data: staffRow } = await supabase
+            .from('staff')
+            .select('id')
+            .ilike('email', normalizedEmail)
+            .maybeSingle();
+          if (staffRow) {
+            await supabase.rpc('confirm_auth_user', { p_email: normalizedEmail, p_password: password });
+            const data = await authApi.signIn(normalizedEmail, password);
+            setUser(data.user);
+            return data;
+          }
+        } catch { /* RPC not available or permission denied */ }
       }
       throw err;
     }

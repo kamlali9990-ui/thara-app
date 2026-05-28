@@ -1136,7 +1136,7 @@ function AdminUsers({ customers, loadCustomers }) {
     setResettingEmail(email);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + '/thara-app/'
+        redirectTo: window.location.origin + (import.meta.env.BASE_URL || '/')
       });
       if (error) throw error;
       alert('تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني');

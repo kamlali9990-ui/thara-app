@@ -170,7 +170,6 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.confirm_auth_user TO authenticated;
-GRANT EXECUTE ON FUNCTION public.confirm_auth_user TO anon;
 
 GRANT EXECUTE ON FUNCTION public.get_staff_by_email_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.list_staff_rpc TO authenticated;
@@ -333,9 +332,9 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_customer_auth_rpc TO anon, authenticated;
 
 -- Loyalty: add column if not exists
@@ -362,7 +361,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.add_loyalty_points_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.add_loyalty_points_rpc TO authenticated;
 
 -- List all customers (staff only)
 CREATE OR REPLACE FUNCTION public.list_customers_rpc()
@@ -578,7 +577,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT) TO authenticated;
 
 -- 5. Chat Messages
 CREATE TABLE IF NOT EXISTS chat_messages (

@@ -38,8 +38,8 @@ AS $$
   SELECT COALESCE(public.current_staff_role() = ANY(allowed_roles), FALSE);
 $$;
 
-GRANT EXECUTE ON FUNCTION public.current_staff_role TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.is_staff TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.current_staff_role TO authenticated;
+GRANT EXECUTE ON FUNCTION public.is_staff TO authenticated;
 
 DROP POLICY IF EXISTS "staff_select_admin" ON staff;
 DROP POLICY IF EXISTS "staff_insert_admin" ON staff;
@@ -179,4 +179,4 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT) TO authenticated;

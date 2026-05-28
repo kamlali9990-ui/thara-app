@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Thara App</title>
     <script>
-      sessionStorage.redirectTo = location.pathname + location.search + location.hash;
-      location.replace('/thara-app/');
+      var path = location.pathname + location.search + location.hash;
+      location.replace(path === '/404.html' ? '/' : path);
     </script>
   </head>
   <body></body>

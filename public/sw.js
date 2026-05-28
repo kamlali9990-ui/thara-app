@@ -1,19 +1,25 @@
-const CACHE_NAME = 'thara-v10';
+const CACHE_NAME = 'thara-v11';
 const BASE_PATH = new URL(self.registration.scope).pathname;
-const STATIC_ASSETS = [
+const LOCAL_ASSETS = [
   BASE_PATH,
   `${BASE_PATH}index.html`.replace(/\/+/g, '/'),
   `${BASE_PATH}manifest.json`.replace(/\/+/g, '/'),
   `${BASE_PATH}icon.png`.replace(/\/+/g, '/'),
   `${BASE_PATH}LOGO.jpg`.replace(/\/+/g, '/'),
   `${BASE_PATH}leaflet.css`.replace(/\/+/g, '/'),
+];
+const EXTERNAL_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch(() => {});
+      return cache.addAll(LOCAL_ASSETS).then(() => {
+        return Promise.allSettled(
+          EXTERNAL_ASSETS.map((url) => fetch(url).then((r) => r.ok ? cache.put(url, r) : null).catch(() => null))
+        );
+      });
     })
   );
   self.skipWaiting();
