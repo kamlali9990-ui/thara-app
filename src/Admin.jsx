@@ -6,6 +6,7 @@ import StaffManager from './components/StaffManager.jsx';
 import OrderLocationMap from './components/OrderLocationMap.jsx';
 import { categories } from './data/mockData';
 import { parseOrderLocation, getMapLinks } from './utils/location.js';
+import { showToast } from './components/Toast.jsx';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 
@@ -94,11 +95,11 @@ export default function Admin() {
 
   const handlePasswordChange = async () => {
     if (newPassword.length < 6) {
-      alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert('كلمتا المرور غير متطابقتين');
+      showToast('كلمتا المرور غير متطابقتين', 'warning');
       return;
     }
     setPasswordLoading(true);
@@ -111,9 +112,9 @@ export default function Admin() {
       setShowPasswordPrompt(false);
       setNewPassword('');
       setConfirmPassword('');
-      alert('تم تحديث كلمة المرور بنجاح');
+      showToast('تم تحديث كلمة المرور بنجاح', 'success');
     } catch (err) {
-      alert('فشل تحديث كلمة المرور: ' + (err.message || 'خطأ غير معروف'));
+      showToast('فشل تحديث كلمة المرور: ' + (err.message || 'خطأ غير معروف'), 'error');
     } finally {
       setPasswordLoading(false);
     }
@@ -331,7 +332,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
     try {
       updateOrderStatus(order.id, newStatus, eta ? Number(eta) : undefined);
     } catch (e) {
-      alert(e.message);
+      showToast(e.message, 'error');
     }
   };
 
@@ -340,7 +341,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
     if (!order) return;
     const eta = etaModalValue;
     if (!eta || isNaN(eta) || Number(eta) <= 0) {
-      alert('الرجاء إدخال وقت توصيل صحيح');
+      showToast('الرجاء إدخال وقت توصيل صحيح', 'warning');
       return;
     }
     setEtaInputs(prev => ({ ...prev, [order.id]: eta }));
@@ -394,9 +395,9 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
             if (window.confirm('هل أنت متأكد من رغبتك في قبول واستلام هذا الطلب لتوصيله؟')) {
               try {
                 await claimOrder(order.id);
-                alert('تم قبول الطلب وإضافته لطلباتك بنجاح!');
+                showToast('تم قبول الطلب بنجاح', 'success');
               } catch (err) {
-                alert('فشل قبول الطلب: ' + (err.message || 'خطأ غير معروف'));
+                showToast('فشل قبول الطلب: ' + (err.message || 'خطأ غير معروف'), 'error');
               }
             }
           }}
@@ -506,9 +507,9 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
                 const val = e.target.value;
                 try {
                   await assignDriverToOrder(order.id, val ? Number(val) : null);
-                  alert('تم تحديث تعيين السائق بنجاح');
+                  showToast('تم تحديث تعيين السائق بنجاح', 'success');
                 } catch (err) {
-                  alert('فشل تعيين السائق: ' + (err.message || 'خطأ غير معروف'));
+                  showToast('فشل تعيين السائق: ' + (err.message || 'خطأ غير معروف'), 'error');
                 }
               }}
               style={{
@@ -782,7 +783,7 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
         const rows = XLSX.utils.sheet_to_json(ws, { defval: '' });
         setPreviewRows(rows.map((r, i) => ({ _row: i + 1, ...r })));
       } catch {
-        alert('فشل قراءة الملف. تأكد من أن الملف بصيغة Excel أو CSV صحيحة.');
+        showToast('فشل قراءة الملف. تأكد من صيغة الملف الصحيحة', 'error');
       }
     };
     reader.readAsBinaryString(file);
@@ -798,7 +799,7 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
       });
       setPreviewRows(rows);
     } catch {
-      alert('فشل تحليل النص. تأكد من استخدام تبويب أو فاصلة بين الأعمدة.');
+      showToast('فشل تحليل النص. تأكد من الفاصلة أو التبويب', 'error');
     }
   };
 
@@ -816,11 +817,11 @@ function AdminProducts({ products, addProduct, updateProduct, deleteProduct }) {
     }));
     try {
       const created = await bulkImportProducts(mapped);
-      alert(`تم استيراد ${created.length} منتج بنجاح`);
+      showToast(`تم استيراد ${created.length} منتج بنجاح`, 'success');
       setPreviewRows([]);
       setShowImport(false);
     } catch (err) {
-      alert('فشل الاستيراد: ' + (err.message || 'خطأ غير معروف'));
+      showToast('فشل الاستيراد: ' + (err.message || 'خطأ غير معروف'), 'error');
     }
     setImporting(false);
   };
@@ -1132,9 +1133,9 @@ function AdminUsers({ customers, loadCustomers }) {
         redirectTo: window.location.origin + (import.meta.env.BASE_URL || '/')
       });
       if (error) throw error;
-      alert('تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني');
+      showToast('تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني', 'success');
     } catch (err) {
-      alert('فشل إرسال الرابط: ' + err.message);
+      showToast('فشل إرسال الرابط: ' + err.message, 'error');
     }
     setResettingEmail(null);
   };
