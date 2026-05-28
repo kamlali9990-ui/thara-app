@@ -1170,6 +1170,11 @@ header {
   background: linear-gradient(135deg, rgba(21, 128, 61, 0.22), rgba(34, 197, 94, 0.1));
   box-shadow: 0 8px 24px rgba(34, 197, 94, 0.2);
 }
+.order-card-active.status-ready {
+  border-color: rgba(139, 92, 246, 0.65);
+  background: linear-gradient(135deg, rgba(107, 33, 168, 0.2), rgba(139, 92, 246, 0.1));
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+}
 .order-card-active.status-cancelled {
   border-color: rgba(239, 68, 68, 0.45);
   background: rgba(127, 29, 29, 0.2);

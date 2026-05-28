@@ -49,6 +49,37 @@ export default function App() {
     return () => window.removeEventListener('sw-update', handler);
   }, []);
 
+  // Request notification permission for order status updates
+  useEffect(() => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  }, []);
+
+  // Browser notification when order status changes (customer view)
+  useEffect(() => {
+    const handler = (e) => {
+      try {
+        if (!('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+        const order = e.detail;
+        if (!order) return;
+        let body = '';
+        if (order.status === 'قيد التحضير') body = 'طلبك قيد التحضير الآن';
+        else if (order.status === 'جاهز للتوصيل') body = 'طلبك جاهز للتوصيل!';
+        else if (order.status === 'في الطريق') {
+          const eta = order.estimatedDelivery;
+          body = eta ? `السائق في الطريق — الوصول خلال ${eta} دقيقة` : 'السائق في الطريق إليك';
+        } else if (order.status === 'مكتمل') body = 'تم توصيل طلبك بنجاح ✓';
+        else body = `تحديث الطلب: ${order.status}`;
+        new Notification('ثرا الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'icon.png' });
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('thara:order-status', handler);
+    return () => window.removeEventListener('thara:order-status', handler);
+  }, []);
+
   // Flash browser tab title on new messages when tab is inactive
   useEffect(() => {
     let interval = null;

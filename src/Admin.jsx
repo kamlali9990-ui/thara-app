@@ -139,6 +139,19 @@ export default function Admin() {
     }, 20000);
     return () => clearInterval(interval);
   }, [loadOrders, staffRole, loadDrivers]);
+
+  // Sound + browser notification on new order (from Realtime subscription)
+  useEffect(() => {
+    if (!isDriver) {
+      try { Notification.requestPermission().catch(() => {}); } catch { /* ignore */ }
+    }
+    const handler = (e) => {
+      playNewOrderBeep();
+      notifyNewOrder(e.detail);
+    };
+    window.addEventListener('thara:new-order', handler);
+    return () => window.removeEventListener('thara:new-order', handler);
+  }, [isDriver]);
   const tabs = [
     { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
   ];
@@ -267,7 +280,7 @@ export default function Admin() {
   );
 }
 
-const STATUS_ORDER = ['جديد', 'قيد التحضير', 'في الطريق', 'مكتمل'];
+const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
 
 function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder }) {
   const { chatMessages, sendMessage } = useContext(StoreContext);
@@ -277,11 +290,14 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
   const [chatText, setChatText] = useState('');
   const [showCompleted, setShowCompleted] = useState(false);
   const [activeDriverTab, setActiveDriverTab] = useState('available');
+  const [etaModalOrder, setEtaModalOrder] = useState(null);
+  const [etaModalValue, setEtaModalValue] = useState('30');
 
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
     newOrders: orders.filter(o => o.status === 'جديد').length,
     preparing: orders.filter(o => o.status === 'قيد التحضير').length,
+    ready: orders.filter(o => o.status === 'جاهز للتوصيل').length,
     onRoute: orders.filter(o => o.status === 'في الطريق').length,
     completed: orders.filter(o => o.status === 'مكتمل').length,
     revenue: orders.filter(o => o.status !== 'ملغي').reduce((sum, o) => sum + Number(o.total || 0), 0)
@@ -314,17 +330,30 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
   };
 
   const doUpdate = (order, newStatus) => {
-    let eta = etaInputs[order.id];
-    if (newStatus === 'في الطريق' && (!eta || eta <= 0)) {
-      eta = prompt('أدخل وقت التوصيل المقدر بالدقائق:', '30');
-      if (!eta || isNaN(eta) || eta <= 0) return;
-      setEtaInputs(prev => ({ ...prev, [order.id]: eta }));
+    if (newStatus === 'في الطريق') {
+      setEtaModalOrder(order);
+      setEtaModalValue('30');
+      return;
     }
+    let eta = etaInputs[order.id];
     try {
       updateOrderStatus(order.id, newStatus, eta ? Number(eta) : undefined);
     } catch (e) {
       alert(e.message);
     }
+  };
+
+  const confirmEtaModal = () => {
+    const order = etaModalOrder;
+    if (!order) return;
+    const eta = etaModalValue;
+    if (!eta || isNaN(eta) || Number(eta) <= 0) {
+      alert('الرجاء إدخال وقت توصيل صحيح');
+      return;
+    }
+    setEtaInputs(prev => ({ ...prev, [order.id]: eta }));
+    updateOrderStatus(order.id, 'في الطريق', Number(eta));
+    setEtaModalOrder(null);
   };
 
   const orderChatMessages = (orderId) => chatMessages.filter(m => !m.orderId || m.orderId === orderId);
@@ -335,6 +364,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
   const getStatusClass = (status) => {
     if (status === 'جديد') return 'status-new';
     if (status === 'قيد التحضير') return 'status-preparing';
+    if (status === 'جاهز للتوصيل') return 'status-ready';
     if (status === 'في الطريق') return 'status-route';
     if (status === 'ملغي') return 'status-cancelled';
     if (status === 'مكتمل') return 'status-completed';
@@ -443,6 +473,7 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
                 >
                   <option value="جديد">جديد</option>
                   <option value="قيد التحضير">قيد التحضير</option>
+                  <option value="جاهز للتوصيل">جاهز للتوصيل</option>
                   <option value="في الطريق">في الطريق</option>
                   <option value="مكتمل">مكتمل</option>
                   <option value="ملغي">ملغي</option>
@@ -576,6 +607,45 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
                 onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } } }}
                 placeholder="اكتب رسالة..." />
               <button onClick={() => { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } }}>إرسال</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {etaModalOrder && (
+        <div className="confirm-overlay" onClick={() => setEtaModalOrder(null)}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1rem' }}>⏱ وقت التوصيل المقدر</p>
+            <p style={{ marginBottom: '1rem', color: '#cbd5e1', fontSize: '0.85rem' }}>
+              أدخل الوقت المتوقع للتوصيل بالدقائق للطلب #{etaModalOrder.id.slice(-6)}
+            </p>
+            <input
+              type="number"
+              value={etaModalValue}
+              onChange={e => setEtaModalValue(e.target.value)}
+              min="1"
+              max="180"
+              style={{
+                width: '100%',
+                padding: '0.75rem 1rem',
+                border: '1.5px solid rgba(255,255,255,0.15)',
+                borderRadius: '12px',
+                fontSize: '1.1rem',
+                fontFamily: 'inherit',
+                background: 'rgba(0,0,0,0.3)',
+                color: '#ffffff',
+                outline: 'none',
+                marginBottom: '1rem',
+                boxSizing: 'border-box',
+                textAlign: 'center'
+              }}
+            />
+            <div className="confirm-actions">
+              <button className="confirm-btn confirm-yes" onClick={confirmEtaModal} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
+                تأكيد وبدء التوصيل
+              </button>
+              <button className="confirm-btn confirm-no" onClick={() => setEtaModalOrder(null)} style={{ background: 'rgba(255,255,255,0.1)', color: '#ffffff' }}>
+                إلغاء
+              </button>
             </div>
           </div>
         </div>
