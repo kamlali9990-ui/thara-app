@@ -7,6 +7,7 @@ import { chatApi } from '../supabase/chat.js';
 import { authApi } from '../supabase/auth.js';
 import { staffApi } from '../supabase/staff.js';
 import { customersApi } from '../supabase/customers.js';
+import { supabase } from '../supabase/client';
 
 export const StoreContext = createContext();
 
@@ -541,9 +542,27 @@ export const StoreProvider = ({ children }) => {
   // --- Auth Actions ---
   const login = useCallback(async (email, password) => {
     if (!hasSupabase) throw new Error('Supabase غير مهيأ');
-    const data = await authApi.signIn(email, password);
-    setUser(data.user);
-    return data;
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    try {
+      const data = await authApi.signIn(normalizedEmail, password);
+      setUser(data.user);
+      return data;
+    } catch (err) {
+      if (err.message === 'Invalid login credentials' && supabase) {
+        const { data: staffRow } = await supabase
+          .from('staff')
+          .select('id')
+          .ilike('email', normalizedEmail)
+          .maybeSingle();
+        if (staffRow) {
+          await supabase.rpc('confirm_auth_user', { p_email: normalizedEmail, p_password: password });
+          const data = await authApi.signIn(normalizedEmail, password);
+          setUser(data.user);
+          return data;
+        }
+      }
+      throw err;
+    }
   }, []);
 
   const logout = useCallback(async () => {

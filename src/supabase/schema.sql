@@ -170,6 +170,7 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.confirm_auth_user TO authenticated;
+GRANT EXECUTE ON FUNCTION public.confirm_auth_user TO anon;
 
 GRANT EXECUTE ON FUNCTION public.get_staff_by_email_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.list_staff_rpc TO authenticated;
