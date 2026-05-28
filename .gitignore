@@ -9,3 +9,5 @@ thara-al-sharq-one-markets@*
 supabase/.temp/
 supabase/.branches/
 *.db
+
+.vercel
