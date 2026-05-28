@@ -6,12 +6,14 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useStore();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       await login(email, password);
       navigate('/admin');
@@ -19,6 +21,8 @@ export default function Login() {
       setError(err.message === 'Invalid login credentials'
         ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
         : 'حدث خطأ أثناء تسجيل الدخول');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -161,30 +165,23 @@ export default function Login() {
 
           <button
             type="submit"
+            disabled={loading}
             style={{
               width: '100%',
               padding: '0.95rem',
-              background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+              background: loading ? '#9ca3af' : 'linear-gradient(135deg, #fbbf24, #f59e0b)',
               color: '#451a03',
               border: 'none',
               borderRadius: '14px',
               fontSize: '1.1rem',
               fontWeight: 800,
-              cursor: 'pointer',
+              cursor: loading ? 'not-allowed' : 'pointer',
               fontFamily: 'inherit',
               transition: 'all 0.25s ease',
               boxShadow: '0 4px 20px rgba(251, 191, 36, 0.2)'
             }}
-            onMouseEnter={(e) => {
-              e.target.style.transform = 'translateY(-2px)';
-              e.target.style.boxShadow = '0 6px 25px rgba(251, 191, 36, 0.35)';
-            }}
-            onMouseLeave={(e) => {
-              e.target.style.transform = '';
-              e.target.style.boxShadow = '0 4px 20px rgba(251, 191, 36, 0.2)';
-            }}
           >
-            تسجيل الدخول
+            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
         </form>
 

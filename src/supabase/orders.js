@@ -22,7 +22,7 @@ export const ordersApi = {
       order_notes: order.notes || null
     });
     if (error) {
-      if (error.message?.includes('create_order_secure')) {
+      if (import.meta.env.DEV && error.message?.includes('create_order_secure')) {
         return this.createLegacy(order);
       }
       throw error;
@@ -61,8 +61,7 @@ export const ordersApi = {
       p_eta: (eta === undefined || eta === null) ? null : Number(eta)
     });
     if (error) {
-      if (error.message?.toLowerCase().includes('function') || error.code === 'PGRST202') {
-        // Legacy fallback
+      if (import.meta.env.DEV && (error.message?.toLowerCase().includes('function') || error.code === 'PGRST202')) {
         const patch = { status };
         if (eta !== undefined && eta !== null) patch.estimated_delivery = Number(eta);
         const { data: legacyData, error: legacyErr } = await supabase

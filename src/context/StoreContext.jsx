@@ -8,6 +8,7 @@ import { authApi } from '../supabase/auth.js';
 import { staffApi } from '../supabase/staff.js';
 import { customersApi } from '../supabase/customers.js';
 import { supabase } from '../supabase/client';
+import { showToast } from '../components/Toast.jsx';
 
 export const StoreContext = createContext();
 
@@ -308,7 +309,7 @@ export const StoreProvider = ({ children }) => {
       const newQty = existing ? existing.qty + 1 : 1;
       const stock = getStock(product.id);
       if (newQty > stock) {
-        alert(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`);
+        showToast(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`, 'warning');
         return prev;
       }
       if (existing) {
@@ -326,7 +327,7 @@ export const StoreProvider = ({ children }) => {
         const newQty = Math.max(1, item.qty + delta);
         const stock = getStock(id);
         if (newQty > stock) {
-          alert(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`);
+          showToast(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`, 'warning');
           return item;
         }
         return { ...item, qty: newQty };

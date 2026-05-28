@@ -6,11 +6,13 @@ export default function CustomerLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     try {
       await authApi.signIn(email, password);
       navigate('/');
@@ -18,6 +20,8 @@ export default function CustomerLogin() {
       setError(err.message === 'Invalid login credentials'
         ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
         : 'حدث خطأ أثناء تسجيل الدخول');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,7 +49,9 @@ export default function CustomerLogin() {
 
           {error && <div className="auth-error">{error}</div>}
 
-          <button type="submit" className="auth-btn">تسجيل الدخول</button>
+          <button type="submit" className="auth-btn" disabled={loading}>
+            {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
+          </button>
         </form>
 
         <div className="auth-footer">

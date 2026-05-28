@@ -311,7 +311,12 @@ SET search_path = public
 AS $$
 DECLARE
   result JSON;
+  caller_email TEXT;
 BEGIN
+  caller_email := lower(auth.jwt() ->> 'email');
+  IF caller_email != lower(p_email) AND NOT public.is_staff() THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
   SELECT row_to_json(c)::JSON INTO result FROM customers c WHERE c.email = p_email;
   RETURN result;
 END;
@@ -325,7 +330,12 @@ SET search_path = public
 AS $$
 DECLARE
   result JSON;
+  caller_email TEXT;
 BEGIN
+  caller_email := lower(auth.jwt() ->> 'email');
+  IF caller_email != lower(p_email) AND NOT public.is_staff() THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
   UPDATE customers SET name = p_name, phone = p_phone WHERE email = p_email
   RETURNING row_to_json(customers)::JSON INTO result;
   RETURN result;
@@ -352,7 +362,15 @@ SET search_path = public
 AS $$
 DECLARE
   result JSON;
+  caller_email TEXT;
 BEGIN
+  caller_email := lower(auth.jwt() ->> 'email');
+  IF caller_email != lower(p_email) AND NOT public.is_staff() THEN
+    RAISE EXCEPTION 'Unauthorized';
+  END IF;
+  IF p_points IS NULL OR p_points <= 0 THEN
+    RAISE EXCEPTION 'Invalid points value';
+  END IF;
   UPDATE customers
   SET loyalty_points = COALESCE(loyalty_points, 0) + p_points
   WHERE email = p_email
@@ -404,7 +422,7 @@ CREATE TABLE IF NOT EXISTS products (
   offer_price DECIMAL(10,2),
   is_offer BOOLEAN DEFAULT FALSE,
   image_url TEXT,
-  stock_quantity INTEGER DEFAULT 0,
+  stock_quantity INTEGER DEFAULT 0 CHECK (stock_quantity >= 0),
   unit TEXT DEFAULT 'حبة',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -435,7 +453,7 @@ CREATE TABLE IF NOT EXISTS orders (
   customer_email TEXT,
   items JSONB NOT NULL DEFAULT '[]',
   total DECIMAL(10,2) NOT NULL DEFAULT 0,
-  status TEXT DEFAULT 'جديد',
+  status TEXT DEFAULT 'جديد' CHECK (status IN ('جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل', 'ملغي')),
   payment_method TEXT,
   phone TEXT,
   notes TEXT,
@@ -498,7 +516,8 @@ BEGIN
   INTO missing
   FROM _requested r
   JOIN products p ON p.id = r.product_id
-  WHERE r.qty > p.stock_quantity;
+  WHERE r.qty > p.stock_quantity
+  FOR UPDATE OF p;
 
   IF missing IS NOT NULL THEN
     DROP TABLE _requested;
@@ -706,7 +725,7 @@ BEGIN
     RAISE EXCEPTION 'Driver only';
   END IF;
   SELECT status, assigned_driver_id INTO cur_status, cur_assigned
-  FROM orders WHERE id = p_order_id;
+  FROM orders WHERE id = p_order_id FOR UPDATE;
   IF cur_status IS NULL THEN
     RAISE EXCEPTION 'Order not found';
   END IF;

@@ -8,6 +8,7 @@ import Register from './pages/Register.jsx'
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import { ToastProvider } from './components/Toast.jsx'
 
 // A helper to automatically retry lazy imports by forcing a page reload when a chunk 404s (e.g. after a new deployment)
 const lazyWithRetry = (componentImport) => {
@@ -97,15 +98,16 @@ function ProtectedRoute({ children }) {
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ErrorBoundary>
-      <StoreProvider>
-        <BrowserRouter basename={BASENAME}>
-          <LeaveGuard />
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/login" element={<CustomerLogin />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/admin/login" element={<Login />} />
-            <Route path="/admin/*" element={
+      <ToastProvider>
+        <StoreProvider>
+          <BrowserRouter basename={BASENAME}>
+            <LeaveGuard />
+            <Routes>
+              <Route path="/" element={<App />} />
+              <Route path="/login" element={<CustomerLogin />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin/*" element={
               <ProtectedRoute>
                 <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
                   <Admin />
@@ -115,6 +117,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           </Routes>
         </BrowserRouter>
       </StoreProvider>
+      </ToastProvider>
     </ErrorBoundary>
   </React.StrictMode>,
 )
