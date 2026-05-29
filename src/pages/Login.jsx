@@ -32,7 +32,7 @@ export default function Login() {
         <div className="auth-header">
           <img src={`${import.meta.env.BASE_URL || '/'}LOGO.jpg`} alt="" className="auth-logo" />
           <h1>لوحة التحكم</h1>
-          <p>أسواق ثرا الشرق ون</p>
+          <p>ثراء الشرق ون</p>
         </div>
 
         <form onSubmit={handleLogin}>

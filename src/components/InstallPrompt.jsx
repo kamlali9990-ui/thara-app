@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
 
 export default function InstallPrompt({ variant }) {
   const BASE = import.meta.env.BASE_URL || '/';
@@ -31,9 +32,11 @@ export default function InstallPrompt({ variant }) {
     window.addEventListener('beforeinstallprompt', handler);
     window.addEventListener('show-pwa-install-prompt', showHandler);
 
-    // If not recently dismissed, show after 3 seconds as a gentle slide-up bottom sheet
+    // Auto-show after 3s only if a method to install is available
     if (!isRecentlyDismissed) {
-      timerRef.current = setTimeout(() => setShow(true), 3000);
+      timerRef.current = setTimeout(() => {
+        if (window.__deferredPrompt || isIOS) setShow(true);
+      }, 3000);
     }
 
     return () => {
@@ -60,8 +63,8 @@ export default function InstallPrompt({ variant }) {
     if (navigator.share) {
       try {
         await navigator.share({ 
-          title: 'أسواق ثرا الشرق ون', 
-          text: 'حمل تطبيق أسواق ثرا الشرق ون وتصفح أحدث العروض والمنتجات', 
+          title: 'ثراء الشرق ون', 
+          text: 'حمل تطبيق ثراء الشرق ون وتصفح أحدث العروض والمنتجات', 
           url: window.location.origin + BASE
         });
       } catch (err) {
@@ -76,7 +79,6 @@ export default function InstallPrompt({ variant }) {
   };
 
   const canInstall = !!deferredPrompt;
-  const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
 
   if (variant === 'admin') {
     return (
@@ -133,52 +135,22 @@ export default function InstallPrompt({ variant }) {
         </button>
         <div className="install-card-inner">
           <div className="install-header-section">
-            <img src={`${BASE}LOGO.jpg`} alt="" className="install-logo" onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
+            <img src={`${BASE}LOGO.jpg`} alt="" className="install-logo"
+              onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
             <div className="install-app-info">
-              <h2 className="install-title">تطبيق أسواق ثرا الشرق ون</h2>
+              <h2 className="install-title">تطبيق ثراء الشرق ون</h2>
               <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
             </div>
           </div>
 
-          <div className="install-benefits">
-            <div className="benefit-item">
-              <span className="benefit-icon">⚡</span>
-              <span>تصفح سريع وأداء فائق بدون انتظار</span>
-            </div>
-            <div className="benefit-item">
-              <span className="benefit-icon">🔔</span>
-              <span>تنبيهات فورية بحالة الطلب والعروض المميزة</span>
-            </div>
-            <div className="benefit-item">
-              <span className="benefit-icon">📱</span>
-              <span>سهولة الوصول بلمسة واحدة من شاشة هاتفك</span>
-            </div>
-          </div>
-
           {canInstall && !isIOS && (
-            <button className="install-main-btn" onClick={install}>تثبيت التطبيق الآن</button>
+            <button className="install-main-btn" onClick={install}>اضغط هنا للتثبيت</button>
           )}
 
           {!canInstall && isIOS && (
-            <div className="ios-instructions">
-              <p className="ios-instructions-title">للتثبيت على جهاز iPhone أو iPad:</p>
-              <div className="ios-steps">
-                <div className="ios-step">
-                  <span className="ios-step-num">1</span>
-                  <span>اضغط على زر المشاركة <span className="share-icon">⎋</span> أسفل الشاشة في Safari.</span>
-                </div>
-                <div className="ios-step">
-                  <span className="ios-step-num">2</span>
-                  <span>اسحب القائمة للأعلى واختر <strong>"إضافة للشاشة الرئيسية"</strong>.</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {!canInstall && !isIOS && (
-            <div className="fallback-instructions">
-              <p>لتثبيت التطبيق على جهازك:</p>
-              <p className="install-instructions">افتح قائمة خيارات المتصفح (⋮ أو ⋯) ثم اختر <strong>"تثبيت التطبيق"</strong> أو <strong>"إضافة للشاشة الرئيسية"</strong>.</p>
+            <div className="install-ios-hint">
+              <span className="ios-hint-icon">📲</span>
+              <span className="ios-hint-text">شارك ← إضافة للشاشة الرئيسية</span>
             </div>
           )}
 

@@ -1,11 +1,13 @@
-const CACHE_NAME = 'thara-v12';
+const CACHE_NAME = 'thara-v13';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
   `${BASE_PATH}index.html`.replace(/\/+/g, '/'),
   `${BASE_PATH}manifest.json`.replace(/\/+/g, '/'),
-  `${BASE_PATH}cart-icon-192.png`.replace(/\/+/g, '/'),
-  `${BASE_PATH}cart-icon-512.png`.replace(/\/+/g, '/'),
+  `${BASE_PATH}icon-192.png`.replace(/\/+/g, '/'),
+  `${BASE_PATH}icon-512.png`.replace(/\/+/g, '/'),
+  `${BASE_PATH}icon-maskable-192.png`.replace(/\/+/g, '/'),
+  `${BASE_PATH}icon-maskable-512.png`.replace(/\/+/g, '/'),
   `${BASE_PATH}LOGO.jpg`.replace(/\/+/g, '/'),
   `${BASE_PATH}leaflet.css`.replace(/\/+/g, '/'),
 ];

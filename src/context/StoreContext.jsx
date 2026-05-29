@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useMemo, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { mockProducts } from '../data/mockData';
 import { storage } from '../utils/storage.js';
 import { productsApi } from '../supabase/products.js';
@@ -200,7 +200,7 @@ export const StoreProvider = ({ children }) => {
     if (!hasSupabase || !supabaseReady) return;
     const sub = chatApi.subscribe(null, null, (msg) => {
       setChatMessages(prev => {
-        if (prev.some(m => m.id === msg.id)) return prev;
+        if (prev.some(m => m.id === msg.id || (m.sender === msg.sender && m.text === msg.text && m.orderId === msg.orderId && m.customerEmail === msg.customerEmail && Math.abs(new Date(m.timestamp || 0).getTime() - new Date(msg.timestamp).getTime()) < 5000))) return prev;
 
         // Play chime and trigger notification if message received from others
         const isSelf = (msg.sender === 'admin' && staffRole) || (msg.sender === 'customer' && !staffRole);
@@ -247,6 +247,76 @@ export const StoreProvider = ({ children }) => {
       try { channel.unsubscribe(); } catch { /* ignore */ }
     };
   }, [supabaseReady, staffRole]);
+
+  // --- Typing indicator ---
+  const [typingUsers, setTypingUsers] = useState({});
+  const typingTimeouts = useRef({});
+
+  const sendTyping = useCallback((orderId, customerEmail) => {
+    if (!hasSupabase || !supabaseReady || !user?.email) return;
+    const key = orderId || customerEmail || user.email;
+    chatApi.sendTyping(user.email, orderId, true).catch(() => {});
+    clearTimeout(typingTimeouts.current[key]);
+    typingTimeouts.current[key] = setTimeout(() => {
+      chatApi.sendTyping(user.email, orderId, false).catch(() => {});
+    }, 2000);
+  }, [hasSupabase, supabaseReady, user]);
+
+  // Subscribe to typing events
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    const email = user?.email;
+    if (!email) return;
+    const sub = chatApi.subscribeTyping(null, null, ({ userEmail, orderId, isTyping }) => {
+      if (userEmail === email) return;
+      const tkey = orderId || userEmail;
+      setTypingUsers(prev => {
+        if (!isTyping) {
+          const next = { ...prev };
+          delete next[tkey];
+          return next;
+        }
+        return { ...prev, [tkey]: true };
+      });
+      const timeoutKey = `typing_${tkey}`;
+      clearTimeout(typingTimeouts.current[timeoutKey]);
+      if (isTyping) {
+        typingTimeouts.current[timeoutKey] = setTimeout(() => {
+          setTypingUsers(prev => { const n = { ...prev }; delete n[tkey]; return n; });
+        }, 4000);
+      }
+    });
+    return () => { try { sub.unsubscribe(); } catch {} };
+  }, [supabaseReady, user]);
+
+  // Subscribe to message updates (status changes)
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    const sub = chatApi.subscribeUpdates((msg) => {
+      setChatMessages(prev => prev.map(m => m.id === msg.id ? { ...m, status: msg.status, readAt: msg.readAt } : m));
+    });
+    return () => { try { sub.unsubscribe(); } catch {} };
+  }, [supabaseReady]);
+
+  // Mark messages as read when user sees them
+  const markMessagesAsRead = useCallback((messageIds) => {
+    if (!messageIds || messageIds.length === 0 || !hasSupabase || !supabaseReady) return;
+    chatApi.markAsRead(messageIds).catch(() => {});
+    setChatMessages(prev => prev.map(m => messageIds.includes(m.id) ? { ...m, status: 'read' } : m));
+  }, [hasSupabase, supabaseReady]);
+
+  // Retry sending a failed message
+  const retrySendMessage = useCallback(async (tempId) => {
+    const msg = chatMessages.find(m => m.id === tempId);
+    if (!msg || !msg._failed) return;
+    setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: false } : m));
+    try {
+      const sent = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail);
+      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: sent.id, time: sent.time, status: 'sent' } : m));
+    } catch {
+      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
+    }
+  }, [chatMessages]);
 
   // --- localStorage fallback saves ---
   useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_products', JSON.stringify(products)); }, [products, supabaseReady]);
@@ -519,25 +589,27 @@ export const StoreProvider = ({ children }) => {
   // --- Chat ---
   const sendMessage = useCallback(async (sender, text, orderId, customerEmail) => {
     const emailToUse = customerEmail || (sender === 'customer' ? user?.email : null);
+    const tempId = Date.now().toString();
     const msg = { 
-      id: Date.now().toString(), 
+      id: tempId, 
       sender, 
       text, 
       orderId: orderId || null, 
       customerEmail: emailToUse || null,
       time: new Date().toLocaleTimeString() 
     };
+    setChatMessages(prev => {
+      if (prev.some(m => m.id === tempId)) return prev;
+      return [...prev, msg];
+    });
     if (hasSupabase && supabaseReady) {
       try {
         const sent = await chatApi.send(sender, text, orderId, emailToUse);
-        msg.id = sent.id;
-        msg.time = sent.time;
-      } catch { /* fallback */ }
+        setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: sent.id, time: sent.time } : m));
+      } catch {
+        setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
+      }
     }
-    setChatMessages(prev => {
-      if (prev.some(m => m.id === msg.id)) return prev;
-      return [...prev, msg];
-    });
   }, [hasSupabase, supabaseReady, user]);
 
   // --- Auth Actions ---
@@ -639,7 +711,7 @@ export const StoreProvider = ({ children }) => {
       orders, updateOrderStatus, loadOrders,
       drivers, loadDrivers, assignDriverToOrder, claimOrder,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
-      chatMessages, sendMessage, refreshOrders: loadOrders, setOrders
+      chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders
     }}>
       {children}
     </StoreContext.Provider>

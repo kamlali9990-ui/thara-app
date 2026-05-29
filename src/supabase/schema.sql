@@ -1,5 +1,5 @@
 -- =============================================
--- Supabase Schema: أسواق ثرا الشرق ون
+-- Supabase Schema: ثراء الشرق ون
 -- Run this in Supabase SQL Editor
 -- =============================================
 
@@ -605,10 +605,21 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   text TEXT NOT NULL,
   order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
   customer_email TEXT,
+  status TEXT DEFAULT 'sent' CHECK (status IN ('sending', 'sent', 'delivered', 'read')),
+  read_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS typing_events (
+  id BIGSERIAL PRIMARY KEY,
+  user_email TEXT NOT NULL,
+  order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
+  is_typing BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE typing_events ENABLE ROW LEVEL SECURITY;
 
 -- Select policy: Staff can read all messages; Customers can only read messages belonging to their email or their orders
 DROP POLICY IF EXISTS "chat_select_public" ON chat_messages;
@@ -639,6 +650,34 @@ CREATE POLICY "chat_insert_policy" ON chat_messages
         ))
       )
     )
+  );
+
+-- Update policy: Staff can mark messages as read
+DROP POLICY IF EXISTS "chat_update_policy" ON chat_messages;
+CREATE POLICY "chat_update_policy" ON chat_messages
+  FOR UPDATE USING (public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver']))
+  WITH CHECK (public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver']));
+
+-- Typing events policies
+DROP POLICY IF EXISTS "typing_select_policy" ON typing_events;
+CREATE POLICY "typing_select_policy" ON typing_events
+  FOR SELECT USING (
+    public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver'])
+    OR lower(user_email) = lower(auth.jwt() ->> 'email')
+  );
+
+DROP POLICY IF EXISTS "typing_insert_policy" ON typing_events;
+CREATE POLICY "typing_insert_policy" ON typing_events
+  FOR INSERT WITH CHECK (
+    public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver'])
+    OR lower(user_email) = lower(auth.jwt() ->> 'email')
+  );
+
+DROP POLICY IF EXISTS "typing_delete_policy" ON typing_events;
+CREATE POLICY "typing_delete_policy" ON typing_events
+  FOR DELETE USING (
+    public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver'])
+    OR lower(user_email) = lower(auth.jwt() ->> 'email')
   );
 
 -- =============================================
@@ -821,6 +860,18 @@ BEGIN
   ) THEN
     EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE orders';
   END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'chat_messages'
+  ) THEN
+    EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE chat_messages';
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables
+    WHERE pubname = 'supabase_realtime' AND tablename = 'typing_events'
+  ) THEN
+    EXECUTE 'ALTER PUBLICATION supabase_realtime ADD TABLE typing_events';
+  END IF;
 EXCEPTION WHEN OTHERS THEN
   NULL;
 END $$;
@@ -834,6 +885,9 @@ CREATE INDEX IF NOT EXISTS idx_orders_assigned_driver_id ON orders(assigned_driv
 CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_order_id ON chat_messages(order_id);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_created_at ON chat_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_status ON chat_messages(status);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_read_at ON chat_messages(read_at) WHERE read_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_typing_events_user_email ON typing_events(user_email);
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_staff_email_lower ON staff(lower(email));
 

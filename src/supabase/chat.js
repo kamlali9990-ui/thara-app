@@ -1,8 +1,8 @@
 import { supabase } from './client';
 
 export const chatApi = {
-  async list(orderId = null, customerEmail = null) {
-    let q = supabase.from('chat_messages').select('*').order('created_at', { ascending: true });
+  async list(orderId = null, customerEmail = null, { limit = 100, offset = 0 } = {}) {
+    let q = supabase.from('chat_messages').select('*').order('created_at', { ascending: true }).range(offset, offset + limit - 1);
     if (orderId) {
       q = q.eq('order_id', orderId);
     } else if (customerEmail) {
@@ -10,11 +10,11 @@ export const chatApi = {
     }
     const { data, error } = await q;
     if (error) throw error;
-    return data.map(mapMessage);
+    return (data || []).map(mapMessage);
   },
 
   async send(sender, text, orderId = null, customerEmail = null) {
-    const payload = { sender, text };
+    const payload = { sender, text, status: 'sent' };
     if (orderId) payload.order_id = orderId;
     if (customerEmail) payload.customer_email = customerEmail;
     const { data, error } = await supabase
@@ -24,6 +24,16 @@ export const chatApi = {
       .single();
     if (error) throw error;
     return mapMessage(data);
+  },
+
+  async markAsRead(messageIds) {
+    if (!messageIds || messageIds.length === 0) return;
+    const { error } = await supabase
+      .from('chat_messages')
+      .update({ status: 'read', read_at: new Date().toISOString() })
+      .in('id', messageIds)
+      .eq('status', 'sent');
+    if (error) throw error;
   },
 
   subscribe(orderId = null, customerEmail = null, onMessage) {
@@ -39,6 +49,44 @@ export const chatApi = {
         onMessage(mapMessage(payload.new));
       })
       .subscribe();
+  },
+
+  subscribeTyping(orderId, customerEmail, onTyping) {
+    let filter = { event: 'INSERT', schema: 'public', table: 'typing_events' };
+    if (orderId) {
+      filter.filter = `order_id=eq.${orderId}`;
+    } else if (customerEmail) {
+      filter.filter = `user_email=eq.${customerEmail}`;
+    }
+    return supabase
+      .channel('typing_' + (orderId || customerEmail?.replace(/[@.]/g, '_') || 'all'))
+      .on('postgres_changes', filter, (payload) => {
+        onTyping({ userEmail: payload.new.user_email, orderId: payload.new.order_id ? String(payload.new.order_id) : null, isTyping: payload.new.is_typing });
+      })
+      .subscribe();
+  },
+
+  async sendTyping(userEmail, orderId = null, isTyping = true) {
+    const { error: delErr } = await supabase
+      .from('typing_events')
+      .delete()
+      .eq('user_email', userEmail)
+      .is('order_id', orderId);
+    if (delErr) throw delErr;
+    const { error } = await supabase
+      .from('typing_events')
+      .insert([{ user_email: userEmail, order_id: orderId, is_typing: isTyping }]);
+    if (error) throw error;
+  },
+
+  async subscribeUpdates(onUpdate) {
+    let filter = { event: 'UPDATE', schema: 'public', table: 'chat_messages' };
+    return supabase
+      .channel('chat_updates')
+      .on('postgres_changes', filter, (payload) => {
+        onUpdate(mapMessage(payload.new));
+      })
+      .subscribe();
   }
 };
 
@@ -49,6 +97,8 @@ function mapMessage(m) {
     text: m.text,
     orderId: m.order_id ? String(m.order_id) : null,
     customerEmail: m.customer_email || null,
+    status: m.status || 'sent',
+    readAt: m.read_at || null,
     time: new Date(m.created_at).toLocaleTimeString('ar-SA'),
     timestamp: m.created_at
   };

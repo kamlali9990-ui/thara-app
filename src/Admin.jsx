@@ -94,8 +94,12 @@ export default function Admin() {
   };
 
   const handlePasswordChange = async () => {
-    if (newPassword.length < 6) {
-      showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
+    if (newPassword.length < 8) {
+      showToast('كلمة المرور يجب أن تكون 8 أحرف على الأقل', 'warning');
+      return;
+    }
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+      showToast('يجب أن تحتوي كلمة المرور على حروف كبيرة وصغيرة وأرقام', 'warning');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -255,7 +259,7 @@ export default function Admin() {
         )}
         {activeTab === 'products' && <AdminProducts products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
         {activeTab === 'offers' && <AdminOffers products={allProducts} updateProduct={updateProduct} />}
-        {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} />}
+        {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />}
         {activeTab === 'staff' && <StaffManager />}
         {activeTab === 'users' && <AdminUsers customers={allCustomers} loadCustomers={loadCustomers} />}
       </main>
@@ -276,7 +280,7 @@ export default function Admin() {
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
 
 function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder }) {
-  const { chatMessages, sendMessage } = useContext(StoreContext);
+  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
   const [chatOrder, setChatOrder] = useState(null);
@@ -296,31 +300,36 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
     revenue: orders.filter(o => o.status !== 'ملغي').reduce((sum, o) => sum + Number(o.total || 0), 0)
   };
 
-  const handleStatusChange = (order, newStatus) => {
-    const ci = STATUS_ORDER.indexOf(order.status);
-    const ni = STATUS_ORDER.indexOf(newStatus);
-    if (newStatus !== 'ملغي' && ni < ci) {
-      setConfirmMsg({
-        text: `هل أنت متأكد من إرجاع الطلب #${order.id.slice(-6)} من "${order.status}" إلى "${newStatus}"؟`,
-        onConfirm: () => { setConfirmMsg(null); doUpdate(order, newStatus); }
-      });
+const handleStatusChange = (order, newStatus) => {
+  const ci = STATUS_ORDER.indexOf(order.status);
+  const ni = STATUS_ORDER.indexOf(newStatus);
+  if (newStatus !== 'ملغي' && ni < ci) {
+    // Only allow one step backward for manager corrections
+    if (ni < ci - 1) {
+      showToast('لا يمكن إرجاع الطلب أكثر من خطوة واحدة', 'error');
       return;
     }
-    if (newStatus !== 'ملغي' && ni > ci) {
-      setConfirmMsg({
-        text: `تغيير حالة الطلب #${order.id.slice(-6)} إلى "${newStatus}"؟`,
-        onConfirm: () => { setConfirmMsg(null); doUpdate(order, newStatus); }
-      });
-      return;
-    }
-    if (newStatus === 'ملغي') {
-      setConfirmMsg({
-        text: `هل أنت متأكد من إلغاء الطلب #${order.id.slice(-6)}؟`,
-        onConfirm: () => { setConfirmMsg(null); doUpdate(order, 'ملغي'); }
-      });
-      return;
-    }
-  };
+    setConfirmMsg({
+      text: `هل أنت متأكد من إرجاع الطلب #${order.id.slice(-6)} من "${order.status}" إلى "${newStatus}"؟`,
+      onConfirm: () => { setConfirmMsg(null); doUpdate(order, newStatus); }
+    });
+    return;
+  }
+  if (newStatus !== 'ملغي' && ni > ci) {
+    setConfirmMsg({
+      text: `تغيير حالة الطلب #${order.id.slice(-6)} إلى "${newStatus}"؟`,
+      onConfirm: () => { setConfirmMsg(null); doUpdate(order, newStatus); }
+    });
+    return;
+  }
+  if (newStatus === 'ملغي') {
+    setConfirmMsg({
+      text: `هل أنت متأكد من إلغاء الطلب #${order.id.slice(-6)}؟`,
+      onConfirm: () => { setConfirmMsg(null); doUpdate(order, 'ملغي'); }
+    });
+    return;
+  }
+};
 
   const doUpdate = (order, newStatus) => {
     if (newStatus === 'في الطريق') {
@@ -351,6 +360,17 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
 
   const orderChatMessages = (orderId) => chatMessages.filter(m => !m.orderId || m.orderId === orderId);
   const senderRole = staffRole === 'driver' ? 'driver' : 'admin';
+
+  // Auto-mark order chat messages as read when modal opens
+  useEffect(() => {
+    if (!chatOrder) return;
+    const unreadIds = chatMessages
+      .filter(m => (!m.orderId || m.orderId === chatOrder) && m.sender === 'customer' && m.status !== 'read')
+      .map(m => m.id);
+    if (unreadIds.length > 0) {
+      markMessagesAsRead(unreadIds);
+    }
+  }, [chatOrder]);
   const activeOrders = orders.filter(o => o.status !== 'مكتمل');
   const completedOrders = orders.filter(o => o.status === 'مكتمل');
 
@@ -590,13 +610,32 @@ function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDri
                   <div key={m.id} className={`admin-bubble ${isMe ? 'admin' : 'customer'}`}>
                     <div className="admin-bubble-sender">{getSenderLabel(m)}</div>
                     <div>{m.text}</div>
-                    <div className="admin-bubble-time">{m.time}</div>
+                    <div className="admin-bubble-time">
+                      {isMe && (
+                        <span style={{ fontSize: '0.65rem', marginRight: '0.2rem' }}>
+                          {m._failed ? (
+                            <button onClick={() => retrySendMessage(m.id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '0.65rem' }}>⚠️ إعادة</button>
+                          ) : m.status === 'read' ? (
+                            <span title="مقروءة" style={{ color: '#34c759' }}>✓✓</span>
+                          ) : (
+                            <span title="تم الإرسال" style={{ color: '#94a3b8' }}>✓</span>
+                          )}
+                        </span>
+                      )}
+                      {m.time}
+                    </div>
                   </div>
                 );
               })}
+              {typingUsers[chatOrder] && (
+                <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
+                  <div className="admin-bubble-sender">العميل</div>
+                  <div style={{ fontStyle: 'italic', color: '#94a3b8' }}>يكتب...</div>
+                </div>
+              )}
             </div>
             <div className="order-chat-input">
-              <input type="text" value={chatText} onChange={e => setChatText(e.target.value)}
+              <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
                 onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } } }}
                 placeholder="اكتب رسالة..." />
               <button onClick={() => { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } }}>إرسال</button>
@@ -963,13 +1002,19 @@ function AdminOffers({ products, updateProduct }) {
   );
 }
 
-function AdminChat({ chatMessages, sendMessage }) {
+function AdminChat({ chatMessages, sendMessage, allCustomers }) {
+  const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage } = useContext(StoreContext);
   const [text, setText] = useState('');
   const [activeCustomer, setActiveCustomer] = useState(null);
   const chatBodyRef = useRef(null);
 
   // Group support messages (non-order) by customer_email
-  const supportMessages = chatMessages.filter(m => !m.orderId && m.customerEmail);
+  // Only show messages from registered customers (not guests)
+  const supportMessages = chatMessages.filter(m => 
+    !m.orderId && 
+    m.customerEmail && 
+    allCustomers.some(c => c.email === m.customerEmail)
+  );
   const threads = {};
   supportMessages.forEach(m => {
     const key = m.customerEmail;
@@ -980,7 +1025,7 @@ function AdminChat({ chatMessages, sendMessage }) {
     .map(([email, msgs]) => ({
       email,
       lastMsg: msgs[msgs.length - 1],
-      unread: msgs.filter(m => m.sender === 'customer').length,
+      unread: msgs.filter(m => m.sender === 'customer' && m.status !== 'read').length,
       messages: msgs
     }))
     .sort((a, b) => (b.lastMsg.timestamp || 0) > (a.lastMsg.timestamp || 0) ? 1 : -1);
@@ -991,6 +1036,17 @@ function AdminChat({ chatMessages, sendMessage }) {
       chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
     }
   }, [activeCustomer, chatMessages]);
+
+  // Auto-mark messages as read when a thread is opened
+  useEffect(() => {
+    if (!activeCustomer) return;
+    const unreadIds = (threads[activeCustomer] || [])
+      .filter(m => m.sender === 'customer' && m.status !== 'read')
+      .map(m => m.id);
+    if (unreadIds.length > 0) {
+      markMessagesAsRead(unreadIds);
+    }
+  }, [activeCustomer]);
 
   const activeThread = activeCustomer ? (threads[activeCustomer] || []) : [];
 
@@ -1097,9 +1153,28 @@ function AdminChat({ chatMessages, sendMessage }) {
                   <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
                     <div className="admin-bubble-sender">{m.sender === 'admin' ? 'أنت (التاجر)' : 'العميل'}</div>
                     <div>{m.text}</div>
-                    <div className="admin-bubble-time">{m.time}</div>
+                    <div className="admin-bubble-time">
+                      {m.sender === 'admin' && (
+                        <span style={{ fontSize: '0.65rem', marginRight: '0.2rem' }}>
+                          {m._failed ? (
+                            <button onClick={() => retrySendMessage(m.id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '0.65rem' }}>⚠️ إعادة</button>
+                          ) : m.status === 'read' ? (
+                            <span title="مقروءة" style={{ color: '#34c759' }}>✓✓</span>
+                          ) : (
+                            <span title="تم الإرسال" style={{ color: '#94a3b8' }}>✓</span>
+                          )}
+                        </span>
+                      )}
+                      {m.time}
+                    </div>
                   </div>
                 ))}
+                {typingUsers[activeCustomer] && (
+                  <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
+                    <div className="admin-bubble-sender">العميل</div>
+                    <div style={{ fontStyle: 'italic', color: '#94a3b8' }}>يكتب...</div>
+                  </div>
+                )}
               </div>
 
               {/* Input */}
@@ -1107,7 +1182,7 @@ function AdminChat({ chatMessages, sendMessage }) {
                 <input
                   type="text"
                   value={text}
-                  onChange={e => setText(e.target.value)}
+                  onChange={e => { setText(e.target.value); if (activeCustomer) sendTyping(null, activeCustomer); }}
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder="اكتب ردك للعميل هنا..."
                   className="admin-chat-input"
