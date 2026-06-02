@@ -342,7 +342,7 @@
 .offers-ticker-track {
   display: inline-flex;
   gap: 12px;
-  animation: offers-slide-ltr 28s linear infinite;
+  animation: offers-slide-ltr 18s linear infinite;
   width: max-content;
   padding-left: 16px;
   padding-right: 16px;
