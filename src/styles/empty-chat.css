@@ -1,0 +1,7 @@
+/* ==================== Empty Chat ==================== */
+.empty-chat {
+  text-align: center;
+  color: var(--text-light);
+  margin-top: 2rem;
+}
+

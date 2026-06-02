@@ -1,0 +1,115 @@
+/* ==================== Product Admin ==================== */
+.admin-products-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.cloudinary-upload-btn {
+  background: linear-gradient(135deg, #127443, #16a34a);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.65rem 1rem;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.cloudinary-upload-btn:hover {
+  background: linear-gradient(135deg, #16a34a, #22c55e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(18, 116, 67, 0.3);
+}
+
+.cloudinary-upload-btn:active {
+  transform: translateY(0);
+}
+
+.admin-product-field {
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0.45rem 0.55rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.35);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  color: #e2e8f0;
+  border-radius: 6px;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.admin-stat-card {
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 0.9rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.admin-stat-card span {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-bottom: 0.35rem;
+}
+.admin-stat-card strong {
+  color: #fbbf24;
+  font-size: 1.2rem;
+}
+.admin-product-form {
+  display: grid;
+  grid-template-columns: 2fr 1fr 0.8fr 0.8fr 0.7fr 1.2fr;
+  gap: 0.6rem;
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 0.9rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.admin-product-form-input {
+  width: 100%;
+  min-width: 0;
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font-family: inherit;
+  outline: none;
+  background: rgba(0,0,0,0.35);
+  color: #e2e8f0;
+}
+.admin-product-form-input:focus {
+  border-color: #fbbf24;
+}
+.admin-product-form-input::placeholder {
+  color: #64748b;
+}
+.admin-product-form-wide {
+  grid-column: span 4;
+}
+.admin-product-form-submit {
+  min-height: 42px;
+}
+@media (max-width: 900px) {
+  .admin-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .admin-product-form { grid-template-columns: 1fr 1fr; }
+  .admin-product-form-wide { grid-column: span 2; }
+  .admin-product-form-submit { grid-column: span 2; }
+}
+@media (max-width: 480px) {
+  .admin-stats-grid,
+  .admin-product-form { grid-template-columns: 1fr; }
+  .admin-product-form-wide,
+  .admin-product-form-submit { grid-column: auto; }
+}
+

@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "supabase:login": "npx supabase login",
-    "supabase:link": "npx supabase link --project-ref oqwphazzuxmrxwbnothk",
+    "supabase:link": "npx supabase link --project-ref YOUR_PROJECT_REF",
     "supabase:query": "npx supabase db query",
     "supabase:push": "npx supabase db push",
     "supabase:pull": "npx supabase db pull",
@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",
+    "cloudinary": "^2.10.0",
     "leaflet": "^1.9.4",
+    "pg": "^8.21.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^5.0.0",

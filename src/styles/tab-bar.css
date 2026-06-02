@@ -1,0 +1,21 @@
+/* ==================== iOS TAB BAR ==================== */
+.app-tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255,255,255,0.88);
+  border-top: 0.5px solid rgba(0,0,0,0.08);
+}
+.app-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 0.35rem 0 0.25rem; background: none; border: none;
+  font-family: inherit; cursor: pointer; color: var(--text-light);
+  transition: color 0.15s; gap: 0.05rem; position: relative;
+}
+.app-tab.active { color: var(--primary); }
+.app-tab svg { transition: all 0.15s; }
+.app-tab.active svg { stroke-width: 2.5; }
+.app-tab-label { font-size: 0.55rem; font-weight: 600; letter-spacing: 0.02em; }
+

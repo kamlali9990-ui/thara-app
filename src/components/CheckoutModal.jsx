@@ -1,0 +1,177 @@
+import { memo, useState, useCallback, useContext } from 'react';
+import { StoreContext } from '../context/StoreContext';
+import { showToast } from './Toast.jsx';
+import KhafjiMap from './KhafjiMap';
+import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
+
+const allNeighborhoods = [
+  'العزيزية', 'الفيصلية', 'النهضة', 'الروضة', 'السلام', 'الخالدية', 'اليرموك',
+  'الورود', 'المروج', 'الأندلس', 'الربوة', 'النزهة', 'الفيحاء', 'الزهور',
+  'الواحة', 'الصفا', 'الخليج', 'الشاطئ', 'الدفي', 'السليمانية', 'الناصرية',
+  'قرطبة', 'الشروق', 'المريكبات', 'الخفجي الجديدة',
+];
+
+const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
+  const { user } = useContext(StoreContext);
+  const [position, setPosition] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('cod');
+  const [comingSoonMsg, setComingSoonMsg] = useState('');
+  const [phone, setPhone] = useState('');
+  const [notes, setNotes] = useState('');
+  const [areaResults, setAreaResults] = useState([]);
+  const [areaErr, setAreaErr] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
+  const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
+  const phoneReady = /^05\d{8}$/.test(phone.trim());
+
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
+
+  const fetchAreaSuggestions = useCallback(async (q) => {
+    const query = String(q || '').trim();
+    if (!query) { setAreaResults([]); setAreaErr(''); return; }
+    setAreaErr('');
+    try {
+      const viewbox = `${KHAFJI_BOUNDS.minLng},${KHAFJI_BOUNDS.maxLat},${KHAFJI_BOUNDS.maxLng},${KHAFJI_BOUNDS.minLat}`;
+      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&accept-language=ar&countrycodes=sa&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(query + ' الخفجي')}`;
+      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      const data = await r.json();
+      const mapped = Array.isArray(data) ? data.map(x => ({
+        display: x.display_name,
+        lat: parseFloat(x.lat),
+        lng: parseFloat(x.lon),
+      })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lng)) : [];
+      setAreaResults(mapped);
+      if (mapped.length === 0) setAreaErr('لا توجد نتائج داخل الخفجي');
+    } catch {
+      setAreaErr('تعذر البحث حالياً');
+    } finally {
+    }
+  }, []);
+
+  const pickArea = useCallback((r) => {
+    setPosition({ lat: r.lat, lng: r.lng });
+    setAreaResults([]);
+  }, []);
+  return (
+    <div className="checkout-overlay" onClick={onClose}>
+      <div className="checkout-sheet" onClick={e => e.stopPropagation()}>
+        <div className="checkout-handle" />
+        <div className="checkout-head">
+          <h2>إتمام الطلب</h2>
+          <button onClick={onClose}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div className="checkout-body">
+          <div className="checkout-section">
+            <div className="checkout-section-title"><span className="checkout-num">1</span> موقع التوصيل</div>
+            <p className="checkout-hint">سيتم تحديد موقعك تلقائياً — يمكنك التعديل بالنقر على الخريطة</p>
+            <div className="checkout-area-search">
+              <select
+                className="checkout-area-select"
+                value={selectedNeighborhood}
+                onChange={(e) => {
+                  setSelectedNeighborhood(e.target.value);
+                  if (e.target.value) fetchAreaSuggestions(e.target.value);
+                }}
+              >
+                <option value="">-- اختر الحي --</option>
+                {allNeighborhoods.map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+              {areaErr && <div className="checkout-area-err">{areaErr}</div>}
+              {areaResults.length > 0 && (
+                <div className="checkout-area-results">
+                  {areaResults.map((r, i) => (
+                    <button key={i} type="button" className="checkout-area-item" onClick={() => pickArea(r)}>
+                      {r.display}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
+              <KhafjiMap position={position} setPosition={setPosition} />
+            </div>
+            {position && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
+          </div>
+
+          <div className="checkout-section">
+            <div className="checkout-section-title"><span className="checkout-num">2</span> بيانات التواصل</div>
+            <input
+              className="checkout-phone-input"
+              type="tel"
+              dir="ltr"
+              inputMode="tel"
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              placeholder="05XXXXXXXX"
+              maxLength={10}
+            />
+            <textarea
+              className="checkout-notes-input"
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+              placeholder="ملاحظات الطلب، مثل رقم الشقة أو وقت التوصيل المناسب"
+              rows="3"
+            />
+          </div>
+          <div className="checkout-section">
+            <div className="checkout-section-title"><span className="checkout-num">3</span> طريقة الدفع</div>
+            <div className="checkout-payments">
+              {[
+                { id: 'cod', label: 'الدفع عند الاستلام', icon: '💵' },
+                { id: 'mada', label: 'مدى', icon: '💳' },
+                { id: 'stc', label: 'STC Pay', icon: '📱' },
+                { id: 'barq', label: 'بنك برق', icon: '💳' },
+                { id: '360', label: 'بنك 360', icon: '🔄' },
+                { id: 'bank_transfer', label: 'تحويل بنكي', icon: '🏦' },
+              ].map(m => (
+                <button key={m.id} className={`checkout-pay-btn ${paymentMethod === m.id ? 'active' : ''}`}
+                  onClick={() => {
+                    if (m.id === 'cod') { setPaymentMethod('cod'); setComingSoonMsg(''); }
+                    else { setComingSoonMsg('سيتم إضافة ' + m.label + ' قريباً'); }
+                  }}>
+                  <span className="checkout-pay-icon">{m.icon}</span>
+                  <span>{m.label}</span>
+                </button>
+              ))}
+              {comingSoonMsg && <div className="checkout-coming-soon">{comingSoonMsg}</div>}
+            </div>
+          </div>
+            <div className="checkout-total-box">
+            <div className="checkout-total-row"><span>المجموع الفرعي</span><span>{cartTotal.toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row">{fee === 0 ? <span>رسوم التوصيل <span className="checkout-free">مجاناً</span></span> : <span>رسوم التوصيل {distKm ? `(${distKm} كم)` : ''}</span>}<span>{fee === 0 ? '0' : fee.toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
+          </div>
+<button className="checkout-confirm-btn" onClick={async () => {
+  if (submitting || !position || !phoneReady) return;
+  if (!user) {
+    showToast('يجب تسجيل الدخول لإتمام الطلب', 'error');
+    return;
+  }
+  setSubmitting(true);
+  try {
+    await placeOrder({
+      location: `Lat: ${position.lat.toFixed(4)}, Lng: ${position.lng.toFixed(4)}`,
+      paymentMethod,
+      phone: phone.trim(),
+      notes: notes.trim(),
+      deliveryFee: fee
+    }, fee);
+  } catch (e) {
+    showToast(e?.message || 'فشل إرسال الطلب', 'error');
+    setSubmitting(false);
+    return;
+  }
+  onClose();
+}} disabled={submitting || !position || !phoneReady || !user}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+export default CheckoutModal;

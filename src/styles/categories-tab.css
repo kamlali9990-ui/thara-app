@@ -1,0 +1,106 @@
+/* ==================== CATEGORIES TAB ==================== */
+.categories-tab {
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+.categories-tab-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.cat-search-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+}
+.cat-search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  pointer-events: none;
+}
+.cat-search-input {
+  width: 100%;
+  padding: 0.7rem 2.2rem 0.7rem 2.2rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.cat-search-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+.cat-search-clear {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 4px;
+  line-height: 1;
+}
+.cat-search-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-light);
+  padding: 2rem 0;
+  font-size: 0.9rem;
+}
+
+.categories-tab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+.category-tab-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1.25rem 0.75rem;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-sm);
+  text-align: center;
+}
+.category-tab-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary);
+}
+.category-tab-emoji {
+  font-size: 2.2rem;
+  line-height: 1;
+}
+.category-tab-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.2rem;
+}
+.category-tab-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+.category-tab-desc {
+  font-size: 0.78rem;
+  color: var(--text-light);
+}
+

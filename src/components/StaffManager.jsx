@@ -42,7 +42,7 @@ export default function StaffManager() {
 
   return (
     <div>
-      <h2 className="admin-section-title">إدارة الموظفين</h2>
+      <h2 className="admin-section-title staff-title">إدارة الموظفين</h2>
 
       {isAdmin && (
         <form onSubmit={handleAdd} className="staff-add-form">

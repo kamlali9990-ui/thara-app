@@ -1,0 +1,163 @@
+/* ==================== SIDE DRAWER ==================== */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 500;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.side-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 80vw;
+  background: white;
+  z-index: 501;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: -4px 0 20px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.side-drawer.open { transform: translateX(0); }
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--primary);
+  color: white;
+}
+.drawer-user-info { display: flex; align-items: center; gap: 0.75rem; }
+.drawer-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.1rem; color: white;
+}
+.drawer-user-name { font-weight: 700; font-size: 0.9rem; }
+.drawer-user-email { font-size: 0.75rem; opacity: 0.8; }
+.drawer-close-btn {
+  background: none; border: none; color: white; cursor: pointer;
+  padding: 0.25rem; opacity: 0.8;
+}
+.drawer-close-btn:hover { opacity: 1; }
+.drawer-nav { flex: 1; padding: 0.5rem 0; }
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.drawer-item:hover { background: var(--bg-color); }
+.drawer-item.active { color: var(--primary); background: rgba(18,116,67,0.06); }
+.drawer-item svg { flex-shrink: 0; }
+.drawer-item-icon { font-size: 1.2rem; }
+.drawer-divider { height: 1px; background: var(--border); margin: 0.5rem 1rem; }
+.drawer-logout { color: #e53e3e; }
+
+/* ─── Side Drawer New ─── */
+.side-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 500;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.side-drawer-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.side-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.side-drawer-logo {
+  width: auto;
+  height: auto;
+  max-width: 120px;
+  max-height: 60px;
+  object-fit: contain;
+}
+.side-drawer-close {
+  background: none;
+  border: none;
+  color: var(--text-main);
+  cursor: pointer;
+  padding: 0.25rem;
+  opacity: 0.7;
+}
+.side-drawer-close:hover { opacity: 1; }
+.side-drawer-items {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+.side-drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.side-drawer-item:hover { background: var(--bg-color); }
+.side-drawer-item.active { color: var(--primary); background: rgba(18,116,67,0.06); }
+.side-drawer-item svg { flex-shrink: 0; }
+.side-drawer-divider { height: 1px; background: var(--border); margin: 0.5rem 1rem; }
+.side-drawer-contact-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem 0.25rem;
+  opacity: 0.7;
+}
+.side-drawer-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border);
+}
+.side-drawer-logout {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #e53e3e;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.side-drawer-logout:hover { background: rgba(229,62,62,0.08); }
+

@@ -78,6 +78,14 @@ export const ordersApi = {
     return mapOrder(typeof data === 'string' ? JSON.parse(data) : data);
   },
 
+  /** Admin only: delete an order permanently. */
+  async deleteOrder(id) {
+    const { data, error } = await supabase.rpc('delete_order_rpc', {
+      p_order_id: Number(id)
+    });
+    if (error) throw error;
+  },
+
   /** Admin/manager assigns a driver to an order (pass null to unassign). */
   async assignDriver(orderId, driverId) {
     const { data, error } = await supabase.rpc('assign_driver_to_order', {

@@ -1,0 +1,29 @@
+/* ==================== HEADER NOTIFICATION BADGE ==================== */
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.app-header-notif-btn {
+  position: relative;
+}
+.app-header-badge {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  background: #ff3b30;
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(255, 59, 48, 0.4);
+  border: 1.5px solid white;
+  padding: 0 4px;
+  line-height: 1;
+}
+

@@ -1,0 +1,62 @@
+/* ==================== ORDERS TAB ==================== */
+.orders-tab {
+  padding: 1rem;
+}
+.orders-tab-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: var(--text-main);
+}
+.order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 0.75rem;
+}
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.order-card-date {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 0.15rem;
+}
+.order-status {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+}
+.order-status-جديد { background: #dbeafe; color: #1d4ed8; }
+.order-status-قيد_التحضير { background: #fef3c7; color: #d97706; }
+.order-status-في_الطريق { background: #d1fae5; color: #059669; }
+.order-status-مكتمل { background: #d1fae5; color: #059669; }
+.order-status-ملغي { background: #fee2e2; color: #dc2626; }
+.order-card-items {
+  border-top: 1px solid var(--border);
+  padding-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.order-card-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-light);
+  padding: 0.15rem 0;
+}
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  border-top: 1px dashed var(--border);
+  padding-top: 0.5rem;
+}
+.order-card-payment {
+  color: var(--text-light);
+  font-size: 0.8rem;
+}
+

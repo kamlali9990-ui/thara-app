@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { mockProducts } from '../data/mockData';
-import { storage } from '../utils/storage.js';
 import { productsApi } from '../supabase/products.js';
 import { ordersApi } from '../supabase/orders.js';
 import { chatApi } from '../supabase/chat.js';
@@ -9,6 +8,9 @@ import { staffApi } from '../supabase/staff.js';
 import { customersApi } from '../supabase/customers.js';
 import { supabase } from '../supabase/client';
 import { showToast } from '../components/Toast.jsx';
+import { cleanProductImages } from '../utils/constants.js';
+import { usePersistence, useAuthListener, useLocalStorageSave } from './usePersistence.js';
+import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead } from './useRealtime.js';
 
 export const StoreContext = createContext();
 
@@ -30,7 +32,7 @@ export const StoreProvider = ({ children }) => {
   // --- Data ---
   const [products, setProducts] = useState(() => {
     const saved = localStorage.getItem('thara_products');
-    return saved ? JSON.parse(saved) : mockProducts;
+    return cleanProductImages(saved ? JSON.parse(saved) : mockProducts);
   });
   const [orders, setOrders] = useState(() => {
     const saved = localStorage.getItem('thara_orders');
@@ -51,285 +53,20 @@ export const StoreProvider = ({ children }) => {
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [supabaseReady, setSupabaseReady] = useState(false);
 
-  // Check if Supabase is configured
   const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-  // --- Init: Load from Supabase or localStorage ---
-  useEffect(() => {
-    const init = async () => {
-      if (hasSupabase) {
-        try {
-          const [supaProducts, supaOrders, supaChat] = await Promise.all([
-            productsApi.list().catch(() => null),
-            ordersApi.list().catch(() => null),
-            chatApi.list().catch(() => null)
-          ]);
-          if (supaProducts && supaProducts.length > 0) setProducts(supaProducts);
-          if (supaOrders && supaOrders.length > 0) setOrders(supaOrders);
-          if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
+  // --- Extracted hooks ---
+  usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading });
+  useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading });
+  useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, setChatMessages });
+  useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOrders });
 
-          // Load auth
-          let currentUser = null;
-          try {
-            currentUser = await authApi.getUser();
-          } catch {
-            // Invalid session — clean up
-            localStorage.removeItem('thara_user');
-            localStorage.removeItem('thara_session');
-          }
-          setUser(currentUser);
-          if (currentUser) {
-            const staff = await staffApi.getByEmail(currentUser.email).catch(() => null);
-            if (staff) {
-              setStaffRole(staff.role);
-              setCurrentStaff(staff);
-            } else if (currentUser.email === 'yaser.haroon79@gmail.com') {
-              setStaffRole('admin');
-              setCurrentStaff({ email: currentUser.email, name: 'ياسر', role: 'admin' });
-            }
-            if (!staff) {
-              try {
-                const p = await customersApi.get(currentUser.email);
-                if (p) setCustomerProfile(p);
-              } catch { /* no profile yet */ }
-            }
-          }
-          setSupabaseReady(true);
-        } catch {
-          // fallback to localStorage
-        }
-      }
-      setLoading(false);
-    };
-    init();
-  }, []);
-
-  // Sync orders & products across tabs via localStorage events
-  useEffect(() => {
-    const handler = (e) => {
-      if (e.key === 'thara_products' && e.newValue) {
-        try { setProducts(JSON.parse(e.newValue)); } catch {}
-      }
-      if (e.key === 'thara_orders' && e.newValue) {
-        try { setOrders(JSON.parse(e.newValue)); } catch {}
-      }
-    };
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
-  }, []);
-
-  // Listen for auth changes
-  useEffect(() => {
-    if (!hasSupabase) return;
-    const sub = authApi.onAuthChange(async (event, u) => {
-      if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setStaffRole(null);
-        setCurrentStaff(null);
-        setCustomerProfile(null);
-        localStorage.removeItem('thara_user');
-        localStorage.removeItem('thara_session');
-        return;
-      }
-      setLoading(true);
-      setUser(u);
-      if (u) {
-        try {
-          const staff = await staffApi.getByEmail(u.email).catch(() => null);
-          if (staff) {
-            setStaffRole(staff.role);
-            setCurrentStaff(staff);
-          } else if (u.email === 'yaser.haroon79@gmail.com') {
-            setStaffRole('admin');
-            setCurrentStaff({ email: u.email, name: 'ياسر', role: 'admin' });
-          } else {
-            setStaffRole(null);
-            setCurrentStaff(null);
-          }
-          if (!staff) {
-            try {
-              const p = await customersApi.get(u.email);
-              if (p) setCustomerProfile(p);
-            } catch { /* no profile yet */ }
-          }
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setStaffRole(null);
-        setCurrentStaff(null);
-        setCustomerProfile(null);
-        setLoading(false);
-      }
-    });
-    return () => {
-      if (typeof sub.unsubscribe === 'function') sub.unsubscribe();
-      else if (sub.data?.subscription?.unsubscribe) sub.data.subscription.unsubscribe();
-    };
-  }, []);
-
-  // Helper to play premium synthesized chime sound via Web Audio API
-  const playNotificationSound = () => {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
-      const ctx = new AudioContext();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.1);
-      
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
-      
-      osc.start(ctx.currentTime);
-      osc.stop(ctx.currentTime + 0.6);
-      setTimeout(() => { try { ctx.close(); } catch {} }, 700);
-    } catch (e) {
-      console.error('Audio play failed:', e);
-    }
-  };
-
-  // --- Real-time chat subscription ---
-  useEffect(() => {
-    if (!hasSupabase || !supabaseReady) return;
-    const sub = chatApi.subscribe(null, null, (msg) => {
-      setChatMessages(prev => {
-        if (prev.some(m => m.id === msg.id || (m.sender === msg.sender && m.text === msg.text && m.orderId === msg.orderId && m.customerEmail === msg.customerEmail && Math.abs(new Date(m.timestamp || 0).getTime() - new Date(msg.timestamp).getTime()) < 5000))) return prev;
-
-        // Play chime and trigger notification if message received from others
-        const isSelf = (msg.sender === 'admin' && staffRole) || (msg.sender === 'customer' && !staffRole);
-        if (!isSelf) {
-          playNotificationSound();
-          try {
-            window.dispatchEvent(new CustomEvent('thara:new-message', { detail: msg }));
-          } catch {}
-        }
-
-        return [...prev, msg];
-      });
-    });
-    return () => sub.unsubscribe();
-  }, [supabaseReady, staffRole]);
-
-  // --- Real-time orders subscription (replaces 20s polling) ---
-  useEffect(() => {
-    if (!hasSupabase || !supabaseReady) return;
-    const channel = ordersApi.subscribe(({ eventType, new: nextOrder, old: prevOrder }) => {
-      setOrders(prev => {
-        if (eventType === 'DELETE') {
-          const id = String(prevOrder?.id || '');
-          return prev.filter(o => o.id !== id);
-        }
-        if (!nextOrder) return prev;
-        const exists = prev.find(o => o.id === nextOrder.id);
-        if (exists) {
-          return prev.map(o => o.id === nextOrder.id ? { ...o, ...nextOrder } : o);
-        }
-        // INSERT — fire a window event so the UI (admin) can play sound/notify
-        if (eventType === 'INSERT') {
-          if (staffRole) playNotificationSound();
-          try { window.dispatchEvent(new CustomEvent('thara:new-order', { detail: nextOrder })); } catch { /* ignore */ }
-        }
-        return [nextOrder, ...prev];
-      });
-      // Fire status-change event for the customer notification layer
-      if (eventType === 'UPDATE' && prevOrder && nextOrder && prevOrder.status !== nextOrder.status) {
-        try { window.dispatchEvent(new CustomEvent('thara:order-status', { detail: nextOrder })); } catch { /* ignore */ }
-      }
-    });
-    return () => {
-      try { channel.unsubscribe(); } catch { /* ignore */ }
-    };
-  }, [supabaseReady, staffRole]);
-
-  // --- Typing indicator ---
   const [typingUsers, setTypingUsers] = useState({});
-  const typingTimeouts = useRef({});
+  const { sendTyping, typingTimeouts } = useTypingIndicator({ hasSupabase, supabaseReady, user, setTypingUsers });
+  useMessageStatus({ hasSupabase, supabaseReady, setChatMessages });
+  const { markMessagesAsRead } = useMarkRead({ hasSupabase, supabaseReady, setChatMessages });
 
-  const sendTyping = useCallback((orderId, customerEmail) => {
-    if (!hasSupabase || !supabaseReady || !user?.email) return;
-    const key = orderId || customerEmail || user.email;
-    chatApi.sendTyping(user.email, orderId, true).catch(() => {});
-    clearTimeout(typingTimeouts.current[key]);
-    typingTimeouts.current[key] = setTimeout(() => {
-      chatApi.sendTyping(user.email, orderId, false).catch(() => {});
-    }, 2000);
-  }, [hasSupabase, supabaseReady, user]);
-
-  // Subscribe to typing events
-  useEffect(() => {
-    if (!hasSupabase || !supabaseReady) return;
-    const email = user?.email;
-    if (!email) return;
-    const sub = chatApi.subscribeTyping(null, null, ({ userEmail, orderId, isTyping }) => {
-      if (userEmail === email) return;
-      const tkey = orderId || userEmail;
-      setTypingUsers(prev => {
-        if (!isTyping) {
-          const next = { ...prev };
-          delete next[tkey];
-          return next;
-        }
-        return { ...prev, [tkey]: true };
-      });
-      const timeoutKey = `typing_${tkey}`;
-      clearTimeout(typingTimeouts.current[timeoutKey]);
-      if (isTyping) {
-        typingTimeouts.current[timeoutKey] = setTimeout(() => {
-          setTypingUsers(prev => { const n = { ...prev }; delete n[tkey]; return n; });
-        }, 4000);
-      }
-    });
-    return () => { try { sub.unsubscribe(); } catch {} };
-  }, [supabaseReady, user]);
-
-  // Subscribe to message updates (status changes)
-  useEffect(() => {
-    if (!hasSupabase || !supabaseReady) return;
-    const sub = chatApi.subscribeUpdates((msg) => {
-      setChatMessages(prev => prev.map(m => m.id === msg.id ? { ...m, status: msg.status, readAt: msg.readAt } : m));
-    });
-    return () => { try { sub.unsubscribe(); } catch {} };
-  }, [supabaseReady]);
-
-  // Mark messages as read when user sees them
-  const markMessagesAsRead = useCallback((messageIds) => {
-    if (!messageIds || messageIds.length === 0 || !hasSupabase || !supabaseReady) return;
-    chatApi.markAsRead(messageIds).catch(() => {});
-    setChatMessages(prev => prev.map(m => messageIds.includes(m.id) ? { ...m, status: 'read' } : m));
-  }, [hasSupabase, supabaseReady]);
-
-  // Retry sending a failed message
-  const retrySendMessage = useCallback(async (tempId) => {
-    const msg = chatMessages.find(m => m.id === tempId);
-    if (!msg || !msg._failed) return;
-    setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: false } : m));
-    try {
-      const sent = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail);
-      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: sent.id, time: sent.time, status: 'sent' } : m));
-    } catch {
-      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
-    }
-  }, [chatMessages]);
-
-  // --- localStorage fallback saves ---
-  useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_products', JSON.stringify(products)); }, [products, supabaseReady]);
-  useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_orders', JSON.stringify(orders)); }, [orders, supabaseReady]);
-  useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_chat', JSON.stringify(chatMessages)); }, [chatMessages, supabaseReady]);
-
-  // Also save to IndexedDB as secondary backup
-  useEffect(() => { storage.set('thara_products', products); }, [products]);
-  useEffect(() => { storage.set('thara_orders', orders); }, [orders]);
-  useEffect(() => { storage.set('thara_chat', chatMessages); }, [chatMessages]);
-
-  // Persist cart to localStorage
-  useEffect(() => { localStorage.setItem('thara_cart', JSON.stringify(cart)); }, [cart]);
+  useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart });
 
   // Debounce search (300ms)
   useEffect(() => {
@@ -338,32 +75,25 @@ export const StoreProvider = ({ children }) => {
   }, [searchQuery]);
 
   // --- Filtered Products ---
-  const categoryGroupMap = {
-    'المؤن': 'بقالة وجاهز',
-    'المخبوزات': 'بقالة وجاهز',
-    'التسالي': 'مشروبات وحلويات',
-    'المشروبات': 'مشروبات وحلويات',
-    'الألبان': 'ثلاجة ومجمدات',
-    'اللحوم والدواجن': 'ثلاجة ومجمدات',
-    'الخضروات والفواكه': 'ثلاجة ومجمدات',
-    'المنظفات': 'منظفات ومنزل',
-    'العناية الشخصية': 'منظفات ومنزل'
-  };
-
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
-      const group = categoryGroupMap[p.category] || p.category;
-
       if (selectedCategory === 'العروض') {
         if (!p.isOffer) return false;
       } else if (selectedCategory !== 'الكل' && selectedCategory !== 'بحث سريع') {
-        if (group !== selectedCategory) return false;
+        if (p.category !== selectedCategory) return false;
       }
 
       if (!debouncedSearch) return true;
       return p.name.toLowerCase().includes(debouncedSearch.toLowerCase());
     });
   }, [debouncedSearch, selectedCategory, products]);
+
+  // Instant search — no debounce, fires from the first character
+  const instantResults = useMemo(() => {
+    if (!searchQuery) return [];
+    const q = searchQuery.toLowerCase();
+    return products.filter(p => p.name.toLowerCase().includes(q));
+  }, [searchQuery, products]);
 
   // --- Cart Actions ---
   const getProductPrice = (p) => p.isOffer && p.offerPrice ? p.offerPrice : p.price;
@@ -431,7 +161,7 @@ export const StoreProvider = ({ children }) => {
     } catch { /* ignore */ }
   }, [hasSupabase, supabaseReady]);
 
-  const placeOrder = useCallback(async (orderData) => {
+  const placeOrder = useCallback(async (orderData, deliveryFee = 0) => {
     if (cart.length === 0) {
       throw new Error('لا يمكن إرسال طلب بدون منتجات');
     }
@@ -447,7 +177,7 @@ export const StoreProvider = ({ children }) => {
       id: Date.now().toString(),
       date: new Date().toISOString(),
       items: [...cart],
-      total: cartTotal + (cartTotal >= 100 ? 0 : 15),
+      total: cartTotal + deliveryFee,
       status: 'جديد',
       customerEmail: user?.email || null,
       ...orderData
@@ -460,7 +190,7 @@ export const StoreProvider = ({ children }) => {
         setCart([]);
         addLoyaltyPoints(newOrder.total);
         const updatedProducts = await productsApi.list().catch(() => null);
-        if (updatedProducts) setProducts(updatedProducts);
+        if (updatedProducts) setProducts(cleanProductImages(updatedProducts));
         return createdOrder;
       } catch (err) {
         if (err?.message?.includes('غير متوفرة')) throw err;
@@ -512,6 +242,17 @@ export const StoreProvider = ({ children }) => {
       return updated;
     }));
   }, [hasSupabase, supabaseReady, orders]);
+
+  const deleteOrder = useCallback(async (orderId) => {
+    if (hasSupabase && supabaseReady) {
+      try {
+        await ordersApi.deleteOrder(orderId);
+        setOrders(prev => prev.filter(o => o.id !== orderId));
+      } catch (err) {
+        throw err;
+      }
+    }
+  }, [hasSupabase, supabaseReady]);
 
   // --- Driver assignment (admin/manager) ---
   const loadDrivers = useCallback(async () => {
@@ -612,6 +353,18 @@ export const StoreProvider = ({ children }) => {
     }
   }, [hasSupabase, supabaseReady, user]);
 
+  const retrySendMessage = useCallback(async (tempId) => {
+    const msg = chatMessages.find(m => m.id === tempId);
+    if (!msg || !msg._failed) return;
+    setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: false } : m));
+    try {
+      const sent = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail);
+      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: sent.id, time: sent.time, status: 'sent' } : m));
+    } catch {
+      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
+    }
+  }, [chatMessages]);
+
   // --- Auth Actions ---
   const login = useCallback(async (email, password) => {
     if (!hasSupabase) throw new Error('Supabase غير مهيأ');
@@ -621,20 +374,17 @@ export const StoreProvider = ({ children }) => {
       setUser(data.user);
       return data;
     } catch (err) {
-      if (err.message === 'Invalid login credentials' && supabase) {
+      if (supabase) {
         try {
-          const { data: staffRow } = await supabase
-            .from('staff')
-            .select('id')
-            .ilike('email', normalizedEmail)
-            .maybeSingle();
-          if (staffRow) {
-            await supabase.rpc('confirm_auth_user', { p_email: normalizedEmail, p_password: password });
+          const { data: fixResult } = await supabase.rpc('ensure_staff_auth_user', {
+            p_email: normalizedEmail, p_password: password
+          });
+          if (fixResult?.fixed) {
             const data = await authApi.signIn(normalizedEmail, password);
             setUser(data.user);
             return data;
           }
-        } catch { /* RPC not available or permission denied */ }
+        } catch { /* RPC not available */ }
       }
       throw err;
     }
@@ -703,12 +453,13 @@ export const StoreProvider = ({ children }) => {
       allCustomers, loadCustomers,
       customerProfile, updateCustomerProfile,
       products: filteredProducts,
+      instantResults,
       cart, addToCart, removeFromCart, updateCartQty, cartTotal,
       searchQuery, setSearchQuery,
       selectedCategory, setSelectedCategory,
       placeOrder, getProductPrice,
       allProducts: products,
-      orders, updateOrderStatus, loadOrders,
+      orders, updateOrderStatus, deleteOrder, loadOrders,
       drivers, loadDrivers, assignDriverToOrder, claimOrder,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
       chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders

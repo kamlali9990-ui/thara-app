@@ -1,0 +1,88 @@
+/* ==================== HERO BANNER ==================== */
+.hero-banner {
+  background: linear-gradient(135deg, #0a5c34 0%, #127443 50%, #1a9e5c 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem 1rem;
+}
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.6;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  object-fit: contain;
+  background: white;
+  padding: 4px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+  animation: heroLogoPop 0.6s ease-out 0.1s both;
+}
+@keyframes heroLogoPop {
+  0% { transform: scale(0) rotate(-10deg); opacity: 0; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.hero-text {
+  color: white;
+  animation: heroTextSlide 0.5s ease-out 0.2s both;
+}
+@keyframes heroTextSlide {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.hero-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: white;
+  margin-bottom: 0.25rem;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.hero-desc {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.hero-badge {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: white;
+  padding: 0.3rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.2);
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .hero-banner { padding: 2.5rem 2rem; }
+  .hero-logo { width: 100px; height: 100px; border-radius: 20px; }
+  .hero-title { font-size: 1.8rem; }
+  .hero-desc { font-size: 1.1rem; }
+  .hero-badge { font-size: 0.85rem; padding: 0.4rem 1rem; }
+}
+

@@ -1,0 +1,6 @@
+/* ==================== APP CONTENT ==================== */
+.app-content {
+  min-height: calc(100vh - 110px);
+  padding-bottom: 60px;
+}
+

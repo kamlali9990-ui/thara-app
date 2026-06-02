@@ -1,0 +1,211 @@
+/* ==================== HEADER ==================== */
+/* ==================== iOS HEADER ==================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  color: white;
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  background: var(--blur-header);
+  border-bottom: 0.5px solid rgba(255,255,255,0.15);
+}
+.app-header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+}
+.app-logo { display: flex; align-items: center; gap: 0.6rem; }
+.app-logo-img {
+  width: 30px; height: 30px; border-radius: 7px;
+  object-fit: contain; background: white; padding: 2px;
+}
+.app-title { font-weight: 800; font-size: 1rem; line-height: 1.2; color: white; }
+.app-subtitle { font-size: 0.6rem; color: rgba(255,255,255,0.65); }
+.app-header-actions { display: flex; align-items: center; gap: 0.4rem; }
+.app-user-badge {
+  font-size: 0.7rem; background: rgba(255,255,255,0.15);
+  padding: 0.2rem 0.6rem; border-radius: 99px; color: white;
+  max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.app-login-link { color: rgba(255,255,255,0.9); text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+.app-cart-btn { background: none; border: none; cursor: pointer; position: relative; padding: 0.3rem; color: white; display: flex; }
+.app-cart-badge {
+  position: absolute; top: 0; right: -2px;
+  background: var(--secondary); color: white;
+  font-size: 0.55rem; font-weight: 800;
+  min-width: 17px; height: 17px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 1.5px solid var(--blur-header);
+}
+.app-search {
+  padding: 0 0.75rem 0.6rem;
+}
+.app-search-input {
+  width: 100%; padding: 0.6rem 1rem; border: none; border-radius: 10px;
+  font-family: inherit; font-size: 0.9rem;
+  background: rgba(255,255,255,0.2); color: white; outline: none;
+  transition: background 0.2s;
+}
+.app-search-input::placeholder { color: rgba(255,255,255,0.5); }
+.app-search-input:focus { background: rgba(255,255,255,0.3); }
+
+/* ─── Install Overlay (Force Prompt) ─── */
+.install-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 99999; display: flex; align-items: center; justify-content: center;
+  padding: 1.5rem; animation: fadeIn 0.4s ease;
+}
+.install-card {
+  background: #0a5c34; width: 100%; max-width: 420px;
+  border-radius: 24px; overflow: hidden;
+  box-shadow: 0 20px 60px rgba(10, 92, 52, 0.35);
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+.install-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+.install-close-btn:hover {
+  background: rgba(255,255,255,0.25);
+  color: white;
+}
+.install-card-inner {
+  padding: 2rem 1.75rem 1.75rem; text-align: center;
+}
+.install-header-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+.install-header-section .install-logo {
+  margin-bottom: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.install-app-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.install-title {
+  color: white; font-size: 1.15rem; font-weight: 700; margin-bottom: 0;
+  text-align: center; font-family: var(--font-display);
+}
+.install-subtitle {
+  color: rgba(255,255,255,0.7); font-size: 0.78rem; margin-bottom: 0;
+  text-align: center;
+}
+.install-ios-hint {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding: 0.75rem 1rem;
+  border-radius: 14px; margin-bottom: 1rem;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.ios-hint-icon { font-size: 1.2rem; }
+.ios-hint-text {
+  font-size: 0.85rem; font-weight: 600; color: rgba(255,255,255,0.85);
+}
+.install-main-btn {
+  width: 100%; background: white; color: #0a5c34; border: none;
+  padding: 0.85rem; border-radius: 14px; font-weight: 800; font-size: 0.9rem;
+  cursor: pointer; margin-bottom: 0.65rem; transition: transform 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  font-family: var(--font-family);
+}
+.install-main-btn:hover { background: #f0fdf4; }
+.install-main-btn:active { transform: scale(0.98); }
+.install-skip-btn {
+  background: none; border: none; color: rgba(255,255,255,0.5); font-size: 0.75rem;
+  cursor: pointer; text-decoration: underline;
+  font-family: var(--font-family);
+}
+
+/* ─── App Install Header Button ─── */
+.app-install-header-btn {
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: inherit;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 6px rgba(230, 92, 0, 0.2);
+  margin-left: 0.5rem;
+}
+.app-install-header-btn:hover {
+  background: #d65500;
+  box-shadow: 0 4px 10px rgba(230, 92, 0, 0.3);
+}
+.app-install-header-btn:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 640px) {
+  .app-install-header-text {
+    display: none;
+  }
+  .app-install-header-btn {
+    padding: 0.45rem;
+    border-radius: 50%;
+    margin-left: 0.25rem;
+  }
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ─── Update Banner ─── */
+.update-banner {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: #127443; color: white; display: flex;
+  align-items: center; justify-content: center; gap: 0.75rem;
+  padding: 0.6rem 1rem; font-size: 0.85rem; font-weight: 600;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  transform: translateY(0);
+  animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+.update-banner button {
+  background: white; color: #127443; border: none;
+  padding: 0.3rem 1rem; border-radius: 99px;
+  font-size: 0.8rem; font-weight: 700; cursor: pointer;
+  font-family: inherit;
+}
+

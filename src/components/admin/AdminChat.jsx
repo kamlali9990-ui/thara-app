@@ -1,0 +1,193 @@
+import React, { useContext, useState, useRef, useEffect, useMemo } from 'react';
+import { StoreContext } from '../../context/StoreContext';
+
+export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
+  const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage } = useContext(StoreContext);
+  const [text, setText] = useState('');
+  const [activeThread, setActiveThread] = useState(null);
+  const [chatTab, setChatTab] = useState('support');
+  const [searchThread, setSearchThread] = useState('');
+  const chatBodyRef = useRef(null);
+
+  const { supportThreads, orderThreads } = useMemo(() => {
+    const support = {}, order = {};
+    chatMessages.forEach(m => {
+      if (m.orderId) {
+        const key = `order_${m.orderId}`;
+        if (!order[key]) order[key] = [];
+        order[key].push(m);
+      } else if (m.customerEmail && allCustomers.some(c => c.email === m.customerEmail)) {
+        if (!support[m.customerEmail]) support[m.customerEmail] = [];
+        support[m.customerEmail].push(m);
+      }
+    });
+    return { supportThreads: support, orderThreads: order };
+  }, [chatMessages, allCustomers]);
+
+  const toThreadList = (threads) => Object.entries(threads)
+    .map(([key, msgs]) => ({
+      key,
+      label: key.startsWith('order_') ? `طلب #${key.replace('order_', '').slice(-6)}` : key.split('@')[0],
+      email: key.startsWith('order_') ? null : key,
+      orderId: key.startsWith('order_') ? key.replace('order_', '') : null,
+      lastMsg: msgs[msgs.length - 1],
+      unread: msgs.filter(m => m.sender === 'customer' && m.status !== 'read').length,
+      messages: msgs
+    }))
+    .sort((a, b) => (b.lastMsg.timestamp || 0) > (a.lastMsg.timestamp || 0) ? 1 : -1);
+
+  const threads = useMemo(() => {
+    const raw = chatTab === 'support' ? supportThreads : orderThreads;
+    let list = toThreadList(raw);
+    if (searchThread.trim()) {
+      const q = searchThread.toLowerCase();
+      list = list.filter(t => t.label.toLowerCase().includes(q));
+    }
+    return list;
+  }, [chatTab, supportThreads, orderThreads, searchThread]);
+
+  const activeMessages = useMemo(() => {
+    if (!activeThread) return [];
+    const raw = activeThread.key.startsWith('order_') ? orderThreads : supportThreads;
+    return raw[activeThread.key] || [];
+  }, [activeThread, supportThreads, orderThreads]);
+
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [activeMessages]);
+
+  useEffect(() => {
+    if (!activeThread) return;
+    const unreadIds = activeMessages.filter(m => m.sender === 'customer' && m.status !== 'read').map(m => m.id);
+    if (unreadIds.length > 0) markMessagesAsRead(unreadIds);
+  }, [activeThread, activeMessages, markMessagesAsRead]);
+
+  const handleSend = () => {
+    if (!text.trim() || !activeThread) return;
+    const email = activeThread.email || (activeThread.orderId ? allCustomers[0]?.email : null);
+    if (activeThread.orderId) {
+      sendMessage('admin', text, activeThread.orderId, null);
+    } else if (activeThread.email) {
+      sendMessage('admin', text, null, activeThread.email);
+    }
+    setText('');
+  };
+
+  const customer = activeThread?.email ? allCustomers.find(c => c.email === activeThread.email) : null;
+
+  return (
+    <div className="admin-chat-container">
+      <h2 className="admin-section-title chat-title">
+        {chatTab === 'support' ? 'خدمة العملاء — محادثات دعم' : 'محادثات الطلبات'}
+      </h2>
+
+      <div className="admin-chat-inner">
+        {/* Left: Threads */}
+        <div className="admin-chat-threads">
+          <div className="admin-chat-threads-header">
+            <div className="admin-chat-tabs">
+              <button className={`admin-chat-tab ${chatTab === 'support' ? 'active' : ''}`} onClick={() => { setChatTab('support'); setActiveThread(null); }}>
+                الدعم {Object.keys(supportThreads).length > 0 && `(${Object.keys(supportThreads).length})`}
+              </button>
+              <button className={`admin-chat-tab ${chatTab === 'orders' ? 'active' : ''}`} onClick={() => { setChatTab('orders'); setActiveThread(null); }}>
+                الطلبات {Object.keys(orderThreads).length > 0 && `(${Object.keys(orderThreads).length})`}
+              </button>
+            </div>
+            <div className="admin-chat-search-wrap">
+              <input type="text" className="admin-chat-search" placeholder="بحث..." value={searchThread} onChange={e => setSearchThread(e.target.value)} />
+              {searchThread && <button className="admin-chat-search-clear" onClick={() => setSearchThread('')}>✕</button>}
+            </div>
+          </div>
+          <div className="admin-chat-threads-list">
+            {threads.length === 0 && (
+              <div className="admin-chat-empty">لا توجد محادثات</div>
+            )}
+            {threads.map(t => (
+              <div key={t.key} className={`admin-chat-thread-item ${activeThread?.key === t.key ? 'active' : ''} ${t.unread > 0 ? 'unread' : ''}`}
+                onClick={() => setActiveThread(t)}>
+                <div className="admin-chat-thread-top">
+                  <span className="admin-chat-thread-name">{t.label}</span>
+                  <span className="admin-chat-thread-time">{t.lastMsg.time}</span>
+                </div>
+                <div className="admin-chat-thread-preview">
+                  {t.lastMsg.sender === 'admin' && <span className="admin-chat-preview-label">أنت: </span>}
+                  {t.lastMsg.text}
+                </div>
+                {t.unread > 0 && <span className="admin-chat-unread-badge">{t.unread}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: Active Chat */}
+        <div className="admin-chat-main">
+          {!activeThread ? (
+            <div className="admin-chat-placeholder">
+              <span className="admin-chat-placeholder-icon">💬</span>
+              <p>اختر محادثة من القائمة</p>
+            </div>
+          ) : (
+            <>
+              <div className="admin-chat-main-header">
+                <div>
+                  <div className="admin-chat-main-title">{activeThread.label}</div>
+                  {customer && (
+                    <div className="admin-chat-main-sub">
+                      {customer.name && <span>{customer.name} · </span>}
+                      {customer.phone && <span dir="ltr">{customer.phone} · </span>}
+                      {customer.loyalty_points != null && <span>نقاط: {customer.loyalty_points}</span>}
+                    </div>
+                  )}
+                  {activeThread.orderId && (
+                    <div className="admin-chat-main-sub">طلب رقم  #{activeThread.orderId.slice(-8)}</div>
+                  )}
+                </div>
+                <button className="admin-chat-close-btn" onClick={() => setActiveThread(null)}>✕</button>
+              </div>
+
+              <div ref={chatBodyRef} className="admin-chat-body">
+                {activeMessages.length === 0 && <p className="admin-chat-empty-msg">لا توجد رسائل بعد.</p>}
+                {activeMessages.map(m => (
+                  <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
+                    <div className="admin-bubble-sender">{m.sender === 'admin' ? 'أنت' : 'العميل'}</div>
+                    <div className="admin-bubble-text">{m.text}</div>
+                    <div className="admin-bubble-time">
+                      {m.sender === 'admin' && (
+                        <span className="admin-bubble-status">
+                          {m._failed ? (
+                            <button className="admin-bubble-retry" onClick={() => retrySendMessage(m.id)} title="إعادة الإرسال">⚠️</button>
+                          ) : m.status === 'read' ? (
+                            <span className="admin-bubble-read" title="مقروءة">✓✓</span>
+                          ) : (
+                            <span className="admin-bubble-sent" title="تم الإرسال">✓</span>
+                          )}
+                        </span>
+                      )}
+                      {m.time}
+                    </div>
+                  </div>
+                ))}
+                {activeThread && typingUsers[activeThread.email || activeThread.orderId] && (
+                  <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
+                    <div className="admin-bubble-sender">العميل</div>
+                    <div className="admin-bubble-text" style={{ fontStyle: 'italic', color: '#94a3b8' }}>يكتب...</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="admin-chat-input-area">
+                <input type="text" value={text}
+                  onChange={e => { setText(e.target.value); if (activeThread?.email) sendTyping(null, activeThread.email); }}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                  placeholder="اكتب رسالتك..." className="admin-chat-input" />
+                <button className="btn" onClick={handleSend} disabled={!text.trim()}>إرسال</button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
