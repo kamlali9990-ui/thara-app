@@ -358,28 +358,18 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </div>
             ) : (
               <>
-                <div className="admin-product-field-group name-field">
-                  <span className="admin-product-name">{p.name}</span>
-                </div>
-                <div className="admin-product-field-group cat-field">
-                  <span className="admin-product-meta">{p.category}</span>
-                </div>
-                <div className="admin-product-field-group price-field">
-                  <span className="admin-product-meta">{p.price?.toFixed(2)}</span>
-                </div>
-                <div className="admin-product-field-group stock-field">
-                  <span className="admin-product-meta">{p.stock_quantity ?? 0}</span>
-                </div>
-                <div className="admin-product-field-group unit-field">
-                  <span className="admin-product-meta">{p.unit}</span>
-                </div>
+                <span className="pc-name">{p.name}</span>
+                <span className="pc-cat">{p.category}</span>
+                <span className="pc-price">{p.price?.toFixed(2)}</span>
+                <span className="pc-stock">{p.stock_quantity ?? 0}</span>
+                <span className="pc-unit">{p.unit}</span>
                 {canManageProducts && (
-                  <div className="admin-product-actions-inline">
+                  <div className="pc-actions">
                     <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
                     <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>
                   </div>
                 )}
-                <img src={p.imageUrl} alt="" className="admin-product-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <img src={p.imageUrl} alt="" className="pc-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
               </>
             )}
           </div>
