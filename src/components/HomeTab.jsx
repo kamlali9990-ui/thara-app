@@ -96,8 +96,8 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
                     <div className="offer-ticker-name">{product.name}</div>
                     <div className="offer-ticker-price">
                       {product.offerPrice ? (
-                        <><span className="offer-ticker-old-price">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
-                      ) : product.price.toFixed(2)}
+                        <><span className="offer-ticker-old-price">{(product.price || 0).toFixed(2)}</span> {(product.offerPrice || 0).toFixed(2)}</>
+                      ) : (product.price || 0).toFixed(2)}
                       <span className="offer-ticker-currency"> ر.س</span>
                     </div>
                     <button className="offer-ticker-add-btn" onClick={(e) => { e.stopPropagation(); addToCart(product); }}>+</button>
