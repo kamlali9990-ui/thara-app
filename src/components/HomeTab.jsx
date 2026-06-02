@@ -72,18 +72,37 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
             </div>
           </div>
 
-          {/* Offers Section */}
-          <div className="home-section-card offers-card">
-            <div className="section-card-header" onClick={() => setShowAllView('offers')}>
+          {/* Offers Section - Horizontal Ticker */}
+          <div className="offers-ticker-container">
+            <div className="offers-ticker-header" onClick={() => setShowAllView('offers')}>
               <div className="section-card-title-group">
                 <span className="section-card-icon">🔥</span>
                 <h3 className="section-card-title">العروض المميزة اليومية</h3>
               </div>
               <span className="section-card-action-link" onClick={(e) => { e.stopPropagation(); setShowAllView('offers'); }}>عرض الكل</span>
             </div>
-            <div className="all-products-grid">
-              {(allProducts || []).filter(p => p.isOffer).slice(0, 6).map(product => (
-                <ProductCard key={product.id} product={product} addToCart={addToCart} cart={cart} />
+            <div className="offers-ticker-track">
+              {[(allProducts || []).filter(p => p.isOffer).length > 0 ? 
+                [...(allProducts || []).filter(p => p.isOffer), ...(allProducts || []).filter(p => p.isOffer)] : 
+                []
+              ].slice(0, 12).map((product, idx) => (
+                <div key={product.id + '-offer-' + idx} className="offer-ticker-item">
+                  <div className="offer-ticker-img-wrap">
+                    {product.isOffer && <span className="offer-ticker-badge">%</span>}
+                    <img src={product.imageUrl} alt={product.name} className="offer-ticker-img" 
+                      onError={(e) => { e.target.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="#127443" width="100" height="100"/><text fill="#FFF" font-family="sans-serif" font-size="20" x="50" y="55" text-anchor="middle">ثرا</text></svg>'); }} />
+                  </div>
+                  <div className="offer-ticker-info">
+                    <div className="offer-ticker-name">{product.name}</div>
+                    <div className="offer-ticker-price">
+                      {product.offerPrice ? (
+                        <><span className="offer-ticker-old-price">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
+                      ) : product.price.toFixed(2)}
+                      <span className="offer-ticker-currency"> ر.س</span>
+                    </div>
+                    <button className="offer-ticker-add-btn" onClick={(e) => { e.stopPropagation(); addToCart(product); }}>+</button>
+                  </div>
+                </div>
               ))}
               {(allProducts || []).filter(p => p.isOffer).length === 0 && (
                 <div className="no-products-card">
