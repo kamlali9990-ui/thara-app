@@ -255,21 +255,20 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
       {canManageProducts && (
         <div className="admin-product-form-container">
           <form className="admin-product-form" onSubmit={handleAddProduct}>
-            <div className="admin-product-form-row">
-              <div className="admin-product-field-group">
-                <label className="admin-product-label">اسم المنتج</label>
+            <div className="admin-product-form-row compact">
+              <div className="admin-product-field-group name-field">
                 <div className="admin-product-input-with-search">
                   <input 
                     ref={nameInputRef}
                     value={form.name} 
                     onChange={e => updateForm('name', e.target.value)} 
-                    placeholder="اكتب اسم المنتج للبحث عن منتجات مشابهة..." 
+                    placeholder="اسم المنتج" 
                     className="admin-product-form-input" 
                     required 
                   />
                   {showDuplicateWarning && duplicateProducts.length > 0 && (
                     <div className="admin-duplicate-dropdown">
-                      <div className="admin-duplicate-header">⚠️ منتجات مشابهة موجودة:</div>
+                      <div className="admin-duplicate-header">⚠️ منتجات مشابهة:</div>
                       {duplicateProducts.map(p => (
                         <div key={p.id} className="admin-duplicate-item" onClick={() => {
                           setForm(prev => ({ ...prev, name: p.name, category: p.category, price: p.price.toString(), unit: p.unit }));
@@ -277,52 +276,38 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
                           setDuplicateProducts([]);
                         }}>
                           <span className="admin-duplicate-name">{p.name}</span>
-                          <span className="admin-duplicate-info">{p.price.toFixed(2)} ر.س | {p.category}</span>
+                          <span className="admin-duplicate-info">{p.price.toFixed(2)} ر.س</span>
                         </div>
                       ))}
-                      <div className="admin-duplicate-hint">اضغط على منتج لاستخدام بياناته</div>
                     </div>
                   )}
                 </div>
               </div>
-              <div className="admin-product-field-group">
-                <label className="admin-product-label">القسم</label>
+              <div className="admin-product-field-group cat-field">
                 <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
                   {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
-            </div>
-            
-            <div className="admin-product-form-row">
-              <div className="admin-product-field-group">
-                <label className="admin-product-label">السعر (ر.س)</label>
-                <input value={form.price} onChange={e => updateForm('price', e.target.value)} type="number" step="0.01" placeholder="0.00" className="admin-product-form-input" />
+              <div className="admin-product-field-group price-field">
+                <input value={form.price} onChange={e => updateForm('price', e.target.value)} type="number" step="0.01" placeholder="السعر" className="admin-product-form-input" />
               </div>
-              <div className="admin-product-field-group">
-                <label className="admin-product-label">المخزون</label>
-                <input value={form.stock_quantity} onChange={e => updateForm('stock_quantity', e.target.value)} type="number" placeholder="0" className="admin-product-form-input" />
+              <div className="admin-product-field-group stock-field">
+                <input value={form.stock_quantity} onChange={e => updateForm('stock_quantity', e.target.value)} type="number" placeholder="المخزون" className="admin-product-form-input" />
               </div>
-              <div className="admin-product-field-group">
-                <label className="admin-product-label">الوحدة</label>
-                <input value={form.unit} onChange={e => updateForm('unit', e.target.value)} placeholder="حبة، كيس..." className="admin-product-form-input" />
+              <div className="admin-product-field-group unit-field">
+                <input value={form.unit} onChange={e => updateForm('unit', e.target.value)} placeholder="الوحدة" className="admin-product-form-input" />
               </div>
-            </div>
-            
-            <div className="admin-product-form-row">
-              <div className="admin-product-field-group" style={{ flex: 2 }}>
-                <label className="admin-product-label">رابط الصورة</label>
-                <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="https://..." className="admin-product-form-input" />
+              <div className="admin-product-field-group img-field">
+                <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="رابط الصورة" className="admin-product-form-input" />
               </div>
-              <div className="admin-product-field-group" style={{ flex: 1 }}>
-                <label className="admin-product-label">أو رفع صورة</label>
+              <div className="admin-product-field-group upload-field">
                 <CloudinaryUpload 
                   onUpload={(url) => updateForm('imageUrl', url)} 
                   onError={(err) => showToast('فشل رفع الصورة', 'error')} 
                 />
               </div>
+              <button className="admin-product-add-btn" type="submit">+ إضافة</button>
             </div>
-            
-            <button className="btn admin-product-submit-btn" type="submit">➕ إضافة المنتج</button>
           </form>
         </div>
       )}
