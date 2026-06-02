@@ -358,18 +358,19 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
-                  <strong style={{ color: '#e2e8f0', fontSize: '0.9rem', flex: 1 }}>{p.name}</strong>
-                  {canManageProducts && (
-                    <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
-                      <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
-                      <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>
-                    </div>
-                  )}
+                {canManageProducts && (
+                  <div className="admin-product-actions">
+                    <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
+                    <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>
+                  </div>
+                )}
+                <div className="admin-product-info">
+                  <strong className="admin-product-name">{p.name}</strong>
+                  <div className="admin-product-meta">
+                    {p.category} — {p.price?.toFixed(2)} ر.س | المخزون: {p.stock_quantity ?? 0} | {p.unit}
+                  </div>
                 </div>
-                <div style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: '0.2rem', width: '100%' }}>
-                  {p.category} — {p.price?.toFixed(2)} ر.س | المخزون: {p.stock_quantity ?? 0} | {p.unit}
-                </div>
+                <img src={p.imageUrl} alt="" className="admin-product-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
               </>
             )}
           </div>
