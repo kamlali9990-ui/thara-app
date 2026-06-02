@@ -1,12 +1,17 @@
 import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PHONE, WHATSAPP_NUM, EMAIL_1, SNAPCHAT } from '../utils/constants';
+import { showToast } from './Toast.jsx';
 
-const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme }) => {
+const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme, staffRole }) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [saving, setSaving] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const displayName = customerProfile?.name || user?.email?.split('@')[0] || '';
   const displayPhone = customerProfile?.phone || '';
@@ -25,6 +30,33 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
       setEditing(false);
     } catch { /* ignore */ }
     setSaving(false);
+  };
+
+  const handlePasswordChange = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      showToast('يرجى ملء جميع الحقول', 'error');
+      return;
+    }
+    if (newPassword.length < 6) {
+      showToast('كلمة المرور الجديدة يجب أن تكون 6 أحرف على الأقل', 'error');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showToast('كلمة المرور الجديدة غير متطابقة', 'error');
+      return;
+    }
+    try {
+      const { supabase } = await import('../supabase/client');
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      showToast('تم تغيير كلمة المرور بنجاح', 'success');
+      setChangingPassword(false);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err) {
+      showToast('فشل تغيير كلمة المرور: ' + (err.message || ''), 'error');
+    }
   };
 
   if (!user) return (
@@ -108,6 +140,37 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
               كل ريال = نقطة • استخدم النقاط في الخصومات قريبًا
             </div>
           </div>
+
+          {(staffRole === 'admin' || staffRole === 'manager') && (
+            changingPassword ? (
+              <div className="acc-card acc-edit-card">
+                <h3 className="acc-section-title">تغيير كلمة المرور</h3>
+                <div className="acc-field">
+                  <label>كلمة المرور الحالية</label>
+                  <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
+                    placeholder="كلمة المرور الحالية" className="acc-input" />
+                </div>
+                <div className="acc-field">
+                  <label>كلمة المرور الجديدة</label>
+                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                    placeholder="كلمة المرور الجديدة" className="acc-input" />
+                </div>
+                <div className="acc-field">
+                  <label>تأكيد كلمة المرور</label>
+                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+                    placeholder="تأكيد كلمة المرور" className="acc-input" />
+                </div>
+                <div className="acc-edit-actions">
+                  <button className="acc-btn acc-btn-primary" onClick={handlePasswordChange}>حفظ</button>
+                  <button className="acc-btn acc-btn-ghost" onClick={() => { setChangingPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); }}>إلغاء</button>
+                </div>
+              </div>
+            ) : (
+              <button className="acc-btn acc-btn-primary" onClick={() => setChangingPassword(true)}>
+                تغيير كلمة المرور
+              </button>
+            )
+          )}
 
           <div className="acc-card acc-info-card">
             <div className="acc-info-row">

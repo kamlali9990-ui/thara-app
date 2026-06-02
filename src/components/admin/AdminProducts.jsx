@@ -9,6 +9,8 @@ const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 
 export default function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteProduct }) {
   const isAdmin = staffRole === 'admin';
+  const isManager = staffRole === 'manager';
+  const canManageProducts = isAdmin || isManager;
   const { bulkImportProducts } = useContext(StoreContext);
   const [form, setForm] = useState({ name: '', category: categories.find(c => c !== 'الكل' && c !== 'العروض') || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' });
   const [showImport, setShowImport] = useState(false);
@@ -156,10 +158,10 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
     <div>
       <div className="admin-section-header">
         <h2 className="admin-section-title products-title">إدارة المنتجات ({products.length})</h2>
-        {isAdmin && <button className="btn" onClick={() => { setShowImport(!showImport); setPreviewRows([]); }}>استيراد</button>}
+        {canManageProducts && <button className="btn" onClick={() => { setShowImport(!showImport); setPreviewRows([]); }}>استيراد</button>}
       </div>
 
-      {isAdmin && showImport && (
+      {canManageProducts && showImport && (
         <div className="admin-card" style={{ marginBottom: '1rem' }}>
           <h3 style={{ marginBottom: '0.75rem', color: '#f1f5f9', fontSize: '1rem' }}>استيراد منتجات</h3>
           <div style={{ marginBottom: '0.75rem' }}>
@@ -205,7 +207,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
         </div>
       )}
 
-      {isAdmin && (
+      {canManageProducts && (
         <form className="admin-product-form" onSubmit={handleAddProduct}>
           <input value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder="اسم المنتج" className="admin-product-form-input" required />
           <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
@@ -253,7 +255,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>
                   <strong style={{ color: '#e2e8f0', fontSize: '0.9rem', flex: 1 }}>{p.name}</strong>
-                  {isAdmin && (
+                  {canManageProducts && (
                     <div style={{ display: 'flex', gap: '0.3rem', flexShrink: 0 }}>
                       <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
                       <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>

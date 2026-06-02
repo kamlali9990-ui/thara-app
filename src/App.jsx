@@ -25,7 +25,7 @@ export default function App() {
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
     placeOrder, user, logout, orders,
     customerProfile, updateCustomerProfile, loadOrders,
-    chatMessages } = useContext(StoreContext);
+    chatMessages, staffRole } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [updateAvailable, setUpdateAvailable] = useState(false);
@@ -180,7 +180,7 @@ export default function App() {
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
           {tab === 'categories' && <CategoriesTab key="categories" />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
-          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} />}
           </div>
         </div>
 
