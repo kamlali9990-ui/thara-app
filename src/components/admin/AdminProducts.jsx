@@ -358,12 +358,23 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </div>
             ) : (
               <>
-                <div className="admin-product-info">
+                <div className="admin-product-field-group name-field">
                   <span className="admin-product-name">{p.name}</span>
-                  <span className="admin-product-meta">{p.category} | {p.price?.toFixed(2)} ر.س | مخزون: {p.stock_quantity ?? 0} | {p.unit}</span>
+                </div>
+                <div className="admin-product-field-group cat-field">
+                  <span className="admin-product-meta">{p.category}</span>
+                </div>
+                <div className="admin-product-field-group price-field">
+                  <span className="admin-product-meta">{p.price?.toFixed(2)}</span>
+                </div>
+                <div className="admin-product-field-group stock-field">
+                  <span className="admin-product-meta">{p.stock_quantity ?? 0}</span>
+                </div>
+                <div className="admin-product-field-group unit-field">
+                  <span className="admin-product-meta">{p.unit}</span>
                 </div>
                 {canManageProducts && (
-                  <div className="admin-product-actions">
+                  <div className="admin-product-actions-inline">
                     <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
                     <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>
                   </div>
