@@ -358,18 +358,24 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </div>
             ) : (
               <>
-                <span className="pc-name">{p.name}</span>
-                <span className="pc-cat">{p.category}</span>
-                <span className="pc-price">{p.price?.toFixed(2)}</span>
-                <span className="pc-stock">{p.stock_quantity ?? 0}</span>
-                <span className="pc-unit">{p.unit}</span>
+                <div className="admin-product-card-main">
+                  <img src={p.imageUrl} alt="" className="pc-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                  <div className="pc-info">
+                    <span className="pc-name">{p.name}</span>
+                    <span className="pc-cat">{p.category}</span>
+                    <span className="pc-price">{p.price?.toFixed(2)}</span>
+                    <div className="pc-details-row">
+                      <span className="pc-stock">{p.stock_quantity ?? 0}</span>
+                      <span className="pc-unit">{p.unit}</span>
+                    </div>
+                  </div>
+                </div>
                 {canManageProducts && (
                   <div className="pc-actions">
-                    <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
-                    <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>
+                    <button className="admin-edit-btn" onClick={() => startEdit(p)}>✏️ تعديل</button>
+                    <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }}>🗑️ حذف</button>
                   </div>
                 )}
-                <img src={p.imageUrl} alt="" className="pc-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
               </>
             )}
           </div>

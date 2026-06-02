@@ -35,6 +35,7 @@
   - `npm run supabase:login` — Login with PAT (set `SUPABASE_ACCESS_TOKEN` env var first)
   - `npm run supabase:link` — Link to remote project
   - `npm run supabase:query` — Run SQL against remote DB
+- **Deploy Edge Functions**: `npx supabase functions deploy cloudinary-sign` (after login + link)
 - **Scripts**: `node scripts\generate-sql.js` (Utility for generating SQL migrations)
 
 ## Coding Style & Naming Conventions
