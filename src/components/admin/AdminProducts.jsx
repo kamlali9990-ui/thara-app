@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useContext } from 'react';
+import React, { useState, useRef, useCallback, useContext, useMemo } from 'react';
 import { StoreContext } from '../../context/StoreContext';
 import { categories } from '../../data/mockData';
 import { showToast } from '../Toast.jsx';
@@ -20,12 +20,46 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const fileInputRef = useRef(null);
+  const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
+  const [duplicateProducts, setDuplicateProducts] = useState([]);
+  const nameInputRef = useRef(null);
 
-  const updateForm = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
+  // Search for similar products when typing name
+  const searchSimilarProducts = (name) => {
+    if (!name || name.length < 2) {
+      setDuplicateProducts([]);
+      setShowDuplicateWarning(false);
+      return;
+    }
+    const searchTerm = name.toLowerCase().trim();
+    const similar = products.filter(p => 
+      p.name.toLowerCase().includes(searchTerm) || 
+      searchTerm.includes(p.name.toLowerCase())
+    ).slice(0, 5);
+    setDuplicateProducts(similar);
+    setShowDuplicateWarning(similar.length > 0);
+  };
+
+  const updateForm = (key, value) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+    if (key === 'name') {
+      searchSimilarProducts(value);
+    }
+  };
 
   const handleAddProduct = (e) => {
     e.preventDefault();
     if (!form.name.trim()) return;
+    
+    // Check for exact duplicate
+    const exactDuplicate = products.find(p => 
+      p.name.toLowerCase().trim() === form.name.toLowerCase().trim()
+    );
+    if (exactDuplicate) {
+      showToast('يوجد منتج بنفس الاسم بالفعل! يرجى استخدام اسم مختلف', 'error');
+      return;
+    }
+    
     addProduct({
       name: form.name.trim(), category: form.category,
       price: Number(form.price) || 0, stock_quantity: Number(form.stock_quantity) || 0,
@@ -33,6 +67,9 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
       unit: form.unit.trim() || 'حبة', isOffer: false
     });
     setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
+    setDuplicateProducts([]);
+    setShowDuplicateWarning(false);
+    showToast('تمت إضافة المنتج بنجاح', 'success');
   };
 
   const startEdit = (product) => {
@@ -43,6 +80,15 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
   const cancelEdit = () => { setEditingId(null); setEditForm({}); };
 
   const saveEdit = async (id) => {
+    // Check for duplicate name when editing
+    const duplicateWithName = products.find(p => 
+      p.id !== id && p.name.toLowerCase().trim() === editForm.name.toLowerCase().trim()
+    );
+    if (duplicateWithName) {
+      showToast('يوجد منتج آخر بنفس الاسم!', 'error');
+      return;
+    }
+    
     try {
       await updateProduct(id, {
         name: editForm.name.trim(), category: editForm.category,
@@ -83,7 +129,6 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
       try {
         const wb = XLSX.read(ev.target.result, { type: 'array' });
         const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', header: 1 });
-        // Find header row (look for أسم الصنف or م)
         let start = -1;
         for (let i = 0; i < Math.min(20, raw.length); i++) {
           const row = raw[i];
@@ -91,7 +136,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
             start = i; break;
           }
         }
-        if (start === -1) start = 11; // fallback: skip first 11 rows
+        if (start === -1) start = 11;
         const result = [];
         for (let i = start + 1; i < raw.length; i++) {
           const r = raw[i];
@@ -208,23 +253,78 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
       )}
 
       {canManageProducts && (
-        <form className="admin-product-form" onSubmit={handleAddProduct}>
-          <input value={form.name} onChange={e => updateForm('name', e.target.value)} placeholder="اسم المنتج" className="admin-product-form-input" required />
-          <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
-            {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
-          </select>
-          <input value={form.price} onChange={e => updateForm('price', e.target.value)} type="number" step="0.01" placeholder="السعر" className="admin-product-form-input" />
-          <input value={form.stock_quantity} onChange={e => updateForm('stock_quantity', e.target.value)} type="number" placeholder="المخزون" className="admin-product-form-input" />
-          <input value={form.unit} onChange={e => updateForm('unit', e.target.value)} placeholder="الوحدة" className="admin-product-form-input" />
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="رابط الصورة" className="admin-product-form-input" style={{ flex: 1 }} />
-            <CloudinaryUpload 
-              onUpload={(url) => updateForm('imageUrl', url)} 
-              onError={(err) => showToast('فشل رفع الصورة', 'error')} 
-            />
-          </div>
-          <button className="btn" type="submit">إضافة المنتج</button>
-        </form>
+        <div className="admin-product-form-container">
+          <form className="admin-product-form" onSubmit={handleAddProduct}>
+            <div className="admin-product-form-row">
+              <div className="admin-product-field-group">
+                <label className="admin-product-label">اسم المنتج</label>
+                <div className="admin-product-input-with-search">
+                  <input 
+                    ref={nameInputRef}
+                    value={form.name} 
+                    onChange={e => updateForm('name', e.target.value)} 
+                    placeholder="اكتب اسم المنتج للبحث عن منتجات مشابهة..." 
+                    className="admin-product-form-input" 
+                    required 
+                  />
+                  {showDuplicateWarning && duplicateProducts.length > 0 && (
+                    <div className="admin-duplicate-dropdown">
+                      <div className="admin-duplicate-header">⚠️ منتجات مشابهة موجودة:</div>
+                      {duplicateProducts.map(p => (
+                        <div key={p.id} className="admin-duplicate-item" onClick={() => {
+                          setForm(prev => ({ ...prev, name: p.name, category: p.category, price: p.price.toString(), unit: p.unit }));
+                          setShowDuplicateWarning(false);
+                          setDuplicateProducts([]);
+                        }}>
+                          <span className="admin-duplicate-name">{p.name}</span>
+                          <span className="admin-duplicate-info">{p.price.toFixed(2)} ر.س | {p.category}</span>
+                        </div>
+                      ))}
+                      <div className="admin-duplicate-hint">اضغط على منتج لاستخدام بياناته</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="admin-product-field-group">
+                <label className="admin-product-label">القسم</label>
+                <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
+                  {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+            </div>
+            
+            <div className="admin-product-form-row">
+              <div className="admin-product-field-group">
+                <label className="admin-product-label">السعر (ر.س)</label>
+                <input value={form.price} onChange={e => updateForm('price', e.target.value)} type="number" step="0.01" placeholder="0.00" className="admin-product-form-input" />
+              </div>
+              <div className="admin-product-field-group">
+                <label className="admin-product-label">المخزون</label>
+                <input value={form.stock_quantity} onChange={e => updateForm('stock_quantity', e.target.value)} type="number" placeholder="0" className="admin-product-form-input" />
+              </div>
+              <div className="admin-product-field-group">
+                <label className="admin-product-label">الوحدة</label>
+                <input value={form.unit} onChange={e => updateForm('unit', e.target.value)} placeholder="حبة، كيس..." className="admin-product-form-input" />
+              </div>
+            </div>
+            
+            <div className="admin-product-form-row">
+              <div className="admin-product-field-group" style={{ flex: 2 }}>
+                <label className="admin-product-label">رابط الصورة</label>
+                <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="https://..." className="admin-product-form-input" />
+              </div>
+              <div className="admin-product-field-group" style={{ flex: 1 }}>
+                <label className="admin-product-label">أو رفع صورة</label>
+                <CloudinaryUpload 
+                  onUpload={(url) => updateForm('imageUrl', url)} 
+                  onError={(err) => showToast('فشل رفع الصورة', 'error')} 
+                />
+              </div>
+            </div>
+            
+            <button className="btn admin-product-submit-btn" type="submit">➕ إضافة المنتج</button>
+          </form>
+        </div>
       )}
 
       <div className="admin-products-grid">
@@ -232,25 +332,45 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
           <div key={p.id} className="admin-product-card">
             <img src={p.imageUrl} alt="" className="admin-product-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
             {editingId === p.id ? (
-              <>
-                <input type="text" value={editForm.name} onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))} className="admin-product-field" />
-                <select value={editForm.category} onChange={e => setEditForm(prev => ({ ...prev, category: e.target.value }))} className="admin-product-field">
-                  {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
-                </select>
-                <div className="admin-input-row">
-                  <input type="number" step="0.01" value={editForm.price} onChange={e => setEditForm(prev => ({ ...prev, price: e.target.value }))} className="admin-input-half" placeholder="السعر" />
-                  <input type="number" value={editForm.stock_quantity} onChange={e => setEditForm(prev => ({ ...prev, stock_quantity: e.target.value }))} className="admin-input-half" placeholder="المخزون" />
+              <div className="admin-edit-form">
+                <div className="admin-edit-field">
+                  <label className="admin-edit-label">اسم المنتج</label>
+                  <input type="text" value={editForm.name} onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))} className="admin-product-field" />
                 </div>
-                <div className="admin-input-row">
-                  <input type="text" value={editForm.unit} onChange={e => setEditForm(prev => ({ ...prev, unit: e.target.value }))} className="admin-input-half" placeholder="الوحدة" />
-                  <CloudinaryUpload 
-                    onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
-                    onError={(err) => showToast('فشل رفع الصورة', 'error')} 
-                  />
-                  <button className="btn" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }} onClick={() => saveEdit(p.id)}>حفظ</button>
-                  <button className="admin-delete-btn" style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }} onClick={cancelEdit}>إلغاء</button>
+                <div className="admin-edit-field">
+                  <label className="admin-edit-label">القسم</label>
+                  <select value={editForm.category} onChange={e => setEditForm(prev => ({ ...prev, category: e.target.value }))} className="admin-product-field">
+                    {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </div>
-              </>
+                <div className="admin-edit-row">
+                  <div className="admin-edit-field">
+                    <label className="admin-edit-label">السعر</label>
+                    <input type="number" step="0.01" value={editForm.price} onChange={e => setEditForm(prev => ({ ...prev, price: e.target.value }))} className="admin-edit-input" placeholder="السعر" />
+                  </div>
+                  <div className="admin-edit-field">
+                    <label className="admin-edit-label">المخزون</label>
+                    <input type="number" value={editForm.stock_quantity} onChange={e => setEditForm(prev => ({ ...prev, stock_quantity: e.target.value }))} className="admin-edit-input" placeholder="المخزون" />
+                  </div>
+                </div>
+                <div className="admin-edit-row">
+                  <div className="admin-edit-field">
+                    <label className="admin-edit-label">الوحدة</label>
+                    <input type="text" value={editForm.unit} onChange={e => setEditForm(prev => ({ ...prev, unit: e.target.value }))} className="admin-edit-input" placeholder="الوحدة" />
+                  </div>
+                  <div className="admin-edit-field">
+                    <label className="admin-edit-label">الصورة</label>
+                    <CloudinaryUpload 
+                      onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
+                      onError={(err) => showToast('فشل رفع الصورة', 'error')} 
+                    />
+                  </div>
+                </div>
+                <div className="admin-edit-actions">
+                  <button className="btn admin-edit-save-btn" onClick={() => saveEdit(p.id)}>💾 حفظ</button>
+                  <button className="admin-delete-btn admin-edit-cancel-btn" onClick={cancelEdit}>❌ إلغاء</button>
+                </div>
+              </div>
             ) : (
               <>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', width: '100%' }}>

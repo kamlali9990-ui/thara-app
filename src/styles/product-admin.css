@@ -17,6 +17,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+  width: 100%;
 }
 
 .cloudinary-upload-btn:hover {
@@ -65,7 +66,204 @@
   color: #fbbf24;
   font-size: 1.2rem;
 }
+
+/* ==================== Improved Product Form ==================== */
+.admin-product-form-container {
+  background: rgba(255,255,255,0.06);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 .admin-product-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin-product-form-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.admin-product-field-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.admin-product-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.admin-product-form-input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font-family: inherit;
+  outline: none;
+  background: rgba(0,0,0,0.35);
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-product-form-input:focus {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.15);
+}
+
+.admin-product-form-input::placeholder {
+  color: #64748b;
+}
+
+.admin-product-submit-btn {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+/* Duplicate Warning Dropdown */
+.admin-product-input-with-search {
+  position: relative;
+}
+
+.admin-duplicate-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 0.5rem;
+  z-index: 100;
+  max-height: 250px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.admin-duplicate-header {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fbbf24;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 0.3rem;
+}
+
+.admin-duplicate-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.admin-duplicate-item:hover {
+  background: rgba(251, 191, 36, 0.15);
+}
+
+.admin-duplicate-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.admin-duplicate-info {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.admin-duplicate-hint {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-align: center;
+  padding: 0.4rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  margin-top: 0.3rem;
+}
+
+/* ==================== Edit Form ==================== */
+.admin-edit-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1;
+}
+
+.admin-edit-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.admin-edit-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.admin-edit-input {
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #e2e8f0;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-edit-input:focus {
+  border-color: #fbbf24;
+}
+
+.admin-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.3rem;
+}
+
+.admin-edit-save-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-edit-cancel-btn {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* ==================== Legacy Grid (for backward compatibility) ==================== */
+.admin-product-form.legacy {
   display: grid;
   grid-template-columns: 2fr 1fr 0.8fr 0.8fr 0.7fr 1.2fr;
   gap: 0.6rem;
@@ -77,39 +275,24 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
-.admin-product-form-input {
-  width: 100%;
-  min-width: 0;
-  border: 0.5px solid rgba(255,255,255,0.12);
-  border-radius: 10px;
-  padding: 0.65rem 0.75rem;
-  font-family: inherit;
-  outline: none;
-  background: rgba(0,0,0,0.35);
-  color: #e2e8f0;
-}
-.admin-product-form-input:focus {
-  border-color: #fbbf24;
-}
-.admin-product-form-input::placeholder {
-  color: #64748b;
-}
+
 .admin-product-form-wide {
   grid-column: span 4;
 }
 .admin-product-form-submit {
   min-height: 42px;
 }
+
+/* ==================== Responsive ==================== */
 @media (max-width: 900px) {
   .admin-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .admin-product-form { grid-template-columns: 1fr 1fr; }
+  .admin-product-form-row { flex-direction: column; }
   .admin-product-form-wide { grid-column: span 2; }
   .admin-product-form-submit { grid-column: span 2; }
 }
-@media (max-width: 480px) {
-  .admin-stats-grid,
-  .admin-product-form { grid-template-columns: 1fr; }
-  .admin-product-form-wide,
-  .admin-product-form-submit { grid-column: auto; }
-}
 
+@media (max-width: 480px) {
+  .admin-stats-grid { grid-template-columns: 1fr; }
+  .admin-product-form-row { flex-direction: column; }
+  .admin-edit-row { flex-direction: column; }
+}
