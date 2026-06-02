@@ -358,18 +358,16 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </div>
             ) : (
               <>
+                <div className="admin-product-info">
+                  <span className="admin-product-name">{p.name}</span>
+                  <span className="admin-product-meta">{p.category} | {p.price?.toFixed(2)} ر.س | مخزون: {p.stock_quantity ?? 0} | {p.unit}</span>
+                </div>
                 {canManageProducts && (
                   <div className="admin-product-actions">
                     <button className="admin-edit-btn" onClick={() => startEdit(p)} title="تعديل">✏️</button>
                     <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }} title="حذف">🗑️</button>
                   </div>
                 )}
-                <div className="admin-product-info">
-                  <strong className="admin-product-name">{p.name}</strong>
-                  <div className="admin-product-meta">
-                    {p.category} — {p.price?.toFixed(2)} ر.س | المخزون: {p.stock_quantity ?? 0} | {p.unit}
-                  </div>
-                </div>
                 <img src={p.imageUrl} alt="" className="admin-product-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
               </>
             )}
