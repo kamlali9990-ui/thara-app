@@ -9,39 +9,51 @@ const CAT_COLORS = {
 
 export default function AdminOffers({ staffRole, products, updateProduct }) {
   const isAdmin = staffRole === 'admin';
-  const [catFilter, setCatFilter] = useState('');
+  const isManager = staffRole === 'manager';
+  const canManageOffers = isAdmin || isManager;
+  
   const [search, setSearch] = useState('');
+  const [showAddProduct, setShowAddProduct] = useState(false);
+  const [addSearch, setAddSearch] = useState('');
   const [selected, setSelected] = useState(new Set());
   const [saving, setSaving] = useState(new Set());
   const [editPrices, setEditPrices] = useState({});
 
-  const cats = useMemo(() => {
-    const set = new Set();
-    products.forEach(p => {
-      set.add(p.category);
-    });
-    return CAT_ORDER.filter(c => set.has(c)).concat([...set].filter(c => !CAT_ORDER.includes(c)));
-  }, [products]);
-
-  const filtered = useMemo(() => {
-    let list = products;
-    if (catFilter) {
-      list = list.filter(p => p.category === catFilter);
-    }
-    if (search.trim()) {
-      const q = search.trim().toLowerCase();
-      list = list.filter(p => p.name.toLowerCase().includes(q));
-    }
-    return list;
-  }, [products, catFilter, search]);
-
+  // Active offers (isOffer = true)
   const activeOffers = useMemo(() => products.filter(p => p.isOffer), [products]);
+
+  // Products available to add (not in offers yet)
+  const availableProducts = useMemo(() => {
+    let list = products.filter(p => !p.isOffer);
+    if (addSearch.trim()) {
+      const q = addSearch.trim().toLowerCase();
+      list = list.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+    }
+    return list.slice(0, 50); // Limit to 50 for performance
+  }, [products, addSearch]);
+
+  // Filter active offers by search
+  const filteredOffers = useMemo(() => {
+    if (!search.trim()) return activeOffers;
+    const q = search.trim().toLowerCase();
+    return activeOffers.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+  }, [activeOffers, search]);
 
   const handleToggle = useCallback(async (product) => {
     if (saving.has(product.id)) return;
     setSaving(prev => new Set(prev).add(product.id));
     try {
       await updateProduct(product.id, { isOffer: !product.isOffer, offerPrice: product.isOffer ? null : (product.offerPrice || product.price) });
+    } finally {
+      setSaving(prev => { const n = new Set(prev); n.delete(product.id); return n; });
+    }
+  }, [updateProduct, saving]);
+
+  const handleAddToOffers = useCallback(async (product) => {
+    if (saving.has(product.id)) return;
+    setSaving(prev => new Set(prev).add(product.id));
+    try {
+      await updateProduct(product.id, { isOffer: true, offerPrice: product.offerPrice || product.price });
     } finally {
       setSaving(prev => { const n = new Set(prev); n.delete(product.id); return n; });
     }
@@ -67,14 +79,6 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
     });
   };
 
-  const toggleSelectAll = () => {
-    if (selected.size === filtered.length) {
-      setSelected(new Set());
-    } else {
-      setSelected(new Set(filtered.map(p => p.id)));
-    }
-  };
-
   const batchRemoveOffers = async () => {
     for (const id of selected) {
       const p = products.find(x => x.id === id);
@@ -94,36 +98,80 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
             العروض النشطة: <strong>{activeOffers.length}</strong> من أصل {products.length} منتج
           </p>
         </div>
-        {isAdmin && selected.size > 0 && (
-          <button className="btn btn-danger" onClick={batchRemoveOffers}>
-            إلغاء العروض عن ({selected.size})
-          </button>
-        )}
+        <div className="admin-offers-header-actions">
+          {canManageOffers && selected.size > 0 && (
+            <button className="btn btn-danger" onClick={batchRemoveOffers}>
+              إلغاء العروض عن ({selected.size})
+            </button>
+          )}
+          {canManageOffers && (
+            <button className="btn btn-primary" onClick={() => setShowAddProduct(!showAddProduct)}>
+              {showAddProduct ? 'إغلاق' : '+ إضافة منتج للعروض'}
+            </button>
+          )}
+        </div>
       </div>
 
+      {/* Search active offers */}
       <div className="admin-offers-toolbar">
-        <select className="admin-offers-select" value={catFilter} onChange={e => setCatFilter(e.target.value)}>
-          <option value="">كل الأقسام</option>
-          {cats.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
         <div className="admin-offers-search-wrap">
-          <input type="text" className="admin-offers-search" placeholder="ابحث عن منتج..." value={search} onChange={e => setSearch(e.target.value)} />
+          <input type="text" className="admin-offers-search" placeholder="🔍 ابحث في العروض النشطة..." value={search} onChange={e => setSearch(e.target.value)} />
           {search && <button className="admin-offers-search-clear" onClick={() => setSearch('')}>✕</button>}
         </div>
       </div>
 
+      {/* Add product to offers section */}
+      {showAddProduct && canManageOffers && (
+        <div className="admin-offers-add-section">
+          <h3 className="admin-offers-add-title">🔍 ابحث عن منتج لإضافته للعروض</h3>
+          <div className="admin-offers-search-wrap">
+            <input type="text" className="admin-offers-search" placeholder="اكتب اسم المنتج..." value={addSearch} onChange={e => setAddSearch(e.target.value)} />
+            {addSearch && <button className="admin-offers-search-clear" onClick={() => setAddSearch('')}>✕</button>}
+          </div>
+          <div className="admin-offers-add-list">
+            {availableProducts.length === 0 && (
+              <div className="admin-offers-empty">لا توجد منتجات متاحة</div>
+            )}
+            {availableProducts.map(product => {
+              const isSaving = saving.has(product.id);
+              return (
+                <div key={product.id} className="admin-offer-row add-mode">
+                  <img src={product.imageUrl} className="admin-offer-img" onError={e => { e.target.style.display = 'none'; }} />
+                  <div className="admin-offer-info">
+                    <div className="admin-offer-name">{product.name}</div>
+                    <div className="admin-offer-category">{product.category}</div>
+                    <div className="admin-offer-price">{product.price.toFixed(2)} ر.س</div>
+                  </div>
+                  <button
+                    className="admin-offer-add-btn"
+                    onClick={() => handleAddToOffers(product)}
+                    disabled={isSaving}
+                  >
+                    {isSaving ? '...' : '+ إضافة'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Active offers list */}
       <div className="admin-offers-list">
-        {filtered.length === 0 && (
-          <div className="admin-offers-empty">لا توجد منتجات تطابق بحثك</div>
+        <h3 className="admin-offers-list-title">🔥 العروض النشطة ({filteredOffers.length})</h3>
+        {filteredOffers.length === 0 && (
+          <div className="admin-offers-empty">
+            {search ? 'لا توجد عروض تطابق بحثك' : 'لا توجد عروض حالياً. أضف منتجات للعروض!'}
+          </div>
         )}
-        {filtered.map(product => {
+        {filteredOffers.map(product => {
           const group = product.category;
           const color = CAT_COLORS[group] || '#64748b';
           const isSaving = saving.has(product.id);
           const hasPriceEdit = editPrices[product.id] !== undefined;
           return (
-            <div key={product.id} className={`admin-offer-row ${product.isOffer ? 'is-offer' : ''}`}>
-              {isAdmin && (
+            <div key={product.id} className="admin-offer-row is-offer">
+              {canManageOffers && (
                 <label className="admin-offer-checkbox" onClick={e => e.stopPropagation()}>
                   <input type="checkbox" checked={selected.has(product.id)} onChange={() => toggleSelect(product.id)} />
                 </label>
@@ -135,31 +183,30 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
                 <div className="admin-offer-category">{product.category}</div>
                 <div className="admin-offer-price">السعر الأصلي: {product.price.toFixed(2)} ر.س</div>
               </div>
-              {isAdmin && (
+              {canManageOffers && (
                 <div className="admin-offer-actions">
+                  <div className="admin-offer-price-edit">
+                    <label className="admin-offer-price-label">سعر العرض:</label>
+                    <input
+                      type="number"
+                      className="admin-offer-input"
+                      value={hasPriceEdit ? editPrices[product.id] : (product.offerPrice || '')}
+                      onChange={e => setEditPrices(prev => ({ ...prev, [product.id]: parseFloat(e.target.value) || 0 }))}
+                      placeholder="سعر العرض"
+                    />
+                    {hasPriceEdit && (
+                      <button className="admin-offer-save-btn" onClick={() => handleSavePrice(product.id)} disabled={isSaving}>
+                        {isSaving ? '...' : '💾 حفظ'}
+                      </button>
+                    )}
+                  </div>
                   <button
-                    className={`admin-offer-toggle ${product.isOffer ? 'active' : ''}`}
+                    className="admin-offer-remove-btn"
                     onClick={() => handleToggle(product)}
                     disabled={isSaving}
                   >
-                    {isSaving ? '...' : product.isOffer ? 'ضمن العروض ✓' : 'تفعيل العرض'}
+                    {isSaving ? '...' : '❌ إزالة من العروض'}
                   </button>
-                  {product.isOffer && (
-                    <div className="admin-offer-price-edit">
-                      <input
-                        type="number"
-                        className="admin-offer-input"
-                        value={hasPriceEdit ? editPrices[product.id] : (product.offerPrice || '')}
-                        onChange={e => setEditPrices(prev => ({ ...prev, [product.id]: parseFloat(e.target.value) || 0 }))}
-                        placeholder="سعر العرض"
-                      />
-                      {hasPriceEdit && (
-                        <button className="admin-offer-save-btn" onClick={() => handleSavePrice(product.id)} disabled={isSaving}>
-                          {isSaving ? '...' : 'حفظ'}
-                        </button>
-                      )}
-                    </div>
-                  )}
                 </div>
               )}
             </div>
