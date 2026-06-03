@@ -6,12 +6,18 @@ const isEdge = /Edg/.test(navigator.userAgent);
 
 const AddToHomeScreen = ({ isOpen, onClose }) => {
   const BASE = import.meta.env.BASE_URL || '/';
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [showManual, setShowManual] = useState(false);
 
   useEffect(() => {
+    // Check if we already have a deferred prompt stored globally
+    if (window.__deferredPrompt) {
+      setDeferredPrompt(window.__deferredPrompt);
+    }
+
     const handler = (e) => {
       e.preventDefault();
+      window.__deferredPrompt = e;
       setDeferredPrompt(e);
     };
     window.addEventListener('beforeinstallprompt', handler);
