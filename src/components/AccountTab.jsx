@@ -47,6 +47,14 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
     }
     try {
       const { supabase } = await import('../supabase/client');
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword
+      });
+      if (signInError) {
+        showToast('كلمة المرور الحالية غير صحيحة', 'error');
+        return;
+      }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       showToast('تم تغيير كلمة المرور بنجاح', 'success');
@@ -141,35 +149,33 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             </div>
           </div>
 
-          {(staffRole === 'admin' || staffRole === 'manager') && (
-            changingPassword ? (
-              <div className="acc-card acc-edit-card">
-                <h3 className="acc-section-title">تغيير كلمة المرور</h3>
-                <div className="acc-field">
-                  <label>كلمة المرور الحالية</label>
-                  <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
-                    placeholder="كلمة المرور الحالية" className="acc-input" />
-                </div>
-                <div className="acc-field">
-                  <label>كلمة المرور الجديدة</label>
-                  <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
-                    placeholder="كلمة المرور الجديدة" className="acc-input" />
-                </div>
-                <div className="acc-field">
-                  <label>تأكيد كلمة المرور</label>
-                  <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-                    placeholder="تأكيد كلمة المرور" className="acc-input" />
-                </div>
-                <div className="acc-edit-actions">
-                  <button className="acc-btn acc-btn-primary" onClick={handlePasswordChange}>حفظ</button>
-                  <button className="acc-btn acc-btn-ghost" onClick={() => { setChangingPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); }}>إلغاء</button>
-                </div>
+          {changingPassword ? (
+            <div className="acc-card acc-edit-card">
+              <h3 className="acc-section-title">تغيير كلمة المرور</h3>
+              <div className="acc-field">
+                <label>كلمة المرور الحالية</label>
+                <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
+                  placeholder="كلمة المرور الحالية" className="acc-input" />
               </div>
-            ) : (
-              <button className="acc-btn acc-btn-primary" onClick={() => setChangingPassword(true)}>
-                تغيير كلمة المرور
-              </button>
-            )
+              <div className="acc-field">
+                <label>كلمة المرور الجديدة</label>
+                <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                  placeholder="كلمة المرور الجديدة" className="acc-input" />
+              </div>
+              <div className="acc-field">
+                <label>تأكيد كلمة المرور</label>
+                <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="تأكيد كلمة المرور" className="acc-input" />
+              </div>
+              <div className="acc-edit-actions">
+                <button className="acc-btn acc-btn-primary" onClick={handlePasswordChange}>حفظ</button>
+                <button className="acc-btn acc-btn-ghost" onClick={() => { setChangingPassword(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); }}>إلغاء</button>
+              </div>
+            </div>
+          ) : (
+            <button className="acc-btn acc-btn-primary" onClick={() => setChangingPassword(true)}>
+              تغيير كلمة المرور
+            </button>
           )}
 
           <div className="acc-card acc-info-card">

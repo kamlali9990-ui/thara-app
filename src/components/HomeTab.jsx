@@ -82,10 +82,8 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
               <span className="section-card-action-link" onClick={(e) => { e.stopPropagation(); setShowAllView('offers'); }}>عرض الكل</span>
             </div>
             <div className="offers-ticker-track">
-              {[(allProducts || []).filter(p => p.isOffer).length > 0 ? 
-                [...(allProducts || []).filter(p => p.isOffer), ...(allProducts || []).filter(p => p.isOffer)] : 
-                []
-              ].slice(0, 12).map((product, idx) => (
+              {(allProducts || []).filter(p => p.isOffer).length > 0 ? 
+                [...(allProducts || []).filter(p => p.isOffer), ...(allProducts || []).filter(p => p.isOffer)].slice(0, 12).map((product, idx) => (
                 <div key={product.id + '-offer-' + idx} className="offer-ticker-item">
                   <div className="offer-ticker-img-wrap">
                     {product.isOffer && <span className="offer-ticker-badge">%</span>}
@@ -103,8 +101,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
                     <button className="offer-ticker-add-btn" onClick={(e) => { e.stopPropagation(); addToCart(product); }}>+</button>
                   </div>
                 </div>
-              ))}
-              {(allProducts || []).filter(p => p.isOffer).length === 0 && (
+              )) : (
                 <div className="no-products-card">
                   <p>لا توجد عروض حالياً</p>
                 </div>

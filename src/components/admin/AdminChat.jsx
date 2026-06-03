@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, useEffect, useMemo } from 'react';
 import { StoreContext } from '../../context/StoreContext';
 
 export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
-  const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage } = useContext(StoreContext);
+  const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, currentStaff } = useContext(StoreContext);
   const [text, setText] = useState('');
   const [activeThread, setActiveThread] = useState(null);
   const [chatTab, setChatTab] = useState('support');
@@ -17,23 +17,29 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
         if (!order[key]) order[key] = [];
         order[key].push(m);
       } else if (m.customerEmail && allCustomers.some(c => c.email === m.customerEmail)) {
-        if (!support[m.customerEmail]) support[m.customerEmail] = [];
-        support[m.customerEmail].push(m);
+        const key = m.customerPhone || m.customerEmail;
+        if (!support[key]) support[key] = [];
+        support[key].push(m);
       }
     });
     return { supportThreads: support, orderThreads: order };
   }, [chatMessages, allCustomers]);
 
   const toThreadList = (threads) => Object.entries(threads)
-    .map(([key, msgs]) => ({
-      key,
-      label: key.startsWith('order_') ? `طلب #${key.replace('order_', '').slice(-6)}` : key.split('@')[0],
-      email: key.startsWith('order_') ? null : key,
-      orderId: key.startsWith('order_') ? key.replace('order_', '') : null,
-      lastMsg: msgs[msgs.length - 1],
-      unread: msgs.filter(m => m.sender === 'customer' && m.status !== 'read').length,
-      messages: msgs
-    }))
+    .map(([key, msgs]) => {
+      const first = msgs[0];
+      const customer = first ? allCustomers.find(c => c.email === first.customerEmail) : null;
+      return {
+        key,
+        label: key.startsWith('order_') ? `طلب #${key.replace('order_', '').slice(-6)}` : (customer?.phone || key),
+        email: key.startsWith('order_') ? null : (first?.customerEmail || null),
+        phone: key.startsWith('order_') ? null : (customer?.phone || first?.customerPhone || null),
+        orderId: key.startsWith('order_') ? key.replace('order_', '') : null,
+        lastMsg: msgs[msgs.length - 1],
+        unread: msgs.filter(m => m.sender === 'customer' && m.status !== 'read').length,
+        messages: msgs
+      };
+    })
     .sort((a, b) => (b.lastMsg.timestamp || 0) > (a.lastMsg.timestamp || 0) ? 1 : -1);
 
   const threads = useMemo(() => {
@@ -66,11 +72,10 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
 
   const handleSend = () => {
     if (!text.trim() || !activeThread) return;
-    const email = activeThread.email || (activeThread.orderId ? allCustomers[0]?.email : null);
     if (activeThread.orderId) {
-      sendMessage('admin', text, activeThread.orderId, null);
+      sendMessage('admin', text, activeThread.orderId, null, currentStaff?.name, activeThread.phone);
     } else if (activeThread.email) {
-      sendMessage('admin', text, null, activeThread.email);
+      sendMessage('admin', text, null, activeThread.email, currentStaff?.name, activeThread.phone);
     }
     setText('');
   };
@@ -151,7 +156,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
                 {activeMessages.length === 0 && <p className="admin-chat-empty-msg">لا توجد رسائل بعد.</p>}
                 {activeMessages.map(m => (
                   <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
-                    <div className="admin-bubble-sender">{m.sender === 'admin' ? 'أنت' : 'العميل'}</div>
+                    <div className="admin-bubble-sender">{m.sender === 'admin' ? (m.senderName || 'أنت') : (m.senderName || 'العميل')}</div>
                     <div className="admin-bubble-text">{m.text}</div>
                     <div className="admin-bubble-time">
                       {m.sender === 'admin' && (

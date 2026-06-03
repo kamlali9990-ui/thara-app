@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 
 const CLOUD_NAME = 'dvnhgvdd1';
-const UPLOAD_PRESET = 'thara_signed';
 
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'];
 const MAX_SIZE_MB = 5;
@@ -27,7 +26,6 @@ export default function CloudinaryUpload({ onUpload, onError }) {
 
     const config = {
       cloudName: CLOUD_NAME,
-      uploadPreset: UPLOAD_PRESET,
       sources: ['local', 'camera', 'url'],
       multiple: false,
       maxFiles: 1,
@@ -60,7 +58,7 @@ export default function CloudinaryUpload({ onUpload, onError }) {
           const res = await fetch(signatureUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...params, upload_preset: UPLOAD_PRESET }),
+            body: JSON.stringify(params),
           });
           if (!res.ok) throw new Error('Signature request failed');
           const data = await res.json();

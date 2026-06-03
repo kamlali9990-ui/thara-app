@@ -285,21 +285,30 @@ export const StoreProvider = ({ children }) => {
 
   // --- Product CRUD ---
   const addProduct = useCallback(async (product) => {
-    const newProduct = { ...product, id: Date.now().toString() };
+    let newProduct = { ...product };
     if (hasSupabase && supabaseReady) {
       try {
         const created = await productsApi.create(product);
-        newProduct.id = created.id;
-      } catch { /* fallback */ }
+        newProduct = created;
+      } catch (err) {
+        showToast('فشل إضافة المنتج لقاعدة البيانات: ' + (err.message || err), 'error');
+        throw err;
+      }
+    } else {
+      newProduct.id = Date.now().toString();
     }
     setProducts(prev => [newProduct, ...prev]);
+    return newProduct;
   }, [hasSupabase, supabaseReady]);
 
   const updateProduct = useCallback(async (id, updated) => {
     if (hasSupabase && supabaseReady) {
       try {
         await productsApi.update(id, updated);
-      } catch { /* fallback */ }
+      } catch (err) {
+        showToast('فشل تعديل المنتج في قاعدة البيانات: ' + (err.message || err), 'error');
+        throw err;
+      }
     }
     setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
   }, [hasSupabase, supabaseReady]);
@@ -308,7 +317,10 @@ export const StoreProvider = ({ children }) => {
     if (hasSupabase && supabaseReady) {
       try {
         await productsApi.remove(id);
-      } catch { /* fallback */ }
+      } catch (err) {
+        showToast('فشل حذف المنتج من قاعدة البيانات: ' + (err.message || err), 'error');
+        throw err;
+      }
     }
     setProducts(prev => prev.filter(p => p.id !== id));
   }, [hasSupabase, supabaseReady]);
@@ -320,7 +332,10 @@ export const StoreProvider = ({ children }) => {
         const created = await productsApi.bulkCreate(products);
         setProducts(prev => [...created, ...prev]);
         return created;
-      } catch { /* fallback */ }
+      } catch (err) {
+        showToast('فشل استيراد المنتجات لقاعدة البيانات: ' + (err.message || err), 'error');
+        throw err;
+      }
     }
     const localProducts = products.map(p => ({ ...p, id: Date.now().toString() + Math.random() }));
     setProducts(prev => [...localProducts, ...prev]);
@@ -328,8 +343,10 @@ export const StoreProvider = ({ children }) => {
   }, [hasSupabase, supabaseReady]);
 
   // --- Chat ---
-  const sendMessage = useCallback(async (sender, text, orderId, customerEmail) => {
+  const sendMessage = useCallback(async (sender, text, orderId, customerEmail, senderName, customerPhone) => {
     const emailToUse = customerEmail || (sender === 'customer' ? user?.email : null);
+    const nameToUse = senderName || (sender === 'admin' || sender === 'driver' ? currentStaff?.name : null);
+    const phoneToUse = customerPhone || (sender === 'customer' ? customerProfile?.phone : null);
     const tempId = Date.now().toString();
     const msg = { 
       id: tempId, 
@@ -337,6 +354,8 @@ export const StoreProvider = ({ children }) => {
       text, 
       orderId: orderId || null, 
       customerEmail: emailToUse || null,
+      customerPhone: phoneToUse || null,
+      senderName: nameToUse || null,
       time: new Date().toLocaleTimeString() 
     };
     setChatMessages(prev => {
@@ -345,21 +364,21 @@ export const StoreProvider = ({ children }) => {
     });
     if (hasSupabase && supabaseReady) {
       try {
-        const sent = await chatApi.send(sender, text, orderId, emailToUse);
-        setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: sent.id, time: sent.time } : m));
+        const sent = await chatApi.send(sender, text, orderId, emailToUse, nameToUse, phoneToUse);
+        setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, ...sent } : m));
       } catch {
         setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
       }
     }
-  }, [hasSupabase, supabaseReady, user]);
+  }, [hasSupabase, supabaseReady, user, currentStaff, customerProfile]);
 
   const retrySendMessage = useCallback(async (tempId) => {
     const msg = chatMessages.find(m => m.id === tempId);
     if (!msg || !msg._failed) return;
     setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: false } : m));
     try {
-      const sent = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail);
-      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, id: sent.id, time: sent.time, status: 'sent' } : m));
+      const sent = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail, msg.senderName, msg.customerPhone);
+      setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, ...sent } : m));
     } catch {
       setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
     }

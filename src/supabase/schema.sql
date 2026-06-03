@@ -514,15 +514,19 @@ BEGIN
     GREATEST(COALESCE((item ->> 'qty')::INT, 1), 1) AS qty
   FROM jsonb_array_elements(cart_items) AS item;
 
-  SELECT string_agg('المنتج رقم ' || p.id::TEXT || ' (الموجود: ' || p.stock_quantity || ', المطلوب: ' || r.qty || ')', '; ')
+  WITH locked AS (
+    SELECT p.id, p.stock_quantity, r.qty
+    FROM _requested r
+    JOIN products p ON p.id = r.product_id
+    FOR UPDATE OF p
+  )
+  SELECT string_agg('المنتج رقم ' || id::TEXT || ' (الموجود: ' || stock_quantity || ', المطلوب: ' || qty || ')', '; ')
   INTO missing
-  FROM _requested r
-  JOIN products p ON p.id = r.product_id
-  WHERE r.qty > p.stock_quantity
-  FOR UPDATE OF p;
+  FROM locked
+  WHERE qty > stock_quantity;
 
   IF missing IS NOT NULL THEN
-    DROP TABLE _requested;
+    DROP TABLE IF EXISTS _requested;
     RAISE EXCEPTION 'بعض المنتجات غير متوفرة بالكمية المطلوبة: %', missing;
   END IF;
 
@@ -562,7 +566,7 @@ BEGIN
   FROM priced;
 
   IF jsonb_array_length(clean_items) = 0 THEN
-    DROP TABLE _requested;
+    DROP TABLE IF EXISTS _requested;
     RAISE EXCEPTION 'No valid products in cart';
   END IF;
 
@@ -593,7 +597,7 @@ BEGIN
   FROM _requested r
   WHERE p.id = r.product_id;
 
-  DROP TABLE _requested;
+  DROP TABLE IF EXISTS _requested;
   RETURN created_order;
 END;
 $$;
@@ -607,6 +611,8 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   text TEXT NOT NULL,
   order_id BIGINT REFERENCES orders(id) ON DELETE CASCADE,
   customer_email TEXT,
+  sender_name TEXT,
+  customer_phone TEXT,
   status TEXT DEFAULT 'sent' CHECK (status IN ('sending', 'sent', 'delivered', 'read')),
   read_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -623,13 +629,16 @@ CREATE TABLE IF NOT EXISTS typing_events (
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE typing_events ENABLE ROW LEVEL SECURITY;
 
--- Select policy: Staff can read all messages; Customers can only read messages belonging to their email or their orders
+-- Select policy: Staff can read all messages; Customers can only read messages belonging to their email, phone, or their orders
 DROP POLICY IF EXISTS "chat_select_public" ON chat_messages;
 DROP POLICY IF EXISTS "chat_select_policy" ON chat_messages;
 CREATE POLICY "chat_select_policy" ON chat_messages
   FOR SELECT USING (
     public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver'])
     OR lower(customer_email) = lower(auth.jwt() ->> 'email')
+    OR (customer_phone IS NOT NULL AND customer_phone = (
+      SELECT phone FROM customers WHERE lower(email) = lower(auth.jwt() ->> 'email') LIMIT 1
+    ))
     OR (order_id IS NOT NULL AND EXISTS (
       SELECT 1 FROM orders WHERE id = order_id AND (
         lower(orders.customer_email) = lower(auth.jwt() ->> 'email')
@@ -1032,4 +1041,13 @@ BEGIN
   ('حفاظات بامبرز مقاس 4 (44 حبة)', 'مجموعة الأصناف', 45, 38, TRUE, 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&q=80', 25, 'كرتون');
   END IF;
 END $$;
+
+-- =============================================
+-- صلاحيات الأدوار (Roles & Grants)
+-- تمنح authenticated صلاحية استخدام العدّادات والجداول
+-- =============================================
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE ON SEQUENCES TO authenticated;
 /* @@SEED_END@@ */

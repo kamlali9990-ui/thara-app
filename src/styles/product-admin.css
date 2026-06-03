@@ -319,7 +319,7 @@
   .admin-edit-save-btn, .admin-edit-cancel-btn { flex: 1; }
 }
 
-/* ==================== Admin Products Grid - Card View ==================== */
+/* ==================== Admin Products - Table List View ==================== */
 .admin-products-header {
   display: flex;
   justify-content: space-between;
@@ -331,207 +331,273 @@
   color: #f1f5f9;
 }
 
-.admin-products-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-@media (min-width: 1200px) {
-  .admin-products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  }
-}
-
-.admin-product-card {
+.admin-products-list {
   display: flex;
   flex-direction: column;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
+  gap: 1px;
+  margin-top: 0.5rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
   overflow: hidden;
-  transition: all 0.2s ease;
 }
 
-.admin-product-card:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.18);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-}
-
-.admin-product-card-main {
+.admin-product-row {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.6rem;
-  align-items: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: rgba(0,0,0,0.2);
+  transition: background 0.15s;
+  min-height: 38px;
 }
 
-.pc-img {
-  width: 70px;
-  height: 70px;
+.admin-product-row:nth-child(even) {
+  background: rgba(0,0,0,0.1);
+}
+
+.admin-product-row:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.admin-product-row.editing {
+  background: rgba(18, 116, 67, 0.12);
+  flex-wrap: wrap;
+  padding: 0.5rem 0.6rem;
+}
+
+.pr-img {
+  width: 28px;
+  height: 28px;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 4px;
   flex-shrink: 0;
   background: rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.06);
 }
 
-.pc-info {
-  flex: 1;
+.pr-name {
+  flex: 3;
   min-width: 0;
+  color: #e2e8f0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pr-cat {
+  flex: 1.2;
+  min-width: 60px;
+  color: #64748b;
+  font-size: 0.65rem;
+  font-weight: 500;
+  background: rgba(255,255,255,0.05);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+.pr-price {
+  flex: 0.7;
+  min-width: 50px;
+  color: #fbbf24;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: left;
+  direction: ltr;
+}
+
+.pr-stock {
+  flex: 0.6;
+  min-width: 35px;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.pr-unit {
+  flex: 0.5;
+  min-width: 30px;
+  color: #64748b;
+  font-size: 0.62rem;
+  text-align: center;
+}
+
+.pr-actions {
+  display: flex;
+  gap: 0.2rem;
+  flex-shrink: 0;
+}
+
+.pr-edit-btn {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.pr-edit-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  color: #93c5fd;
+}
+
+.pr-delete-btn {
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.6rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.pr-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+/* Edit mode inline in the row */
+.pr-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.pr-edit-field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.05rem;
 }
 
-.pc-name {
-  color: #f1f5f9;
-  font-size: 0.85rem;
+.pr-edit-label {
+  font-size: 0.55rem;
   font-weight: 700;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  color: #64748b;
 }
 
-.pc-cat {
-  color: #64748b;
+.pr-edit-input {
+  padding: 0.2rem 0.3rem;
   font-size: 0.7rem;
-  font-weight: 500;
-  background: rgba(255,255,255,0.06);
-  display: inline-block;
-  padding: 0.1rem 0.45rem;
+  font-weight: 600;
+  font-family: inherit;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #e2e8f0;
   border-radius: 4px;
-  align-self: flex-start;
+  outline: none;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.pc-price {
-  color: #fbbf24;
-  font-size: 0.9rem;
-  font-weight: 800;
-  margin-top: 0.15rem;
+.pr-edit-input:focus {
+  border-color: #fbbf24;
 }
 
-.pc-price::after {
-  content: ' ر.س';
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #94a3b8;
-}
-
-.pc-details-row {
+.pr-edit-actions {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin-top: 0.1rem;
+  gap: 0.2rem;
+  flex-shrink: 0;
 }
 
-.pc-stock {
-  color: #94a3b8;
+.pr-save-btn {
+  padding: 0.3rem 0.5rem;
   font-size: 0.65rem;
-  font-weight: 500;
+  font-weight: 700;
+  background: #22c55e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.pc-stock::before {
-  content: '📦 ';
-  font-size: 0.6rem;
+.pr-save-btn:hover {
+  background: #16a34a;
 }
 
-.pc-unit {
-  color: #64748b;
+.pr-cancel-btn {
+  padding: 0.3rem 0.5rem;
   font-size: 0.65rem;
-  font-weight: 500;
-}
-
-.pc-unit::before {
-  content: '⚖️ ';
-  font-size: 0.6rem;
-}
-
-.pc-actions {
-  display: flex;
-  gap: 0.3rem;
-  padding: 0.4rem 0.6rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
-  justify-content: flex-end;
-  background: rgba(0,0,0,0.15);
-}
-
-.admin-edit-btn {
-  background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
-  border: 1px solid rgba(59, 130, 246, 0.2);
-  border-radius: 6px;
-  padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
+  font-weight: 700;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
 }
 
-.admin-edit-btn:hover {
-  background: rgba(59, 130, 246, 0.3);
-  border-color: #3b82f6;
+.pr-cancel-btn:hover {
+  background: #4b5563;
 }
 
-.admin-delete-btn {
-  background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 6px;
-  padding: 0.35rem 0.6rem;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
+@media (max-width: 768px) {
+  .pr-cat { display: none; }
+  .pr-unit { display: none; }
+  .pr-stock { min-width: 30px; }
+  .admin-product-row { padding: 0.3rem 0.4rem; gap: 0.3rem; }
+  .pr-img { width: 24px; height: 24px; }
+  .pr-name { font-size: 0.72rem; }
+  .pr-price { font-size: 0.68rem; min-width: 40px; }
 }
 
-.admin-delete-btn:hover {
-  background: rgba(239, 68, 68, 0.3);
-  border-color: #ef4444;
+@media (max-width: 480px) {
+  .pr-stock { display: none; }
+  .pr-edit-btn, .pr-delete-btn { font-size: 0.55rem; padding: 0.15rem 0.25rem; }
 }
 
 /* Edit mode inside card */
 .admin-edit-form {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: rgba(0,0,0,0.2);
+  gap: 0.4rem;
+  padding: 0.6rem;
+  background: rgba(0,0,0,0.15);
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 .admin-edit-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .admin-edit-field {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.1rem;
 }
 
 .admin-edit-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #64748b;
 }
 
 .admin-edit-input, .admin-product-field {
   width: 100%;
-  padding: 0.4rem 0.5rem;
-  font-size: 0.8rem;
+  padding: 0.35rem 0.45rem;
+  font-size: 0.78rem;
   font-weight: 600;
   font-family: inherit;
-  background: rgba(0,0,0,0.35);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
   color: #e2e8f0;
-  border-radius: 6px;
+  border-radius: 5px;
   outline: none;
   box-sizing: border-box;
   transition: border-color 0.2s;
@@ -544,52 +610,34 @@
 .admin-edit-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
-  margin-top: 0.3rem;
+  gap: 0.35rem;
+  margin-top: 0.2rem;
 }
 
 .admin-edit-save-btn, .admin-edit-cancel-btn {
-  padding: 0.4rem 0.6rem;
-  font-size: 0.8rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
   font-weight: 700;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
   font-family: inherit;
 }
 
-.admin-edit-save-btn {
-  background: #22c55e;
-  color: white;
-}
-
+.admin-edit-save-btn { background: #22c55e; color: white; }
 .admin-edit-save-btn:hover { background: #16a34a; }
-
-.admin-edit-cancel-btn {
-  background: #6b7280;
-  color: white;
-}
-
+.admin-edit-cancel-btn { background: #6b7280; color: white; }
 .admin-edit-cancel-btn:hover { background: #4b5563; }
 
-@media (max-width: 700px) {
-  .admin-products-grid {
-    grid-template-columns: 1fr;
-  }
-  .admin-product-card-main {
-    padding: 0.5rem;
-    gap: 0.5rem;
-  }
-  .pc-img {
-    width: 55px;
-    height: 55px;
-  }
-  .pc-name {
-    font-size: 0.8rem;
-  }
-  .admin-edit-row {
-    grid-template-columns: 1fr;
-  }
+@media (max-width: 600px) {
+  .pc-img { width: 30px; height: 30px; }
+  .pc-name { font-size: 0.75rem; }
+  .pc-price { font-size: 0.72rem; }
+  .pc-cat { display: none; }
+  .pc-unit { display: none; }
+  .pc-actions { flex-direction: column; gap: 0.15rem; }
+  .admin-edit-btn, .admin-delete-btn { padding: 0.2rem 0.35rem; font-size: 0.65rem; }
+  .admin-edit-row { grid-template-columns: 1fr; }
 }
 
 .admin-product-field {

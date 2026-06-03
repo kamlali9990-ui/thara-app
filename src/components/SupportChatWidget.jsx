@@ -4,7 +4,7 @@ import { StoreContext } from '../context/StoreContext';
 import { WHATSAPP_NUM } from '../utils/constants';
 
 const SupportChatWidget = memo(() => {
-  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, user } = useContext(StoreContext);
+  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, user, customerProfile } = useContext(StoreContext);
   const [isOpen, setIsOpen] = useState(false);
   const [inputText, setInputText] = useState('');
   const [lastOpenedSupport, setLastOpenedSupport] = useState(() => localStorage.getItem('thara_support_last_opened') || '');
@@ -13,19 +13,19 @@ const SupportChatWidget = memo(() => {
 
   const supportMessages = useMemo(() => {
     if (!user) return [];
-    return chatMessages.filter(m => !m.orderId && m.customerEmail === user.email);
-  }, [chatMessages, user]);
+    return chatMessages.filter(m => !m.orderId && (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)));
+  }, [chatMessages, user, customerProfile]);
 
   const unreadCount = useMemo(() => {
     if (!user || isOpen) return 0;
-    const adminMsgs = chatMessages.filter(m => !m.orderId && m.customerEmail === user.email && m.sender === 'admin' && m.status !== 'read');
+    const adminMsgs = chatMessages.filter(m => !m.orderId && (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) && m.sender === 'admin' && m.status !== 'read');
     if (!lastOpenedSupport) return adminMsgs.length;
     return adminMsgs.filter(m => {
       const msgTime = m.timestamp ? new Date(m.timestamp).getTime() : 0;
       const lastTime = new Date(lastOpenedSupport).getTime();
       return msgTime > lastTime;
     }).length;
-  }, [chatMessages, user, lastOpenedSupport, isOpen]);
+  }, [chatMessages, user, customerProfile, lastOpenedSupport, isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -45,7 +45,7 @@ const SupportChatWidget = memo(() => {
 
   const handleSend = () => {
     if (!inputText.trim()) return;
-    sendMessage('customer', inputText.trim());
+    sendMessage('customer', inputText.trim(), null, null, null, customerProfile?.phone);
     setInputText('');
   };
 

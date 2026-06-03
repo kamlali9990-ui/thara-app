@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { showToast } from '../Toast.jsx';
 
 const CAT_ORDER = ['مواد غذائية', 'منظفات', 'إلكترونيات', 'أواني', 'مكسرات وبهارات', 'خضروات وفواكه', 'ألعاب', 'مجموعة الأصناف', 'ملابس', 'مواد البناء'];
 const CAT_COLORS = {
@@ -39,11 +40,19 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
     return activeOffers.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
   }, [activeOffers, search]);
 
+  const notifyOfferAdded = (product) => {
+    const evt = new CustomEvent('thara:new-offer', { detail: { name: product.name, price: product.offerPrice || product.price, image: product.imageUrl } });
+    window.dispatchEvent(evt);
+    showToast(`🔥 عرض جديد: ${product.name}!`, 'success');
+  };
+
   const handleToggle = useCallback(async (product) => {
     if (saving.has(product.id)) return;
     setSaving(prev => new Set(prev).add(product.id));
     try {
-      await updateProduct(product.id, { isOffer: !product.isOffer, offerPrice: product.isOffer ? null : (product.offerPrice || product.price) });
+      const wasOffer = product.isOffer;
+      await updateProduct(product.id, { isOffer: !wasOffer, offerPrice: wasOffer ? null : (product.offerPrice || product.price) });
+      if (!wasOffer) notifyOfferAdded(product);
     } finally {
       setSaving(prev => { const n = new Set(prev); n.delete(product.id); return n; });
     }
@@ -54,6 +63,7 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
     setSaving(prev => new Set(prev).add(product.id));
     try {
       await updateProduct(product.id, { isOffer: true, offerPrice: product.offerPrice || product.price });
+      notifyOfferAdded(product);
     } finally {
       setSaving(prev => { const n = new Set(prev); n.delete(product.id); return n; });
     }

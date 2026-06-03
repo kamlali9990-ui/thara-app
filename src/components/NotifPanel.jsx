@@ -1,16 +1,18 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { StoreContext } from '../context/StoreContext';
 
 const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) => {
+  const { customerProfile } = useContext(StoreContext);
   const notifLastOpened = window.localStorage.getItem('thara_notif_last_opened') || '';
   const filteredMsgs = useMemo(() => {
     if (!user) return [];
-    return chatMessages.filter(m => m.customerEmail === user.email && m.sender !== 'customer' && (!m.time || m.time > notifLastOpened));
-  }, [chatMessages, user, notifLastOpened]);
+    return chatMessages.filter(m => (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) && m.sender !== 'customer' && (!m.time || m.time > notifLastOpened));
+  }, [chatMessages, user, customerProfile, notifLastOpened]);
   const allDriverMsgs = useMemo(() => {
     if (!user) return [];
-    return chatMessages.filter(m => m.customerEmail === user.email && m.sender === 'driver');
-  }, [chatMessages, user]);
+    return chatMessages.filter(m => (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) && m.sender === 'driver');
+  }, [chatMessages, user, customerProfile]);
 
   React.useEffect(() => {
     window.localStorage.setItem('thara_notif_last_opened', new Date().toISOString());
@@ -46,7 +48,7 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
                     {m.sender === 'driver' ? '🏍️' : '🏪'}
                   </div>
                   <div className="notif-item-content">
-                    <div className="notif-item-sender">{m.sender === 'driver' ? 'السائق' : 'المتجر'}</div>
+                    <div className="notif-item-sender">{m.senderName || (m.sender === 'driver' ? 'السائق' : 'المتجر')}</div>
                     <div className="notif-item-text">{m.text}</div>
                     <div className="notif-item-time">{m.time || ''}</div>
                   </div>
@@ -56,7 +58,7 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
                 <div className="notif-section">
                   <div className="notif-section-title">رسائل السائقين</div>
                   {orders.filter(o => o.status === 'في الطريق' || o.status === 'قيد التحضير').map(order => {
-                    const driverMsgs = chatMessages.filter(m => m.orderId === order.id && m.sender === 'driver' && m.customerEmail === user?.email);
+                    const driverMsgs = chatMessages.filter(m => m.orderId === order.id && m.sender === 'driver' && (m.customerEmail === user?.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)));
                     if (driverMsgs.length === 0) return null;
                     return (
                       <div key={order.id} className="notif-order-card" onClick={() => { onTabChange('orders'); onClose(); }}>

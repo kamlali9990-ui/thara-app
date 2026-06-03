@@ -81,6 +81,9 @@ export default function InstallPrompt({ variant }) {
   const canInstall = !!deferredPrompt;
 
   if (variant === 'admin') {
+    if (isStandalone) return null;
+    const adminDismissed = localStorage.getItem('admin-install-banner-dismissed');
+    if (adminDismissed) return null;
     return (
       <div className="admin-install-banner" style={{
         background: 'linear-gradient(90deg, #127443 0%, #1a9e5c 100%)', 
@@ -93,7 +96,7 @@ export default function InstallPrompt({ variant }) {
         fontSize: '0.85rem',
         boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
           <span style={{ fontSize: '1.2rem' }}>📲</span>
           <span>
             {isIOS
@@ -103,21 +106,38 @@ export default function InstallPrompt({ variant }) {
                 : 'افتح قائمة المتصفح ⋮ ← تثبيت التطبيق'}
           </span>
         </div>
-        {!isIOS && canInstall && (
-          <button onClick={install} style={{
-            background: 'white', 
-            color: '#127443', 
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          {!isIOS && canInstall && (
+            <button onClick={install} style={{
+              background: 'white', 
+              color: '#127443', 
+              border: 'none',
+              padding: '0.35rem 1.2rem', 
+              borderRadius: '12px', 
+              fontWeight: 700,
+              fontSize: '0.8rem', 
+              cursor: 'pointer', 
+              fontFamily: 'inherit',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+            }}>تثبيت</button>
+          )}
+          <button onClick={() => { localStorage.setItem('admin-install-banner-dismissed', '1'); window.location.reload(); }} style={{
+            background: 'rgba(255,255,255,0.2)',
+            color: 'white',
             border: 'none',
-            padding: '0.35rem 1.2rem', 
-            borderRadius: '12px', 
-            fontWeight: 700,
-            fontSize: '0.8rem', 
-            cursor: 'pointer', 
+            borderRadius: '50%',
+            width: '28px',
+            height: '28px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            fontSize: '1rem',
             fontFamily: 'inherit',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
-            transition: 'transform 0.1s'
-          }}>تثبيت</button>
-        )}
+            lineHeight: 1,
+            padding: 0
+          }} aria-label="إغلاق">✕</button>
+        </div>
       </div>
     );
   }

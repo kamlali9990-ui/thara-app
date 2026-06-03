@@ -3,6 +3,7 @@ import { StoreContext } from '../../context/StoreContext';
 import OrderLocationMap from '../OrderLocationMap.jsx';
 import { parseOrderLocation, getMapLinks } from '../../utils/location.js';
 import { showToast } from '../Toast.jsx';
+import { printInvoice } from '../../utils/printInvoice.js';
 
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
 
@@ -16,6 +17,17 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
   const [activeDriverTab, setActiveDriverTab] = useState('available');
   const [etaModalOrder, setEtaModalOrder] = useState(null);
   const [etaModalValue, setEtaModalValue] = useState('30');
+
+  // Auto-mark order chat messages as read when modal opens
+  useEffect(() => {
+    if (!chatOrder) return;
+    const unreadIds = chatMessages
+      .filter(m => (!m.orderId || m.orderId === chatOrder) && m.sender === 'customer' && m.status !== 'read')
+      .map(m => m.id);
+    if (unreadIds.length > 0) {
+      markMessagesAsRead(unreadIds);
+    }
+  }, [chatOrder]);
 
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
@@ -88,16 +100,6 @@ const handleStatusChange = (order, newStatus) => {
   const orderChatMessages = (orderId) => chatMessages.filter(m => !m.orderId || m.orderId === orderId);
   const senderRole = staffRole === 'driver' ? 'driver' : 'admin';
 
-  // Auto-mark order chat messages as read when modal opens
-  useEffect(() => {
-    if (!chatOrder) return;
-    const unreadIds = chatMessages
-      .filter(m => (!m.orderId || m.orderId === chatOrder) && m.sender === 'customer' && m.status !== 'read')
-      .map(m => m.id);
-    if (unreadIds.length > 0) {
-      markMessagesAsRead(unreadIds);
-    }
-  }, [chatOrder]);
   const activeOrders = orders.filter(o => o.status !== 'مكتمل');
   const completedOrders = orders.filter(o => o.status === 'مكتمل');
 
@@ -198,8 +200,28 @@ const handleStatusChange = (order, newStatus) => {
           <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
           {!compact && (
             isDriver ? renderDriverActions(order) : (
-              staffRole === 'manager' ? (
-                <span style={{ color: '#fbbf24', fontWeight: 700, fontSize: '1rem', padding: '0.5rem 0' }}>{order.status}</span>
+              staffRole === 'manager' || staffRole === 'employee' ? (
+                order.status === 'جديد' ? (
+                  <button
+                    onClick={() => doUpdate(order, 'قيد التحضير')}
+                    className="btn btn-accept"
+                  >
+                    استلام الطلب
+                  </button>
+                ) : (
+                  <select
+                    value={order.status}
+                    onChange={(e) => handleStatusChange(order, e.target.value)}
+                    className="order-status-select"
+                  >
+                    <option value="جديد">جديد</option>
+                    <option value="قيد التحضير">قيد التحضير</option>
+                    <option value="جاهز للتوصيل">جاهز للتوصيل</option>
+                    <option value="في الطريق">في الطريق</option>
+                    <option value="مكتمل">مكتمل</option>
+                    <option value="ملغي">ملغي</option>
+                  </select>
+                )
               ) : order.status === 'جديد' ? (
                 <button
                   onClick={() => doUpdate(order, 'قيد التحضير')}
@@ -246,8 +268,8 @@ const handleStatusChange = (order, newStatus) => {
           </div>
         )}
 
-        {/* Driver assignment dropdown for admin only */}
-        {!compact && !isDriver && staffRole === 'admin' && (
+        {/* Driver assignment dropdown for admin/manager only */}
+        {!compact && !isDriver && (staffRole === 'admin' || staffRole === 'manager') && (
           <div className="admin-assign-driver-block" style={{ marginTop: '0.75rem', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
             <strong style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🚚 تعيين السائق:</strong>
             <select
@@ -293,6 +315,7 @@ const handleStatusChange = (order, newStatus) => {
 
         <div style={{ marginTop: '0.4rem' }}>
           <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
+          <button type="button" className="chat-order-btn" style={{ marginRight: '0.4rem' }} onClick={() => printInvoice(order)}>🖨️ طباعة الفاتورة</button>
           {!compact && staffRole === 'admin' && (
             <button type="button" className="admin-delete-btn" style={{ marginTop: '0.4rem' }}
               onClick={() => {
@@ -342,15 +365,15 @@ const handleStatusChange = (order, newStatus) => {
               {orderChatMessages(chatOrder).map(m => {
                 const isMe = m.sender === senderRole;
                 const getSenderLabel = (msg) => {
-                  if (msg.sender === senderRole) return 'أنت';
+                  if (msg.sender === senderRole) return msg.senderName || 'أنت';
                   if (msg.sender === 'customer') return 'العميل';
                   if (msg.sender === 'driver') {
                     const o = orders.find(x => x.id === chatOrder);
-                    const dName = o ? drivers.find(d => String(d.id) === String(o.assignedDriverId))?.name : null;
+                    const dName = msg.senderName || (o ? drivers.find(d => String(d.id) === String(o.assignedDriverId))?.name : null);
                     return dName ? `السائق (${dName})` : 'السائق';
                   }
                   if (msg.sender === 'admin') {
-                    return 'المتجر / الدعم';
+                    return msg.senderName || 'المتجر / الدعم';
                   }
                   return msg.sender;
                 };
@@ -383,10 +406,10 @@ const handleStatusChange = (order, newStatus) => {
               )}
             </div>
             <div className="order-chat-input">
-              <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
-                onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } } }}
-                placeholder="اكتب رسالة..." />
-              <button onClick={() => { if (chatText.trim()) { sendMessage(senderRole, chatText, chatOrder); setChatText(''); } }}>إرسال</button>
+                <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
+                  onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } } }}
+                  placeholder="اكتب رسالة..." />
+              <button onClick={() => { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } }}>إرسال</button>
             </div>
           </div>
         </div>

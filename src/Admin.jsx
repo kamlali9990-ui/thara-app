@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
 import { showToast } from './components/Toast.jsx';
+import InstallPrompt from './components/InstallPrompt.jsx';
 
 const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
 const AdminProducts = lazy(() => import('./components/admin/AdminProducts'));
@@ -60,6 +61,7 @@ export default function Admin() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
 
   const handleLogout = async () => {
     await logout();
@@ -88,11 +90,14 @@ export default function Admin() {
     initDriverPrompt();
   }, [staffRole]);
 
+  const [passwordChangeWithVerify, setPasswordChangeWithVerify] = useState(false);
+
   const handleSkipPasswordChange = async () => {
     const { data } = await supabase.auth.getUser();
     const email = data?.user?.email;
     if (email) localStorage.setItem(`thara_driver_password_prompt_dismissed_${email}`, '1');
     setShowPasswordPrompt(false);
+    setPasswordChangeWithVerify(false);
   };
 
   const handlePasswordChange = async () => {
@@ -112,12 +117,21 @@ export default function Admin() {
     try {
       const { data } = await supabase.auth.getUser();
       const email = data?.user?.email;
+      if (currentPassword) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
+        if (signInError) {
+          showToast('كلمة المرور الحالية غير صحيحة', 'error');
+          setPasswordLoading(false);
+          return;
+        }
+      }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       if (email) localStorage.setItem(`thara_driver_password_prompt_dismissed_${email}`, '1');
       setShowPasswordPrompt(false);
       setNewPassword('');
       setConfirmPassword('');
+      setCurrentPassword('');
       showToast('تم تحديث كلمة المرور بنجاح', 'success');
     } catch (err) {
       showToast('فشل تحديث كلمة المرور: ' + (err.message || 'خطأ غير معروف'), 'error');
@@ -126,9 +140,9 @@ export default function Admin() {
     }
   };
 
-  const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين' };
-  const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥' };
-  const canManageCatalog = staffRole === 'admin';
+  const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين', profile: 'الملف الشخصي' };
+  const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥', profile: '⚙️' };
+  const canManageCatalog = staffRole === 'admin' || staffRole === 'manager';
   const isAdminOrManager = staffRole === 'admin' || staffRole === 'manager';
   const isDriver = staffRole === 'driver';
 
@@ -164,64 +178,76 @@ export default function Admin() {
     );
   }
   if (staffRole === 'admin') tabs.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
+  tabs.push({ id: 'profile', label: 'الملف الشخصي', icon: '⚙️' });
 
   return (
     <div className="admin-layout">
       {showPasswordPrompt && (
-        <div className="confirm-overlay" onClick={handleSkipPasswordChange}>
+        <div className="confirm-overlay" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); } : handleSkipPasswordChange}>
           <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>تحديث كلمة المرور (اختياري)</p>
-            <p style={{ marginBottom: '1.25rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
-              يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
-            </p>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              placeholder="كلمة المرور الجديدة"
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '12px',
-                fontSize: '0.95rem',
-                fontFamily: 'inherit',
-                background: 'rgba(0, 0, 0, 0.3)',
-                color: '#ffffff',
-                outline: 'none',
-                marginBottom: '0.5rem',
-                boxSizing: 'border-box',
-                textAlign: 'right'
-              }}
-            />
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="تأكيد كلمة المرور"
-              style={{
-                width: '100%',
-                padding: '0.75rem 1rem',
-                border: '1.5px solid rgba(255, 255, 255, 0.15)',
-                borderRadius: '12px',
-                fontSize: '0.95rem',
-                fontFamily: 'inherit',
-                background: 'rgba(0, 0, 0, 0.3)',
-                color: '#ffffff',
-                outline: 'none',
-                marginBottom: '1.25rem',
-                boxSizing: 'border-box',
-                textAlign: 'right'
-              }}
-            />
-            <div className="confirm-actions">
-              <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
-                {passwordLoading ? 'جاري التحديث...' : 'تحديث الآن'}
-              </button>
-              <button className="confirm-btn confirm-no" onClick={handleSkipPasswordChange} style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
-                التخطي الآن
-              </button>
-            </div>
+            {passwordChangeWithVerify ? (
+              <>
+                <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>🔑 تغيير كلمة المرور</p>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  placeholder="كلمة المرور الحالية"
+                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right' }}
+                />
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  placeholder="كلمة المرور الجديدة"
+                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right' }}
+                />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="تأكيد كلمة المرور الجديدة"
+                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '1.25rem', boxSizing: 'border-box', textAlign: 'right' }}
+                />
+                <div className="confirm-actions">
+                  <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
+                    {passwordLoading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}
+                  </button>
+                  <button className="confirm-btn confirm-no" onClick={() => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); }} style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
+                    إلغاء
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>تحديث كلمة المرور (اختياري)</p>
+                <p style={{ marginBottom: '1.25rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                  يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
+                </p>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  placeholder="كلمة المرور الجديدة"
+                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right' }}
+                />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="تأكيد كلمة المرور"
+                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '1.25rem', boxSizing: 'border-box', textAlign: 'right' }}
+                />
+                <div className="confirm-actions">
+                  <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
+                    {passwordLoading ? 'جاري التحديث...' : 'تحديث الآن'}
+                  </button>
+                  <button className="confirm-btn confirm-no" onClick={handleSkipPasswordChange} style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
+                    التخطي الآن
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -247,6 +273,7 @@ export default function Admin() {
       </aside>
 
       {/* Main Content */}
+      <InstallPrompt variant="admin" />
       <main className="admin-main">
         <Suspense fallback={<div className="admin-loading">جاري التحميل...</div>}>
           {activeTab === 'orders' && (
@@ -266,6 +293,21 @@ export default function Admin() {
           {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />}
           {activeTab === 'staff' && <StaffManager />}
           {activeTab === 'users' && <AdminUsers staffRole={staffRole} customers={allCustomers} loadCustomers={loadCustomers} />}
+          {activeTab === 'profile' && (
+            <div className="admin-profile-section">
+              <h2 className="admin-section-title">⚙️ الملف الشخصي</h2>
+              <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
+                <p style={{ marginBottom: '1rem', color: '#94a3b8' }}>
+                  <strong>البريد الإلكتروني:</strong> {currentStaff?.email || '—'}<br />
+                  <strong>الاسم:</strong> {currentStaff?.name || '—'}<br />
+                  <strong>الصلاحية:</strong> {staffRole === 'admin' ? 'مدير' : staffRole === 'manager' ? 'مدير عام' : staffRole === 'employee' ? 'موظف' : 'سائق'}
+                </p>
+                <button className="btn" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordChangeWithVerify(true); setShowPasswordPrompt(true); }} style={{ marginTop: '0.5rem' }}>
+                  🔑 تغيير كلمة المرور
+                </button>
+              </div>
+            </div>
+          )}
         </Suspense>
       </main>
 

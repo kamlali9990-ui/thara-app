@@ -8,19 +8,19 @@ import { staffApi } from '../supabase/staff.js';
 import { customersApi } from '../supabase/customers.js';
 import { cleanProductImages } from '../utils/constants.js';
 
+const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
+
 export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading }) {
   useEffect(() => {
     const init = async () => {
       if (hasSupabase) {
         try {
-          const [supaProducts, supaOrders, supaChat] = await Promise.all([
+          const [supaProducts, supaOrders] = await Promise.all([
             productsApi.list().catch(() => null),
-            ordersApi.list().catch(() => null),
-            chatApi.list().catch(() => null)
+            ordersApi.list().catch(() => null)
           ]);
           if (supaProducts && supaProducts.length > 0) setProducts(cleanProductImages(supaProducts));
           if (supaOrders && supaOrders.length > 0) setOrders(supaOrders);
-          if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
 
           let currentUser = null;
           try {
@@ -35,11 +35,15 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
             if (staff) {
               setStaffRole(staff.role);
               setCurrentStaff(staff);
-            } else if (currentUser.email === 'admin@example.com') {
+            } else if (ADMIN_EMAIL && currentUser.email === ADMIN_EMAIL) {
               setStaffRole('admin');
-              setCurrentStaff({ email: currentUser.email, name: 'Admin', role: 'admin' });
+              setCurrentStaff({ email: currentUser.email, name: 'مدير', role: 'admin' });
             }
-            if (!staff) {
+            if (staff || (ADMIN_EMAIL && currentUser.email === ADMIN_EMAIL)) {
+              const supaChat = await chatApi.list().catch(() => null);
+              if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
+            }
+            if (!staff && !(ADMIN_EMAIL && currentUser.email === ADMIN_EMAIL)) {
               try {
                 const p = await customersApi.get(currentUser.email);
                 if (p) setCustomerProfile(p);
@@ -90,14 +94,14 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
           if (staff) {
             setStaffRole(staff.role);
             setCurrentStaff(staff);
-          } else if (u.email === 'admin@example.com') {
+          } else if (ADMIN_EMAIL && u.email === ADMIN_EMAIL) {
             setStaffRole('admin');
-            setCurrentStaff({ email: u.email, name: 'Admin', role: 'admin' });
+            setCurrentStaff({ email: u.email, name: 'مدير', role: 'admin' });
           } else {
             setStaffRole(null);
             setCurrentStaff(null);
           }
-          if (!staff) {
+          if (!staff && !(ADMIN_EMAIL && u.email === ADMIN_EMAIL)) {
             try {
               const p = await customersApi.get(u.email);
               if (p) setCustomerProfile(p);

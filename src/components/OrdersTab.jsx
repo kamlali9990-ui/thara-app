@@ -2,7 +2,7 @@ import { memo, useContext, useEffect, useState } from 'react';
 import { StoreContext } from '../context/StoreContext';
 
 const OrdersTab = memo(({ orders, loadOrders }) => {
-  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage } = useContext(StoreContext);
+  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, customerProfile } = useContext(StoreContext);
   const [lastUpdate, setLastUpdate] = useState(Date.now());
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
@@ -57,7 +57,7 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
                   <div key={m.id} className={`custom-chat-bubble ${isMe ? 'me' : 'them'}`}>
                     {!isMe && (
                       <div className="custom-chat-sender-label" style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#127443', marginBottom: '0.2rem' }}>
-                        {m.sender === 'driver' ? '🏍️ السائق' : '🏪 المتجر (الدعم)'}
+                        {m.senderName ? (m.sender === 'driver' ? `🏍️ ${m.senderName}` : m.senderName) : (m.sender === 'driver' ? '🏍️ السائق' : '🏪 المتجر (الدعم)')}
                       </div>
                     )}
                     <div>{m.text}</div>
@@ -87,9 +87,9 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
             </div>
             <div className="custom-chat-input">
               <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
-                onKeyDown={e => { if (e.key === 'Enter') { sendMessage('customer', chatText, chatOrder); setChatText(''); } }}
+                  onKeyDown={e => { if (e.key === 'Enter') { sendMessage('customer', chatText, chatOrder, null, null, customerProfile?.phone); setChatText(''); } }}
                 placeholder="اكتب رسالة..." />
-              <button onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder); setChatText(''); } }}>إرسال</button>
+              <button onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder, null, null, customerProfile?.phone); setChatText(''); } }}>إرسال</button>
             </div>
           </div>
         </div>

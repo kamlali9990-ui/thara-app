@@ -46,6 +46,19 @@ export default function App() {
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c1220' : '#127443');
   }, [theme]);
 
+  useEffect(() => {
+    const handler = (e) => {
+      const { name } = e.detail || {};
+      try {
+        if (Notification.permission === 'granted') {
+          new Notification('🔥 عرض جديد في ثراء الشرق ون!', { body: `اطلع على ${name || 'العرض الجديد'} الآن`, icon: '/icon-192.png' });
+        }
+      } catch {}
+    };
+    window.addEventListener('thara:new-offer', handler);
+    return () => window.removeEventListener('thara:new-offer', handler);
+  }, []);
+
   const toggleTheme = useCallback(() => {
     setTheme(t => t === 'light' ? 'dark' : 'light');
   }, []);
@@ -129,7 +142,7 @@ export default function App() {
   const unreadNotifs = useMemo(() => {
     if (!user) return 0;
     const relevant = chatMessages.filter(m =>
-      m.customerEmail === user.email &&
+      (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) &&
       m.sender !== 'customer'
     );
     if (!notifLastOpened) return relevant.length;
@@ -138,7 +151,7 @@ export default function App() {
       const msgTime = m.timestamp ? new Date(m.timestamp).getTime() : 0;
       return msgTime > lastTime;
     }).length;
-  }, [chatMessages, user, notifLastOpened]);
+  }, [chatMessages, user, customerProfile, notifLastOpened]);
 
   const switchTab = useCallback((t) => {
     if (t === 'cart') { setIsCartOpen(true); return; }

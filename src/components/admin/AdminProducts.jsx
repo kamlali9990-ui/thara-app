@@ -47,7 +47,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
     }
   };
 
-  const handleAddProduct = (e) => {
+  const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) return;
     
@@ -60,16 +60,20 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
       return;
     }
     
-    addProduct({
-      name: form.name.trim(), category: form.category,
-      price: Number(form.price) || 0, stock_quantity: Number(form.stock_quantity) || 0,
-      imageUrl: form.imageUrl.trim() || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">ثرا</text></svg>'),
-      unit: form.unit.trim() || 'حبة', isOffer: false
-    });
-    setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
-    setDuplicateProducts([]);
-    setShowDuplicateWarning(false);
-    showToast('تمت إضافة المنتج بنجاح', 'success');
+    try {
+      await addProduct({
+        name: form.name.trim(), category: form.category,
+        price: Number(form.price) || 0, stock_quantity: Number(form.stock_quantity) || 0,
+        imageUrl: form.imageUrl.trim() || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">ثرا</text></svg>'),
+        unit: form.unit.trim() || 'حبة', isOffer: false
+      });
+      setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
+      setDuplicateProducts([]);
+      setShowDuplicateWarning(false);
+      showToast('تمت إضافة المنتج بنجاح', 'success');
+    } catch (err) {
+      // Error is already toasted by StoreContext
+    }
   };
 
   const startEdit = (product) => {
@@ -110,6 +114,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
     'خضروات و فواكه': 'خضروات وفواكه',
     'مواد البناء': 'مواد البناء',
     'مجموعه الاصناف': 'مجموعة الأصناف',
+    'منتجات متنوعة': 'مجموعة الأصناف',
     'العاب': 'ألعاب'
   };
 
@@ -312,68 +317,60 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
         </div>
       )}
 
-      <div className="admin-products-grid">
+      <div className="admin-products-list">
         {products.map(p => (
-          <div key={p.id} className="admin-product-card">
-            <img src={p.imageUrl} alt="" className="admin-product-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+          <div key={p.id} className={`admin-product-row${editingId === p.id ? ' editing' : ''}`}>
             {editingId === p.id ? (
-              <div className="admin-edit-form">
-                <div className="admin-edit-field">
-                  <label className="admin-edit-label">اسم المنتج</label>
-                  <input type="text" value={editForm.name} onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))} className="admin-product-field" />
-                </div>
-                <div className="admin-edit-field">
-                  <label className="admin-edit-label">القسم</label>
-                  <select value={editForm.category} onChange={e => setEditForm(prev => ({ ...prev, category: e.target.value }))} className="admin-product-field">
-                    {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className="admin-edit-row">
-                  <div className="admin-edit-field">
-                    <label className="admin-edit-label">السعر</label>
-                    <input type="number" step="0.01" value={editForm.price} onChange={e => setEditForm(prev => ({ ...prev, price: e.target.value }))} className="admin-edit-input" placeholder="السعر" />
+              <>
+                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <div className="pr-edit-inline">
+                  <div className="pr-edit-field" style={{ flex: '2', minWidth: '80px' }}>
+                    <label className="pr-edit-label">الاسم</label>
+                    <input type="text" value={editForm.name} onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))} className="pr-edit-input" />
                   </div>
-                  <div className="admin-edit-field">
-                    <label className="admin-edit-label">المخزون</label>
-                    <input type="number" value={editForm.stock_quantity} onChange={e => setEditForm(prev => ({ ...prev, stock_quantity: e.target.value }))} className="admin-edit-input" placeholder="المخزون" />
+                  <div className="pr-edit-field" style={{ flex: '1', minWidth: '60px' }}>
+                    <label className="pr-edit-label">القسم</label>
+                    <select value={editForm.category} onChange={e => setEditForm(prev => ({ ...prev, category: e.target.value }))} className="pr-edit-input">
+                      {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
                   </div>
-                </div>
-                <div className="admin-edit-row">
-                  <div className="admin-edit-field">
-                    <label className="admin-edit-label">الوحدة</label>
-                    <input type="text" value={editForm.unit} onChange={e => setEditForm(prev => ({ ...prev, unit: e.target.value }))} className="admin-edit-input" placeholder="الوحدة" />
+                  <div className="pr-edit-field" style={{ flex: '0.7', minWidth: '50px' }}>
+                    <label className="pr-edit-label">السعر</label>
+                    <input type="number" step="0.01" value={editForm.price} onChange={e => setEditForm(prev => ({ ...prev, price: e.target.value }))} className="pr-edit-input" />
                   </div>
-                  <div className="admin-edit-field">
-                    <label className="admin-edit-label">الصورة</label>
+                  <div className="pr-edit-field" style={{ flex: '0.6', minWidth: '40px' }}>
+                    <label className="pr-edit-label">المخزون</label>
+                    <input type="number" value={editForm.stock_quantity} onChange={e => setEditForm(prev => ({ ...prev, stock_quantity: e.target.value }))} className="pr-edit-input" />
+                  </div>
+                  <div className="pr-edit-field" style={{ flex: '0.5', minWidth: '35px' }}>
+                    <label className="pr-edit-label">الوحدة</label>
+                    <input type="text" value={editForm.unit} onChange={e => setEditForm(prev => ({ ...prev, unit: e.target.value }))} className="pr-edit-input" />
+                  </div>
+                  <div className="pr-edit-field" style={{ flex: '0.8', minWidth: '70px' }}>
+                    <label className="pr-edit-label">الصورة</label>
                     <CloudinaryUpload 
                       onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
                       onError={(err) => showToast('فشل رفع الصورة', 'error')} 
                     />
                   </div>
-                </div>
-                <div className="admin-edit-actions">
-                  <button className="btn admin-edit-save-btn" onClick={() => saveEdit(p.id)}>💾 حفظ</button>
-                  <button className="admin-delete-btn admin-edit-cancel-btn" onClick={cancelEdit}>❌ إلغاء</button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="admin-product-card-main">
-                  <img src={p.imageUrl} alt="" className="pc-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
-                  <div className="pc-info">
-                    <span className="pc-name">{p.name}</span>
-                    <span className="pc-cat">{p.category}</span>
-                    <span className="pc-price">{p.price?.toFixed(2)}</span>
-                    <div className="pc-details-row">
-                      <span className="pc-stock">{p.stock_quantity ?? 0}</span>
-                      <span className="pc-unit">{p.unit}</span>
-                    </div>
+                  <div className="pr-edit-actions">
+                    <button className="pr-save-btn" onClick={() => saveEdit(p.id)}>حفظ</button>
+                    <button className="pr-cancel-btn" onClick={cancelEdit}>إلغاء</button>
                   </div>
                 </div>
+              </>
+            ) : (
+              <>
+                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <span className="pr-name">{p.name}</span>
+                <span className="pr-cat">{p.category}</span>
+                <span className="pr-price">{p.price?.toFixed(2)}</span>
+                <span className="pr-stock">{p.stock_quantity ?? 0}</span>
+                <span className="pr-unit">{p.unit}</span>
                 {canManageProducts && (
-                  <div className="pc-actions">
-                    <button className="admin-edit-btn" onClick={() => startEdit(p)}>✏️ تعديل</button>
-                    <button className="admin-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }}>🗑️ حذف</button>
+                  <div className="pr-actions">
+                    <button className="pr-edit-btn" onClick={() => startEdit(p)}>تعديل</button>
+                    <button className="pr-delete-btn" onClick={() => { if (window.confirm('حذف المنتج؟')) deleteProduct(p.id); }}>حذف</button>
                   </div>
                 )}
               </>

@@ -56,7 +56,7 @@ async function addNewProducts() {
     const newProduct = {
       id: nextId.toString(),
       name: productName,
-      category: 'منتجات متنوعة',
+      category: 'مجموعة الأصناف',
       price: 0,
       stock_quantity: 10,
       imageUrl: `/products/${destFileName}`,
