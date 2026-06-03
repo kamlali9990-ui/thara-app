@@ -1,7 +1,6 @@
 import { useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { StoreContext } from './context/StoreContext';
 import L from 'leaflet';
-import InstallPrompt from './components/InstallPrompt';
 import CheckoutModal from './components/CheckoutModal';
 import SupportChatWidget from './components/SupportChatWidget';
 import CartScreen from './components/CartScreen';
@@ -16,6 +15,7 @@ import CategoriesTab from './components/CategoriesTab';
 import OrdersTab from './components/OrdersTab';
 import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
+import AddToHomeScreen from './components/AddToHomeScreen';
 import { BASE } from './utils/constants';
 
 L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
@@ -38,6 +38,7 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [showAllView, setShowAllView] = useState(null);
   const [prevTab, setPrevTab] = useState('home');
+  const [showAddToHome, setShowAddToHome] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -170,7 +171,6 @@ export default function App() {
   return (
     <div className="app-wrapper">
       {updateAvailable && <UpdateBanner />}
-      <InstallPrompt />
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab}
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}
@@ -208,11 +208,14 @@ export default function App() {
       <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
         user={user} logout={logout} tab={tab} selectedCategory={selectedCategory} onTabChange={switchTab}
         setSelectedCategory={setSelectedCategory}
-        theme={theme} toggleTheme={toggleTheme} />
+        theme={theme} toggleTheme={toggleTheme}
+        onShareClick={() => { setIsDrawerOpen(false); setShowAddToHome(true); }} />
 
       {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
         onClose={() => setIsNotifOpen(false)}
         orders={orders} onTabChange={switchTab} />}
+
+      <AddToHomeScreen isOpen={showAddToHome} onClose={() => setShowAddToHome(false)} />
 
       <SupportChatWidget />
     </div>
