@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { StoreContext } from '../../context/StoreContext';
-import { supabase } from '../../supabase/client';
 import { showToast } from '../Toast';
-import { safeProductUrl } from '../../utils/constants';
 
 export default function AutoImageManager({ products, updateProduct }) {
   const { staffRole } = useContext(StoreContext);
