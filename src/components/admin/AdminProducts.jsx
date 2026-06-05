@@ -40,7 +40,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const [fixToPage, setFixToPage] = useState('');
   const [cloudFromPage, setCloudFromPage] = useState('');
   const [cloudToPage, setCloudToPage] = useState('');
-  const SERPER_KEY = import.meta.env.VITE_SERPER_API_KEY;
+  const SERPER_KEY = '26d3cbd8de5a6fb4379330ffb423ac5159aad2b5';
 
   useEffect(() => {
     const params = {};
