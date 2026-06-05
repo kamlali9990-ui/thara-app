@@ -1,9 +1,12 @@
 import React, { useState, useRef, useCallback, useContext, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 import { categories } from '../../data/mockData';
 import { showToast } from '../Toast.jsx';
 import * as XLSX from 'xlsx';
 import CloudinaryUpload from './CloudinaryUpload';
+import ImageSearch from './ImageSearch';
+import { safeProductUrl } from '../../utils/constants';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 const PAGE_SIZE = 50;
@@ -27,17 +30,49 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const [duplicateProducts, setDuplicateProducts] = useState([]);
   const nameInputRef = useRef(null);
   const debounceRef = useRef(null);
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [page, setPage] = useState(() => parseInt(searchParams.get('p'), 10) || 1);
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
+  const [imageSearchFor, setImageSearchFor] = useState(null); // null | { target: 'add'|'edit', query: string }
+  const [fixingImages, setFixingImages] = useState(false);
+  const [fixProgress, setFixProgress] = useState({ current: 0, total: 0 });
+  const [fixFromPage, setFixFromPage] = useState('');
+  const [fixToPage, setFixToPage] = useState('');
+  const [cloudFromPage, setCloudFromPage] = useState('');
+  const [cloudToPage, setCloudToPage] = useState('');
+  const SERPER_KEY = import.meta.env.VITE_SERPER_API_KEY;
 
-  const pageCount = useMemo(() => Math.ceil(products.length / PAGE_SIZE) || 1, [products.length]);
+  useEffect(() => {
+    const params = {};
+    if (page > 1) params.p = String(page);
+    if (searchQuery) params.q = searchQuery;
+    setSearchParams(params, { replace: true });
+  }, [page, searchQuery, setSearchParams]);
+
+  const filteredAndSortedProducts = useMemo(() => {
+    let list = products;
+    if (String(searchQuery).trim()) {
+      const q = String(searchQuery).trim().toLowerCase();
+      list = list.filter(p => p.name.toLowerCase().includes(q));
+    }
+    return [...list].sort((a, b) => {
+      const catCmp = (a.category || '').localeCompare(b.category || '', 'ar');
+      if (catCmp !== 0) return catCmp;
+      const aStock = (a.stock_quantity ?? 0) > 0 ? 0 : 1;
+      const bStock = (b.stock_quantity ?? 0) > 0 ? 0 : 1;
+      return aStock - bStock;
+    });
+  }, [products, searchQuery]);
+
+  const pageCount = useMemo(() => Math.ceil(filteredAndSortedProducts.length / PAGE_SIZE) || 1, [filteredAndSortedProducts.length]);
 
   useEffect(() => {
     if (page > pageCount) setPage(pageCount);
   }, [pageCount, page]);
 
   const paginatedProducts = useMemo(() =>
-    products.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [products, page]
+    filteredAndSortedProducts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredAndSortedProducts, page]
   );
 
   const searchSimilarProducts = useCallback((name) => {
@@ -48,7 +83,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       return;
     }
     debounceRef.current = setTimeout(() => {
-      const searchTerm = name.toLowerCase().trim();
+      const searchTerm = String(name).toLowerCase().trim();
       const similar = products.filter(p =>
         p.name.toLowerCase().includes(searchTerm) ||
         searchTerm.includes(p.name.toLowerCase())
@@ -67,14 +102,14 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!form.name.trim()) return;
+    if (!String(form.name).trim()) return;
 
     if (editTargetId) {
       try {
         await updateProduct(editTargetId, {
-          name: form.name.trim(), category: form.category,
+          name: String(form.name).trim(), category: form.category,
           price: Number(form.price) || 0, stock_quantity: Number(form.stock_quantity) || 0,
-          unit: form.unit.trim() || 'حبة', imageUrl: form.imageUrl.trim()
+          unit: String(form.unit).trim() || 'حبة', imageUrl: String(form.imageUrl).trim()
         });
         showToast('تم حفظ التعديلات', 'success');
         setEditTargetId(null);
@@ -86,7 +121,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     }
 
     const exactDuplicate = products.find(p =>
-      p.name.toLowerCase().trim() === form.name.toLowerCase().trim()
+      String(p.name).toLowerCase().trim() === String(form.name).toLowerCase().trim()
     );
     if (exactDuplicate) {
       showToast('يوجد منتج بنفس الاسم بالفعل! يرجى استخدام اسم مختلف', 'error');
@@ -94,10 +129,10 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     }
     try {
       await addProduct({
-        name: form.name.trim(), category: form.category,
+        name: String(form.name).trim(), category: form.category,
         price: Number(form.price) || 0, stock_quantity: Number(form.stock_quantity) || 0,
-        imageUrl: form.imageUrl.trim() || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">ثرا</text></svg>'),
-        unit: form.unit.trim() || 'حبة', isOffer: false
+        imageUrl: String(form.imageUrl).trim() || 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#127443" width="400" height="400"/><text fill="#FFFFFF" font-family="sans-serif" font-size="40" x="200" y="200" text-anchor="middle" dominant-baseline="middle">ثرا</text></svg>'),
+        unit: String(form.unit).trim() || 'حبة', isOffer: false
       });
       setForm(prev => ({ ...prev, name: '', price: '', stock_quantity: '', imageUrl: '' }));
       setDuplicateProducts([]);
@@ -115,7 +150,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
 
   const saveEdit = async (id) => {
     const duplicateWithName = products.find(p =>
-      p.id !== id && p.name.toLowerCase().trim() === editForm.name.toLowerCase().trim()
+      p.id !== id && String(p.name).toLowerCase().trim() === String(editForm.name).toLowerCase().trim()
     );
     if (duplicateWithName) {
       showToast('يوجد منتج آخر بنفس الاسم!', 'error');
@@ -123,13 +158,14 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     }
     try {
       await updateProduct(id, {
-        name: editForm.name.trim(), category: editForm.category,
+        name: String(editForm.name).trim(), category: editForm.category,
         price: Number(editForm.price) || 0, stock_quantity: Number(editForm.stock_quantity) || 0,
-        unit: editForm.unit.trim() || 'حبة', imageUrl: editForm.imageUrl.trim()
+        unit: String(editForm.unit).trim() || 'حبة', imageUrl: String(editForm.imageUrl).trim()
       });
       showToast('تم حفظ التعديلات', 'success');
       setEditingId(null);
       setEditForm({});
+      setTimeout(() => document.getElementById(`pr-${id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
     } catch (err) {
       showToast('فشل الحفظ: ' + (err.message || ''), 'error');
     }
@@ -193,7 +229,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
 
   const handlePaste = (text) => {
     try {
-      const rows = text.trim().split('\n').map((line, i) => {
+      const rows = String(text).trim().split('\n').map((line, i) => {
         const parts = line.split('\t');
         if (parts.length < 2) parts.push(...line.split(','));
         return { _row: i + 1, name: parts[0], category: mapCategory(parts[1]), price: parseFloat(parts[2]) || 0, stock_quantity: parseInt(parts[3], 10) || 0, unit: parts[4] || 'حبة', imageUrl: parts[5] || '' };
@@ -232,6 +268,103 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     setImportProgress({ current: 0, total: 0 });
   };
 
+  const fixProductImages = async () => {
+    let targets = products.filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com'));
+    const from = parseInt(fixFromPage, 10) || 0;
+    const to = parseInt(fixToPage, 10) || 0;
+    if (from > 0) {
+      const start = (from - 1) * PAGE_SIZE;
+      const end = to >= from ? to * PAGE_SIZE : start + PAGE_SIZE;
+      targets = filteredAndSortedProducts.slice(start, end).filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com'));
+    }
+    if (!targets.length) { showToast('لا توجد منتجات تحتاج تصحيح في هذه الصفحة', 'success'); return; }
+    if (!SERPER_KEY) { showToast('مطلوب مفتاح Serper API', 'error'); return; }
+    setFixingImages(true);
+    setFixProgress({ current: 0, total: targets.length });
+    let done = 0;
+    for (const p of targets) {
+      try {
+        const res = await fetch('https://google.serper.dev/images', {
+          method: 'POST',
+          headers: { 'X-API-KEY': SERPER_KEY, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 1 })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.images?.length > 0) {
+            let url = data.images[0].imageUrl;
+            if (url) { if (typeof url === 'string' && url.startsWith('http://')) url = 'https://' + url.slice(7); await updateProduct(p.id, { imageUrl: url }); }
+          }
+        }
+      } catch {}
+      done++;
+      setFixProgress({ current: done, total: targets.length });
+      await new Promise(r => setTimeout(r, 400));
+    }
+    setFixingImages(false);
+    showToast(`تم تصحيح صور ${done} منتج`, 'success');
+  };
+
+  const [cloudUploading, setCloudUploading] = useState(false);
+  const [cloudProgress, setCloudProgress] = useState({ current: 0, total: 0 });
+  const cloudCancelRef = useRef(false);
+  const cloudSigRef = useRef(null);
+
+  const batchUploadToCloudinary = async () => {
+    let targets = products.filter(p => {
+      const u = p.imageUrl;
+      if (!u || typeof u !== 'string') return false;
+      if (u.includes('res.cloudinary.com')) return false;
+      if (u.startsWith('data:')) return false;
+      if (u.includes('LOGO.jpg') || u.includes('logo222')) return false;
+      return true;
+    });
+    const from = parseInt(cloudFromPage, 10) || 0;
+    const to = parseInt(cloudToPage, 10) || 0;
+    if (from > 0) {
+      const start = (from - 1) * PAGE_SIZE;
+      const end = to >= from ? to * PAGE_SIZE : start + PAGE_SIZE;
+      targets = filteredAndSortedProducts.slice(start, end).filter(t => targets.includes(t));
+    }
+    if (!targets.length) { showToast('لا توجد منتجات تحتاج رفع', 'success'); return; }
+    setCloudUploading(true);
+    cloudCancelRef.current = false;
+    setCloudProgress({ current: 0, total: targets.length });
+    // Get one signature (same for all URLs since file is excluded from signing)
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+    let sigData;
+    try {
+      const sigRes = await fetch(baseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+      });
+      if (!sigRes.ok) throw new Error('فشل الحصول على توقيع');
+      sigData = await sigRes.json();
+    } catch { setCloudUploading(false); showToast('فشل الاتصال بخدمة التوقيع', 'error'); return; }
+    let done = 0, failed = 0;
+    for (const p of targets) {
+      if (cloudCancelRef.current) break;
+      try {
+        const form = new FormData();
+        form.append('file', p.imageUrl);
+        form.append('api_key', sigData.api_key);
+        form.append('timestamp', String(sigData.timestamp));
+        form.append('signature', sigData.signature);
+        const upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
+        if (!upRes.ok) { const t = await upRes.text(); throw new Error(t.slice(0, 100)); }
+        const data = await upRes.json();
+        if (data.secure_url) await updateProduct(p.id, { imageUrl: data.secure_url });
+        done++;
+      } catch { failed++; }
+      setCloudProgress({ current: done + failed, total: targets.length });
+      await new Promise(r => setTimeout(r, 300));
+    }
+    setCloudUploading(false);
+    if (cloudCancelRef.current) showToast(`تم إيقاف الرفع: ${done} تم, ${failed} فشل`, 'warning');
+    else showToast(`تم رفع ${done} صورة لـ Cloudinary` + (failed ? `, فشل ${failed}` : ''), failed && failed === done ? 'error' : 'success');
+  };
+
+  const cancelCloudUpload = () => { cloudCancelRef.current = true; };
+
   const PAGI_BTN = (disabled, label) => ({
     padding: '0.4rem 0.8rem', borderRadius: 8, border: '0.5px solid rgba(255,255,255,0.15)',
     background: disabled ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
@@ -243,9 +376,61 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   return (
     <div>
       <div className="admin-section-header">
-        <h2 className="admin-section-title products-title">إدارة المنتجات ({products.length})</h2>
+        <h2 className="admin-section-title products-title">إدارة المنتجات ({filteredAndSortedProducts.length})</h2>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flex: '1', maxWidth: '400px', margin: '0 1rem' }}>
+          <input type="text" placeholder="🔍 بحث عن صنف للبدء في تعديله..."
+            value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }}
+            style={{ 
+              width: '100%', 
+              background: 'rgba(18, 116, 67, 0.2)', 
+              border: '1px solid rgba(18, 116, 67, 0.6)', 
+              borderRadius: '10px', 
+              padding: '0.6rem 1rem', 
+              color: '#fff', 
+              fontSize: '0.9rem', 
+              fontFamily: 'inherit', 
+              outline: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+              transition: 'all 0.3s ease'
+            }} 
+            onFocus={e => { e.target.style.border = '1px solid #fbbf24'; e.target.style.boxShadow = '0 0 10px rgba(251,191,36,0.3)'; }}
+            onBlur={e => { e.target.style.border = '1px solid rgba(18, 116, 67, 0.6)'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)'; }}
+          />
+        </div>
         {canManageProducts && <button className="btn" onClick={() => { setShowImport(!showImport); setPreviewRows([]); }}>استيراد</button>}
+        {canManageProducts && (
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+            <input type="number" min="1" max={pageCount} value={fixFromPage} onChange={e => { setFixFromPage(e.target.value); setFixToPage(''); }} placeholder="من ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />
+            {fixFromPage && <span style={{ color: '#64748b', fontSize: '0.75rem' }}>-</span>}
+            {fixFromPage && <input type="number" min={fixFromPage || 1} max={pageCount} value={fixToPage} onChange={e => setFixToPage(e.target.value)} placeholder="إلى ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />}
+            <button className="btn" onClick={fixProductImages} disabled={fixingImages} style={{ background: fixingImages ? 'rgba(251,191,36,0.3)' : 'rgba(251,191,36,0.15)', borderColor: 'rgba(251,191,36,0.3)', whiteSpace: 'nowrap' }}>{fixingImages ? 'جاري...' : '🖼 تصحيح'}</button>
+          </div>
+        )}
+        {canManageProducts && (
+          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+            <input type="number" min="1" max={pageCount} value={cloudFromPage} onChange={e => { setCloudFromPage(e.target.value); setCloudToPage(''); }} placeholder="من ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />
+            {cloudFromPage && <span style={{ color: '#64748b', fontSize: '0.75rem' }}>-</span>}
+            {cloudFromPage && <input type="number" min={cloudFromPage || 1} max={pageCount} value={cloudToPage} onChange={e => setCloudToPage(e.target.value)} placeholder="إلى ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />}
+            <button className="btn" onClick={cloudUploading ? cancelCloudUpload : batchUploadToCloudinary} style={{ background: cloudUploading ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.15)', borderColor: cloudUploading ? 'rgba(239,68,68,0.4)' : 'rgba(59,130,246,0.3)', whiteSpace: 'nowrap' }}>{cloudUploading ? '⏹ إيقاف' : '☁️ رفع'}</button>
+          </div>
+        )}
       </div>
+      {fixingImages && fixProgress.total > 0 && (
+        <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0 0.25rem' }}>
+          <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ width: `${(fixProgress.current / fixProgress.total) * 100}%`, height: '100%', background: 'linear-gradient(90deg,#22c55e,#16a34a)', borderRadius: 3, transition: 'width 0.3s' }} />
+          </div>
+          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{fixProgress.current} / {fixProgress.total}</span>
+        </div>
+      )}
+      {cloudUploading && cloudProgress.total > 0 && (
+        <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0 0.25rem' }}>
+          <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
+            <div style={{ width: `${(cloudProgress.current / cloudProgress.total) * 100}%`, height: '100%', background: 'linear-gradient(90deg,#3b82f6,#2563eb)', borderRadius: 3, transition: 'width 0.3s' }} />
+          </div>
+          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>☁️ {cloudProgress.current} / {cloudProgress.total}</span>
+        </div>
+      )}
 
       {canManageProducts && showImport && (
         <div className="admin-card" style={{ marginBottom: '1rem' }}>
@@ -344,12 +529,23 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
               <div className="admin-product-field-group img-field">
                 <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="رابط الصورة" className="admin-product-form-input" />
               </div>
-              <div className="admin-product-field-group upload-field">
+              <div className="admin-product-field-group upload-field" style={{ display: 'flex', gap: '0.35rem' }}>
                 <CloudinaryUpload 
                   onUpload={(url) => updateForm('imageUrl', url)} 
                   onError={(err) => showToast('فشل رفع الصورة', 'error')} 
                 />
+                <button type="button" onClick={() => setImageSearchFor({ target: 'add', query: form.name })}
+                  style={{ background: 'rgba(251,191,36,0.12)', border: '0.5px solid rgba(251,191,36,0.25)', borderRadius: 8, padding: '0.4rem 0.6rem', color: '#fbbf24', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                  🔍 بحث
+                </button>
               </div>
+              {imageSearchFor?.target === 'add' && (
+                <ImageSearch
+                  defaultQuery={imageSearchFor.query}
+                  onSelect={(url) => { updateForm('imageUrl', url); setImageSearchFor(null); }}
+                  onClose={() => setImageSearchFor(null)}
+                />
+              )}
               <button className="admin-product-add-btn" type="submit">{editTargetId ? '💾 حفظ' : '+ إضافة'}</button>
               {editTargetId && (
                 <button type="button" className="admin-product-cancel-btn" onClick={() => { setEditTargetId(null); setForm({ name: '', category: ALL_CATS[0] || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' }); }}>إلغاء</button>
@@ -361,10 +557,10 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
 
       <div className="admin-products-list">
         {paginatedProducts.map(p => (
-          <div key={p.id} className={`admin-product-row${editingId === p.id ? ' editing' : ''}`}>
+          <div key={p.id} id={`pr-${p.id}`} className={`admin-product-row${editingId === p.id ? ' editing' : ''}`}>
             {editingId === p.id ? (
               <>
-                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <img src={safeProductUrl(p.imageUrl) || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
                 <div className="pr-edit-inline">
                   <div className="pr-edit-field" style={{ flex: '2', minWidth: '80px' }}>
                     <label className="pr-edit-label">الاسم</label>
@@ -390,11 +586,24 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
                   </div>
                   <div className="pr-edit-field" style={{ flex: '0.8', minWidth: '70px' }}>
                     <label className="pr-edit-label">الصورة</label>
-                    <CloudinaryUpload 
-                      onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
-                      onError={(err) => showToast('فشل رفع الصورة', 'error')} 
-                    />
+                    <div style={{ display: 'flex', gap: '0.25rem' }}>
+                      <CloudinaryUpload 
+                        onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
+                        onError={(err) => showToast('فشل رفع الصورة', 'error')} 
+                      />
+                      <button type="button" onClick={() => setImageSearchFor({ target: 'edit', query: editForm.name })}
+                        style={{ background: 'rgba(251,191,36,0.12)', border: '0.5px solid rgba(251,191,36,0.25)', borderRadius: 6, padding: '0.3rem 0.5rem', color: '#fbbf24', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.7rem' }}>
+                        🔍
+                      </button>
+                    </div>
                   </div>
+                  {imageSearchFor?.target === 'edit' && (
+                    <ImageSearch
+                      defaultQuery={imageSearchFor.query}
+                      onSelect={(url) => { setEditForm(prev => ({ ...prev, imageUrl: url })); setImageSearchFor(null); }}
+                      onClose={() => setImageSearchFor(null)}
+                    />
+                  )}
                   <div className="pr-edit-actions">
                     <button className="pr-save-btn" onClick={() => saveEdit(p.id)}>حفظ</button>
                     <button className="pr-cancel-btn" onClick={cancelEdit}>إلغاء</button>
@@ -403,7 +612,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
               </>
             ) : (
               <>
-                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <img src={safeProductUrl(p.imageUrl) || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
                 <span className="pr-name">{p.name}</span>
                 <span className="pr-cat">{p.category}</span>
                 <span className="pr-price">{p.price?.toFixed(2)}</span>
