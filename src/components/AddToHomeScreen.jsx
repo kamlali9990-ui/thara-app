@@ -7,7 +7,6 @@ const isEdge = /Edg/.test(navigator.userAgent);
 const AddToHomeScreen = ({ isOpen, onClose }) => {
   const BASE = import.meta.env.BASE_URL || '/';
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
-  const [showManual, setShowManual] = useState(false);
 
   useEffect(() => {
     // Check if we already have a deferred prompt stored globally
@@ -34,10 +33,7 @@ const AddToHomeScreen = ({ isOpen, onClose }) => {
         }
       } catch (err) {
         console.error('خطأ في التثبيت:', err);
-        setShowManual(true);
       }
-    } else {
-      setShowManual(true);
     }
   };
 
@@ -58,86 +54,77 @@ const AddToHomeScreen = ({ isOpen, onClose }) => {
               onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
             <div className="install-app-info">
               <h2 className="install-title">إضافة ثراء الشرق للشاشة الرئيسية</h2>
-              <p className="install-subtitle">اضغط على الزر أدناه</p>
+              <p className="install-subtitle">
+                {isIOS ? 'اتبع الخطوات التالية' : 'اضغط على الزر أدناه'}
+              </p>
             </div>
           </div>
 
-          {!showManual && (
-            <button className="install-main-btn" onClick={handleInstall}>
-              {deferredPrompt ? 'إضافة للشاشة الرئيسية' : 'إضافة للشاشة الرئيسية'}
-            </button>
-          )}
-
-          {(showManual || !deferredPrompt) && (
-            <>
-              <div className="manual-install-guide">
-                {isIOS ? (
-                  <>
-                    <div className="step">
-                      <span className="step-number">1</span>
-                      <span>اضغط على زر المشاركة في سفاري</span>
-                      <span className="step-icon">⬆️</span>
-                    </div>
-                    <div className="step">
-                      <span className="step-number">2</span>
-                      <span>اختر "إضافة للشاشة الرئيسية"</span>
-                      <span className="step-icon">➕</span>
-                    </div>
-                    <div className="step">
-                      <span className="step-number">3</span>
-                      <span>اضغط "إضافة" في الزاوية</span>
-                      <span className="step-icon">✅</span>
-                    </div>
-                  </>
-                ) : isChrome || isEdge ? (
-                  <>
-                    <div className="step">
-                      <span className="step-number">1</span>
-                      <span>اضغط على قائمة المتصفح</span>
-                      <span className="step-icon">⋮</span>
-                    </div>
-                    <div className="step">
-                      <span className="step-number">2</span>
-                      <span>اختر "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية"</span>
-                      <span className="step-icon">➕</span>
-                    </div>
-                    <div className="step">
-                      <span className="step-number">3</span>
-                      <span>اتبع التعليمات على الشاشة</span>
-                      <span className="step-icon">✅</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="step">
-                      <span className="step-number">1</span>
-                      <span>افتح قائمة المتصفح</span>
-                      <span className="step-icon">⋮</span>
-                    </div>
-                    <div className="step">
-                      <span className="step-number">2</span>
-                      <span>ابحث عن خيار "إضافة للشاشة الرئيسية"</span>
-                      <span className="step-icon">➕</span>
-                    </div>
-                    <div className="step">
-                      <span className="step-number">3</span>
-                      <span>اتبع التعليمات</span>
-                      <span className="step-icon">✅</span>
-                    </div>
-                  </>
-                )}
+          {isIOS ? (
+            // Show manual steps directly for iOS
+            <div className="manual-install-guide">
+              <div className="step">
+                <span className="step-number">1</span>
+                <span>اضغط على زر المشاركة في سفاري</span>
+                <span className="step-icon">⬆️</span>
               </div>
-
-              {deferredPrompt && (
-                <button 
-                  className="install-main-btn" 
-                  onClick={() => setShowManual(false)}
-                  style={{ marginTop: '1rem' }}
-                >
-                  محاولة التثبيت المباشر
-                </button>
+              <div className="step">
+                <span className="step-number">2</span>
+                <span>اختر "إضافة للشاشة الرئيسية"</span>
+                <span className="step-icon">➕</span>
+              </div>
+              <div className="step">
+                <span className="step-number">3</span>
+                <span>اضغط "إضافة" في الزاوية</span>
+                <span className="step-icon">✅</span>
+              </div>
+            </div>
+          ) : deferredPrompt ? (
+            // Show install button for Chrome/Edge
+            <button className="install-main-btn" onClick={handleInstall}>
+              إضافة للشاشة الرئيسية
+            </button>
+          ) : (
+            // Show manual steps for other browsers
+            <div className="manual-install-guide">
+              {isChrome || isEdge ? (
+                <>
+                  <div className="step">
+                    <span className="step-number">1</span>
+                    <span>اضغط على قائمة المتصفح</span>
+                    <span className="step-icon">⋮</span>
+                  </div>
+                  <div className="step">
+                    <span className="step-number">2</span>
+                    <span>اختر "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية"</span>
+                    <span className="step-icon">➕</span>
+                  </div>
+                  <div className="step">
+                    <span className="step-number">3</span>
+                    <span>اتبع التعليمات على الشاشة</span>
+                    <span className="step-icon">✅</span>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="step">
+                    <span className="step-number">1</span>
+                    <span>افتح قائمة المتصفح</span>
+                    <span className="step-icon">⋮</span>
+                  </div>
+                  <div className="step">
+                    <span className="step-number">2</span>
+                    <span>ابحث عن خيار "إضافة للشاشة الرئيسية"</span>
+                    <span className="step-icon">➕</span>
+                  </div>
+                  <div className="step">
+                    <span className="step-number">3</span>
+                    <span>اتبع التعليمات</span>
+                    <span className="step-icon">✅</span>
+                  </div>
+                </>
               )}
-            </>
+            </div>
           )}
 
           <button className="install-skip-btn" onClick={onClose}>إغلاق</button>

@@ -4,7 +4,8 @@ import { StoreContext } from '../context/StoreContext';
 
 const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) => {
   const { customerProfile } = useContext(StoreContext);
-  const notifLastOpened = window.localStorage.getItem('thara_notif_last_opened') || '';
+  let notifLastOpened = '';
+  try { notifLastOpened = window.localStorage.getItem('thara_notif_last_opened') || ''; } catch {}
   const filteredMsgs = useMemo(() => {
     if (!user) return [];
     return chatMessages.filter(m => (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) && m.sender !== 'customer' && (!m.time || m.time > notifLastOpened));
@@ -15,7 +16,7 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
   }, [chatMessages, user, customerProfile]);
 
   React.useEffect(() => {
-    window.localStorage.setItem('thara_notif_last_opened', new Date().toISOString());
+    try { window.localStorage.setItem('thara_notif_last_opened', new Date().toISOString()); } catch {}
   }, []);
 
   return (

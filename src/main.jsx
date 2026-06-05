@@ -53,13 +53,6 @@ const PageLoader = <div className="loading-screen"><div className="loading-spinn
 
 const BASENAME = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 
-// Store deferredPrompt globally for PWA install
-window.__deferredPrompt = null;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  window.__deferredPrompt = e;
-});
-
 // Service Worker registration with proper error handling
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

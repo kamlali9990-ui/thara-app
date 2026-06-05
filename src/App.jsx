@@ -1,6 +1,7 @@
 import { useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { StoreContext } from './context/StoreContext';
 import L from 'leaflet';
+import InstallPrompt from './components/InstallPrompt';
 import CheckoutModal from './components/CheckoutModal';
 import SupportChatWidget from './components/SupportChatWidget';
 import CartScreen from './components/CartScreen';
@@ -15,7 +16,6 @@ import CategoriesTab from './components/CategoriesTab';
 import OrdersTab from './components/OrdersTab';
 import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
-import AddToHomeScreen from './components/AddToHomeScreen';
 import { BASE } from './utils/constants';
 
 L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
@@ -35,10 +35,9 @@ export default function App() {
   const [slideDir, setSlideDir] = useState('left');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  const [theme, setTheme] = useState(() => { try { return localStorage.getItem('theme') || 'light'; } catch { return 'light'; } });
   const [showAllView, setShowAllView] = useState(null);
   const [prevTab, setPrevTab] = useState('home');
-  const [showAddToHome, setShowAddToHome] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -139,7 +138,7 @@ export default function App() {
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const userOrders = orders.filter(o => o.customerEmail === user?.email);
-  const notifLastOpened = localStorage.getItem('thara_notif_last_opened') || '';
+  const notifLastOpened = (() => { try { return localStorage.getItem('thara_notif_last_opened') || ''; } catch { return ''; } })();
   const unreadNotifs = useMemo(() => {
     if (!user) return 0;
     const relevant = chatMessages.filter(m =>
@@ -171,6 +170,7 @@ export default function App() {
   return (
     <div className="app-wrapper">
       {updateAvailable && <UpdateBanner />}
+      <InstallPrompt />
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab}
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}
@@ -208,14 +208,11 @@ export default function App() {
       <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
         user={user} logout={logout} tab={tab} selectedCategory={selectedCategory} onTabChange={switchTab}
         setSelectedCategory={setSelectedCategory}
-        theme={theme} toggleTheme={toggleTheme}
-        onShareClick={() => { setIsDrawerOpen(false); setShowAddToHome(true); }} />
+        theme={theme} toggleTheme={toggleTheme} />
 
       {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
         onClose={() => setIsNotifOpen(false)}
         orders={orders} onTabChange={switchTab} />}
-
-      <AddToHomeScreen isOpen={showAddToHome} onClose={() => setShowAddToHome(false)} />
 
       <SupportChatWidget />
     </div>

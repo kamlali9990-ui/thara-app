@@ -1,6 +1,3 @@
 [edge_runtime]
 enabled = true
 policy = "per_worker"
-
-[functions]
-enabled = true

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useContext, useMemo } from 'react';
+import React, { useState, useRef, useCallback, useContext, useMemo, useEffect } from 'react';
 import { StoreContext } from '../../context/StoreContext';
 import { categories } from '../../data/mockData';
 import { showToast } from '../Toast.jsx';
@@ -6,60 +6,92 @@ import * as XLSX from 'xlsx';
 import CloudinaryUpload from './CloudinaryUpload';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
+const PAGE_SIZE = 50;
+const ALL_CATS = categories.filter(c => c !== 'الكل' && c !== 'العروض');
 
-export default function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteProduct }) {
+function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteProduct }) {
   const isAdmin = staffRole === 'admin';
   const isManager = staffRole === 'manager';
   const canManageProducts = isAdmin || isManager;
   const { bulkImportProducts } = useContext(StoreContext);
-  const [form, setForm] = useState({ name: '', category: categories.find(c => c !== 'الكل' && c !== 'العروض') || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' });
+  const [form, setForm] = useState({ name: '', category: ALL_CATS[0] || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' });
   const [showImport, setShowImport] = useState(false);
   const [previewRows, setPreviewRows] = useState([]);
   const [importing, setImporting] = useState(false);
   const [importProgress, setImportProgress] = useState({ current: 0, total: 0 });
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [editTargetId, setEditTargetId] = useState(null);
   const fileInputRef = useRef(null);
   const [showDuplicateWarning, setShowDuplicateWarning] = useState(false);
   const [duplicateProducts, setDuplicateProducts] = useState([]);
   const nameInputRef = useRef(null);
+  const debounceRef = useRef(null);
+  const [page, setPage] = useState(1);
 
-  // Search for similar products when typing name
-  const searchSimilarProducts = (name) => {
+  const pageCount = useMemo(() => Math.ceil(products.length / PAGE_SIZE) || 1, [products.length]);
+
+  useEffect(() => {
+    if (page > pageCount) setPage(pageCount);
+  }, [pageCount, page]);
+
+  const paginatedProducts = useMemo(() =>
+    products.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [products, page]
+  );
+
+  const searchSimilarProducts = useCallback((name) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     if (!name || name.length < 2) {
       setDuplicateProducts([]);
       setShowDuplicateWarning(false);
       return;
     }
-    const searchTerm = name.toLowerCase().trim();
-    const similar = products.filter(p => 
-      p.name.toLowerCase().includes(searchTerm) || 
-      searchTerm.includes(p.name.toLowerCase())
-    ).slice(0, 5);
-    setDuplicateProducts(similar);
-    setShowDuplicateWarning(similar.length > 0);
-  };
+    debounceRef.current = setTimeout(() => {
+      const searchTerm = name.toLowerCase().trim();
+      const similar = products.filter(p =>
+        p.name.toLowerCase().includes(searchTerm) ||
+        searchTerm.includes(p.name.toLowerCase())
+      ).slice(0, 50);
+      setDuplicateProducts(similar);
+      setShowDuplicateWarning(similar.length > 0);
+    }, 300);
+  }, [products]);
+
+  useEffect(() => () => { if (debounceRef.current) clearTimeout(debounceRef.current); }, []);
 
   const updateForm = (key, value) => {
     setForm(prev => ({ ...prev, [key]: value }));
-    if (key === 'name') {
-      searchSimilarProducts(value);
-    }
+    if (key === 'name') searchSimilarProducts(value);
   };
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!form.name.trim()) return;
-    
-    // Check for exact duplicate
-    const exactDuplicate = products.find(p => 
+
+    if (editTargetId) {
+      try {
+        await updateProduct(editTargetId, {
+          name: form.name.trim(), category: form.category,
+          price: Number(form.price) || 0, stock_quantity: Number(form.stock_quantity) || 0,
+          unit: form.unit.trim() || 'حبة', imageUrl: form.imageUrl.trim()
+        });
+        showToast('تم حفظ التعديلات', 'success');
+        setEditTargetId(null);
+        setForm({ name: '', category: ALL_CATS[0] || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' });
+      } catch (err) {
+        showToast('فشل الحفظ: ' + (err.message || ''), 'error');
+      }
+      return;
+    }
+
+    const exactDuplicate = products.find(p =>
       p.name.toLowerCase().trim() === form.name.toLowerCase().trim()
     );
     if (exactDuplicate) {
       showToast('يوجد منتج بنفس الاسم بالفعل! يرجى استخدام اسم مختلف', 'error');
       return;
     }
-    
     try {
       await addProduct({
         name: form.name.trim(), category: form.category,
@@ -71,9 +103,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
       setDuplicateProducts([]);
       setShowDuplicateWarning(false);
       showToast('تمت إضافة المنتج بنجاح', 'success');
-    } catch (err) {
-      // Error is already toasted by StoreContext
-    }
+    } catch (err) {}
   };
 
   const startEdit = (product) => {
@@ -84,15 +114,13 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
   const cancelEdit = () => { setEditingId(null); setEditForm({}); };
 
   const saveEdit = async (id) => {
-    // Check for duplicate name when editing
-    const duplicateWithName = products.find(p => 
+    const duplicateWithName = products.find(p =>
       p.id !== id && p.name.toLowerCase().trim() === editForm.name.toLowerCase().trim()
     );
     if (duplicateWithName) {
       showToast('يوجد منتج آخر بنفس الاسم!', 'error');
       return;
     }
-    
     try {
       await updateProduct(id, {
         name: editForm.name.trim(), category: editForm.category,
@@ -204,6 +232,14 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
     setImportProgress({ current: 0, total: 0 });
   };
 
+  const PAGI_BTN = (disabled, label) => ({
+    padding: '0.4rem 0.8rem', borderRadius: 8, border: '0.5px solid rgba(255,255,255,0.15)',
+    background: disabled ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
+    color: disabled ? 'rgba(255,255,255,0.3)' : '#e2e8f0',
+    cursor: disabled ? 'default' : 'pointer',
+    fontFamily: 'inherit', fontSize: '0.85rem'
+  });
+
   return (
     <div>
       <div className="admin-section-header">
@@ -276,9 +312,12 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
                       <div className="admin-duplicate-header">⚠️ منتجات مشابهة:</div>
                       {duplicateProducts.map(p => (
                         <div key={p.id} className="admin-duplicate-item" onClick={() => {
-                          setForm(prev => ({ ...prev, name: p.name, category: p.category, price: p.price.toString(), unit: p.unit }));
+                          setForm({ name: p.name, category: p.category, price: p.price.toString(), stock_quantity: p.stock_quantity?.toString() || '', unit: p.unit || 'حبة', imageUrl: p.imageUrl || '' });
+                          setEditTargetId(p.id);
                           setShowDuplicateWarning(false);
                           setDuplicateProducts([]);
+                          nameInputRef.current?.blur();
+                          setTimeout(() => document.querySelector('.admin-product-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
                         }}>
                           <span className="admin-duplicate-name">{p.name}</span>
                           <span className="admin-duplicate-info">{p.price.toFixed(2)} ر.س</span>
@@ -290,7 +329,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </div>
               <div className="admin-product-field-group cat-field">
                 <select value={form.category} onChange={e => updateForm('category', e.target.value)} className="admin-product-form-input">
-                  {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
+                  {ALL_CATS.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div className="admin-product-field-group price-field">
@@ -311,18 +350,21 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
                   onError={(err) => showToast('فشل رفع الصورة', 'error')} 
                 />
               </div>
-              <button className="admin-product-add-btn" type="submit">+ إضافة</button>
+              <button className="admin-product-add-btn" type="submit">{editTargetId ? '💾 حفظ' : '+ إضافة'}</button>
+              {editTargetId && (
+                <button type="button" className="admin-product-cancel-btn" onClick={() => { setEditTargetId(null); setForm({ name: '', category: ALL_CATS[0] || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' }); }}>إلغاء</button>
+              )}
             </div>
           </form>
         </div>
       )}
 
       <div className="admin-products-list">
-        {products.map(p => (
+        {paginatedProducts.map(p => (
           <div key={p.id} className={`admin-product-row${editingId === p.id ? ' editing' : ''}`}>
             {editingId === p.id ? (
               <>
-                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
                 <div className="pr-edit-inline">
                   <div className="pr-edit-field" style={{ flex: '2', minWidth: '80px' }}>
                     <label className="pr-edit-label">الاسم</label>
@@ -331,7 +373,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
                   <div className="pr-edit-field" style={{ flex: '1', minWidth: '60px' }}>
                     <label className="pr-edit-label">القسم</label>
                     <select value={editForm.category} onChange={e => setEditForm(prev => ({ ...prev, category: e.target.value }))} className="pr-edit-input">
-                      {categories.filter(c => c !== 'الكل' && c !== 'العروض').map(c => <option key={c} value={c}>{c}</option>)}
+                      {ALL_CATS.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                   <div className="pr-edit-field" style={{ flex: '0.7', minWidth: '50px' }}>
@@ -361,7 +403,7 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
               </>
             ) : (
               <>
-                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
+                <img src={p.imageUrl || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if (e.target.src !== ADMIN_LOGO) e.target.src = ADMIN_LOGO; }} />
                 <span className="pr-name">{p.name}</span>
                 <span className="pr-cat">{p.category}</span>
                 <span className="pr-price">{p.price?.toFixed(2)}</span>
@@ -378,6 +420,18 @@ export default function AdminProducts({ staffRole, products, addProduct, updateP
           </div>
         ))}
       </div>
+
+      {pageCount > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '1rem', marginTop: '0.5rem' }}>
+          <button style={PAGI_BTN(page <= 1, '→ السابق')} disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>→ السابق</button>
+          <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+            {page} / {pageCount}
+          </span>
+          <button style={PAGI_BTN(page >= pageCount, 'التالي ←')} disabled={page >= pageCount} onClick={() => setPage(p => Math.min(pageCount, p + 1))}>التالي ←</button>
+        </div>
+      )}
     </div>
   );
 }
+
+export default React.memo(AdminProducts);

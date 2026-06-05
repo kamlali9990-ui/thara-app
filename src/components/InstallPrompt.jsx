@@ -100,7 +100,7 @@ export default function InstallPrompt({ variant }) {
           <span style={{ fontSize: '1.2rem' }}>📲</span>
           <span>
             {isIOS
-              ? 'أضف لوحة التحكم للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية)'
+              ? <span>أضف لوحة التحكم للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية) <a href="/install-guide.html" target="_blank" style={{color:'#fde68a',fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>📖 شرح بالصور</a></span>
               : canInstall
                 ? 'ثبّت التطبيق للوصول السريع ومتابعة الطلبات بشكل أسرع'
                 : 'افتح قائمة المتصفح ⋮ ← تثبيت التطبيق'}
@@ -171,6 +171,7 @@ export default function InstallPrompt({ variant }) {
             <div className="install-ios-hint">
               <span className="ios-hint-icon">📲</span>
               <span className="ios-hint-text">شارك ← إضافة للشاشة الرئيسية</span>
+              <a href="/install-guide.html" target="_blank" className="install-ios-guide-link">📖 شرح بالصور</a>
             </div>
           )}
 

@@ -2,20 +2,21 @@ import { memo, useState, useMemo } from 'react';
 import { BASE } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
 import ProductCard from './ProductCard';
+import RotatingCategoryRow from './RotatingCategoryRow';
 
 const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
   const { allProducts, addToCart, cart } = useStore();
   const allCats = useMemo(() => [
-    { name: 'مواد غذائية', img: `${BASE}cat_canned.png`, fallback: '🥫', desc: 'جميع المواد الغذائية' },
-    { name: 'منظفات', img: `${BASE}cat_vegetables.jpg`, fallback: '🧹', desc: 'منتجات التنظيف والعناية' },
-    { name: 'إلكترونيات', img: `${BASE}cat_electronics.png`, fallback: '📱', desc: 'أجهزة وإكسسوارات إلكترونية' },
-    { name: 'أواني', img: `${BASE}cat_kitchen.png`, fallback: '🍳', desc: 'أدوات المطبخ والمنزل' },
-    { name: 'مكسرات وبهارات', img: `${BASE}cat_canned.jpg`, fallback: '🥜', desc: 'مكسرات وبهارات وتوابل' },
-    { name: 'خضروات وفواكه', img: `${BASE}Getty.webp`, fallback: '🥦', desc: 'طازج من المزرعة' },
-    { name: 'ألعاب', img: `${BASE}cat_toys.png`, fallback: '🎮', desc: 'ألعاب وترفيه للأطفال' },
-    { name: 'مجموعة الأصناف', img: `${BASE}cat_dairy.jpg`, fallback: '📦', desc: 'منتجات متنوعة' },
-    { name: 'ملابس', img: `${BASE}cat_clothing.png`, fallback: '👕', desc: 'ملابس للجميع' },
-    { name: 'مواد البناء', img: `${BASE}cat_hardware.png`, fallback: '🔧', desc: 'أدوات البناء والسباكة والكهرباء' },
+    { name: 'مواد غذائية', img: `${BASE}cat_canned.png`, fallback: '🥫', desc: 'جميع المواد الغذائية', color: '#e74c3c' },
+    { name: 'منظفات', img: `${BASE}cat_vegetables.jpg`, fallback: '🧹', desc: 'منتجات التنظيف والعناية', color: '#3498db' },
+    { name: 'إلكترونيات', img: `${BASE}cat_electronics.png`, fallback: '📱', desc: 'أجهزة وإكسسوارات إلكترونية', color: '#2ecc71' },
+    { name: 'أواني', img: `${BASE}cat_kitchen.png`, fallback: '🍳', desc: 'أدوات المطبخ والمنزل', color: '#f39c12' },
+    { name: 'مكسرات وبهارات', img: `${BASE}cat_canned.jpg`, fallback: '🥜', desc: 'مكسرات وبهارات وتوابل', color: '#9b59b6' },
+    { name: 'خضروات وفواكه', img: `${BASE}Getty.webp`, fallback: '🥦', desc: 'طازج من المزرعة', color: '#1abc9c' },
+    { name: 'ألعاب', img: `${BASE}cat_toys.png`, fallback: '🎮', desc: 'ألعاب وترفيه للأطفال', color: '#e67e22' },
+    { name: 'مجموعة الأصناف', img: `${BASE}cat_dairy.jpg`, fallback: '📦', desc: 'منتجات متنوعة', color: '#34495e' },
+    { name: 'ملابس', img: `${BASE}cat_clothing.png`, fallback: '👕', desc: 'ملابس للجميع', color: '#e91e63' },
+    { name: 'مواد البناء', img: `${BASE}cat_hardware.png`, fallback: '🔧', desc: 'أدوات البناء والسباكة والكهرباء', color: '#795548' },
   ], [BASE]);
 
   const [catSearch, setCatSearch] = useState('');
@@ -30,15 +31,17 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
 
   const isProdSearching = prodSearch.trim().length > 0;
 
+  const { mostRequested } = useStore();
+
   const categoryProducts = useMemo(() => {
     if (!selectedCat) return [];
-    return (allProducts || []).filter(p => p.category === selectedCat.name).slice(0, 6);
+    return (allProducts || []).filter(p => p.category === selectedCat.name);
   }, [selectedCat, allProducts]);
 
   const prodFiltered = useMemo(() => {
     if (!selectedCat) return [];
     const base = (allProducts || []).filter(p => p.category === selectedCat.name);
-    if (!prodSearch.trim()) return base.slice(0, 6);
+    if (!prodSearch.trim()) return base;
     const q = prodSearch.trim().toLowerCase();
     return base.filter(p => p.name.includes(q));
   }, [selectedCat, allProducts, prodSearch]);
@@ -81,7 +84,7 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
                     </div>
                     <div className="search-result-price-row">
                       <span className="search-result-price">
-                        {product.isOffer ? (
+                        {product.isOffer && product.offerPrice != null ? (
                           <><span className="offer-old">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
                         ) : product.price.toFixed(2)}
                         <span className="currency"> ر.س</span>
@@ -109,15 +112,15 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
             })}
           </div>
         ) : (
-          <div className="all-products-grid">
-            {prodFiltered.map(product => (
-              <ProductCard key={product.id} product={product} addToCart={addToCart} cart={cart} />
-            ))}
-            {prodFiltered.length === 0 && (
-              <div className="no-products-card" style={{ gridColumn: '1 / -1' }}>
-                <p>لا توجد منتجات في هذا القسم</p>
-              </div>
-            )}
+          <div className="categories-tab-products">
+            <RotatingCategoryRow
+              category={selectedCat.name}
+              categoryColor={selectedCat.color}
+              allProducts={categoryProducts}
+              mostRequested={mostRequested}
+              addToCart={addToCart}
+              cart={cart}
+            />
           </div>
         )}
       </div>
@@ -134,7 +137,7 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
       </div>
       <div className="categories-tab-grid">
         {filtered.length ? filtered.map(cat => (
-          <button key={cat.name} className="category-tab-card" onClick={() => selectCat(cat)}>
+          <button key={cat.name} className="category-tab-card" style={{ backgroundColor: cat.color, '--cat-color': cat.color }} onClick={() => selectCat(cat)}>
             <img src={cat.img} alt={cat.name} className="category-tab-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
             <span className="category-tab-emoji" style={{ display: 'none' }}>{cat.fallback}</span>
             <span className="category-tab-name">{cat.name}</span>

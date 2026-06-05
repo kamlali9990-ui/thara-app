@@ -36,7 +36,7 @@ const ProductCard = memo(({ product, addToCart, cart }) => {
         <div className="product-card-new-name">{product.name}</div>
         <div className="product-card-new-price-row">
           <div className="product-card-new-price">
-            {product.isOffer ? (
+            {product.isOffer && product.offerPrice != null ? (
               <><span className="offer-old">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
             ) : product.price.toFixed(2)}
             <span className="product-card-new-currency"> ر.س</span>

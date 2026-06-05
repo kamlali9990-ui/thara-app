@@ -31,22 +31,22 @@ export const StoreProvider = ({ children }) => {
 
   // --- Data ---
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem('thara_products');
-    return cleanProductImages(saved ? JSON.parse(saved) : mockProducts);
+    try { const saved = localStorage.getItem('thara_products'); if (saved) return cleanProductImages(JSON.parse(saved)); } catch {}
+    return cleanProductImages(mockProducts);
   });
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('thara_orders');
-    return saved ? JSON.parse(saved) : [];
+    try { const saved = localStorage.getItem('thara_orders'); if (saved) return JSON.parse(saved); } catch {}
+    return [];
   });
   const [chatMessages, setChatMessages] = useState(() => {
-    const saved = localStorage.getItem('thara_chat');
-    return saved ? JSON.parse(saved) : [];
+    try { const saved = localStorage.getItem('thara_chat'); if (saved) return JSON.parse(saved); } catch {}
+    return [];
   });
 
   // --- Session ---
   const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('thara_cart');
-    return saved ? JSON.parse(saved) : [];
+    try { const saved = localStorage.getItem('thara_cart'); if (saved) return JSON.parse(saved); } catch {}
+    return [];
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('الكل');
@@ -56,7 +56,7 @@ export const StoreProvider = ({ children }) => {
   const hasSupabase = import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   // --- Extracted hooks ---
-  usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading });
+  usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setCart, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading });
   useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading });
   useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, setChatMessages });
   useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOrders });
@@ -67,6 +67,20 @@ export const StoreProvider = ({ children }) => {
   const { markMessagesAsRead } = useMarkRead({ hasSupabase, supabaseReady, setChatMessages });
 
   useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart });
+
+  // Most requested products (from order history)
+  const mostRequested = useMemo(() => {
+    const counts = {};
+    orders.forEach(order => {
+      if (order.items && Array.isArray(order.items)) {
+        order.items.forEach(item => {
+          const id = item.id || item.product_id;
+          if (id) counts[id] = (counts[id] || 0) + (item.qty || 1);
+        });
+      }
+    });
+    return counts;
+  }, [orders]);
 
   // Debounce search (300ms)
   useEffect(() => {
@@ -96,7 +110,7 @@ export const StoreProvider = ({ children }) => {
   }, [searchQuery, products]);
 
   // --- Cart Actions ---
-  const getProductPrice = (p) => p.isOffer && p.offerPrice ? p.offerPrice : p.price;
+  const getProductPrice = (p) => p.isOffer && p.offerPrice != null ? p.offerPrice : p.price;
 
   const getStock = (productId) => {
     const p = products.find(x => x.id === productId);
@@ -137,7 +151,7 @@ export const StoreProvider = ({ children }) => {
   };
 
   const cartTotal = useMemo(() => {
-    return cart.reduce((total, item) => total + (item.currentPrice * item.qty), 0);
+    return cart.reduce((total, item) => total + ((item.currentPrice ?? 0) * (item.qty ?? 0)), 0);
   }, [cart]);
 
   // --- Loyalty Points ---
@@ -193,7 +207,7 @@ export const StoreProvider = ({ children }) => {
         if (updatedProducts) setProducts(cleanProductImages(updatedProducts));
         return createdOrder;
       } catch (err) {
-        if (err?.message?.includes('غير متوفرة')) throw err;
+        throw err;
       }
     }
 
@@ -473,6 +487,7 @@ export const StoreProvider = ({ children }) => {
       customerProfile, updateCustomerProfile,
       products: filteredProducts,
       instantResults,
+      mostRequested,
       cart, addToCart, removeFromCart, updateCartQty, cartTotal,
       searchQuery, setSearchQuery,
       selectedCategory, setSelectedCategory,

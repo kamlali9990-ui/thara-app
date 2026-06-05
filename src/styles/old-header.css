@@ -392,6 +392,14 @@ header {
   padding: 1.5rem;
   min-height: calc(100vh - 2rem);
 }
+.admin-section-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 1.5rem 0;
+}
+.admin-store-section > .admin-section-title:first-child {
+  margin-top: 0;
+}
 .admin-section-title {
   margin-bottom: 1rem;
   font-size: 1.4rem;

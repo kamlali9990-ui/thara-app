@@ -26,7 +26,7 @@ const CartScreen = memo(({ cart, cartTotal, cartCount, updateCartQty, removeFrom
               onError={productImgError} />
             <div className="cart-screen-item-info">
               <div className="cart-screen-item-name">{item.name}</div>
-              <div className="cart-screen-item-price">{(item.currentPrice || item.price).toFixed(2)} ر.س</div>
+              <div className="cart-screen-item-price">{(item.currentPrice ?? item.price ?? 0).toFixed(2)} ر.س</div>
               <div className="cart-screen-item-controls">
                 <button className="cart-screen-qty circular" onClick={() => updateCartQty(item.id, -1)}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>

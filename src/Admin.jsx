@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useContext, useState, useRef, useEffect, lazy, Suspense, useMemo, useCallback, startTransition } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
@@ -11,14 +11,14 @@ const AdminOffers = lazy(() => import('./components/admin/AdminOffers'));
 const AdminChat = lazy(() => import('./components/admin/AdminChat'));
 const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
 const StaffManager = lazy(() => import('./components/StaffManager.jsx'));
-
-const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
+const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
 
 function playNewOrderBeep() {
   try {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (!Ctx) return;
     const ctx = new Ctx();
+    if (ctx.state === 'suspended') ctx.resume();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'sine';
@@ -29,8 +29,8 @@ function playNewOrderBeep() {
     gain.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + 0.02);
     gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.45);
     osc.stop(ctx.currentTime + 0.5);
-    setTimeout(() => { try { ctx.close(); } catch { /* noop */ } }, 600);
-  } catch { /* ignore */ }
+    setTimeout(() => { try { ctx.close(); } catch {} }, 600);
+  } catch {}
 }
 
 function notifyNewOrder(order) {
@@ -44,11 +44,23 @@ function notifyNewOrder(order) {
       icon: (import.meta.env.BASE_URL || '/') + 'cart-icon-192.png',
       lang: 'ar'
     });
-  } catch { /* ignore */ }
+  } catch {}
 }
 
+const PASSWORD_INPUT_STYLE = {
+  width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255,255,255,0.15)',
+  borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit',
+  background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none',
+  marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right'
+};
+
+const PASSWORD_YES_BTN = {
+  background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#451a03', fontWeight: 800
+};
+const PASSWORD_NO_BTN = { background: 'rgba(255,255,255,0.1)', color: '#fff' };
+
 export default function Admin() {
-  const { 
+  const {
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
     chatMessages, sendMessage, logout, staffRole, currentStaff,
     allCustomers, loadCustomers, loadOrders,
@@ -57,211 +69,205 @@ export default function Admin() {
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('orders');
+  const [storeTab, setStoreTab] = useState('products');
+  const [settingsTab, setSettingsTab] = useState('main');
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
+  const [passwordChangeWithVerify, setPasswordChangeWithVerify] = useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await logout();
     navigate('/admin/login');
-  };
+  }, [logout, navigate]);
 
   useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
+    const handler = (e) => { e.preventDefault(); e.returnValue = ''; };
     window.addEventListener('beforeunload', handler);
     return () => window.removeEventListener('beforeunload', handler);
   }, []);
 
   useEffect(() => {
-    const initDriverPrompt = async () => {
+    const init = async () => {
       if (staffRole !== 'driver') return;
       const { data } = await supabase.auth.getUser();
       const email = data?.user?.email;
       if (!email) return;
-      const key = `thara_driver_password_prompt_dismissed_${email}`;
-      if (localStorage.getItem(key) === '1') return;
+      if (localStorage.getItem(`thara_driver_password_prompt_dismissed_${email}`) === '1') return;
       setShowPasswordPrompt(true);
     };
-    initDriverPrompt();
+    init();
   }, [staffRole]);
 
-  const [passwordChangeWithVerify, setPasswordChangeWithVerify] = useState(false);
-
-  const handleSkipPasswordChange = async () => {
+  const handleSkipPasswordChange = useCallback(async () => {
     const { data } = await supabase.auth.getUser();
     const email = data?.user?.email;
     if (email) localStorage.setItem(`thara_driver_password_prompt_dismissed_${email}`, '1');
     setShowPasswordPrompt(false);
     setPasswordChangeWithVerify(false);
-  };
+  }, []);
 
-  const handlePasswordChange = async () => {
-    if (newPassword.length < 8) {
-      showToast('كلمة المرور يجب أن تكون 8 أحرف على الأقل', 'warning');
-      return;
-    }
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
-      showToast('يجب أن تحتوي كلمة المرور على حروف كبيرة وصغيرة وأرقام', 'warning');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      showToast('كلمتا المرور غير متطابقتين', 'warning');
-      return;
-    }
+  const handlePasswordChange = useCallback(async () => {
+    if (newPassword.length < 8) { showToast('كلمة المرور يجب أن تكون 8 أحرف على الأقل', 'warning'); return; }
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) { showToast('يجب أن تحتوي كلمة المرور على حروف كبيرة وصغيرة وأرقام', 'warning'); return; }
+    if (newPassword !== confirmPassword) { showToast('كلمتا المرور غير متطابقتين', 'warning'); return; }
     setPasswordLoading(true);
     try {
       const { data } = await supabase.auth.getUser();
       const email = data?.user?.email;
       if (currentPassword) {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
-        if (signInError) {
-          showToast('كلمة المرور الحالية غير صحيحة', 'error');
-          setPasswordLoading(false);
-          return;
-        }
+        if (signInError) { showToast('كلمة المرور الحالية غير صحيحة', 'error'); setPasswordLoading(false); return; }
       }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       if (email) localStorage.setItem(`thara_driver_password_prompt_dismissed_${email}`, '1');
       setShowPasswordPrompt(false);
-      setNewPassword('');
-      setConfirmPassword('');
-      setCurrentPassword('');
+      setNewPassword(''); setConfirmPassword(''); setCurrentPassword('');
       showToast('تم تحديث كلمة المرور بنجاح', 'success');
     } catch (err) {
       showToast('فشل تحديث كلمة المرور: ' + (err.message || 'خطأ غير معروف'), 'error');
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
+    } finally { setPasswordLoading(false); }
+  }, [newPassword, confirmPassword, currentPassword]);
 
-  const tabLabel = { orders: 'الطلبات', products: 'المنتجات', offers: 'العروض', chat: 'العملاء', staff: 'الموظفين', profile: 'الملف الشخصي' };
-  const tabIcon = { orders: '📋', products: '📦', offers: '🏷️', chat: '💬', staff: '👥', profile: '⚙️' };
-  const canManageCatalog = staffRole === 'admin' || staffRole === 'manager';
   const isAdminOrManager = staffRole === 'admin' || staffRole === 'manager';
   const isDriver = staffRole === 'driver';
 
   useEffect(() => {
     if (!loadOrders) return;
     loadOrders();
-    if (isAdminOrManager || staffRole === 'driver') {
-      try { loadDrivers(); } catch { /* ignore */ }
-    }
+    if (isAdminOrManager || isDriver) { try { loadDrivers(); } catch {} }
   }, [loadOrders, staffRole, loadDrivers]);
 
-  // Sound + browser notification on new order (from Realtime subscription)
   useEffect(() => {
-    if (!isDriver) {
-      try { Notification.requestPermission().catch(() => {}); } catch { /* ignore */ }
-    }
-    const handler = (e) => {
-      playNewOrderBeep();
-      notifyNewOrder(e.detail);
-    };
+    if (!isDriver) { try { Notification.requestPermission().catch(() => {}); } catch {} }
+    const handler = (e) => { playNewOrderBeep(); notifyNewOrder(e.detail); };
     window.addEventListener('thara:new-order', handler);
     return () => window.removeEventListener('thara:new-order', handler);
   }, [isDriver]);
-  const tabs = [
-    { id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length },
-  ];
-  if (!isDriver) tabs.push({ id: 'chat', label: 'العملاء', icon: '💬' });
-  if (!isDriver) tabs.push({ id: 'users', label: 'المستخدمين', icon: '👤' });
-  if (canManageCatalog) {
-    tabs.splice(1, 0,
-      { id: 'products', label: 'المنتجات', icon: '📦' },
-      { id: 'offers', label: 'العروض', icon: '🏷️' }
+
+  const tabs = useMemo(() => {
+    const items = [{ id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length }];
+    if (!isDriver) items.push({ id: 'chat', label: 'العملاء', icon: '💬' });
+    if (isAdminOrManager) {
+      items.push({ id: 'store', label: 'المتجر', icon: '📦' });
+      items.push({ id: 'settings', label: 'الإعدادات', icon: '⚙️' });
+    }
+    if (staffRole === 'admin') items.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
+    return items;
+  }, [orders.length, isDriver, isAdminOrManager, staffRole]);
+
+  const switchTab = useCallback((id) => {
+    startTransition(() => setActiveTab(id));
+  }, []);
+
+  const SUB_TAB_BTN = (active, label) => ({
+    background: active ? 'rgba(251,191,36,0.2)' : 'transparent',
+    color: active ? '#fbbf24' : 'rgba(255,255,255,0.5)',
+    border: active ? '1px solid rgba(251,191,36,0.3)' : '1px solid transparent',
+    padding: '0.5rem 1rem', borderRadius: '12px', cursor: 'pointer',
+    fontFamily: 'inherit', fontSize: '0.85rem', fontWeight: active ? 700 : 500,
+    transition: 'all 0.15s'
+  });
+
+  const renderTabContent = () => {
+    if (activeTab === 'orders') return (
+      <AdminOrders
+        orders={orders} updateOrderStatus={updateOrderStatus}
+        staffRole={staffRole} currentStaff={currentStaff}
+        isDriver={isDriver} drivers={drivers}
+        assignDriverToOrder={assignDriverToOrder} claimOrder={claimOrder}
+      />
     );
-  }
-  if (staffRole === 'admin') tabs.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
-  tabs.push({ id: 'profile', label: 'الملف الشخصي', icon: '⚙️' });
+    if (activeTab === 'store') return (
+      <div className="admin-store-section">
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+          <button style={SUB_TAB_BTN(storeTab === 'products', 'المنتجات')} onClick={() => setStoreTab('products')}>📦 المنتجات</button>
+          <button style={SUB_TAB_BTN(storeTab === 'offers', 'العروض')} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>
+        </div>
+        {storeTab === 'products' ? (
+          <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />
+        ) : (
+          <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} />
+        )}
+      </div>
+    );
+    if (activeTab === 'chat') return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />;
+    if (activeTab === 'settings') return (
+      <div className="admin-store-section">
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+          <button style={SUB_TAB_BTN(settingsTab === 'main', 'الإعدادات')} onClick={() => setSettingsTab('main')}>⚙️ الإعدادات</button>
+          <button style={SUB_TAB_BTN(settingsTab === 'users', 'المستخدمين')} onClick={() => setSettingsTab('users')}>👤 المستخدمين</button>
+          <button style={SUB_TAB_BTN(settingsTab === 'profile', 'الملف الشخصي')} onClick={() => setSettingsTab('profile')}>🔑 الملف الشخصي</button>
+        </div>
+        {settingsTab === 'main' && <AdminSettings />}
+        {settingsTab === 'users' && <AdminUsers staffRole={staffRole} customers={allCustomers} loadCustomers={loadCustomers} />}
+        {settingsTab === 'profile' && (
+          <div className="admin-profile-section">
+            <h2 className="admin-section-title">الملف الشخصي</h2>
+            <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
+              <p style={{ marginBottom: '1rem', color: '#94a3b8' }}>
+                <strong>البريد الإلكتروني:</strong> {currentStaff?.email || '—'}<br />
+                <strong>الاسم:</strong> {currentStaff?.name || '—'}<br />
+                <strong>الصلاحية:</strong> {staffRole === 'admin' ? 'مدير' : staffRole === 'manager' ? 'مدير عام' : staffRole === 'employee' ? 'موظف' : 'سائق'}
+              </p>
+              <button className="btn" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordChangeWithVerify(true); setShowPasswordPrompt(true); }}>
+                🔑 تغيير كلمة المرور
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+    if (activeTab === 'staff') return <StaffManager />;
+    return null;
+  };
+
+  const PasswordDialog = () => (
+    <div className="confirm-overlay" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); } : handleSkipPasswordChange}>
+      <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
+        <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#fff', fontSize: '1.1rem' }}>
+          {passwordChangeWithVerify ? '🔑 تغيير كلمة المرور' : 'تحديث كلمة المرور (اختياري)'}
+        </p>
+        {!passwordChangeWithVerify && (
+          <p style={{ marginBottom: '1.25rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
+            يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
+          </p>
+        )}
+        {passwordChangeWithVerify && (
+          <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
+            placeholder="كلمة المرور الحالية" style={PASSWORD_INPUT_STYLE} />
+        )}
+        <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+          placeholder="كلمة المرور الجديدة" style={PASSWORD_INPUT_STYLE} />
+        <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+          placeholder="تأكيد كلمة المرور" style={{ ...PASSWORD_INPUT_STYLE, marginBottom: '1.25rem' }} />
+        <div className="confirm-actions">
+          <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={PASSWORD_YES_BTN}>
+            {passwordLoading ? 'جاري التحديث...' : (passwordChangeWithVerify ? 'تحديث كلمة المرور' : 'تحديث الآن')}
+          </button>
+          <button className="confirm-btn confirm-no" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); } : handleSkipPasswordChange} style={PASSWORD_NO_BTN}>
+            {passwordChangeWithVerify ? 'إلغاء' : 'التخطي الآن'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="admin-layout">
-      {showPasswordPrompt && (
-        <div className="confirm-overlay" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); } : handleSkipPasswordChange}>
-          <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
-            {passwordChangeWithVerify ? (
-              <>
-                <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>🔑 تغيير كلمة المرور</p>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  placeholder="كلمة المرور الحالية"
-                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right' }}
-                />
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="كلمة المرور الجديدة"
-                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right' }}
-                />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="تأكيد كلمة المرور الجديدة"
-                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '1.25rem', boxSizing: 'border-box', textAlign: 'right' }}
-                />
-                <div className="confirm-actions">
-                  <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
-                    {passwordLoading ? 'جاري التحديث...' : 'تحديث كلمة المرور'}
-                  </button>
-                  <button className="confirm-btn confirm-no" onClick={() => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); }} style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
-                    إلغاء
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1.1rem' }}>تحديث كلمة المرور (اختياري)</p>
-                <p style={{ marginBottom: '1.25rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
-                  يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
-                </p>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  placeholder="كلمة المرور الجديدة"
-                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right' }}
-                />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  placeholder="تأكيد كلمة المرور"
-                  style={{ width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit', background: 'rgba(0, 0, 0, 0.3)', color: '#ffffff', outline: 'none', marginBottom: '1.25rem', boxSizing: 'border-box', textAlign: 'right' }}
-                />
-                <div className="confirm-actions">
-                  <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
-                    {passwordLoading ? 'جاري التحديث...' : 'تحديث الآن'}
-                  </button>
-                  <button className="confirm-btn confirm-no" onClick={handleSkipPasswordChange} style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#ffffff' }}>
-                    التخطي الآن
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-      {/* Mobile header */}
+      {showPasswordPrompt && <PasswordDialog />}
       <div className="admin-mobile-header">
         <button onClick={handleLogout} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', fontFamily: 'inherit', fontSize: '0.85rem', cursor: 'pointer' }}>خروج</button>
-        <h2>{tabLabel[activeTab]}</h2>
+        <h2>{tabs.find(t => t.id === activeTab)?.label || ''}</h2>
         <Link to="/" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '0.85rem' }}>المتجر</Link>
       </div>
-      {/* Sidebar (desktop) */}
       <aside className="admin-sidebar">
-        <h2 className="admin-sidebar-title">{isDriver ? 'لوحة السائق' : 'لوحة التاجر'}</h2>
+        <h2 className="admin-sidebar-title">{isDriver ? 'لوحة السائق' : 'لوحة التحكم'}</h2>
         {tabs.map(t => (
-          <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
+          <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
             {t.icon} {t.label}{t.badge != null ? ` (${t.badge})` : ''}
           </button>
         ))}
@@ -271,56 +277,20 @@ export default function Admin() {
           <button onClick={handleLogout} className="admin-tab" style={{ color: 'rgba(255,255,255,0.7)' }}>تسجيل الخروج</button>
         </div>
       </aside>
-
-      {/* Main Content */}
       <InstallPrompt variant="admin" />
       <main className="admin-main">
         <Suspense fallback={<div className="admin-loading">جاري التحميل...</div>}>
-          {activeTab === 'orders' && (
-            <AdminOrders
-              orders={orders}
-              updateOrderStatus={updateOrderStatus}
-              staffRole={staffRole}
-              currentStaff={currentStaff}
-              isDriver={isDriver}
-              drivers={drivers}
-              assignDriverToOrder={assignDriverToOrder}
-              claimOrder={claimOrder}
-            />
-          )}
-          {activeTab === 'products' && <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />}
-          {activeTab === 'offers' && <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} />}
-          {activeTab === 'chat' && <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />}
-          {activeTab === 'staff' && <StaffManager />}
-          {activeTab === 'users' && <AdminUsers staffRole={staffRole} customers={allCustomers} loadCustomers={loadCustomers} />}
-          {activeTab === 'profile' && (
-            <div className="admin-profile-section">
-              <h2 className="admin-section-title">⚙️ الملف الشخصي</h2>
-              <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
-                <p style={{ marginBottom: '1rem', color: '#94a3b8' }}>
-                  <strong>البريد الإلكتروني:</strong> {currentStaff?.email || '—'}<br />
-                  <strong>الاسم:</strong> {currentStaff?.name || '—'}<br />
-                  <strong>الصلاحية:</strong> {staffRole === 'admin' ? 'مدير' : staffRole === 'manager' ? 'مدير عام' : staffRole === 'employee' ? 'موظف' : 'سائق'}
-                </p>
-                <button className="btn" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordChangeWithVerify(true); setShowPasswordPrompt(true); }} style={{ marginTop: '0.5rem' }}>
-                  🔑 تغيير كلمة المرور
-                </button>
-              </div>
-            </div>
-          )}
+          {renderTabContent()}
         </Suspense>
       </main>
-
-      {/* Mobile bottom nav */}
       <nav className="admin-mobile-nav">
         {tabs.map(t => (
-          <button key={t.id} className={`admin-mobile-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
+          <button key={t.id} className={`admin-mobile-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
             <span className="tab-icon">{t.icon}</span>
             <span>{t.label}{t.badge != null ? ` (${t.badge})` : ''}</span>
           </button>
         ))}
-  </nav>
+      </nav>
     </div>
   );
-
 }

@@ -24,7 +24,10 @@
   width: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
+  border-radius: 6px;
 }
+.app-logo-img-new.logo-light { background: #ffffff; }
+.app-logo-img-new.logo-dark { background: #020f08; }
 .app-logo-img-new:hover {
   transform: scale(1.05);
 }

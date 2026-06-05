@@ -10,7 +10,7 @@ import { cleanProductImages } from '../utils/constants.js';
 
 const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
 
-export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading }) {
+export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setCart, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading }) {
   useEffect(() => {
     const init = async () => {
       if (hasSupabase) {
@@ -67,10 +67,13 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
       if (e.key === 'thara_orders' && e.newValue) {
         try { setOrders(JSON.parse(e.newValue)); } catch {}
       }
+      if (e.key === 'thara_cart' && e.newValue) {
+        try { setCart(JSON.parse(e.newValue)); } catch {}
+      }
     };
     window.addEventListener('storage', handler);
     return () => window.removeEventListener('storage', handler);
-  }, [setProducts, setOrders]);
+  }, [setProducts, setOrders, setCart]);
 }
 
 export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading }) {
@@ -124,12 +127,14 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
   }, [hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading]);
 }
 
+function safeSet(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
 export function useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart }) {
-  useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_products', JSON.stringify(products)); }, [products, supabaseReady]);
-  useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_orders', JSON.stringify(orders)); }, [orders, supabaseReady]);
-  useEffect(() => { if (!supabaseReady) localStorage.setItem('thara_chat', JSON.stringify(chatMessages)); }, [chatMessages, supabaseReady]);
-  useEffect(() => { storage.set('thara_products', products); }, [products]);
-  useEffect(() => { storage.set('thara_orders', orders); }, [orders]);
-  useEffect(() => { storage.set('thara_chat', chatMessages); }, [chatMessages]);
-  useEffect(() => { localStorage.setItem('thara_cart', JSON.stringify(cart)); }, [cart]);
+  useEffect(() => { if (!supabaseReady) safeSet('thara_products', products); }, [products, supabaseReady]);
+  useEffect(() => { if (!supabaseReady) safeSet('thara_orders', orders); }, [orders, supabaseReady]);
+  useEffect(() => { if (!supabaseReady) safeSet('thara_chat', chatMessages); }, [chatMessages, supabaseReady]);
+  useEffect(() => { safeSet('thara_products', products); }, [products]);
+  useEffect(() => { safeSet('thara_orders', orders); }, [orders]);
+  useEffect(() => { safeSet('thara_chat', chatMessages); }, [chatMessages]);
+  useEffect(() => { safeSet('thara_cart', cart); }, [cart]);
 }

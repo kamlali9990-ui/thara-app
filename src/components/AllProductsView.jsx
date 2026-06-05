@@ -49,7 +49,7 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
                   </div>
                   <div className="search-result-price-row">
                     <span className="search-result-price">
-                      {product.isOffer ? (
+                      {product.isOffer && product.offerPrice != null ? (
                         <><span className="offer-old">{product.price.toFixed(2)}</span> {product.offerPrice.toFixed(2)}</>
                       ) : product.price.toFixed(2)}
                       <span className="currency"> ر.س</span>

@@ -1,12 +1,14 @@
 import { memo } from 'react';
 import { BASE, imgFallback, WHATSAPP_NUM, PHONE, EMAIL_1, SNAPCHAT } from '../utils/constants';
 
-const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory, onTabChange, setSelectedCategory, theme, toggleTheme, onShareClick }) => (
+const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory, onTabChange, setSelectedCategory, theme, toggleTheme }) => (
   <>
     <div className={`side-drawer-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
     <div className={`side-drawer ${isOpen ? 'open' : ''}`}>
       <div className="side-drawer-header">
-        <img src={`${BASE}${theme === 'dark' ? 'logonaet.jpg' : 'logo222.jpg'}`} alt="ثرا" className="side-drawer-logo" onError={(e) => { e.target.src = imgFallback(80, 80, '#127443', '#FFFFFF', 'ث'); }} />
+        <div className="side-drawer-logo-wrap">
+          <img src={`${BASE}${theme === 'dark' ? 'logonaet.jpg' : 'logo222.jpg'}`} alt="ثرا" className={`side-drawer-logo ${theme === 'dark' ? 'logo-dark' : 'logo-light'}`} onError={(e) => { e.target.src = imgFallback(80, 80, '#127443', theme === 'dark' ? '#020f08' : '#ffffff', 'ث'); }} />
+        </div>
         <button className="side-drawer-close" onClick={onClose}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
@@ -29,15 +31,19 @@ const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory,
           <span>طلباتي</span>
         </button>
         <div className="side-drawer-divider" />
-        <button className="side-drawer-item" onClick={onShareClick}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-          <span>مشاركة</span>
-        </button>
-        <div className="side-drawer-divider" />
         <div className="side-drawer-item" onClick={toggleTheme} style={{ cursor: 'pointer' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           <span>{theme === 'light' ? 'المظهر الداكن' : 'المظهر الفاتح'}</span>
         </div>
+        <div className="side-drawer-divider" />
+        <button className="side-drawer-item" onClick={() => { onClose(); if (navigator.share) { navigator.share({ title: 'ثراء الشرق ون', text: '🛒 أسواق ثرا الشرق ون — توصيل طلبات السوبرماركت لباب بيتك في الخفجي\n🚀 أهل الخفجي يستاهلون أكثر\nhttps://tharasharqone.com', url: 'https://tharasharqone.com' }).catch(() => window.open('/qr-code.html', '_blank')); } else { window.open('/qr-code.html', '_blank'); } }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span>مشاركة التطبيق</span>
+        </button>
+        <button className="side-drawer-item" onClick={() => { onClose(); window.open('/install-guide.html', '_blank'); }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M9 9l3 3 3-3"/><path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>
+          <span>📱 كيف تثبت التطبيق</span>
+        </button>
         <div className="side-drawer-divider" />
         <div className="side-drawer-contact-label">وسائل التواصل</div>
         <div className="side-drawer-contacts">

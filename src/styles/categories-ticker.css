@@ -125,10 +125,10 @@
 
 /* Dark theme text override */
 [data-theme="dark"] .ticker-item-name {
-  color: #d4af37 !important;
+  color: var(--text-main) !important;
 }
 [data-theme="dark"] .ticker-item-img {
-  border-color: rgba(212, 175, 55, 0.6);
+  border-color: rgba(16, 185, 129, 0.4);
   background: rgba(3, 32, 17, 0.8);
 }
 

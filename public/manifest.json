@@ -22,6 +22,18 @@
       "short_name": "السلة",
       "url": "/",
       "description": "عرض منتجات السلة والذهاب للدفع"
+    },
+    {
+      "name": "مشاركة التطبيق",
+      "short_name": "شارك",
+      "url": "/qr-code.html",
+      "description": "ادعُ أصدقائك لتحميل التطبيق"
+    },
+    {
+      "name": "كيف تثبت التطبيق على iPhone",
+      "short_name": "تثبيت",
+      "url": "/install-guide.html",
+      "description": "شرح مصور خطوة بخطوة لتثبيت التطبيق على شاشة الآيفون"
     }
   ],
   "screenshots": [

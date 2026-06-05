@@ -2,12 +2,22 @@ import { supabase } from './client';
 
 export const productsApi = {
   async list() {
-    const { data, error } = await supabase
-      .from('products')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (error) throw error;
-    return data.map(mapProduct);
+    const PAGE_SIZE = 1000;
+    let all = [];
+    let from = 0;
+    while (true) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true })
+        .range(from, from + PAGE_SIZE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      all = all.concat(data);
+      if (data.length < PAGE_SIZE) break;
+      from += PAGE_SIZE;
+    }
+    return all.map(mapProduct);
   },
 
   async get(id) {
@@ -83,10 +93,10 @@ function mapProduct(p) {
     name: p.name,
     category: p.category,
     price: Number(p.price),
-    offerPrice: p.offer_price ? Number(p.offer_price) : undefined,
+    offerPrice: p.offer_price != null ? Number(p.offer_price) : undefined,
     isOffer: p.is_offer || false,
     imageUrl: p.image_url,
-    stock_quantity: p.stock_quantity,
+    stock_quantity: p.stock_quantity ?? 0,
     unit: p.unit
   };
 }
