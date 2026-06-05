@@ -39,10 +39,11 @@ export default function AutoImageManager({ products, updateProduct }) {
     return products.filter(p => {
       const url = p.imageUrl;
       if (!url || typeof url !== 'string') return true; // No image
-      if (url.includes('res.cloudinary.com')) return false; // Already has Cloudinary image
-      if (url.includes('data:')) return false; // Default placeholder
-      if (url.includes('LOGO.jpg') || url.includes('logo222')) return false; // Default logo
-      return true; // Has local image or broken external image
+      if (url.includes('data:')) return true; // Default placeholder
+      if (url.includes('LOGO.jpg') || url.includes('logo222')) return true; // Default logo
+      
+      // إذا كان يمتلك أي رابط آخر (سواء Cloudinary أو رابط موقع خارجي أو محلي)، نعتبره مكتملاً ولا نلمسه أبداً لحماية صورك!
+      return false; 
     });
   };
 
@@ -137,13 +138,15 @@ export default function AutoImageManager({ products, updateProduct }) {
           const upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
           
           if (!upRes.ok) {
-             addLog(`⚠️ لم يقبل Cloudinary الرابط المصدر، سيتم البحث مجدداً لاحقاً.`, 'warning');
+             addLog(`⚠️ رفض Cloudinary المصدر. جاري حفظ الرابط المباشر كخطة بديلة...`, 'warning');
+             await updateProduct(p.id, { imageUrl: foundUrl });
+             addLog(`✅ اكتمل (رابط مباشر): ${p.name}`, 'success');
           } else {
              const upData = await upRes.json();
              if (upData.secure_url) {
                addLog(`🗄️ تم الرفع! جاري تحديث قاعدة البيانات...`, 'success');
                await updateProduct(p.id, { imageUrl: upData.secure_url });
-               addLog(`✅ اكتمل تحديث المنتج: ${p.name}`, 'success');
+               addLog(`✅ اكتمل (Cloudinary): ${p.name}`, 'success');
              }
           }
         } else {
