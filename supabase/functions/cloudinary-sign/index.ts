@@ -19,14 +19,16 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json()
-    const { upload_preset } = body
     const timestamp = Math.round(Date.now() / 1000)
 
     const params: Record<string, string> = {
       timestamp: String(timestamp),
-      source: 'uw',
     }
-    if (upload_preset) params.upload_preset = upload_preset
+    for (const [k, v] of Object.entries(body)) {
+      if (typeof v === 'string' && !['api_key', 'cloud_name', 'signature', 'file'].includes(k)) {
+        params[k] = v
+      }
+    }
 
     const sortedKeys = Object.keys(params).sort()
     const signatureStr = sortedKeys.map(k => `${k}=${params[k]}`).join('&') + API_SECRET

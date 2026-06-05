@@ -25,16 +25,39 @@ const COLORS = [
 ];
 
 export function safeProductUrl(url, name) {
-  if (!url || !url.includes('unsplash.com')) return url || logoPath;
-  const color = COLORS[name ? name.length % COLORS.length : 0];
-  const esc = (s) => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect fill="#' + esc(color) + '" width="400" height="400"/></svg>');
+  if (!url || typeof url !== 'string') return logoPath;
+  const s = url.trim();
+  if (!s) return logoPath;
+  if (s.startsWith('http://')) return 'https://' + s.slice(7);
+  if (s.startsWith('//')) return 'https:' + s;
+  if (s.startsWith('http')) return s;
+  return 'https://' + s;
 }
 
 export function cleanProductImages(products) {
   if (!products) return products;
   return products.map(p => ({ ...p, imageUrl: safeProductUrl(p.imageUrl, p.name) }));
 }
+
+export const BLOCKED_DOMAINS = [
+  'facebook.com',
+  'fbsbx.com',
+  'fbcdn.net',
+  'instagram.com',
+  'cdninstagram.com',
+  'pinterest.com',
+  'pinimg.com',
+  'twitter.com',
+  'twimg.com',
+  'tiktok.com'
+];
+
+export function isBlockedImageUrl(url) {
+  if (!url || typeof url !== 'string') return true;
+  const s = url.toLowerCase();
+  return BLOCKED_DOMAINS.some(domain => s.includes(domain));
+}
+
 
 export const KHAFJI_BOUNDS = { minLat: 28.35, maxLat: 28.50, minLng: 48.40, maxLng: 48.55 };
 export const SHOP_POS = { lat: 28.451344737377184, lng: 48.49170927325617 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { StoreContext } from '../../context/StoreContext';
 import { showToast } from '../Toast';
+import { isBlockedImageUrl } from '../../utils/constants';
 
 export default function AutoImageManager({ products, updateProduct }) {
   const { staffRole } = useContext(StoreContext);
@@ -107,7 +108,7 @@ export default function AutoImageManager({ products, updateProduct }) {
         const searchRes = await fetch('https://google.serper.dev/images', {
           method: 'POST',
           headers: { 'X-API-KEY': apiKeyRef.current, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 1, hl: 'ar', gl: 'sa' })
+          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 10, hl: 'ar', gl: 'sa' })
         });
 
         if (!searchRes.ok) {
@@ -117,8 +118,9 @@ export default function AutoImageManager({ products, updateProduct }) {
         }
 
         const data = await searchRes.json();
-        if (data.images && data.images.length > 0) {
-          let foundUrl = data.images[0].imageUrl;
+        const validImage = data.images?.find(img => img.imageUrl && !isBlockedImageUrl(img.imageUrl));
+        if (validImage) {
+          let foundUrl = validImage.imageUrl;
           if (foundUrl && typeof foundUrl === 'string' && foundUrl.startsWith('http://')) {
             foundUrl = 'https://' + foundUrl.slice(7);
           }
@@ -136,9 +138,9 @@ export default function AutoImageManager({ products, updateProduct }) {
           const upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
           
           if (!upRes.ok) {
-             addLog(`⚠️ رفض Cloudinary المصدر. جاري حفظ الرابط المباشر كخطة بديلة...`, 'warning');
-             await updateProduct(p.id, { imageUrl: foundUrl });
-             addLog(`✅ اكتمل (رابط مباشر): ${p.name}`, 'success');
+             addLog(`⚠️ رفض Cloudinary المصدر (${upRes.status}). سيتم مسح الصورة للبحث عن صورة بديلة لاحقاً.`, 'warning');
+             await updateProduct(p.id, { imageUrl: '' });
+             localStorage.setItem(cacheKey, 'not_found');
           } else {
              const upData = await upRes.json();
              if (upData.secure_url) {

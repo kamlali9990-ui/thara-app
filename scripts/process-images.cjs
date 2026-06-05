@@ -46,10 +46,29 @@ function runSql(sql) {
   });
 }
 
+const BLOCKED_DOMAINS = [
+  'facebook.com',
+  'fbsbx.com',
+  'fbcdn.net',
+  'instagram.com',
+  'cdninstagram.com',
+  'pinterest.com',
+  'pinimg.com',
+  'twitter.com',
+  'twimg.com',
+  'tiktok.com'
+];
+
+function isBlockedUrl(url) {
+  if (!url || typeof url !== 'string') return true;
+  const s = url.toLowerCase();
+  return BLOCKED_DOMAINS.some(domain => s.includes(domain));
+}
+
 // --- دوال المساعدة لـ Serper.dev ---
 function searchImage(query) {
   return new Promise((resolve, reject) => {
-    const payload = JSON.stringify({ q: query, hl: "ar", gl: "sa" });
+    const payload = JSON.stringify({ q: query, num: 10, hl: "ar", gl: "sa" });
     const options = {
       hostname: 'google.serper.dev',
       path: '/images',
@@ -68,7 +87,8 @@ function searchImage(query) {
           try {
             const data = JSON.parse(d);
             if (data.images && data.images.length > 0) {
-              resolve(data.images[0].imageUrl);
+              const validImage = data.images.find(img => img.imageUrl && !isBlockedUrl(img.imageUrl));
+              resolve(validImage ? validImage.imageUrl : null);
             } else {
               resolve(null);
             }

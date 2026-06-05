@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { isBlockedImageUrl } from '../../utils/constants';
 
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 const SERPER_API_KEY = import.meta.env.VITE_SERPER_API_KEY;
@@ -49,7 +50,10 @@ export default function ImageSearch({ defaultQuery, onSelect, onClose }) {
     });
     if (!res.ok) throw new Error(`Serper: ${res.status}`);
     const data = await res.json();
-    setResults((data.images || []).map((img, i) => ({ id: img.url || i, url: img.imageUrl, thumb: img.thumbnailUrl || img.imageUrl, alt: img.title || '' })));
+    setResults((data.images || [])
+      .filter(img => img.imageUrl && !isBlockedImageUrl(img.imageUrl))
+      .map((img, i) => ({ id: img.url || i, url: img.imageUrl, thumb: img.thumbnailUrl || img.imageUrl, alt: img.title || '' }))
+    );
   }, []);
 
   const search = useCallback(async (q) => {

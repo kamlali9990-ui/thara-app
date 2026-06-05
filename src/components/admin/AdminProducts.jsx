@@ -6,7 +6,7 @@ import { showToast } from '../Toast.jsx';
 import * as XLSX from 'xlsx';
 import CloudinaryUpload from './CloudinaryUpload';
 import ImageSearch from './ImageSearch';
-import { safeProductUrl } from '../../utils/constants';
+import { safeProductUrl, isBlockedImageUrl } from '../../utils/constants';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 const PAGE_SIZE = 50;
@@ -287,12 +287,13 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
         const res = await fetch('https://google.serper.dev/images', {
           method: 'POST',
           headers: { 'X-API-KEY': SERPER_KEY, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 1 })
+          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 10 })
         });
         if (res.ok) {
           const data = await res.json();
           if (data.images?.length > 0) {
-            let url = data.images[0].imageUrl;
+            const validImage = data.images.find(img => img.imageUrl && !isBlockedImageUrl(img.imageUrl));
+            let url = validImage ? validImage.imageUrl : null;
             if (url) { if (typeof url === 'string' && url.startsWith('http://')) url = 'https://' + url.slice(7); await updateProduct(p.id, { imageUrl: url }); }
           }
         }
@@ -309,6 +310,15 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const [cloudProgress, setCloudProgress] = useState({ current: 0, total: 0 });
   const cloudCancelRef = useRef(false);
   const cloudSigRef = useRef(null);
+
+  const getCloudinarySignature = async () => {
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const sigRes = await fetch(baseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+    });
+    if (!sigRes.ok) throw new Error('فشل الحصول على توقيع');
+    return sigRes.json();
+  };
 
   const batchUploadToCloudinary = async () => {
     let targets = products.filter(p => {
@@ -330,37 +340,67 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     setCloudUploading(true);
     cloudCancelRef.current = false;
     setCloudProgress({ current: 0, total: targets.length });
-    // Get one signature (same for all URLs since file is excluded from signing)
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
+    // Get initial signature
     let sigData;
     try {
-      const sigRes = await fetch(baseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
-      });
-      if (!sigRes.ok) throw new Error('فشل الحصول على توقيع');
-      sigData = await sigRes.json();
+      sigData = await getCloudinarySignature();
     } catch { setCloudUploading(false); showToast('فشل الاتصال بخدمة التوقيع', 'error'); return; }
     let done = 0, failed = 0;
+    const SIG_REFRESH_EVERY = 40; // Refresh signature every 40 images to prevent expiration
+    let sinceLastSig = 0;
     for (const p of targets) {
       if (cloudCancelRef.current) break;
+      // Refresh signature periodically
+      if (sinceLastSig >= SIG_REFRESH_EVERY) {
+        try { sigData = await getCloudinarySignature(); sinceLastSig = 0; } catch { /* keep using old sig */ }
+      }
       try {
         const form = new FormData();
         form.append('file', p.imageUrl);
         form.append('api_key', sigData.api_key);
         form.append('timestamp', String(sigData.timestamp));
         form.append('signature', sigData.signature);
-        const upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
-        if (!upRes.ok) { const t = await upRes.text(); throw new Error(t.slice(0, 100)); }
+        let upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
+        // Retry once with fresh signature on auth/server errors
+        if (!upRes.ok && (upRes.status === 401 || upRes.status === 403 || upRes.status === 500)) {
+          try {
+            sigData = await getCloudinarySignature(); sinceLastSig = 0;
+            const retryForm = new FormData();
+            retryForm.append('file', p.imageUrl);
+            retryForm.append('api_key', sigData.api_key);
+            retryForm.append('timestamp', String(sigData.timestamp));
+            retryForm.append('signature', sigData.signature);
+            upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: retryForm });
+          } catch { /* fall through to error handling */ }
+        }
+        if (!upRes.ok) {
+          const errText = await upRes.text();
+          console.warn(`[CloudUpload] فشل رفع "${p.name}" (${upRes.status}):`, errText.slice(0, 200), '| URL:', p.imageUrl?.slice(0, 80));
+          if (upRes.status === 400 || upRes.status === 404) {
+            console.log(`[CloudUpload] جاري مسح الرابط التالف لمنتج "${p.name}" ليتم اختيار صورة بديلة لاحقاً.`);
+            try {
+              await updateProduct(p.id, { imageUrl: '' });
+            } catch (dbErr) {
+              console.error(`[CloudUpload] فشل مسح الرابط من قاعدة البيانات:`, dbErr);
+            }
+          }
+          throw new Error(errText.slice(0, 100));
+        }
         const data = await upRes.json();
         if (data.secure_url) await updateProduct(p.id, { imageUrl: data.secure_url });
         done++;
-      } catch { failed++; }
+      } catch (err) {
+        failed++;
+        console.warn(`[CloudUpload] تخطي "${p.name}":`, err.message || err);
+      }
+      sinceLastSig++;
       setCloudProgress({ current: done + failed, total: targets.length });
       await new Promise(r => setTimeout(r, 300));
     }
     setCloudUploading(false);
     if (cloudCancelRef.current) showToast(`تم إيقاف الرفع: ${done} تم, ${failed} فشل`, 'warning');
     else showToast(`تم رفع ${done} صورة لـ Cloudinary` + (failed ? `, فشل ${failed}` : ''), failed && failed === done ? 'error' : 'success');
+    if (failed > 0) console.log(`[CloudUpload] ملخص: ${done} نجح, ${failed} فشل من أصل ${targets.length}`);
   };
 
   const cancelCloudUpload = () => { cloudCancelRef.current = true; };

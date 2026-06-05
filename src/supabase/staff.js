@@ -1,6 +1,6 @@
 import { supabase } from './client';
 
-export const STAFF_DEFAULT_PASSWORD = '123456';
+export const STAFF_DEFAULT_PASSWORD = import.meta.env.VITE_STAFF_DEFAULT_PASSWORD || '123456';
 const CACHE_KEY = 'thara_staff_cache';
 
 function getCache() {

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v13';
+const CACHE_NAME = 'thara-v14';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -49,7 +49,6 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
 
-  // Never cache API/auth traffic.
   if (url.hostname.includes('supabase.co')) return;
 
   if (event.request.mode === 'navigate') {
@@ -57,25 +56,31 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => null);
           return response;
         })
         .catch(() =>
-          caches.match(event.request).then((cached) => cached || caches.match(`${BASE_PATH}index.html`.replace(/\/+/g, '/')) || caches.match(BASE_PATH))
+          caches.match(event.request).then((cached) => cached)
+            .then((cached) => cached || caches.match(`${BASE_PATH}index.html`.replace(/\/+/g, '/')))
+            .then((cached) => cached || caches.match(BASE_PATH))
+            .then((cached) => cached || new Response('', { status: 503 }))
         )
     );
   } else {
     const isStaticAsset = /\.(?:js|css|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico)$/i.test(url.pathname);
     const isHtml = event.request.destination === 'document';
 
-    // For HTML/static assets, prefer network then fallback to cache so users see new deploys quickly.
+    if (isStaticAsset && url.origin !== self.location.origin) {
+      return;
+    }
+
     if (isStaticAsset || isHtml) {
       event.respondWith(
         fetch(event.request, { cache: 'no-store' })
           .then((response) => {
             if (response && response.status === 200) {
               const clone = response.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => null);
             }
             return response;
           })
@@ -87,17 +92,12 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       caches.match(event.request).then((cached) => {
         return cached || fetch(event.request).then((response) => {
-          if (response && response.status === 200) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          }
           return response;
         }).catch(() => {
           if (event.request.destination === 'image') {
-            const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#f3f7f4" width="200" height="200"/></svg>';
-            return new Response(svg, { headers: { 'Content-Type': 'image/svg+xml' } });
+            return new Response('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#f3f7f4" width="200" height="200"/></svg>', { headers: { 'Content-Type': 'image/svg+xml' } });
           }
-          return new Response('غير متصل', { status: 408 });
+          return new Response('', { status: 503 });
         });
       })
     );

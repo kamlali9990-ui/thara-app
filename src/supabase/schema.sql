@@ -224,6 +224,11 @@ DROP POLICY IF EXISTS "customers_select_staff" ON customers;
 CREATE POLICY "customers_select_staff" ON customers
   FOR SELECT USING (public.is_staff());
 
+-- Explicitly deny all deletes
+DROP POLICY IF EXISTS "customers_delete_deny" ON customers;
+CREATE POLICY "customers_delete_deny" ON customers
+  FOR DELETE USING (false);
+
 -- RPC bypass RLS للتسجيل — ينشئ سجل عميل بعد الاشتراك
 CREATE OR REPLACE FUNCTION public.create_customer_rpc(p_email TEXT, p_name TEXT, p_phone TEXT)
 RETURNS JSON
@@ -407,6 +412,26 @@ CREATE TABLE IF NOT EXISTS categories (
   name TEXT NOT NULL UNIQUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
+
+-- Public read access
+DROP POLICY IF EXISTS "categories_select_public" ON categories;
+CREATE POLICY "categories_select_public" ON categories
+  FOR SELECT USING (true);
+
+-- Staff write access
+DROP POLICY IF EXISTS "categories_insert_admin" ON categories;
+CREATE POLICY "categories_insert_admin" ON categories
+  FOR INSERT WITH CHECK (public.is_staff(ARRAY['admin', 'manager']));
+
+DROP POLICY IF EXISTS "categories_update_admin" ON categories;
+CREATE POLICY "categories_update_admin" ON categories
+  FOR UPDATE USING (public.is_staff(ARRAY['admin', 'manager']));
+
+DROP POLICY IF EXISTS "categories_delete_admin" ON categories;
+CREATE POLICY "categories_delete_admin" ON categories
+  FOR DELETE USING (public.is_staff(ARRAY['admin']));
 
 INSERT INTO categories (name) VALUES
   ('الكل'), ('العروض'),
@@ -669,6 +694,11 @@ CREATE POLICY "chat_update_policy" ON chat_messages
   FOR UPDATE USING (public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver']))
   WITH CHECK (public.is_staff(ARRAY['admin', 'manager', 'employee', 'driver']));
 
+-- Explicitly deny all deletes
+DROP POLICY IF EXISTS "chat_messages_delete_deny" ON chat_messages;
+CREATE POLICY "chat_messages_delete_deny" ON chat_messages
+  FOR DELETE USING (false);
+
 -- Typing events policies
 DROP POLICY IF EXISTS "typing_select_policy" ON typing_events;
 CREATE POLICY "typing_select_policy" ON typing_events
@@ -863,6 +893,11 @@ CREATE POLICY "orders_update_staff" ON orders
     )
   );
 
+-- Explicitly deny all deletes
+DROP POLICY IF EXISTS "orders_delete_deny" ON orders;
+CREATE POLICY "orders_delete_deny" ON orders
+  FOR DELETE USING (false);
+
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -1048,6 +1083,6 @@ END $$;
 -- =============================================
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO authenticated;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE ON SEQUENCES TO authenticated;
 /* @@SEED_END@@ */
