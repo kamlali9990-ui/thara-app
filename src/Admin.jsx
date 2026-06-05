@@ -12,6 +12,7 @@ const AdminChat = lazy(() => import('./components/admin/AdminChat'));
 const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
 const StaffManager = lazy(() => import('./components/StaffManager.jsx'));
 const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
+const AutoImageManager = lazy(() => import('./components/admin/AutoImageManager'));
 
 function playNewOrderBeep() {
   try {
@@ -183,14 +184,17 @@ export default function Admin() {
     );
     if (activeTab === 'store') return (
       <div className="admin-store-section">
-        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
           <button style={SUB_TAB_BTN(storeTab === 'products', 'المنتجات')} onClick={() => setStoreTab('products')}>📦 المنتجات</button>
           <button style={SUB_TAB_BTN(storeTab === 'offers', 'العروض')} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>
+          <button style={SUB_TAB_BTN(storeTab === 'auto_images', 'مساعد الصور')} onClick={() => setStoreTab('auto_images')}>🤖 مساعد الصور</button>
         </div>
         {storeTab === 'products' ? (
           <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />
-        ) : (
+        ) : storeTab === 'offers' ? (
           <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} />
+        ) : (
+          <AutoImageManager products={allProducts} updateProduct={updateProduct} />
         )}
       </div>
     );
