@@ -70,7 +70,7 @@ export default function AutoImageManager({ products, updateProduct }) {
     const baseUrl = import.meta.env.VITE_SUPABASE_URL;
     try {
       const sigRes = await fetch(baseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder: 'thara-products' })
       });
       if (!sigRes.ok) throw new Error('فشل التوقيع');
       sigData = await sigRes.json();
