@@ -64,21 +64,9 @@ export default function AutoImageManager({ products, updateProduct }) {
     setProgress({ current: 0, total: targets.length });
 
     let done = 0;
-    
-    // Get Cloudinary Signature for direct upload
-    let sigData = null;
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    try {
-      const sigRes = await fetch(baseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ folder: 'thara-products' })
-      });
-      if (!sigRes.ok) throw new Error('فشل التوقيع');
-      sigData = await sigRes.json();
-    } catch {
-      addLog('❌ فشل الاتصال بخدمة رفع Cloudinary. تم الإيقاف.', 'error');
-      setIsRunning(false);
-      return;
-    }
+
+    const CLOUD_NAME = 'dvnhgvdd1';
+    const UPLOAD_PRESET = 'thara-unsigned';
 
     // Process Loop
     for (const p of targets) {
@@ -130,12 +118,9 @@ export default function AutoImageManager({ products, updateProduct }) {
           // Upload to Cloudinary
           const form = new FormData();
           form.append('file', foundUrl);
-          form.append('api_key', sigData.api_key);
-          form.append('timestamp', String(sigData.timestamp));
-          form.append('signature', sigData.signature);
-          form.append('folder', 'thara-products');
+          form.append('upload_preset', UPLOAD_PRESET);
           
-          const upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
+          const upRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form });
           
           if (!upRes.ok) {
              addLog(`⚠️ رفض Cloudinary المصدر (${upRes.status}). سيتم مسح الصورة للبحث عن صورة بديلة لاحقاً.`, 'warning');
