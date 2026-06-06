@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { isBlockedImageUrl } from '../../utils/constants';
 
 const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
-const SERPER_API_KEY = import.meta.env.VITE_SERPER_API_KEY;
+const getSerperKey = () => import.meta.env.VITE_SERPER_API_KEY || localStorage.getItem('thara_serper_key') || '';
 
 const OVERLAY = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' };
 const MODAL = { background: '#0f1a14', borderRadius: 16, border: '0.5px solid rgba(16,185,129,0.15)', width: '100%', maxWidth: 700, maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' };
@@ -42,10 +42,10 @@ export default function ImageSearch({ defaultQuery, onSelect, onClose }) {
   }, []);
 
   const searchSerper = useCallback(async (term) => {
-    if (!SERPER_API_KEY) { setError('مطلوب مفتاح Serper API'); return; }
+    const key = getSerperKey(); if (!key) { setError('مطلوب مفتاح Serper API'); return; }
     const res = await fetch('https://google.serper.dev/images', {
       method: 'POST',
-      headers: { 'X-API-KEY': SERPER_API_KEY, 'Content-Type': 'application/json' },
+      headers: { 'X-API-KEY': key || getSerperKey(), 'Content-Type': 'application/json' },
       body: JSON.stringify({ q: term, num: 30 })
     });
     if (!res.ok) throw new Error(`Serper: ${res.status}`);
