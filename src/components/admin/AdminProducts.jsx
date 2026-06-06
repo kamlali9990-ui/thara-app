@@ -55,7 +55,14 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       const q = String(searchQuery).trim().toLowerCase();
       list = list.filter(p => p.name.toLowerCase().includes(q));
     }
+    const imgPriority = (p) => {
+      if (!p.imageUrl) return 0;
+      if (!p.imageUrl.includes('res.cloudinary.com')) return 1;
+      return 2;
+    };
     return [...list].sort((a, b) => {
+      const imgDiff = imgPriority(a) - imgPriority(b);
+      if (imgDiff !== 0) return imgDiff;
       const catCmp = (a.category || '').localeCompare(b.category || '', 'ar');
       if (catCmp !== 0) return catCmp;
       const aStock = (a.stock_quantity ?? 0) > 0 ? 0 : 1;
