@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { productImgError } from '../utils/constants';
 
 const ProductCard = memo(({ product, addToCart, cart }) => {
@@ -76,7 +77,7 @@ const ProductCard = memo(({ product, addToCart, cart }) => {
         </div>
       </div>
 
-      {showDetails && (
+      {showDetails && createPortal((
         <div className="product-detail-overlay" onClick={closeDetails}>
           <div className="product-detail-card" role="dialog" aria-modal="true" aria-label={product.name} onClick={(e) => e.stopPropagation()}>
             <button type="button" className="product-detail-close" onClick={closeDetails} aria-label="إغلاق">
@@ -110,7 +111,7 @@ const ProductCard = memo(({ product, addToCart, cart }) => {
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </div>
   );
 });
