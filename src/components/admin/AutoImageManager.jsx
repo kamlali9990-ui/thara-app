@@ -60,6 +60,7 @@ export default function AutoImageManager({ products, updateProduct }) {
     }
 
     setIsRunning(true);
+    isRunningRef.current = true;
     addLog(`🚀 بدء التشغيل! تم العثور على ${targets.length} منتج يحتاج لمعالجة.`, 'info');
     setProgress({ current: 0, total: targets.length });
 
@@ -102,6 +103,7 @@ export default function AutoImageManager({ products, updateProduct }) {
         if (!searchRes.ok) {
            addLog(`❌ خطأ في البحث (تأكد من الرصيد أو مفتاح API)`, 'error');
            setIsRunning(false);
+           isRunningRef.current = false;
            break;
         }
 
@@ -198,7 +200,7 @@ export default function AutoImageManager({ products, updateProduct }) {
           
           <button 
             className="btn" 
-            onClick={() => setIsRunning(false)} 
+            onClick={() => { setIsRunning(false); isRunningRef.current = false; }} 
             disabled={!isRunning}
             style={{ 
               background: !isRunning ? 'rgba(239,68,68,0.2)' : '#ef4444', 
