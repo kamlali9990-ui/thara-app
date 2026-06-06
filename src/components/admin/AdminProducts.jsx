@@ -6,7 +6,7 @@ import { showToast } from '../Toast.jsx';
 import * as XLSX from 'xlsx';
 import CloudinaryUpload from './CloudinaryUpload';
 import ImageSearch from './ImageSearch';
-import { safeProductUrl, isBlockedImageUrl } from '../../utils/constants';
+import { safeProductUrl } from '../../utils/constants';
 
 const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
 const PAGE_SIZE = 50;

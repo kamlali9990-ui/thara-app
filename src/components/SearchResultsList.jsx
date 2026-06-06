@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { productImgError } from '../utils/constants';
 
 const SearchResultsList = memo(({ results, addToCart, cart, searchQuery }) => {
   if (!searchQuery) return null;
@@ -14,7 +15,21 @@ const SearchResultsList = memo(({ results, addToCart, cart, searchQuery }) => {
         const cartQty = cartItem?.qty || 0;
         const outOfStock = product.stock_quantity === 0;
         return (
-          <div key={product.id} className={`search-result-item ${outOfStock ? 'out-of-stock' : ''}`}>
+          <div key={product.id} className={`search-result-item ${outOfStock ? 'out-of-stock' : ''}`} style={{ gap: '1rem' }}>
+            <img 
+              src={product.imageUrl} 
+              alt={product.name} 
+              onError={productImgError} 
+              style={{
+                width: '50px',
+                height: '50px',
+                objectFit: 'cover',
+                borderRadius: '8px',
+                flexShrink: 0,
+                background: 'rgba(0,0,0,0.05)'
+              }}
+              loading="lazy"
+            />
             <div className="search-result-info">
               <div className="search-result-name">{product.name}</div>
               <div className="search-result-meta">

@@ -113,23 +113,28 @@ const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
 
 function LeaveGuard() {
   const location = useLocation();
+  const { cart } = useStore();
 
   React.useEffect(() => {
     const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
+      if (cart && cart.length > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, []);
+  }, [cart]);
 
   // FIXED: Proper cleanup of popstate listener on pathname change
   React.useEffect(() => {
-    // Push initial state when component mounts
+    if (!cart || cart.length === 0) return;
+
+    // Push initial state when component mounts and cart is not empty
     window.history.pushState({ tharaGuard: true }, '', window.location.href);
 
     const handlePopState = () => {
-      const shouldLeave = window.confirm('هل تريد المغادرة؟');
+      const shouldLeave = window.confirm('هل تريد المغادرة؟ سيتم إفراغ سلتك.');
       if (!shouldLeave) {
         window.history.pushState({ tharaGuard: true }, '', window.location.href);
       }
@@ -142,7 +147,7 @@ function LeaveGuard() {
     return () => {
       window.removeEventListener('popstate', handlePopState);
     };
-  }, [location.pathname]);
+  }, [location.pathname, cart]);
 
   return null;
 }

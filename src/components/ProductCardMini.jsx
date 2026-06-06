@@ -14,7 +14,7 @@ const ProductCardMini = memo(({ product, addToCart }) => {
   return (
     <div className="product-card-mini-item">
       <div className="mini-card-img-wrap">
-        <span className="mini-card-badge-offer">%</span>
+        {product.isOffer && <span className="mini-card-badge-offer">%</span>}
         {outOfStock && <span className="product-badge-out">نفذ</span>}
         <img src={product.imageUrl} alt={product.name} className="mini-card-img" loading="lazy"
           onError={productImgError} />

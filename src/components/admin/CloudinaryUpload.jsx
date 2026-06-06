@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { supabase } from '../../supabase/client';
 
 const CLOUD_NAME = 'dvnhgvdd1';
 
@@ -55,9 +55,14 @@ export default function CloudinaryUpload({ onUpload, onError }) {
     if (signatureUrl) {
       config.uploadSignature = async (callback, params) => {
         try {
+          const { data: { session } } = await supabase.auth.getSession();
           const res = await fetch(signatureUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${session?.access_token || ''}`,
+              'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+            },
             body: JSON.stringify(params),
           });
           if (!res.ok) throw new Error('Signature request failed');

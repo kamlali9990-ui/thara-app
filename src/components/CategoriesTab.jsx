@@ -4,20 +4,11 @@ import { useStore } from '../context/StoreContext';
 import ProductCard from './ProductCard';
 import RotatingCategoryRow from './RotatingCategoryRow';
 
+import { sectionCats } from '../data/categories';
+
 const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
   const { allProducts, addToCart, cart } = useStore();
-  const allCats = useMemo(() => [
-    { name: 'مواد غذائية', img: `${BASE}cat_canned.png`, fallback: '🥫', desc: 'جميع المواد الغذائية', color: '#e74c3c' },
-    { name: 'منظفات', img: `${BASE}cat_vegetables.jpg`, fallback: '🧹', desc: 'منتجات التنظيف والعناية', color: '#3498db' },
-    { name: 'إلكترونيات', img: `${BASE}cat_electronics.png`, fallback: '📱', desc: 'أجهزة وإكسسوارات إلكترونية', color: '#2ecc71' },
-    { name: 'أواني', img: `${BASE}cat_kitchen.png`, fallback: '🍳', desc: 'أدوات المطبخ والمنزل', color: '#f39c12' },
-    { name: 'مكسرات وبهارات', img: `${BASE}cat_canned.jpg`, fallback: '🥜', desc: 'مكسرات وبهارات وتوابل', color: '#9b59b6' },
-    { name: 'خضروات وفواكه', img: `${BASE}Getty.webp`, fallback: '🥦', desc: 'طازج من المزرعة', color: '#1abc9c' },
-    { name: 'ألعاب', img: `${BASE}cat_toys.png`, fallback: '🎮', desc: 'ألعاب وترفيه للأطفال', color: '#e67e22' },
-    { name: 'مجموعة الأصناف', img: `${BASE}cat_dairy.jpg`, fallback: '📦', desc: 'منتجات متنوعة', color: '#34495e' },
-    { name: 'ملابس', img: `${BASE}cat_clothing.png`, fallback: '👕', desc: 'ملابس للجميع', color: '#e91e63' },
-    { name: 'مواد البناء', img: `${BASE}cat_hardware.png`, fallback: '🔧', desc: 'أدوات البناء والسباكة والكهرباء', color: '#795548' },
-  ], [BASE]);
+  const allCats = sectionCats;
 
   const [catSearch, setCatSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState(null);

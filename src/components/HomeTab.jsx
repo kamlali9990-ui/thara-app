@@ -3,6 +3,7 @@ import { BASE, imgFallback } from '../utils/constants';
 import SearchResultsList from './SearchResultsList';
 import ProductCard from './ProductCard';
 import { useStore } from '../context/StoreContext';
+import { sectionCats } from '../data/categories';
 
 const BANNER_STORAGE_KEY = 'thara_banner_url';
 
@@ -24,20 +25,6 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
       window.removeEventListener('thara:banner-changed', handler);
     };
   }, []);
-
-  // Category sections with products
-  const sectionCats = [
-    { name: 'مواد غذائية', img: `${BASE}cat_canned.png`, fallback: '🥫' },
-    { name: 'منظفات', img: `${BASE}cat_vegetables.jpg`, fallback: '🧹' },
-    { name: 'إلكترونيات', img: `${BASE}cat_electronics.png`, fallback: '📱' },
-    { name: 'أواني', img: `${BASE}cat_kitchen.png`, fallback: '🍳' },
-    { name: 'مكسرات وبهارات', img: `${BASE}cat_canned.jpg`, fallback: '🥜' },
-    { name: 'خضروات وفواكه', img: `${BASE}Getty.webp`, fallback: '🥦' },
-    { name: 'ألعاب', img: `${BASE}cat_toys.png`, fallback: '🎮' },
-    { name: 'مجموعة الأصناف', img: `${BASE}cat_dairy.jpg`, fallback: '📦' },
-    { name: 'ملابس', img: `${BASE}cat_clothing.png`, fallback: '👕' },
-    { name: 'مواد البناء', img: `${BASE}cat_hardware.png`, fallback: '🔧' },
-  ];
 
 
   const isSearching = searchQuery.trim().length > 0;

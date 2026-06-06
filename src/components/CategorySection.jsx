@@ -2,21 +2,10 @@ import { memo } from 'react';
 import ProductCard from './ProductCard';
 import { BASE } from '../utils/constants';
 
-const CATEGORY_IMAGES = {
-  'مواد غذائية': { img: `${BASE}cat_canned.png`, fallback: '🥫' },
-  'منظفات': { img: `${BASE}cat_vegetables.jpg`, fallback: '🧹' },
-  'إلكترونيات': { img: `${BASE}cat_electronics.png`, fallback: '📱' },
-  'أواني': { img: `${BASE}cat_kitchen.png`, fallback: '🍳' },
-  'مكسرات وبهارات': { img: `${BASE}cat_canned.jpg`, fallback: '🥜' },
-  'خضروات وفواكه': { img: `${BASE}Getty.webp`, fallback: '🥦' },
-  'ألعاب': { img: `${BASE}cat_toys.png`, fallback: '🎮' },
-  'مجموعة الأصناف': { img: `${BASE}cat_dairy.jpg`, fallback: '📦' },
-  'ملابس': { img: `${BASE}cat_clothing.png`, fallback: '👕' },
-  'مواد البناء': { img: `${BASE}cat_hardware.png`, fallback: '🔧' },
-};
+import { sectionCats } from '../data/categories';
 
 const CategorySection = memo(({ category, products, addToCart, cart, onViewAll }) => {
-  const catInfo = CATEGORY_IMAGES[category] || { img: '', fallback: '📦' };
+  const catInfo = sectionCats.find(c => c.name === category) || { img: '', fallback: '📦' };
   const maxDisplay = products.slice(0, 6);
 
   return (

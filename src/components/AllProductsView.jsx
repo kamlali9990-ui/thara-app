@@ -1,8 +1,10 @@
 import { memo, useState, useMemo } from 'react';
 import ProductCard from './ProductCard';
 
+import { sectionCats } from '../data/categories';
+
 const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
-  const catNames = ['مواد غذائية', 'منظفات', 'إلكترونيات', 'أواني', 'مكسرات وبهارات', 'خضروات وفواكه', 'ألعاب', 'مجموعة الأصناف', 'ملابس', 'مواد البناء'];
+  const catNames = sectionCats.map(c => c.name);
   const title = view === 'offers' ? 'العروض المميزة' : view === 'bestsellers' ? 'الأكثر مبيعا' : catNames.includes(view) ? view : 'جميع المنتجات';
   const [catSearch, setCatSearch] = useState('');
   const isSearching = catSearch.trim().length > 0;
