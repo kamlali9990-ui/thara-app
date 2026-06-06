@@ -276,13 +276,13 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   };
 
   const fixProductImages = async () => {
-    let targets = products.filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com'));
+    let targets = products.filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('logo222') || p.imageUrl.includes('LOGO.jpg'));
     const from = parseInt(fixFromPage, 10) || 0;
     const to = parseInt(fixToPage, 10) || 0;
     if (from > 0) {
       const start = (from - 1) * PAGE_SIZE;
       const end = to >= from ? to * PAGE_SIZE : start + PAGE_SIZE;
-      targets = filteredAndSortedProducts.slice(start, end).filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com'));
+      targets = filteredAndSortedProducts.slice(start, end).filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('logo222') || p.imageUrl.includes('LOGO.jpg'));
     }
     if (!targets.length) { showToast('لا توجد منتجات تحتاج تصحيح في هذه الصفحة', 'success'); return; }
     const serperKey = getSerperKey(); if (!serperKey) { showToast('مطلوب مفتاح Serper API', 'error'); return; }
