@@ -326,6 +326,8 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       if (!u || typeof u !== 'string') return false;
       if (u.includes('res.cloudinary.com')) return false;
       if (u.startsWith('data:')) return false;
+      if (u.includes('unsplash.com')) return false;
+      if (isBlockedImageUrl(u)) return false;
       if (u.includes('LOGO.jpg') || u.includes('logo222')) return false;
       return true;
     });
@@ -355,8 +357,9 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
         try { sigData = await getCloudinarySignature(); sinceLastSig = 0; } catch { /* keep using old sig */ }
       }
       try {
+        const safeUrl = safeProductUrl(p.imageUrl);
         const form = new FormData();
-        form.append('file', p.imageUrl);
+        form.append('file', safeUrl);
         form.append('api_key', sigData.api_key);
         form.append('timestamp', String(sigData.timestamp));
         form.append('signature', sigData.signature);
@@ -366,7 +369,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
           try {
             sigData = await getCloudinarySignature(); sinceLastSig = 0;
             const retryForm = new FormData();
-            retryForm.append('file', p.imageUrl);
+            retryForm.append('file', safeUrl);
             retryForm.append('api_key', sigData.api_key);
             retryForm.append('timestamp', String(sigData.timestamp));
             retryForm.append('signature', sigData.signature);
@@ -375,9 +378,9 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
         }
         if (!upRes.ok) {
           const errText = await upRes.text();
-          console.warn(`[CloudUpload] فشل رفع "${p.name}" (${upRes.status}):`, errText.slice(0, 200), '| URL:', p.imageUrl?.slice(0, 80));
-          if (upRes.status === 400 || upRes.status === 404) {
-            console.log(`[CloudUpload] جاري مسح الرابط التالف لمنتج "${p.name}" ليتم اختيار صورة بديلة لاحقاً.`);
+          console.warn(`[CloudUpload] فشل رفع "${p.name}" (${upRes.status}):`, errText.slice(0, 200), '| URL:', safeUrl.slice(0, 80));
+          if (upRes.status === 404) {
+            console.log(`[CloudUpload] مسح الرابط التالف لمنتج "${p.name}" ليتم اختيار صورة بديلة لاحقاً.`);
             try {
               await updateProduct(p.id, { imageUrl: '' });
             } catch (dbErr) {
