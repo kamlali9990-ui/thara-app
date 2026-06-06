@@ -108,37 +108,43 @@ export default function AutoImageManager({ products, updateProduct }) {
         }
 
         const data = await searchRes.json();
-        const validImage = data.images?.find(img => img.imageUrl && !isBlockedImageUrl(img.imageUrl));
-        if (validImage) {
-          let foundUrl = validImage.imageUrl;
-          if (foundUrl && typeof foundUrl === 'string' && foundUrl.startsWith('http://')) {
-            foundUrl = 'https://' + foundUrl.slice(7);
-          }
-          
-          addLog(`☁️ تم العثور على صورة، جاري الرفع لـ Cloudinary...`, 'info');
-          
-          // Upload to Cloudinary
-          const form = new FormData();
-          form.append('file', foundUrl);
-          form.append('upload_preset', UPLOAD_PRESET);
-          
-          const upRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form });
-          
-          if (!upRes.ok) {
-             addLog(`⚠️ رفض Cloudinary المصدر (${upRes.status}). سيتم مسح الصورة للبحث عن صورة بديلة لاحقاً.`, 'warning');
-             await updateProduct(p.id, { imageUrl: '' });
-             localStorage.setItem(cacheKey, 'not_found');
-          } else {
-             const upData = await upRes.json();
-             if (upData.secure_url) {
-               addLog(`🗄️ تم الرفع! جاري تحديث قاعدة البيانات...`, 'success');
-               await updateProduct(p.id, { imageUrl: upData.secure_url });
-               addLog(`✅ اكتمل (Cloudinary): ${p.name}`, 'success');
-             }
-          }
-        } else {
+        const validImages = (data.images || []).filter(img => img.imageUrl && !isBlockedImageUrl(img.imageUrl));
+        
+        if (validImages.length === 0) {
           addLog(`⚠️ لم يتم العثور على صور لهذا المنتج.`, 'warning');
           localStorage.setItem(cacheKey, 'not_found');
+        } else {
+          let uploaded = false;
+          for (const candidate of validImages) {
+            let imgUrl = candidate.imageUrl;
+            if (imgUrl && typeof imgUrl === 'string' && imgUrl.startsWith('http://')) {
+              imgUrl = 'https://' + imgUrl.slice(7);
+            }
+            
+            addLog(`☁️ تجربة رفع صورة...`, 'info');
+            
+            const form = new FormData();
+            form.append('file', imgUrl);
+            form.append('upload_preset', UPLOAD_PRESET);
+            
+            const upRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form });
+            
+            if (upRes.ok) {
+              const upData = await upRes.json();
+              if (upData.secure_url) {
+                addLog(`🗄️ تم الرفع! جاري تحديث قاعدة البيانات...`, 'success');
+                await updateProduct(p.id, { imageUrl: upData.secure_url });
+                addLog(`✅ اكتمل (Cloudinary): ${p.name}`, 'success');
+                uploaded = true;
+                break;
+              }
+            }
+          }
+          if (!uploaded) {
+            addLog(`⚠️ جميع الصور غير متاحة. تم مسح الصورة للبحث لاحقاً.`, 'warning');
+            await updateProduct(p.id, { imageUrl: '' });
+            localStorage.setItem(cacheKey, 'not_found');
+          }
         }
       } catch (err) {
         addLog(`❌ خطأ غير متوقع: ${err.message}`, 'error');
