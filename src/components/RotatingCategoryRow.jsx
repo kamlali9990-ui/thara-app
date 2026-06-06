@@ -1,16 +1,13 @@
-import { memo, useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { memo, useState, useMemo, useRef, useCallback } from 'react';
 import ProductCard from './ProductCard';
 
 const ITEMS_PER_PAGE = 10;
-const ROTATE_INTERVAL = 5000;
 
 const RotatingCategoryRow = memo(({ category, categoryColor, allProducts, mostRequested, addToCart, cart, onViewAll }) => {
   const [page, setPage] = useState(0);
   const [fade, setFade] = useState(true);
-  const intervalRef = useRef(null);
   const gridRef = useRef(null);
   const touchX = useRef(0);
-  const pauseRef = useRef(false);
 
   const goTo = useCallback((i) => {
     setPage(i);
@@ -28,18 +25,6 @@ const RotatingCategoryRow = memo(({ category, categoryColor, allProducts, mostRe
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE));
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      if (pauseRef.current) return;
-      setFade(false);
-      setTimeout(() => {
-        setPage(prev => (prev + 1) % totalPages);
-        setFade(true);
-      }, 250);
-    }, ROTATE_INTERVAL);
-    return () => clearInterval(intervalRef.current);
-  }, [totalPages]);
-
   const visible = sorted.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
 
   const handleTouchStart = useCallback((e) => {
@@ -48,8 +33,6 @@ const RotatingCategoryRow = memo(({ category, categoryColor, allProducts, mostRe
   const handleTouchEnd = useCallback((e) => {
     const dx = e.changedTouches[0].clientX - touchX.current;
     if (Math.abs(dx) < 40) return;
-    pauseRef.current = true;
-    setTimeout(() => { pauseRef.current = false; }, ROTATE_INTERVAL * 2);
     setFade(false);
     setTimeout(() => {
       if (dx > 0) {

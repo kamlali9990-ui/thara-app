@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
 import { showToast } from './components/Toast.jsx';
-import InstallPrompt from './components/InstallPrompt.jsx';
+
 
 const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
 const AdminProducts = lazy(() => import('./components/admin/AdminProducts'));
@@ -281,7 +281,6 @@ export default function Admin() {
           <button onClick={handleLogout} className="admin-tab" style={{ color: 'rgba(255,255,255,0.7)' }}>تسجيل الخروج</button>
         </div>
       </aside>
-      <InstallPrompt variant="admin" />
       <main className="admin-main">
         <Suspense fallback={<div className="admin-loading">جاري التحميل...</div>}>
           {renderTabContent()}
