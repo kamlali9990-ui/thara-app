@@ -28,6 +28,7 @@ export function safeProductUrl(url, name) {
   if (!url || typeof url !== 'string') return logoPath;
   const s = url.trim();
   if (!s) return logoPath;
+  if (isBlockedImageUrl(s) || s.includes('unsplash.com')) return logoPath;
   if (s.startsWith('http://')) return 'https://' + s.slice(7);
   if (s.startsWith('//')) return 'https:' + s;
   if (s.startsWith('http')) return s;
@@ -49,7 +50,8 @@ export const BLOCKED_DOMAINS = [
   'pinimg.com',
   'twitter.com',
   'twimg.com',
-  'tiktok.com'
+  'tiktok.com',
+  'aalalkaif.com'
 ];
 
 export function isBlockedImageUrl(url) {
