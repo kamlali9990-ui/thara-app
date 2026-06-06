@@ -151,11 +151,13 @@
 [data-theme="dark"] .product-card-new-currency { color: rgba(255,255,255,0.5) !important; }
 [data-theme="dark"] .product-card-new-unit { color: rgba(255,255,255,0.5) !important; }
 [data-theme="dark"] .category-section-grid .product-card-new-name,
-[data-theme="dark"] .rotating-cat-grid .product-card-new-name { color: #ef4444 !important; }
+[data-theme="dark"] .rotating-cat-grid .product-card-new-name { color: #f8fafc !important; }
 [data-theme="dark"] .category-section-grid .product-card-new-price,
 [data-theme="dark"] .rotating-cat-grid .product-card-new-price { color: #34d399 !important; }
 [data-theme="dark"] .category-section-grid .product-card-new-currency,
-[data-theme="dark"] .category-section-grid .product-card-new-unit { color: rgba(255,255,255,0.5) !important; }
+[data-theme="dark"] .category-section-grid .product-card-new-unit,
+[data-theme="dark"] .rotating-cat-grid .product-card-new-currency,
+[data-theme="dark"] .rotating-cat-grid .product-card-new-unit { color: rgba(255,255,255,0.62) !important; }
 [data-theme="dark"] .product-card-new-add {
   background: rgba(251,191,36,0.9);
   color: #030f0a;
@@ -166,6 +168,40 @@
   box-shadow: 0 4px 18px rgba(251,191,36,0.35);
 }
 [data-theme="dark"] .product-card-new-add.added { background: #34d399; color: #030f0a; }
+[data-theme="dark"] .product-detail-overlay {
+  background: rgba(0,0,0,0.72);
+}
+[data-theme="dark"] .product-detail-card {
+  background: #0f1f17;
+  color: var(--text-main);
+  border-color: rgba(255,255,255,0.1);
+  box-shadow: 0 24px 70px rgba(0,0,0,0.5);
+}
+[data-theme="dark"] .product-detail-close {
+  background: rgba(15,31,23,0.92);
+  color: #f8fafc;
+}
+[data-theme="dark"] .product-detail-img-wrap {
+  background: rgba(0,0,0,0.35);
+}
+[data-theme="dark"] .product-detail-category,
+[data-theme="dark"] .product-detail-currency,
+[data-theme="dark"] .product-detail-unit {
+  color: rgba(255,255,255,0.66);
+}
+[data-theme="dark"] .product-detail-name {
+  color: #f8fafc;
+}
+[data-theme="dark"] .product-detail-price {
+  color: #34d399;
+}
+[data-theme="dark"] .product-detail-old-price {
+  color: rgba(255,255,255,0.48);
+}
+[data-theme="dark"] .product-detail-out-label {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+}
 
 /* ─── Product Card Mini ─── */
 [data-theme="dark"] .product-card-mini-item {
