@@ -40,7 +40,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const [fixToPage, setFixToPage] = useState('');
   const [cloudFromPage, setCloudFromPage] = useState('');
   const [cloudToPage, setCloudToPage] = useState('');
-  const SERPER_KEY = '26d3cbd8de5a6fb4379330ffb423ac5159aad2b5';
+  const getSerperKey = () => import.meta.env.VITE_SERPER_API_KEY || localStorage.getItem('thara_serper_key') || '';
 
   useEffect(() => {
     const params = {};
@@ -278,7 +278,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       targets = filteredAndSortedProducts.slice(start, end).filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com'));
     }
     if (!targets.length) { showToast('لا توجد منتجات تحتاج تصحيح في هذه الصفحة', 'success'); return; }
-    if (!SERPER_KEY) { showToast('مطلوب مفتاح Serper API', 'error'); return; }
+    const serperKey = getSerperKey(); if (!serperKey) { showToast('مطلوب مفتاح Serper API', 'error'); return; }
     setFixingImages(true);
     setFixProgress({ current: 0, total: targets.length });
     let done = 0;
@@ -286,8 +286,8 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       try {
         const res = await fetch('https://google.serper.dev/images', {
           method: 'POST',
-          headers: { 'X-API-KEY': SERPER_KEY, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 10 })
+          headers: { 'X-API-KEY': serperKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 10, hl: 'ar', gl: 'sa' })
         });
         if (res.ok) {
           const data = await res.json();
@@ -296,8 +296,13 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
             let url = validImage ? validImage.imageUrl : null;
             if (url) { if (typeof url === 'string' && url.startsWith('http://')) url = 'https://' + url.slice(7); await updateProduct(p.id, { imageUrl: url }); }
           }
+        } else {
+          const errText = await res.text().catch(() => '');
+          console.warn(`[SerperFix] فشل "${p.name}" (${res.status}):`, errText.slice(0, 200));
         }
-      } catch {}
+      } catch (err) {
+        console.warn(`[SerperFix] خطأ "${p.name}":`, err?.message || err);
+      }
       done++;
       setFixProgress({ current: done, total: targets.length });
       await new Promise(r => setTimeout(r, 400));
