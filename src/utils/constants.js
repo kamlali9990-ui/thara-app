@@ -51,6 +51,7 @@ export const BLOCKED_DOMAINS = [
   'twitter.com',
   'twimg.com',
   'tiktok.com',
+  'tiktokcdn',
   'aalalkaif.com'
 ];
 
