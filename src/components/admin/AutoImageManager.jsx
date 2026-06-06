@@ -67,7 +67,24 @@ export default function AutoImageManager({ products, updateProduct }) {
     let done = 0;
 
     const CLOUD_NAME = 'dvnhgvdd1';
-    const UPLOAD_PRESET = 'thara-unsigned';
+    const CLOUD_API_KEY = '475255696212661';
+    const CLOUD_API_SECRET = 'Yiquuxk4nGn7dziVL7lkVNOy3Uc';
+
+    function cloudinarySignature(params) {
+      const sorted = Object.keys(params).sort().map(k => k + '=' + params[k]).join('&');
+      let hash = 0, i = 0, chr = 0;
+      if (sorted.length === 0) return '';
+      // Simple SHA-1 polyfill for browsers
+      return crypto.subtle.digest('SHA-1', new TextEncoder().encode(sorted + CLOUD_API_SECRET))
+        .then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''));
+    }
+
+    let sigData = null;
+    try {
+      const ts = Math.round(Date.now() / 1000);
+      const sig = await cloudinarySignature({ timestamp: String(ts) });
+      sigData = { api_key: CLOUD_API_KEY, timestamp: ts, signature: sig, cloud_name: CLOUD_NAME };
+    } catch {}
 
     // Process Loop
     for (const p of targets) {
@@ -125,7 +142,13 @@ export default function AutoImageManager({ products, updateProduct }) {
             
             const form = new FormData();
             form.append('file', imgUrl);
-            form.append('upload_preset', UPLOAD_PRESET);
+            if (sigData) {
+              form.append('api_key', sigData.api_key);
+              form.append('timestamp', String(sigData.timestamp));
+              form.append('signature', sigData.signature);
+            } else {
+              form.append('upload_preset', 'thara-unsigned');
+            }
             
             const upRes = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, { method: 'POST', body: form });
             
