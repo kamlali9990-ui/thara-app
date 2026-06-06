@@ -37,12 +37,13 @@ export default function AutoImageManager({ products, updateProduct }) {
   const getMissingImageProducts = () => {
     return products.filter(p => {
       const url = p.imageUrl;
-      if (!url || typeof url !== 'string') return true; // No image
-      if (url.includes('data:')) return true; // Default placeholder
-      if (url.includes('LOGO.jpg') || url.includes('logo222')) return true; // Default logo
-      
-      // إذا كان يمتلك أي رابط آخر (سواء Cloudinary أو رابط موقع خارجي أو محلي)، نعتبره مكتملاً ولا نلمسه أبداً لحماية صورك!
-      return false; 
+      if (!url || typeof url !== 'string') return true;
+      if (url.includes('data:')) return true;
+      if (url.includes('LOGO.jpg') || url.includes('logo222')) return true;
+      if (url.includes('res.cloudinary.com')) return false;
+      if (url.includes('unsplash.com')) return true;
+      if (isBlockedImageUrl(url)) return true;
+      return false;
     });
   };
 
