@@ -150,8 +150,10 @@
 [data-theme="dark"] .product-card-new-cat { color: rgba(255,255,255,0.5) !important; }
 [data-theme="dark"] .product-card-new-currency { color: rgba(255,255,255,0.5) !important; }
 [data-theme="dark"] .product-card-new-unit { color: rgba(255,255,255,0.5) !important; }
-[data-theme="dark"] .category-section-grid .product-card-new-name { color: #ef4444 !important; }
-[data-theme="dark"] .category-section-grid .product-card-new-price { color: #34d399 !important; }
+[data-theme="dark"] .category-section-grid .product-card-new-name,
+[data-theme="dark"] .rotating-cat-grid .product-card-new-name { color: #ef4444 !important; }
+[data-theme="dark"] .category-section-grid .product-card-new-price,
+[data-theme="dark"] .rotating-cat-grid .product-card-new-price { color: #34d399 !important; }
 [data-theme="dark"] .category-section-grid .product-card-new-currency,
 [data-theme="dark"] .category-section-grid .product-card-new-unit { color: rgba(255,255,255,0.5) !important; }
 [data-theme="dark"] .product-card-new-add {

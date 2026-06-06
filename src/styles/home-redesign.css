@@ -612,8 +612,8 @@
 }
 .rotating-cat-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
   transition: opacity 0.25s ease;
 }
 .rotating-cat-grid.fade-in {
@@ -622,27 +622,20 @@
 .rotating-cat-grid.fade-out {
   opacity: 0;
 }
-/* Full-size images in rotating sections — image fills entire card, text overlays */
 .rotating-cat-grid .product-card-new {
-  position: relative;
   border-radius: 8px;
   overflow: hidden;
-  border: 2px solid var(--cat-color, var(--border));
-  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  border: 1px solid var(--border);
 }
 .rotating-cat-grid .product-card-new-img-wrap {
-  padding-top: 100%;
+  aspect-ratio: 1;
   height: auto;
+  background: #f8fafc;
 }
 .rotating-cat-grid .product-card-new-body {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0,0,0,0.65));
-  padding: 2rem 0.5rem 0.5rem;
+  padding: 0.3rem 0.35rem 0.35rem;
+  min-height: auto; gap: 0.05rem;
   border: none;
-  z-index: 2;
 }
 .rotating-cat-grid .product-card-new-cat,
 .rotating-cat-grid .product-card-new-currency,
@@ -650,35 +643,44 @@
   display: none;
 }
 .rotating-cat-grid .product-card-new-name {
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 0.15rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #b91c1c;
+  margin-bottom: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.rotating-cat-grid .product-card-new-price-row {
+  gap: 0.15rem;
+  flex-wrap: nowrap;
+}
 .rotating-cat-grid .product-card-new-price {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 800;
-  color: var(--cat-color, #fbbf24);
+  color: #127443 !important;
 }
 .rotating-cat-grid .product-card-new-price .offer-old {
-  color: rgba(255,255,255,0.5);
+  font-size: 0.55rem;
+  color: var(--text-light);
 }
 .rotating-cat-grid .product-card-new-actions {
-  top: 0.4rem;
+  top: 0.3rem;
   left: auto;
-  right: 0.4rem;
+  right: 0.3rem;
   bottom: auto;
   transform: none;
+}
+.rotating-cat-grid .product-card-new-add {
+  width: 26px;
+  height: 26px;
+  top: 0.3rem;
+  right: 0.3rem;
 }
 .rotating-cat-grid .product-card-cart-qty {
   top: -4px;
   right: -4px;
-}
-[data-theme="dark"] .rotating-cat-grid .product-card-new-body {
-  background: linear-gradient(transparent, rgba(0,0,0,0.75));
 }
 .rotating-cat-dots {
   display: flex;
