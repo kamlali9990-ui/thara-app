@@ -1,17 +1,9 @@
 import { useRef, useState } from 'react';
-import { supabase } from '../../supabase/client';
 
 const CLOUD_NAME = 'dvnhgvdd1';
+const UPLOAD_PRESET = 'thara_banners';
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/jpg'];
-const MAX_SIZE_MB = 5;
-const MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
-
-function getSignatureUrl() {
-  const base = import.meta.env.VITE_SUPABASE_URL;
-  if (!base) return null;
-  return base.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign';
-}
+const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
 const CLOUDINARY_WIDGET_URL = 'https://upload-widget.cloudinary.com/latest/global/all.js';
 
@@ -19,7 +11,6 @@ function loadCloudinaryScript() {
   return new Promise((resolve) => {
     if (window.cloudinary?.createUploadWidget) return resolve(true);
 
-    // Remove any existing script with same src to avoid duplicates
     const existing = document.querySelector(`script[src="${CLOUDINARY_WIDGET_URL}"]`);
     if (existing) existing.remove();
 
@@ -28,9 +19,8 @@ function loadCloudinaryScript() {
     script.async = true;
     document.head.appendChild(script);
 
-    // Poll for window.cloudinary instead of relying on onload timing
     let attempts = 0;
-    const maxAttempts = 50; // ~10 seconds
+    const maxAttempts = 50;
     const poll = setInterval(() => {
       attempts++;
       if (window.cloudinary?.createUploadWidget) {
@@ -60,10 +50,9 @@ export default function CloudinaryUpload({ onUpload, onError }) {
       }
     }
 
-    const signatureUrl = getSignatureUrl();
-
     const config = {
       cloudName: CLOUD_NAME,
+      uploadPreset: UPLOAD_PRESET,
       sources: ['local', 'camera', 'url'],
       multiple: false,
       maxFiles: 1,
@@ -89,27 +78,6 @@ export default function CloudinaryUpload({ onUpload, onError }) {
         },
       },
     };
-
-    if (signatureUrl) {
-      config.uploadSignature = async (callback, params) => {
-        try {
-          const { data: { session } } = await supabase.auth.getSession();
-          const res = await fetch(signatureUrl, {
-            method: 'POST',
-            headers: { 
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${session?.access_token || ''}`,
-            },
-            body: JSON.stringify(params),
-          });
-          if (!res.ok) throw new Error('Signature request failed');
-          const data = await res.json();
-          callback(data);
-        } catch (err) {
-          callback({ error: err.message });
-        }
-      };
-    }
 
     const myWidget = window.cloudinary.createUploadWidget(
       config,
