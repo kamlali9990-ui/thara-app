@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { showToast } from './Toast.jsx';
+import InstallGuide from './InstallGuide';
 
 const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme, staffRole }) => {
   const [editing, setEditing] = useState(false);
@@ -75,7 +76,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
         <Link to="/login" className="btn" style={{ marginTop: '1rem' }}>تسجيل الدخول</Link>
         <Link to="/register" className="btn btn-ghost" style={{ marginTop: '0.5rem' }}>إنشاء حساب جديد</Link>
       </div>
-
+      <InstallGuide />
     </div>
   );
 
@@ -189,7 +190,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             </div>
           </div>
 
-
+          <InstallGuide />
         </>
       )}
 
