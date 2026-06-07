@@ -9,10 +9,10 @@
   "backgroundColor": "#ffffff",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://tharasharqone.com/icon-192.png",
+  "iconUrl": "https://tharasharqone.com/transparent-icon.png",
   "maskableIconUrl": "https://tharasharqone.com/icon-512.png",
   "webManifestUrl": "https://tharasharqone.com/manifest.json",
-  "splashScreenFadeOutDuration": 300,
+  "splashScreenFadeOutDuration": 100,
   "signingKey": {
     "path": "أسواق ثراء الشرق ون - Google Play package (2)/signing.keystore",
     "alias": "my-key-alias"
