@@ -16,6 +16,10 @@ INSERT INTO staff (email, name, role)
 VALUES ('admin@example.com', 'Admin', 'admin')
 ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role;
 
+INSERT INTO staff (email, name, role)
+VALUES ('yaser.haroon79@gmail.com', 'مدير', 'admin')
+ON CONFLICT (email) DO UPDATE SET role = 'admin';
+
 ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.current_staff_role()
@@ -524,9 +528,11 @@ ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
 -- Anyone can insert an order (no auth required for customers)
 -- but must provide required fields
 DROP POLICY IF EXISTS "orders_insert_public" ON orders;
-CREATE POLICY "orders_insert_public" ON orders
+DROP POLICY IF EXISTS "orders_insert_authenticated" ON orders;
+CREATE POLICY "orders_insert_authenticated" ON orders
   FOR INSERT WITH CHECK (
-    phone IS NOT NULL AND phone != ''
+    auth.role() = 'authenticated'
+    AND phone IS NOT NULL AND phone != ''
     AND location IS NOT NULL AND location != ''
   );
 
@@ -992,8 +998,10 @@ CREATE TABLE IF NOT EXISTS settings (
 );
 ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY IF NOT EXISTS "settings_select_all" ON settings FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "settings_insert_admin" ON settings FOR INSERT WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "settings_update_admin" ON settings FOR UPDATE USING (true);
+DROP POLICY IF EXISTS "settings_insert_admin" ON settings;
+DROP POLICY IF EXISTS "settings_update_admin" ON settings;
+CREATE POLICY "settings_insert_admin" ON settings FOR INSERT WITH CHECK (public.is_staff(ARRAY['admin', 'manager']));
+CREATE POLICY "settings_update_admin" ON settings FOR UPDATE USING (public.is_staff(ARRAY['admin', 'manager']));
 CREATE POLICY IF NOT EXISTS "settings_delete_deny" ON settings FOR DELETE USING (false);
 ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS settings;
 

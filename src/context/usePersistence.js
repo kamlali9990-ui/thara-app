@@ -8,8 +8,6 @@ import { staffApi } from '../supabase/staff.js';
 import { customersApi } from '../supabase/customers.js';
 import { cleanProductImages } from '../utils/constants.js';
 
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
-
 export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setCart, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading }) {
   useEffect(() => {
     const init = async () => {
@@ -35,15 +33,12 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
             if (staff) {
               setStaffRole(staff.role);
               setCurrentStaff(staff);
-            } else if (ADMIN_EMAIL && currentUser.email === ADMIN_EMAIL) {
-              setStaffRole('admin');
-              setCurrentStaff({ email: currentUser.email, name: 'مدير', role: 'admin' });
             }
-            if (staff || (ADMIN_EMAIL && currentUser.email === ADMIN_EMAIL)) {
+            if (staff) {
               const supaChat = await chatApi.list().catch(() => null);
               if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
             }
-            if (!staff && !(ADMIN_EMAIL && currentUser.email === ADMIN_EMAIL)) {
+            if (!staff) {
               try {
                 const p = await customersApi.get(currentUser.email);
                 if (p) setCustomerProfile(p);
@@ -97,14 +92,11 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
           if (staff) {
             setStaffRole(staff.role);
             setCurrentStaff(staff);
-          } else if (ADMIN_EMAIL && u.email === ADMIN_EMAIL) {
-            setStaffRole('admin');
-            setCurrentStaff({ email: u.email, name: 'مدير', role: 'admin' });
           } else {
             setStaffRole(null);
             setCurrentStaff(null);
           }
-          if (!staff && !(ADMIN_EMAIL && u.email === ADMIN_EMAIL)) {
+          if (!staff) {
             try {
               const p = await customersApi.get(u.email);
               if (p) setCustomerProfile(p);

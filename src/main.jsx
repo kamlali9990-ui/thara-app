@@ -119,16 +119,6 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
   });
 }
 
-/*
- * SECURITY NOTE:
- * The ADMIN_EMAIL is exposed in the client bundle (VITE_ prefix).
- * This is acceptable here because:
- * 1. Supabase RLS must be configured server-side to enforce authorization
- * 2. This email is just a fallback for edge cases, not the primary auth
- * 3. Client-side checks are for UX only; server validates everything
- */
-const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || '';
-
 function LeaveGuard() {
   const location = useLocation();
   const { cart } = useStore();
@@ -187,7 +177,7 @@ function ProtectedRoute({ children }) {
    * 
    * This check provides UX only (redirect non-admins), not security.
    */
-  const isAdmin = staffRole === 'admin' || staffRole === 'manager' || user.email === ADMIN_EMAIL;
+  const isAdmin = staffRole === 'admin' || staffRole === 'manager';
   if (!isAdmin) return <Navigate to="/admin/login" replace />;
   
   return children;
