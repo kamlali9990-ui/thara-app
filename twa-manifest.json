@@ -21,7 +21,6 @@
   "appVersionCode": 1,
   "enableSiteSettingsShortcut": true,
   "orientation": "any",
-  "generateLocation": true,
   "fallbackType": "customtabs",
   "features": {
     "locationDelegation": {

@@ -1,13 +1,13 @@
 name: Build Android APK
 
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
       - 'twa-manifest.json'
       - 'public/manifest.json'
       - 'public/newicon.jpg'
-  workflow_dispatch:
 
 jobs:
   build:
@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -43,13 +43,11 @@ jobs:
           path: app-release-signed.apk
           if-no-files-found: error
 
-      - name: Commit updated APK to repo
+      - name: Commit updated APK
         run: |
-          if [ -f app-release-signed.apk ]; then
-            cp app-release-signed.apk public/thara-app.apk
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add public/thara-app.apk
-            git diff --staged --quiet || git commit -m "تحديث APK تلقائياً [skip ci]"
-            git push
-          fi
+          cp app-release-signed.apk public/thara-app.apk
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/thara-app.apk
+          git diff --staged --quiet || git commit -m "تحديث APK تلقائياً [skip ci]"
+          git push
