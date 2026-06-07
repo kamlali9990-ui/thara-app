@@ -16,6 +16,9 @@ const RotatingCategoryRow = memo(({ category, categoryColor, allProducts, mostRe
 
   const sorted = useMemo(() => {
     return [...allProducts].sort((a, b) => {
+      const aOut = (a.stock_quantity === 0) ? 1 : 0;
+      const bOut = (b.stock_quantity === 0) ? 1 : 0;
+      if (aOut !== bOut) return aOut - bOut;
       const aCount = mostRequested[a.id] || 0;
       const bCount = mostRequested[b.id] || 0;
       if (bCount !== aCount) return bCount - aCount;
