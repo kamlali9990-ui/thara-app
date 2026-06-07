@@ -4,19 +4,55 @@ import SearchResultsList from './SearchResultsList';
 import ProductCard from './ProductCard';
 import { useStore } from '../context/StoreContext';
 import { sectionCats } from '../data/categories';
+import { supabase } from '../supabase/client';
 
 const BANNER_STORAGE_KEY = 'thara_banner_url';
+const DEFAULT_BANNER = `${BASE}123.jpg`;
 
 const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, setShowAllView }) => {
   const { instantResults, allProducts } = useStore();
   const [showBanner, setShowBanner] = useState(true);
   const [bannerSrc, setBannerSrc] = useState(() => {
-    try { return localStorage.getItem(BANNER_STORAGE_KEY) || `${BASE}123.jpg`; } catch { return `${BASE}123.jpg`; }
+    try { return localStorage.getItem(BANNER_STORAGE_KEY) || DEFAULT_BANNER; } catch { return DEFAULT_BANNER; }
   });
 
   useEffect(() => {
+    const local = localStorage.getItem(BANNER_STORAGE_KEY);
+    if (local) {
+      setBannerSrc(local);
+    } else {
+      supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'banner_url')
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.value) {
+            localStorage.setItem(BANNER_STORAGE_KEY, data.value);
+            setBannerSrc(data.value);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
+
+  useEffect(() => {
     const handler = () => {
-      setBannerSrc(localStorage.getItem(BANNER_STORAGE_KEY) || `${BASE}123.jpg`);
+      const src = localStorage.getItem(BANNER_STORAGE_KEY) || DEFAULT_BANNER;
+      setBannerSrc(src);
+      // Re-fetch from DB to catch remote changes
+      supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'banner_url')
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data?.value && data.value !== localStorage.getItem(BANNER_STORAGE_KEY)) {
+            localStorage.setItem(BANNER_STORAGE_KEY, data.value);
+            setBannerSrc(data.value);
+          }
+        })
+        .catch(() => {});
     };
     window.addEventListener('storage', handler);
     window.addEventListener('thara:banner-changed', handler);
