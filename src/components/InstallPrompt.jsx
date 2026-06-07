@@ -17,16 +17,12 @@ export default function InstallPrompt({ variant }) {
 
   useEffect(() => {
     if (isStandalone) return;
-    const engage = () => { engagedRef.current = true; };
-    document.addEventListener('scroll', engage, { once: true });
-    document.addEventListener('click', engage, { once: true });
-    document.addEventListener('touchstart', engage, { once: true });
 
     const handler = (e) => {
       e.preventDefault();
       window.__deferredPrompt = e;
       setDeferredPrompt(e);
-      if (!isRecentlyDismissed && engagedRef.current) {
+      if (!isRecentlyDismissed) {
         setShow(true);
       }
     };
@@ -44,9 +40,6 @@ export default function InstallPrompt({ variant }) {
     window.addEventListener('cart-install-trigger', cartHandler);
 
     return () => {
-      document.removeEventListener('scroll', engage);
-      document.removeEventListener('click', engage);
-      document.removeEventListener('touchstart', engage);
       window.removeEventListener('beforeinstallprompt', handler);
       window.removeEventListener('show-pwa-install-prompt', showHandler);
       window.removeEventListener('cart-install-trigger', cartHandler);
@@ -182,6 +175,12 @@ export default function InstallPrompt({ variant }) {
               <span className="ios-hint-text">شارك ← إضافة للشاشة الرئيسية</span>
               <a href="/install-guide.html" target="_blank" className="install-ios-guide-link">📖 شرح بالصور</a>
             </div>
+          )}
+
+          {!canInstall && !isIOS && (
+            <a href={`${BASE}thara-app.apk`} download className="install-apk-btn">
+              📦 تحميل تطبيق أندرويد APK
+            </a>
           )}
 
           <button className="install-skip-btn" onClick={dismiss}>متابعة عبر المتصفح</button>
