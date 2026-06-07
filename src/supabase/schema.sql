@@ -1126,27 +1126,7 @@ BEGIN
   ('فرشاة أسنان أورال بي (حبة)', 'مجموعة الأصناف', 9, NULL, FALSE, 'https://images.unsplash.com/photo-1578496480248-2ed8f6e71b35?w=400&q=80', 40, 'حبة'),
   ('مزيل عرق فجر السعودي (50 مل)', 'مجموعة الأصناف', 10, NULL, FALSE, 'https://images.unsplash.com/photo-1608571424878-e338ecb1e5d4?w=400&q=80', 35, 'زجاجة'),
   ('مناديل ورقية كلينكس (200 حبة)', 'مجموعة الأصناف', 6, NULL, FALSE, 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80', 70, 'علبة'),
-  ('حفاظات بامبرز مقاس 4 (44 حبة)', 'مجموعة الأصناف', 45, 38, TRUE, 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&q=80', 25, 'كرتون'),
-  ('عطر أسود العربية للعود (50 مل)', 'العطور', 89, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 30, 'زجاجة'),
-  ('عطر المسك الذهبي (75 مل)', 'العطور', 65, 49, TRUE, 'https://tharasharqone.com/123456.jpg', 35, 'زجاجة'),
-  ('عطر ورد الطائف (50 مل)', 'العطور', 75, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 25, 'زجاجة'),
-  ('دهن عود ملكي (12 مل)', 'العطور', 120, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 20, 'زجاجة'),
-  ('عطر بخور دوسري (50 مل)', 'العطور', 55, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 40, 'زجاجة'),
-  ('عطر العنبر الفاخر (50 مل)', 'العطور', 85, 69, TRUE, 'https://tharasharqone.com/123456.jpg', 30, 'زجاجة'),
-  ('عطر الياسمين الدمشقي (50 مل)', 'العطور', 70, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 28, 'زجاجة'),
-  ('مخمرية عطرية فاخرة (200 مل)', 'العطور', 40, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 45, 'زجاجة'),
-  ('عطر العود الهندي (30 مل)', 'العطور', 150, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 15, 'زجاجة'),
-  ('عطر خشب الصندل (50 مل)', 'العطور', 95, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 22, 'زجاجة'),
-  ('عطر فانيلا ومسك (50 مل)', 'العطور', 60, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 30, 'زجاجة'),
-  ('عطر البحر المتوسط (100 مل)', 'العطور', 110, 89, TRUE, 'https://tharasharqone.com/123456.jpg', 18, 'زجاجة'),
-  ('مخلطة عطور عربية فاخرة (50 مل)', 'العطور', 80, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 25, 'زجاجة'),
-  ('عطر الليل (50 مل)', 'العطور', 78, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 20, 'زجاجة'),
-  ('عطر زهور البرتقال (50 مل)', 'العطور', 68, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 32, 'زجاجة'),
-  ('بخور عود ملكي (100 جرام)', 'العطور', 45, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 25, 'علبة'),
-  ('معطر جو فاخر (300 مل)', 'العطور', 25, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 40, 'زجاجة'),
-  ('عطر تفاح أخضر (50 مل)', 'العطور', 50, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 35, 'زجاجة'),
-  ('عطر قهوة وعود (50 مل)', 'العطور', 88, NULL, FALSE, 'https://tharasharqone.com/123456.jpg', 20, 'زجاجة'),
-  ('عطر نسائي فاخر (75 مل)', 'العطور', 95, 79, TRUE, 'https://tharasharqone.com/123456.jpg', 28, 'زجاجة');
+  ('حفاظات بامبرز مقاس 4 (44 حبة)', 'مجموعة الأصناف', 45, 38, TRUE, 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=400&q=80', 25, 'كرتون');
   END IF;
 END $$;
 
