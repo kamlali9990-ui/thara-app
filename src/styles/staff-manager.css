@@ -907,7 +907,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   z-index: 10;
 }
 
@@ -938,8 +938,8 @@
   animation: addBounce 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .product-card-new-qty-btn {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 1.5px solid var(--primary, #127443);
   background: white;

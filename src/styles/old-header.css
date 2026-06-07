@@ -921,7 +921,7 @@ header {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 2px;
+  gap: 6px;
   z-index: 10;
 }
 

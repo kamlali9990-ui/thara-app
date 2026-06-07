@@ -709,7 +709,7 @@
   bottom: auto;
   transform: none;
   flex-direction: row;
-  gap: 2px;
+  gap: 6px;
 }
 .rotating-cat-grid .product-card-new-add {
   width: 26px;
