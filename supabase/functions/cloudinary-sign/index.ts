@@ -5,7 +5,7 @@ const API_SECRET = Deno.env.get('CLOUDINARY_API_SECRET') || ''
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, apikey',
 }
 
 Deno.serve(async (req) => {
