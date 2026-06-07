@@ -180,7 +180,10 @@ function MaintenanceGate({ children }) {
       .catch(() => {});
   }, []);
 
-  if (maintenance && !loc.pathname.includes('/admin/login')) {
+  if (maintenance && loc.pathname.includes('/admin')) {
+    return children;
+  }
+  if (maintenance) {
     return <MaintenancePage />;
   }
   return children;
