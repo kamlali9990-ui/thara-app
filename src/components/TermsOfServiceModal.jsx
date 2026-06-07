@@ -35,11 +35,6 @@ const TermsOfServiceModal = memo(({ isOpen, onClose }) => {
           <p>خدمة التوصيل متاحة داخل مدينة الخفجي وفروعها. يتم تأكيد الطلب بعد التواصل مع العميل. جميع المدفوعات تتم بشكل آمن، ونحن ملتزمون بحماية بياناتك.</p>
           <h3>٦. التعديل على الاتفاقية</h3>
           <p>نحتفظ بالحق في تعديل هذه الاتفاقية في أي وقت. سيتم إشعار المستخدمين بأي تغييرات جوهرية عبر التطبيق.</p>
-          <div className="terms-download-app">
-            <a href={`${BASE}thara-app.apk`} download className="terms-download-link" target="_self">
-              📲 تحميل تطبيق أندرويد
-            </a>
-          </div>
           <div className="terms-footer-text">
             <p>إذا كان لديك أي استفسار، تواصل معنا عبر واتساب: <strong dir="ltr">0503074260</strong></p>
           </div>
