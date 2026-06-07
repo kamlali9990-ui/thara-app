@@ -13,6 +13,9 @@
   "dir": "rtl",
   "description": "توصيل طلبات السوبرماركت لباب بيتك في الخفجي",
   "categories": ["shopping", "food"],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "shortcuts": [
     {
       "name": "طلباتي",
