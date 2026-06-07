@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v17';
+const CACHE_NAME = 'thara-v18';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -45,9 +45,8 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('message', (event) => {
