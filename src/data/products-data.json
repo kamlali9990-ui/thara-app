@@ -98441,20 +98441,210 @@
       "stock_quantity": 10,
       "imageUrl": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400&q=80",
       "unit": "حبة"
+    },
+    {
+      "id": "10939",
+      "name": "عطر أسود العربية للعود (50 مل)",
+      "category": "العطور",
+      "price": 89,
+      "stock_quantity": 30,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-arabian-black.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10940",
+      "name": "عطر المسك الذهبي (75 مل)",
+      "category": "العطور",
+      "price": 65,
+      "stock_quantity": 35,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-gold-musk.jpg",
+      "isOffer": true,
+      "offerPrice": 49
+    },
+    {
+      "id": "10941",
+      "name": "عطر ورد الطائف (50 مل)",
+      "category": "العطور",
+      "price": 75,
+      "stock_quantity": 25,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-taif-rose.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10942",
+      "name": "دهن عود ملكي (12 مل)",
+      "category": "العطور",
+      "price": 120,
+      "stock_quantity": 20,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-royal-oud.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10943",
+      "name": "عطر بخور دوسري (50 مل)",
+      "category": "العطور",
+      "price": 55,
+      "stock_quantity": 40,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-dosari.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10944",
+      "name": "عطر العنبر الفاخر (50 مل)",
+      "category": "العطور",
+      "price": 85,
+      "stock_quantity": 30,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-amber.jpg",
+      "isOffer": true,
+      "offerPrice": 69
+    },
+    {
+      "id": "10945",
+      "name": "عطر الياسمين الدمشقي (50 مل)",
+      "category": "العطور",
+      "price": 70,
+      "stock_quantity": 28,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-jasmine.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10946",
+      "name": "مخمرية عطرية فاخرة (200 مل)",
+      "category": "العطور",
+      "price": 40,
+      "stock_quantity": 45,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-body-spray.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10947",
+      "name": "عطر العود الهندي (30 مل)",
+      "category": "العطور",
+      "price": 150,
+      "stock_quantity": 15,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-indian-oud.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10948",
+      "name": "عطر خشب الصندل (50 مل)",
+      "category": "العطور",
+      "price": 95,
+      "stock_quantity": 22,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-sandalwood.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10949",
+      "name": "عطر فانيلا ومسك (50 مل)",
+      "category": "العطور",
+      "price": 60,
+      "stock_quantity": 30,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-vanilla-musk.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10950",
+      "name": "عطر البحر المتوسط (100 مل)",
+      "category": "العطور",
+      "price": 110,
+      "stock_quantity": 18,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-mediterranean.jpg",
+      "isOffer": true,
+      "offerPrice": 89
+    },
+    {
+      "id": "10951",
+      "name": "مخلطة عطور عربية فاخرة (50 مل)",
+      "category": "العطور",
+      "price": 80,
+      "stock_quantity": 25,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-arabic-blend.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10952",
+      "name": "عطر الليل (50 مل)",
+      "category": "العطور",
+      "price": 78,
+      "stock_quantity": 20,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-night.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10953",
+      "name": "عطر زهور البرتقال (50 مل)",
+      "category": "العطور",
+      "price": 68,
+      "stock_quantity": 32,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-orange-blossom.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10954",
+      "name": "بخور عود ملكي (100 جرام)",
+      "category": "العطور",
+      "price": 45,
+      "stock_quantity": 25,
+      "unit": "علبة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-incense.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10955",
+      "name": "معطر جو فاخر (300 مل)",
+      "category": "العطور",
+      "price": 25,
+      "stock_quantity": 40,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-air-freshener.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10956",
+      "name": "عطر تفاح أخضر (50 مل)",
+      "category": "العطور",
+      "price": 50,
+      "stock_quantity": 35,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-green-apple.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10957",
+      "name": "عطر قهوة وعود (50 مل)",
+      "category": "العطور",
+      "price": 88,
+      "stock_quantity": 20,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-coffee-oud.jpg",
+      "isOffer": false
+    },
+    {
+      "id": "10958",
+      "name": "عطر نسائي فاخر (75 مل)",
+      "category": "العطور",
+      "price": 95,
+      "stock_quantity": 28,
+      "unit": "زجاجة",
+      "imageUrl": "https://res.cloudinary.com/dvnhgvdd1/image/upload/v1/thara/perfume-women-luxury.jpg",
+      "isOffer": true,
+      "offerPrice": 79
     }
-  ],
-  "categories": [
-    "الكل",
-    "العروض",
-    "بحث سريع",
-    "ألعاب",
-    "إلكترونيات",
-    "أواني",
-    "خضروات وفواكه",
-    "مجموعة الأصناف",
-    "مكسرات وبهارات",
-    "ملابس",
-    "منظفات",
-    "مواد غذائية"
   ]
 }
