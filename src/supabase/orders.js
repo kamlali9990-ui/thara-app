@@ -19,7 +19,8 @@ export const ordersApi = {
       payment_method: order.paymentMethod,
       delivery_location: order.location,
       customer_phone: order.phone || null,
-      order_notes: order.notes || null
+      order_notes: order.notes || null,
+      delivery_fee: order.deliveryFee ?? null
     });
     if (error) {
       if (import.meta.env.DEV && error.message?.includes('create_order_secure')) {

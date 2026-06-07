@@ -550,7 +550,8 @@ CREATE OR REPLACE FUNCTION public.create_order_secure(
   payment_method TEXT,
   delivery_location TEXT,
   customer_phone TEXT DEFAULT NULL,
-  order_notes TEXT DEFAULT NULL
+  order_notes TEXT DEFAULT NULL,
+  delivery_fee NUMERIC DEFAULT NULL
 )
 RETURNS orders
 LANGUAGE plpgsql
@@ -560,7 +561,7 @@ AS $$
 DECLARE
   clean_items JSONB;
   computed_total NUMERIC(10,2);
-  delivery_fee NUMERIC(10,2);
+  final_fee NUMERIC(10,2);
   created_order orders;
   missing TEXT;
 BEGIN
@@ -630,7 +631,13 @@ BEGIN
     RAISE EXCEPTION 'No valid products in cart';
   END IF;
 
-  delivery_fee := CASE WHEN computed_total >= 100 THEN 0 ELSE 15 END;
+  IF delivery_fee IS NULL THEN
+    delivery_fee := CASE WHEN computed_total >= 100 THEN 0 ELSE 15 END;
+  END IF;
+
+  IF delivery_fee NOT IN (0, 5, 10, 15, 20) THEN
+    delivery_fee := CASE WHEN computed_total >= 100 THEN 0 ELSE 15 END;
+  END IF;
 
   INSERT INTO orders (
     customer_email,
@@ -662,7 +669,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT, NUMERIC) TO authenticated;
 
 -- 5. Chat Messages
 CREATE TABLE IF NOT EXISTS chat_messages (
