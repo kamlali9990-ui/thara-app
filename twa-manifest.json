@@ -9,8 +9,8 @@
   "backgroundColor": "#127443",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://tharasharqone.com/newicon.jpg",
-  "maskableIconUrl": "https://tharasharqone.com/newicon.jpg",
+  "iconUrl": "https://tharasharqone.com/icon-192.png",
+  "maskableIconUrl": "https://tharasharqone.com/icon-512.png",
   "webManifestUrl": "https://tharasharqone.com/manifest.json",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
