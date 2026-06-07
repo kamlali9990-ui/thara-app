@@ -63,8 +63,8 @@ export default function InstallPrompt({ variant }) {
     if (navigator.share) {
       try {
         await navigator.share({ 
-          title: 'ثراء الشرق ون', 
-          text: 'حمل تطبيق ثراء الشرق ون وتصفح أحدث العروض والمنتجات', 
+          title: 'أسواق ثراء الشرق ون', 
+          text: 'حمل تطبيق أسواق ثراء الشرق ون وتصفح أحدث العروض والمنتجات', 
           url: window.location.origin + BASE
         });
       } catch (err) {
@@ -158,7 +158,7 @@ export default function InstallPrompt({ variant }) {
             <img src={`${BASE}logo222.jpg`} alt="" className="install-logo"
               onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
             <div className="install-app-info">
-              <h2 className="install-title">تطبيق ثراء الشرق ون</h2>
+              <h2 className="install-title">تطبيق أسواق ثراء الشرق ون</h2>
               <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
             </div>
           </div>

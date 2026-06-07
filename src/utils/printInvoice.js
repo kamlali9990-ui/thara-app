@@ -117,7 +117,7 @@ export function printInvoice(order) {
 <body>
   <div class="invoice">
     <div class="header">
-      <h1>أسواق ثرا الشرق ون</h1>
+      <h1>أسواق ثراء الشرق ون</h1>
       <p>الخفجي - المملكة العربية السعودية</p>
       <p style="margin-top:4px;font-size:15px;font-weight:bold;">فاتورة طلب</p>
     </div>
@@ -171,7 +171,7 @@ export function printInvoice(order) {
     ${order.location ? `<div style="margin-top:10px;font-size:12px;color:#555;"><strong>الموقع:</strong> ${order.location}</div>` : ''}
 
     <div class="footer">
-      <p>شكراً لتسوقكم مع أسواق ثرا الشرق ون</p>
+      <p>شكراً لتسوقكم مع أسواق ثراء الشرق ون</p>
       <p style="font-size:11px;">تم إنشاء هذه الفاتورة إلكترونياً - ${new Date().toLocaleString('ar-SA')}</p>
     </div>
   </div>

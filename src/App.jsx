@@ -52,7 +52,7 @@ export default function App() {
       const { name } = e.detail || {};
       try {
         if (Notification.permission === 'granted') {
-          new Notification('🔥 عرض جديد في ثراء الشرق ون!', { body: `اطلع على ${name || 'العرض الجديد'} الآن`, icon: '/icon-192.png' });
+          new Notification('🔥 عرض جديد في أسواق ثراء الشرق ون!', { body: `اطلع على ${name || 'العرض الجديد'} الآن`, icon: '/icon-192.png' });
         }
       } catch {}
     };
@@ -94,7 +94,7 @@ export default function App() {
           body = eta ? `السائق في الطريق — الوصول خلال ${eta} دقيقة` : 'السائق في الطريق إليك';
         } else if (order.status === 'مكتمل') body = 'تم توصيل طلبك بنجاح ✓';
         else body = `تحديث الطلب: ${order.status}`;
-        new Notification('ثراء الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'cart-icon-192.png' });
+        new Notification('أسواق ثراء الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'cart-icon-192.png' });
       } catch { /* ignore */ }
     };
     window.addEventListener('thara:order-status', handler);

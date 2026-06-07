@@ -9,7 +9,7 @@ const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSear
       </button>
 
       <div className="app-logo-new">
-        <img src={theme === 'dark' ? logoPathDark : logoPath} alt="ثراء الشرق" className={`app-logo-img-new ${theme === 'dark' ? 'logo-dark' : 'logo-light'}`} onError={(e) => { e.target.src = imgFallback(90, 90, '#127443', theme === 'dark' ? '#020f08' : '#ffffff', 'ث'); }} />
+        <img src={theme === 'dark' ? logoPathDark : logoPath} alt="أسواق ثراء الشرق ون" className={`app-logo-img-new ${theme === 'dark' ? 'logo-dark' : 'logo-light'}`} onError={(e) => { e.target.src = imgFallback(90, 90, '#127443', theme === 'dark' ? '#020f08' : '#ffffff', 'ث'); }} />
       </div>
 
       <div className="app-header-actions">

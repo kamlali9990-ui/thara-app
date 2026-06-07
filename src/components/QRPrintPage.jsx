@@ -50,8 +50,8 @@ const QRPrintPage = ({ onClose }) => {
         const file = new File([blob], 'ثرياء-الشرق-باركود.png', { type: 'image/png' });
         
         const shareData = {
-          title: 'ثراء الشرق - تطبيق توصيل السوبرماركت',
-          text: 'اضف تطبيق ثراء الشرق لشاشة الرئيسية الآن!',
+          title: 'أسواق ثراء الشرق ون',
+          text: 'حمل تطبيق أسواق ثراء الشرق ون وتصفح أحدث العروض والمنتجات',
           files: [file]
         };
         
@@ -63,8 +63,8 @@ const QRPrintPage = ({ onClose }) => {
       
       // Fallback to sharing link if file sharing not supported
       const shareData = {
-        title: 'ثراء الشرق - تطبيق توصيل السوبرماركت',
-        text: 'اضف تطبيق ثراء الشرق لشاشة الرئيسية الآن!',
+        title: 'أسواق ثراء الشرق ون',
+        text: 'حمل تطبيق أسواق ثراء الشرق ون وتصفح أحدث العروض والمنتجات',
         url: APP_URL
       };
       
@@ -562,11 +562,11 @@ const QRPrintPage = ({ onClose }) => {
         <div className="qr-header">
           <img 
             src={`${BASE}logo222.jpg`}
-            alt="ثراء الشرق"
+            alt="أسواق ثراء الشرق ون"
             className="qr-logo"
             onError={(e) => { e.target.src = `${BASE}icon.png`; }}
           />
-          <h1 className="qr-title">ثراء الشرق</h1>
+          <h1 className="qr-title">أسواق ثراء الشرق ون</h1>
           <p className="qr-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
         </div>
 

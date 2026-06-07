@@ -18,7 +18,7 @@ const STEPS = [
   },
   {
     num: 4, label: 'اختر "إضافة للشاشة الرئيسية"',
-    desc: 'الاسم راح يكون ثراء الشرق ون — تقدر تغيره',
+    desc: 'الاسم راح يكون أسواق ثراء الشرق ون — تقدر تغيره',
     svg: <svg viewBox="0 0 48 48" fill="none"><rect x="2" y="2" width="44" height="44" rx="10" fill="#127443" opacity="0.06"/><rect x="2" y="2" width="20" height="20" rx="5" fill="#127443" opacity="0.15"/><rect x="4" y="4" width="16" height="16" rx="4" fill="#127443"/><path d="M12 8v8M8 12h8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><rect x="26" y="2" width="20" height="20" rx="5" fill="#127443" opacity="0.15"/><rect x="28" y="4" width="16" height="16" rx="4" fill="#127443"/><path d="M36 8v8M32 12h8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><rect x="2" y="26" width="20" height="20" rx="5" fill="#f59e0b" opacity="0.12"/><rect x="4" y="28" width="16" height="16" rx="4" fill="#f59e0b"/><path d="M12 32v8M8 36h8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><rect x="26" y="26" width="20" height="20" rx="5" fill="#127443" opacity="0.15"/><rect x="28" y="28" width="16" height="16" rx="4" fill="#127443"/><text x="36" y="39" text-anchor="middle" fill="white" font-size="5" font-weight="800" font-family="sans-serif">+</text></svg>,
   },
   {

@@ -31,7 +31,7 @@ export default function CustomerLogin() {
         <div className="auth-header">
           <img src={`${import.meta.env.BASE_URL || '/'}logo222.jpg`} alt="" className="auth-logo" />
           <h1>تسجيل الدخول</h1>
-          <p>ثراء الشرق ون</p>
+          <p>أسواق ثراء الشرق ون</p>
         </div>
 
         <form onSubmit={handleLogin}>

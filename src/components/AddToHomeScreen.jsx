@@ -53,7 +53,7 @@ const AddToHomeScreen = ({ isOpen, onClose }) => {
             <img src={`${BASE}logo222.jpg`} alt="" className="install-logo"
               onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
             <div className="install-app-info">
-              <h2 className="install-title">إضافة ثراء الشرق للشاشة الرئيسية</h2>
+              <h2 className="install-title">إضافة أسواق ثراء الشرق ون للشاشة الرئيسية</h2>
               <p className="install-subtitle">
                 {isIOS ? 'اتبع الخطوات التالية' : 'اضغط على الزر أدناه'}
               </p>
