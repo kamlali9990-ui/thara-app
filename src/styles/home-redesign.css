@@ -90,10 +90,6 @@
 }
 @media (min-width: 768px) {
   .all-products-view { max-width: 900px; margin: 0 auto; width: 100%; }
-  .all-products-grid { grid-template-columns: repeat(3, 1fr); }
-}
-@media (min-width: 1024px) {
-  .all-products-grid { grid-template-columns: repeat(4, 1fr); }
 }
 .all-products-header {
   display: flex;
@@ -169,8 +165,8 @@
 
 .all-products-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
 }
 
 /* Categories Grid New */
