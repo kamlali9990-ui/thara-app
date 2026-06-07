@@ -259,6 +259,24 @@
   margin: 0 0 0.6rem;
   color: var(--text-secondary, #475569);
 }
+.terms-download-app {
+  margin: 1rem 0;
+  text-align: center;
+}
+.terms-download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--success, #127443);
+  color: #fff;
+  padding: 0.6rem 1.4rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.terms-download-link:hover { background: var(--success-dark, #0e5e33); }
 .terms-footer-text {
   margin-top: 1.25rem;
   padding-top: 1rem;
