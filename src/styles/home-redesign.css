@@ -763,3 +763,27 @@
   justify-content: center;
 }
 
+@media (min-width: 768px) {
+  .category-grid-img-wrap {
+    width: 60px;
+    height: 60px;
+  }
+  .category-grid-text {
+    font-size: 0.7rem;
+  }
+  .category-grid-fallback {
+    font-size: 2rem;
+  }
+  .offer-ticker-item {
+    max-width: 140px;
+    padding: 4px 8px;
+  }
+  .offer-ticker-img-wrap {
+    width: 36px;
+    height: 36px;
+  }
+  .offer-ticker-name {
+    font-size: 0.68rem;
+  }
+}
+

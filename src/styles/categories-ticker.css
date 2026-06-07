@@ -132,3 +132,23 @@
   background: rgba(3, 32, 17, 0.8);
 }
 
+@media (min-width: 768px) {
+  .categories-ticker-item {
+    padding: 6px 14px;
+    gap: 8px;
+  }
+  .categories-ticker-track {
+    gap: 12px;
+  }
+  .ticker-item-img {
+    width: 30px;
+    height: 30px;
+  }
+  .ticker-item-name {
+    font-size: 0.78rem;
+  }
+  .ticker-item-icon {
+    font-size: 1.1rem;
+  }
+}
+
