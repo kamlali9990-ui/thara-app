@@ -151,7 +151,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
             <div className="delivery-info-overlay" onClick={() => setShowDeliveryInfo(false)}>
               <div className="delivery-info-modal" onClick={(e) => e.stopPropagation()}>
                 <button className="delivery-info-close" onClick={() => setShowDeliveryInfo(false)}>✕</button>
-                <div className="delivery-info-icon">🚚</div>
+                <img src={`${BASE}newicon.jpg`} alt="توصيل" className="delivery-info-icon-img" />
                 <h3>يسرنا خدمتكم في أسواق ثرا الشرق ون</h3>
                 <p className="delivery-info-sub">شفافية تامة في حساب أجرة التوصيل</p>
                 <p className="delivery-info-contact">يمكنك طلب شخص لتتواصل معه هاتفياً لتسجيل كافة طلباتك يدوياً كذلك من خلال <a href={`tel:${PHONE}`}>الاتصال</a> أو <a href={`https://wa.me/${WHATSAPP_NUM}`} target="_blank" rel="noopener noreferrer">الواتساب</a></p>

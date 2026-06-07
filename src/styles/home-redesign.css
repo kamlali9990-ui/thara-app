@@ -840,9 +840,12 @@
   cursor: pointer;
   padding: 4px;
 }
-.delivery-info-icon {
-  font-size: 2.5rem;
+.delivery-info-icon-img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
   margin-bottom: 0.5rem;
+  border-radius: 50%;
 }
 .delivery-info-modal h3 {
   font-size: 1.05rem;
