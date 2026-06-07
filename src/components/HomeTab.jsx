@@ -13,6 +13,7 @@ const DEFAULT_BANNER = `${BASE}123.jpg`;
 const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, setShowAllView, onSelectCategory }) => {
   const { instantResults, allProducts } = useStore();
   const [showBanner, setShowBanner] = useState(true);
+  const [showDeliveryInfo, setShowDeliveryInfo] = useState(false);
   const [bannerSrc, setBannerSrc] = useState(() => {
     try { return localStorage.getItem(BANNER_STORAGE_KEY) || DEFAULT_BANNER; } catch { return DEFAULT_BANNER; }
   });
@@ -133,7 +134,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
           </div>
 
           {/* Delivery Options */}
-          <div className="home-section-card delivery-options-card">
+          <div className="home-section-card delivery-options-card" onClick={() => setShowDeliveryInfo(true)}>
             <div className="delivery-options-grid">
               <div className="delivery-option-item">
                 <div className="delivery-option-info">
@@ -144,6 +145,41 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
               </div>
             </div>
           </div>
+
+          {/* Delivery Info Modal */}
+          {showDeliveryInfo && (
+            <div className="delivery-info-overlay" onClick={() => setShowDeliveryInfo(false)}>
+              <div className="delivery-info-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="delivery-info-close" onClick={() => setShowDeliveryInfo(false)}>✕</button>
+                <div className="delivery-info-icon">🚚</div>
+                <h3>يسرنا خدمتكم في أسواق ثرا الشرق ون</h3>
+                <p className="delivery-info-sub">شفافية تامة في حساب أجرة التوصيل</p>
+                <p className="delivery-info-contact">يمكنك طلب شخص لتتواصل معه هاتفياً لتسجيل كافة طلباتك يدوياً كذلك من خلال <a href={`tel:${PHONE}`}>الاتصال</a> أو <a href={`https://wa.me/${WHATSAPP_NUM}`} target="_blank" rel="noopener noreferrer">الواتساب</a></p>
+                <div className="delivery-info-table">
+                  <div className="delivery-info-row">
+                    <span className="delivery-info-label">المسافة ≤ 3 كم</span>
+                    <span className="delivery-info-value">٥ ر.س</span>
+                  </div>
+                  <div className="delivery-info-row">
+                    <span className="delivery-info-label">من ٣ إلى ٦ كم</span>
+                    <span className="delivery-info-value">١٠ ر.س</span>
+                  </div>
+                  <div className="delivery-info-row">
+                    <span className="delivery-info-label">من ٦ إلى ١٠ كم</span>
+                    <span className="delivery-info-value">١٥ ر.س</span>
+                  </div>
+                  <div className="delivery-info-row">
+                    <span className="delivery-info-label">أكثر من ١٠ كم</span>
+                    <span className="delivery-info-value">٢٠ ر.س</span>
+                  </div>
+                  <div className="delivery-info-row delivery-info-free">
+                    <span className="delivery-info-label">الطلبات فوق ١٠٠ ر.س</span>
+                    <span className="delivery-info-value">مجاني</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Contact Us */}
           <div className="home-contact-card">
