@@ -13,7 +13,7 @@ function getSignatureUrl() {
   return base.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign';
 }
 
-const CLOUDINARY_WIDGET_URL = 'https://upload-widget.cloudinary.com/2.72.7/global/all.js';
+const CLOUDINARY_WIDGET_URL = 'https://upload-widget.cloudinary.com/latest/global/all.js';
 
 function loadCloudinaryScript() {
   return new Promise((resolve) => {
