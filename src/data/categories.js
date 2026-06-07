@@ -11,5 +11,5 @@ export const sectionCats = [
   { name: 'مجموعة الأصناف', img: `${BASE}cat_dairy.jpg`, fallback: '📦', color: '#64748b', desc: 'تشكيلة واسعة ومختلفة من المنتجات المتنوعة' },
   { name: 'ملابس', img: `${BASE}ملابس.jpg`, fallback: '👕', color: '#06b6d4', desc: 'ملابس رجالية ونسائية وأطفال بجودة منافسة' },
   { name: 'مواد البناء', img: `${BASE}cat_hardware.png`, fallback: '🔧', color: '#f97316', desc: 'أدوات بناء ومعدات صيانة منزلية أساسية' },
-  { name: 'العطور', img: `${BASE}123456.jpg`, fallback: '🧴', color: '#a855f7', desc: 'عطور ومستحضرات تجميل راقية ومتنوعة' }
+  { name: 'العطور', img: `${BASE}العطور.jpg`, fallback: '🧴', color: '#a855f7', desc: 'عطور ومستحضرات تجميل راقية ومتنوعة' }
 ];
