@@ -17,42 +17,24 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
   });
 
   useEffect(() => {
-    const local = localStorage.getItem(BANNER_STORAGE_KEY);
-    if (local) {
-      setBannerSrc(local);
-    } else {
-      supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'banner_url')
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data?.value) {
-            localStorage.setItem(BANNER_STORAGE_KEY, data.value);
-            setBannerSrc(data.value);
-          }
-        })
-        .catch(() => {});
-    }
+    supabase
+      .from('settings')
+      .select('value')
+      .eq('key', 'banner_url')
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) {
+          localStorage.setItem(BANNER_STORAGE_KEY, data.value);
+          setBannerSrc(data.value);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     const handler = () => {
       const src = localStorage.getItem(BANNER_STORAGE_KEY) || DEFAULT_BANNER;
       setBannerSrc(src);
-      // Re-fetch from DB to catch remote changes
-      supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'banner_url')
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data?.value && data.value !== localStorage.getItem(BANNER_STORAGE_KEY)) {
-            localStorage.setItem(BANNER_STORAGE_KEY, data.value);
-            setBannerSrc(data.value);
-          }
-        })
-        .catch(() => {});
     };
     window.addEventListener('storage', handler);
     window.addEventListener('thara:banner-changed', handler);
