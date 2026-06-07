@@ -564,7 +564,7 @@ const QRPrintPage = ({ onClose }) => {
             src={`${BASE}logo222.jpg`}
             alt="أسواق ثراء الشرق ون"
             className="qr-logo"
-            onError={(e) => { e.target.src = `${BASE}icon.png`; }}
+            onError={(e) => { e.target.src = `${BASE}newicon.jpg`; }}
           />
           <h1 className="qr-title">أسواق ثراء الشرق ون</h1>
           <p className="qr-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
@@ -590,7 +590,7 @@ const QRPrintPage = ({ onClose }) => {
         </div>
 
         <div className="qr-url">
-          0503074260
+          0503203994
         </div>
 
         <div className="qr-slogan">

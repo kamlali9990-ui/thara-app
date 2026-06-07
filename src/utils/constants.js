@@ -1,6 +1,6 @@
 export const BASE = import.meta.env.BASE_URL || '/';
-export const PHONE = '00966503074260';
-export const WHATSAPP_NUM = '966503074260';
+export const PHONE = '00966503203994';
+export const WHATSAPP_NUM = '966503203994';
 export const EMAIL_1 = 'tharaalshrqwan@gmail.com';
 export const EMAIL_2 = 'admin@tharasharqone.com';
 export const SNAPCHAT = 'tharaaeastone';

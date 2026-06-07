@@ -51,7 +51,7 @@ const AddToHomeScreen = ({ isOpen, onClose }) => {
         <div className="install-card-inner">
           <div className="install-header-section">
             <img src={`${BASE}logo222.jpg`} alt="" className="install-logo"
-              onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
+              onError={(e) => { e.target.src = `${BASE}newicon.jpg`; }} />
             <div className="install-app-info">
               <h2 className="install-title">إضافة أسواق ثراء الشرق ون للشاشة الرئيسية</h2>
               <p className="install-subtitle">

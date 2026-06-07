@@ -165,7 +165,7 @@ export default function InstallPrompt({ variant }) {
         <div className="install-card-inner">
           <div className="install-header-section">
             <img src={`${BASE}logo222.jpg`} alt="" className="install-logo"
-              onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
+              onError={(e) => { e.target.src = `${BASE}newicon.jpg`; }} />
             <div className="install-app-info">
               <h2 className="install-title">تطبيق أسواق ثراء الشرق ون</h2>
               <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>

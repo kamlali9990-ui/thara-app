@@ -140,7 +140,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
                   <h4>توصيل الطلبات</h4>
                   <p>توصيل مجاني للطلبات فوق ١٠٠ ر.س</p>
                 </div>
-                <img src={`${BASE}car.jpg`} alt="توصيل" className="delivery-option-img" onError={(e) => { e.target.style.display='none'; }} />
+                <img src={`${BASE}newicon.jpg`} alt="توصيل" className="delivery-option-img" onError={(e) => { e.target.style.display='none'; }} />
               </div>
             </div>
           </div>
