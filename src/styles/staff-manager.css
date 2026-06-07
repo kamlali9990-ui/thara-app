@@ -905,19 +905,13 @@
   top: 0.3rem;
   right: 0.3rem;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 0.3rem;
+  gap: 2px;
   z-index: 10;
 }
 
 .product-card-new-add {
-  position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
-  left: auto;
-  bottom: auto;
-  z-index: 2;
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -942,6 +936,27 @@
 .product-card-new-add.added {
   background: #34c759;
   animation: addBounce 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-card-new-qty-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary, #127443);
+  background: white;
+  color: var(--primary, #127443);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.product-card-new-qty-btn:hover {
+  background: var(--primary, #127443);
+  color: white;
+}
+.product-card-new-qty-btn:active {
+  transform: scale(0.85);
 }
 @keyframes addBounce {
   0% { transform: scale(0.5); }
@@ -998,16 +1013,13 @@
   color: #475569;
 }
 .product-card-cart-qty {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  z-index: 3;
+  position: relative;
   background: var(--accent, #eab308);
   color: #000;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   font-weight: 800;
-  min-width: 16px;
-  height: 16px;
+  min-width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;

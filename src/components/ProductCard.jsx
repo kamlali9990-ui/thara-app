@@ -1,8 +1,10 @@
 import { memo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { productImgError } from '../utils/constants';
+import { useStore } from '../context/StoreContext';
 
 const ProductCard = memo(({ product, addToCart, cart }) => {
+  const { updateCartQty, removeFromCart } = useStore();
   const [added, setAdded] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const outOfStock = product.stock_quantity === 0;
@@ -50,16 +52,25 @@ const ProductCard = memo(({ product, addToCart, cart }) => {
           onError={productImgError} />
         {!outOfStock && (
           <div className="product-card-new-actions">
-            {cartQty > 0 && (
-              <span className="product-card-cart-qty">{cartQty}</span>
+            {cartQty > 0 ? (
+              <>
+                <button className="product-card-new-qty-btn minus" onClick={(e) => { e.stopPropagation(); if (cartQty <= 1) { removeFromCart(product.id); } else { updateCartQty(product.id, -1); } }} aria-label="تقليل الكمية">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <span className="product-card-cart-qty">{cartQty}</span>
+                <button className="product-card-new-add" onClick={(e) => { e.stopPropagation(); addToCart(product); setAdded(true); setTimeout(() => setAdded(false), 600); }} aria-label={`إضافة ${product.name} إلى السلة`}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+              </>
+            ) : (
+              <button className={`product-card-new-add ${added ? 'added' : ''}`} onClick={handleAdd} aria-label={`إضافة ${product.name} إلى السلة`}>
+                {added ? (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                ) : (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                )}
+              </button>
             )}
-            <button className={`product-card-new-add ${added ? 'added' : ''}`} onClick={handleAdd} aria-label={`إضافة ${product.name} إلى السلة`}>
-              {added ? (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              ) : (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              )}
-            </button>
           </div>
         )}
       </div>
