@@ -259,7 +259,7 @@ function MaintenanceGate({ children }) {
       .catch(() => {});
   }, []);
 
-  if (maintenance && loc.pathname.includes('/admin')) {
+  if (maintenance && loc.pathname.startsWith('/toggle/')) {
     return children;
   }
   if (maintenance) {
