@@ -1,7 +1,10 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { BASE, imgFallback, WHATSAPP_NUM, PHONE, EMAIL_1, SNAPCHAT, logoPath, logoPathDark } from '../utils/constants';
+import TermsOfServiceModal from './TermsOfServiceModal';
 
-const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory, onTabChange, setSelectedCategory, theme, toggleTheme }) => (
+const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory, onTabChange, setSelectedCategory, theme, toggleTheme }) => {
+  const [showTerms, setShowTerms] = useState(false);
+  return (
   <>
     <div className={`side-drawer-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
     <div className={`side-drawer ${isOpen ? 'open' : ''}`}>
@@ -44,6 +47,10 @@ const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory,
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M9 9l3 3 3-3"/><path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>
           <span>📱 كيف تثبت التطبيق</span>
         </button>
+        <button className="side-drawer-item" onClick={() => setShowTerms(true)}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          <span>اتفاقية المستخدم</span>
+        </button>
         <div className="side-drawer-divider" />
         <div className="side-drawer-contact-label">وسائل التواصل</div>
         <div className="side-drawer-contacts">
@@ -74,7 +81,9 @@ const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory,
         </div>
       )}
     </div>
-  </>
-));
+      <TermsOfServiceModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+    </>
+  );
+});
 
 export default SideDrawer;
