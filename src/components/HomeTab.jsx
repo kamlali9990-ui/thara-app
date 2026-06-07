@@ -146,13 +146,8 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
           </div>
 
           {/* Contact Us */}
-          <div style={{
-            background: 'white', borderRadius: 16, padding: '1rem 1.25rem 1.25rem',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.04)', border: '1px solid rgba(18,116,67,0.08)',
-          }}>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.75rem' }}>
-              اتصل بنا
-            </div>
+          <div className="home-contact-card">
+            <div className="home-contact-title">اتصل بنا</div>
             <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center' }}>
               <a href={`tel:${PHONE}`} style={{
                 width: 48, height: 48, borderRadius: 14, display: 'flex',
