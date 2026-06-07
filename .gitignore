@@ -11,3 +11,15 @@ supabase/.branches/
 *.db
 
 .vercel
+
+# Binary/build artifacts
+أسواق ثراء الشرق ون - Google Play package.zip
+/أسواق ثراء الشرق ون - Google Play package/
+*.zip
+*.apk
+*.aab
+app-release-*
+source/
+.gradle/
+build/
+*.keystore
