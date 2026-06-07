@@ -71,16 +71,12 @@ export const staffApi = {
 
   async create(staffMember) {
     const normalizedEmail = String(staffMember.email || '').trim().toLowerCase();
-    // Use signUp to create auth user through GoTrue's proper API, then auto-confirm
-    try {
-      await supabase.auth.signUp({ email: normalizedEmail, password: STAFF_DEFAULT_PASSWORD });
-    } catch { /* user might already exist */ }
-    await rpc('confirm_auth_user', { p_email: normalizedEmail, p_password: STAFF_DEFAULT_PASSWORD });
     try {
       const data = await rpc('create_staff_rpc', {
         p_email: normalizedEmail,
         p_name: staffMember.name,
-        p_role: staffMember.role
+        p_role: staffMember.role,
+        p_password: STAFF_DEFAULT_PASSWORD
       });
       if (data) {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;

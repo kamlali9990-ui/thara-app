@@ -168,7 +168,7 @@ const { Client } = require('pg');
   `);
   console.log('ensure_staff_auth_user OK');
 
-  await c.query('GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO anon, authenticated');
+  await c.query('GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO authenticated');
   console.log('ensure_staff_auth_user grants OK');
 
   // Fix: assign_driver_to_order

@@ -561,7 +561,7 @@ const QRPrintPage = ({ onClose }) => {
       <div className="qr-card">
         <div className="qr-header">
           <img 
-            src={`${BASE}LOGO.jpg`}
+            src={`${BASE}logo222.jpg`}
             alt="ثراء الشرق"
             className="qr-logo"
             onError={(e) => { e.target.src = `${BASE}icon.png`; }}
@@ -590,20 +590,20 @@ const QRPrintPage = ({ onClose }) => {
         </div>
 
         <div className="qr-url">
-          tharasharqone.com
+          0503074260
         </div>
 
         <div className="qr-slogan">
           <div className="cartoon-mascot">
             <svg viewBox="0 0 100 100" width="80" height="80">
-              <circle cx="50" cy="50" r="40" fill="#FFD93D" stroke="#FF8C42" stroke-width="4"/>
+              <circle cx="50" cy="50" r="40" fill="#FFD93D" stroke="#FF8C42" strokeWidth="4"/>
               <circle cx="38" cy="42" r="6" fill="#2C3E50"/>
               <circle cx="62" cy="42" r="6" fill="#2C3E50"/>
               <circle cx="36" cy="40" r="2" fill="white"/>
               <circle cx="60" cy="40" r="2" fill="white"/>
-              <path d="M 30 65 Q 50 80 70 65" stroke="#2C3E50" stroke-width="3" fill="none" stroke-linecap="round"/>
-              <path d="M 22 35 L 28 30 L 34 38" stroke="#FF6B6B" stroke-width="4" fill="none" stroke-linecap="round"/>
-              <path d="M 66 38 L 72 30 L 78 35" stroke="#FF6B6B" stroke-width="4" fill="none" stroke-linecap="round"/>
+              <path d="M 30 65 Q 50 80 70 65" stroke="#2C3E50" strokeWidth="3" fill="none" strokeLinecap="round"/>
+              <path d="M 22 35 L 28 30 L 34 38" stroke="#FF6B6B" strokeWidth="4" fill="none" strokeLinecap="round"/>
+              <path d="M 66 38 L 72 30 L 78 35" stroke="#FF6B6B" strokeWidth="4" fill="none" strokeLinecap="round"/>
               <circle cx="25" cy="55" r="7" fill="#FFB3C1" opacity="0.7"/>
               <circle cx="75" cy="55" r="7" fill="#FFB3C1" opacity="0.7"/>
             </svg>

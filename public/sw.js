@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v14';
+const CACHE_NAME = 'thara-v15';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -8,8 +8,7 @@ const LOCAL_ASSETS = [
   `${BASE_PATH}icon-512.png`.replace(/\/+/g, '/'),
   `${BASE_PATH}icon-maskable-192.png`.replace(/\/+/g, '/'),
   `${BASE_PATH}icon-maskable-512.png`.replace(/\/+/g, '/'),
-  `${BASE_PATH}LOGO.jpg`.replace(/\/+/g, '/'),
-  `${BASE_PATH}leaflet.css`.replace(/\/+/g, '/'),
+  `${BASE_PATH}logo222.jpg`.replace(/\/+/g, '/'),
 ];
 const EXTERNAL_ASSETS = [
   'https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap'

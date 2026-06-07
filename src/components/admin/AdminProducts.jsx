@@ -3,12 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 import { categories } from '../../data/mockData';
 import { showToast } from '../Toast.jsx';
-import * as XLSX from 'xlsx';
 import CloudinaryUpload from './CloudinaryUpload';
-import ImageSearch from './ImageSearch';
-import { safeProductUrl } from '../../utils/constants';
+import { safeProductUrl, logoPath } from '../../utils/constants';
 
-const ADMIN_LOGO = (import.meta.env.BASE_URL || '/') + 'LOGO.jpg';
+const ADMIN_LOGO = logoPath;
 const PAGE_SIZE = 50;
 const ALL_CATS = categories.filter(c => c !== 'الكل' && c !== 'العروض');
 
@@ -33,14 +31,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(() => parseInt(searchParams.get('p'), 10) || 1);
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') || '');
-  const [imageSearchFor, setImageSearchFor] = useState(null); // null | { target: 'add'|'edit', query: string }
-  const [fixingImages, setFixingImages] = useState(false);
-  const [fixProgress, setFixProgress] = useState({ current: 0, total: 0 });
-  const [fixFromPage, setFixFromPage] = useState('');
-  const [fixToPage, setFixToPage] = useState('');
-  const [cloudFromPage, setCloudFromPage] = useState('');
-  const [cloudToPage, setCloudToPage] = useState('');
-  const getSerperKey = () => import.meta.env.VITE_SERPER_API_KEY || localStorage.getItem('thara_serper_key') || '';
+
 
   useEffect(() => {
     const params = {};
@@ -200,6 +191,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const XLSX = await import('xlsx');
     const reader = new FileReader();
     reader.onload = (ev) => {
       try {
@@ -275,151 +267,6 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     setImportProgress({ current: 0, total: 0 });
   };
 
-  const fixProductImages = async () => {
-    let targets = products.filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('logo222') || p.imageUrl.includes('LOGO.jpg'));
-    const from = parseInt(fixFromPage, 10) || 0;
-    const to = parseInt(fixToPage, 10) || 0;
-    if (from > 0) {
-      const start = (from - 1) * PAGE_SIZE;
-      const end = to >= from ? to * PAGE_SIZE : start + PAGE_SIZE;
-      targets = filteredAndSortedProducts.slice(start, end).filter(p => !p.imageUrl || p.imageUrl.includes('unsplash.com') || p.imageUrl.includes('logo222') || p.imageUrl.includes('LOGO.jpg'));
-    }
-    if (!targets.length) { showToast('لا توجد منتجات تحتاج تصحيح في هذه الصفحة', 'success'); return; }
-    const serperKey = getSerperKey(); if (!serperKey) { showToast('مطلوب مفتاح Serper API', 'error'); return; }
-    setFixingImages(true);
-    setFixProgress({ current: 0, total: targets.length });
-    let done = 0;
-    for (const p of targets) {
-      try {
-        const res = await fetch('https://google.serper.dev/images', {
-          method: 'POST',
-          headers: { 'X-API-KEY': serperKey, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ q: p.name + ' ' + (p.category || ''), num: 10, hl: 'ar', gl: 'sa' })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.images?.length > 0) {
-            const validImage = data.images.find(img => img.imageUrl && !isBlockedImageUrl(img.imageUrl));
-            let url = validImage ? validImage.imageUrl : null;
-            if (url) { if (typeof url === 'string' && url.startsWith('http://')) url = 'https://' + url.slice(7); await updateProduct(p.id, { imageUrl: url }); }
-          }
-        } else {
-          const errText = await res.text().catch(() => '');
-          console.warn(`[SerperFix] فشل "${p.name}" (${res.status}):`, errText.slice(0, 200));
-        }
-      } catch (err) {
-        console.warn(`[SerperFix] خطأ "${p.name}":`, err?.message || err);
-      }
-      done++;
-      setFixProgress({ current: done, total: targets.length });
-      await new Promise(r => setTimeout(r, 400));
-    }
-    setFixingImages(false);
-    showToast(`تم تصحيح صور ${done} منتج`, 'success');
-  };
-
-  const [cloudUploading, setCloudUploading] = useState(false);
-  const [cloudProgress, setCloudProgress] = useState({ current: 0, total: 0 });
-  const cloudCancelRef = useRef(false);
-  const cloudSigRef = useRef(null);
-
-  const getCloudinarySignature = async () => {
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const sigRes = await fetch(baseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}'
-    });
-    if (!sigRes.ok) throw new Error('فشل الحصول على توقيع');
-    return sigRes.json();
-  };
-
-  const batchUploadToCloudinary = async () => {
-    let targets = products.filter(p => {
-      const u = p.imageUrl;
-      if (!u || typeof u !== 'string') return false;
-      if (u.includes('res.cloudinary.com')) return false;
-      if (u.startsWith('data:')) return false;
-      if (u.includes('unsplash.com')) return false;
-      if (isBlockedImageUrl(u)) return false;
-      if (u.includes('LOGO.jpg') || u.includes('logo222')) return false;
-      return true;
-    });
-    const from = parseInt(cloudFromPage, 10) || 0;
-    const to = parseInt(cloudToPage, 10) || 0;
-    if (from > 0) {
-      const start = (from - 1) * PAGE_SIZE;
-      const end = to >= from ? to * PAGE_SIZE : start + PAGE_SIZE;
-      targets = filteredAndSortedProducts.slice(start, end).filter(t => targets.includes(t));
-    }
-    if (!targets.length) { showToast('لا توجد منتجات تحتاج رفع', 'success'); return; }
-    setCloudUploading(true);
-    cloudCancelRef.current = false;
-    setCloudProgress({ current: 0, total: targets.length });
-    // Get initial signature
-    let sigData;
-    try {
-      sigData = await getCloudinarySignature();
-    } catch { setCloudUploading(false); showToast('فشل الاتصال بخدمة التوقيع', 'error'); return; }
-    let done = 0, failed = 0;
-    const SIG_REFRESH_EVERY = 40; // Refresh signature every 40 images to prevent expiration
-    let sinceLastSig = 0;
-    for (const p of targets) {
-      if (cloudCancelRef.current) break;
-      // Refresh signature periodically
-      if (sinceLastSig >= SIG_REFRESH_EVERY) {
-        try { sigData = await getCloudinarySignature(); sinceLastSig = 0; } catch { /* keep using old sig */ }
-      }
-      try {
-        const safeUrl = safeProductUrl(p.imageUrl);
-        const form = new FormData();
-        form.append('file', safeUrl);
-        form.append('api_key', sigData.api_key);
-        form.append('timestamp', String(sigData.timestamp));
-        form.append('signature', sigData.signature);
-        let upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: form });
-        // Retry once with fresh signature on auth/server errors
-        if (!upRes.ok && (upRes.status === 401 || upRes.status === 403 || upRes.status === 500)) {
-          try {
-            sigData = await getCloudinarySignature(); sinceLastSig = 0;
-            const retryForm = new FormData();
-            retryForm.append('file', safeUrl);
-            retryForm.append('api_key', sigData.api_key);
-            retryForm.append('timestamp', String(sigData.timestamp));
-            retryForm.append('signature', sigData.signature);
-            upRes = await fetch(`https://api.cloudinary.com/v1_1/${sigData.cloud_name}/image/upload`, { method: 'POST', body: retryForm });
-          } catch { /* fall through to error handling */ }
-        }
-        if (!upRes.ok) {
-          const errText = await upRes.text();
-          console.warn(`[CloudUpload] فشل رفع "${p.name}" (${upRes.status}):`, errText.slice(0, 200), '| URL:', safeUrl.slice(0, 80));
-          if (upRes.status === 404) {
-            console.log(`[CloudUpload] مسح الرابط التالف لمنتج "${p.name}" ليتم اختيار صورة بديلة لاحقاً.`);
-            try {
-              await updateProduct(p.id, { imageUrl: '' });
-            } catch (dbErr) {
-              console.error(`[CloudUpload] فشل مسح الرابط من قاعدة البيانات:`, dbErr);
-            }
-          }
-          throw new Error(errText.slice(0, 100));
-        }
-        const data = await upRes.json();
-        if (data.secure_url) await updateProduct(p.id, { imageUrl: data.secure_url });
-        done++;
-      } catch (err) {
-        failed++;
-        console.warn(`[CloudUpload] تخطي "${p.name}":`, err.message || err);
-      }
-      sinceLastSig++;
-      setCloudProgress({ current: done + failed, total: targets.length });
-      await new Promise(r => setTimeout(r, 300));
-    }
-    setCloudUploading(false);
-    if (cloudCancelRef.current) showToast(`تم إيقاف الرفع: ${done} تم, ${failed} فشل`, 'warning');
-    else showToast(`تم رفع ${done} صورة لـ Cloudinary` + (failed ? `, فشل ${failed}` : ''), failed && failed === done ? 'error' : 'success');
-    if (failed > 0) console.log(`[CloudUpload] ملخص: ${done} نجح, ${failed} فشل من أصل ${targets.length}`);
-  };
-
-  const cancelCloudUpload = () => { cloudCancelRef.current = true; };
-
   const PAGI_BTN = (disabled, label) => ({
     padding: '0.4rem 0.8rem', borderRadius: 8, border: '0.5px solid rgba(255,255,255,0.15)',
     background: disabled ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
@@ -453,39 +300,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
           />
         </div>
         {canManageProducts && <button className="btn" onClick={() => { setShowImport(!showImport); setPreviewRows([]); }}>استيراد</button>}
-        {canManageProducts && (
-          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
-            <input type="number" min="1" max={pageCount} value={fixFromPage} onChange={e => { setFixFromPage(e.target.value); setFixToPage(''); }} placeholder="من ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />
-            {fixFromPage && <span style={{ color: '#64748b', fontSize: '0.75rem' }}>-</span>}
-            {fixFromPage && <input type="number" min={fixFromPage || 1} max={pageCount} value={fixToPage} onChange={e => setFixToPage(e.target.value)} placeholder="إلى ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />}
-            <button className="btn" onClick={fixProductImages} disabled={fixingImages} style={{ background: fixingImages ? 'rgba(251,191,36,0.3)' : 'rgba(251,191,36,0.15)', borderColor: 'rgba(251,191,36,0.3)', whiteSpace: 'nowrap' }}>{fixingImages ? 'جاري...' : '🖼 تصحيح'}</button>
-          </div>
-        )}
-        {canManageProducts && (
-          <div style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
-            <input type="number" min="1" max={pageCount} value={cloudFromPage} onChange={e => { setCloudFromPage(e.target.value); setCloudToPage(''); }} placeholder="من ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />
-            {cloudFromPage && <span style={{ color: '#64748b', fontSize: '0.75rem' }}>-</span>}
-            {cloudFromPage && <input type="number" min={cloudFromPage || 1} max={pageCount} value={cloudToPage} onChange={e => setCloudToPage(e.target.value)} placeholder="إلى ص" style={{ width: 50, background: 'rgba(255,255,255,0.06)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 6, padding: '0.35rem 0.4rem', color: '#e2e8f0', fontSize: '0.75rem', fontFamily: 'inherit', outline: 'none', textAlign: 'center' }} />}
-            <button className="btn" onClick={cloudUploading ? cancelCloudUpload : batchUploadToCloudinary} style={{ background: cloudUploading ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.15)', borderColor: cloudUploading ? 'rgba(239,68,68,0.4)' : 'rgba(59,130,246,0.3)', whiteSpace: 'nowrap' }}>{cloudUploading ? '⏹ إيقاف' : '☁️ رفع'}</button>
-          </div>
-        )}
       </div>
-      {fixingImages && fixProgress.total > 0 && (
-        <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0 0.25rem' }}>
-          <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ width: `${(fixProgress.current / fixProgress.total) * 100}%`, height: '100%', background: 'linear-gradient(90deg,#22c55e,#16a34a)', borderRadius: 3, transition: 'width 0.3s' }} />
-          </div>
-          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{fixProgress.current} / {fixProgress.total}</span>
-        </div>
-      )}
-      {cloudUploading && cloudProgress.total > 0 && (
-        <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0 0.25rem' }}>
-          <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-            <div style={{ width: `${(cloudProgress.current / cloudProgress.total) * 100}%`, height: '100%', background: 'linear-gradient(90deg,#3b82f6,#2563eb)', borderRadius: 3, transition: 'width 0.3s' }} />
-          </div>
-          <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>☁️ {cloudProgress.current} / {cloudProgress.total}</span>
-        </div>
-      )}
 
       {canManageProducts && showImport && (
         <div className="admin-card" style={{ marginBottom: '1rem' }}>
@@ -584,23 +399,10 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
               <div className="admin-product-field-group img-field">
                 <input value={form.imageUrl} onChange={e => updateForm('imageUrl', e.target.value)} placeholder="رابط الصورة" className="admin-product-form-input" />
               </div>
-              <div className="admin-product-field-group upload-field" style={{ display: 'flex', gap: '0.35rem' }}>
-                <CloudinaryUpload 
-                  onUpload={(url) => updateForm('imageUrl', url)} 
-                  onError={(err) => showToast('فشل رفع الصورة', 'error')} 
-                />
-                <button type="button" onClick={() => setImageSearchFor({ target: 'add', query: form.name })}
-                  style={{ background: 'rgba(251,191,36,0.12)', border: '0.5px solid rgba(251,191,36,0.25)', borderRadius: 8, padding: '0.4rem 0.6rem', color: '#fbbf24', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
-                  🔍 بحث
-                </button>
-              </div>
-              {imageSearchFor?.target === 'add' && (
-                <ImageSearch
-                  defaultQuery={imageSearchFor.query}
-                  onSelect={(url) => { updateForm('imageUrl', url); setImageSearchFor(null); }}
-                  onClose={() => setImageSearchFor(null)}
-                />
-              )}
+              <CloudinaryUpload 
+                onUpload={(url) => updateForm('imageUrl', url)} 
+                onError={(err) => showToast('فشل رفع الصورة', 'error')} 
+              />
               <button className="admin-product-add-btn" type="submit">{editTargetId ? '💾 حفظ' : '+ إضافة'}</button>
               {editTargetId && (
                 <button type="button" className="admin-product-cancel-btn" onClick={() => { setEditTargetId(null); setForm({ name: '', category: ALL_CATS[0] || 'مواد غذائية', price: '', stock_quantity: '', unit: 'حبة', imageUrl: '' }); }}>إلغاء</button>
@@ -641,24 +443,11 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
                   </div>
                   <div className="pr-edit-field" style={{ flex: '0.8', minWidth: '70px' }}>
                     <label className="pr-edit-label">الصورة</label>
-                    <div style={{ display: 'flex', gap: '0.25rem' }}>
-                      <CloudinaryUpload 
-                        onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
-                        onError={(err) => showToast('فشل رفع الصورة', 'error')} 
-                      />
-                      <button type="button" onClick={() => setImageSearchFor({ target: 'edit', query: editForm.name })}
-                        style={{ background: 'rgba(251,191,36,0.12)', border: '0.5px solid rgba(251,191,36,0.25)', borderRadius: 6, padding: '0.3rem 0.5rem', color: '#fbbf24', cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.7rem' }}>
-                        🔍
-                      </button>
-                    </div>
-                  </div>
-                  {imageSearchFor?.target === 'edit' && (
-                    <ImageSearch
-                      defaultQuery={imageSearchFor.query}
-                      onSelect={(url) => { setEditForm(prev => ({ ...prev, imageUrl: url })); setImageSearchFor(null); }}
-                      onClose={() => setImageSearchFor(null)}
+                    <CloudinaryUpload 
+                      onUpload={(url) => setEditForm(prev => ({ ...prev, imageUrl: url }))} 
+                      onError={(err) => showToast('فشل رفع الصورة', 'error')} 
                     />
-                  )}
+                  </div>
                   <div className="pr-edit-actions">
                     <button className="pr-save-btn" onClick={() => saveEdit(p.id)}>حفظ</button>
                     <button className="pr-cancel-btn" onClick={cancelEdit}>إلغاء</button>

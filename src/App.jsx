@@ -18,7 +18,7 @@ import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
 import { BASE } from './utils/constants';
 
-L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
+L.Icon.Default.imagePath = BASE + 'leaflet-images/';
 
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,

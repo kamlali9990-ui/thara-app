@@ -1,10 +1,11 @@
 export const BASE = import.meta.env.BASE_URL || '/';
-export const PHONE = '00966503159093';
-export const WHATSAPP_NUM = '966503159093';
+export const PHONE = '00966503074260';
+export const WHATSAPP_NUM = '966503074260';
 export const EMAIL_1 = 'tharaalshrqwan@gmail.com';
 export const EMAIL_2 = 'admin@tharasharqone.com';
 export const SNAPCHAT = 'tharaaeastone';
 export const logoPath = BASE + 'logo222.jpg';
+export const logoPathDark = BASE + 'logonaet.jpg';
 
 export function productImgError(e) { if (e.target.src !== logoPath) e.target.src = logoPath; }
 

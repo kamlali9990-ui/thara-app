@@ -134,7 +134,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
                 <p>6 خطوات بالصور — حول الموقع إلى تطبيق على شاشتك الرئيسية</p>
               </div>
               <div className="share-app-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#127443" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v10M9 9l3 3 3-3"/><path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#127443" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M9 9l3 3 3-3"/><path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>
               </div>
             </div>
           </div>

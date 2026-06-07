@@ -29,7 +29,7 @@ export default function CustomerLogin() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-header">
-          <img src={`${import.meta.env.BASE_URL || '/'}LOGO.jpg`} alt="" className="auth-logo" />
+          <img src={`${import.meta.env.BASE_URL || '/'}logo222.jpg`} alt="" className="auth-logo" />
           <h1>تسجيل الدخول</h1>
           <p>ثراء الشرق ون</p>
         </div>

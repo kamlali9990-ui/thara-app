@@ -112,4 +112,4 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO authenticated;

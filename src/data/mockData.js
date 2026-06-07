@@ -1,4 +1,3 @@
-import data from './products-data.json';
+export const mockProducts = [];
 
-export const mockProducts = data.products;
-export const categories = data.categories;
+export const categories = ['الكل', 'العروض', 'مواد غذائية', 'منظفات', 'إلكترونيات', 'أواني', 'مكسرات وبهارات', 'خضروات وفواكه', 'ألعاب', 'مجموعة الأصناف', 'ملابس', 'مواد البناء'];

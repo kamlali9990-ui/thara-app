@@ -70,7 +70,7 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.confirm_auth_user TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO authenticated;
 
 -- 3. تقييد صلاحيات المدير (manager) إلى قراءة فقط
 

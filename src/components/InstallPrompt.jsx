@@ -155,7 +155,7 @@ export default function InstallPrompt({ variant }) {
         </button>
         <div className="install-card-inner">
           <div className="install-header-section">
-            <img src={`${BASE}LOGO.jpg`} alt="" className="install-logo"
+            <img src={`${BASE}logo222.jpg`} alt="" className="install-logo"
               onError={(e) => { e.target.src = `${BASE}icon.png`; }} />
             <div className="install-app-info">
               <h2 className="install-title">تطبيق ثراء الشرق ون</h2>

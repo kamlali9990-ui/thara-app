@@ -1,10 +1,27 @@
 import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import 'leaflet/dist/leaflet.css'
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
+import * as Sentry from '@sentry/react'
+
+const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
+if (SENTRY_DSN) {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration({
+      maskAllText: false,
+      blockAllMedia: false,
+    })],
+    tracesSampleRate: 0.2,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+    environment: import.meta.env.MODE || 'production',
+  });
+}
 
 // A helper to automatically retry lazy imports by forcing a page reload when a chunk 404s
 // SECURITY: This provides a better UX for transient network failures

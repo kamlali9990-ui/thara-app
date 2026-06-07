@@ -30,7 +30,7 @@ export default function Login() {
     <div className="auth-page" style={{ background: 'radial-gradient(circle at center, #0d3d24 0%, #06190e 100%)' }}>
       <div className="auth-card">
         <div className="auth-header">
-          <img src={`${import.meta.env.BASE_URL || '/'}LOGO.jpg`} alt="" className="auth-logo" />
+          <img src={`${import.meta.env.BASE_URL || '/'}logo222.jpg`} alt="" className="auth-logo" />
           <h1>لوحة التحكم</h1>
           <p>ثراء الشرق ون</p>
         </div>
