@@ -10,7 +10,7 @@ import { PHONE, WHATSAPP_NUM, EMAIL_1, SNAPCHAT } from '../utils/constants';
 const BANNER_STORAGE_KEY = 'thara_banner_url';
 const DEFAULT_BANNER = `${BASE}123.jpg`;
 
-const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, setShowAllView }) => {
+const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, setShowAllView, onSelectCategory }) => {
   const { instantResults, allProducts } = useStore();
   const [showBanner, setShowBanner] = useState(true);
   const [bannerSrc, setBannerSrc] = useState(() => {
@@ -77,7 +77,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
           <div className="categories-ticker-container">
             <div className="categories-ticker-track">
               {[...sectionCats, ...sectionCats].map((cat, idx) => (
-                <div key={cat.name + '-' + idx} className="categories-ticker-item" onClick={() => setShowAllView(cat.name)}>
+                <div key={cat.name + '-' + idx} className="categories-ticker-item" onClick={() => onSelectCategory(cat)}>
                   <img 
                     src={cat.img} 
                     alt={cat.name} 

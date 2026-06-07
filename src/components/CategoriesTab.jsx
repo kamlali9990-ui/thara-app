@@ -1,4 +1,4 @@
-import { memo, useState, useMemo } from 'react';
+import { memo, useState, useMemo, useEffect } from 'react';
 import { BASE } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
 import ProductCard from './ProductCard';
@@ -6,7 +6,7 @@ import RotatingCategoryRow from './RotatingCategoryRow';
 
 import { sectionCats } from '../data/categories';
 
-const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
+const CategoriesTab = memo(({ setShowAllView, onTabChange, preselectedCat, setPreselectedCat }) => {
   const { allProducts, addToCart, cart } = useStore();
   const allCats = sectionCats;
 
@@ -36,6 +36,14 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange }) => {
     const q = prodSearch.trim().toLowerCase();
     return base.filter(p => p.name.includes(q));
   }, [selectedCat, allProducts, prodSearch]);
+
+  useEffect(() => {
+    if (preselectedCat) {
+      setSelectedCat(preselectedCat);
+      setProdSearch('');
+      setPreselectedCat(null);
+    }
+  }, [preselectedCat, setPreselectedCat]);
 
   const selectCat = (cat) => {
     setSelectedCat(cat);

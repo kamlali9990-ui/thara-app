@@ -37,6 +37,7 @@ export default function App() {
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [theme, setTheme] = useState(() => { try { return localStorage.getItem('theme') || 'light'; } catch { return 'light'; } });
   const [showAllView, setShowAllView] = useState(null);
+  const [preselectedCat, setPreselectedCat] = useState(null);
   const [prevTab, setPrevTab] = useState('home');
 
   useEffect(() => {
@@ -187,11 +188,13 @@ export default function App() {
         <div className={`app-slide ${slideDir === 'left' ? 'slide-in-left' : 'slide-in-right'}`}>
           {tab === 'home' && <HomeTab key="home" products={products}
             addToCart={addToCart} cart={cart} searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-            setShowAllView={setShowAllView} />}
+            setShowAllView={setShowAllView}
+            onSelectCategory={(cat) => { setPreselectedCat(cat); switchTab('categories'); }} />}
         </div>
         )}
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
-          {tab === 'categories' && <CategoriesTab key="categories" />}
+          {tab === 'categories' && <CategoriesTab key="categories"
+            preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
           {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} />}
           </div>
