@@ -13,14 +13,35 @@ function getSignatureUrl() {
   return base.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign';
 }
 
+function loadCloudinaryScript() {
+  return new Promise((resolve) => {
+    if (window.cloudinary) return resolve(true);
+    const script = document.createElement('script');
+    script.src = 'https://upload-widget.cloudinary.com/2.72.7/global/all.js';
+    script.async = true;
+    script.onload = () => {
+      // Small delay to ensure widget registry is ready
+      setTimeout(() => resolve(true), 300);
+    };
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+}
+
 export default function CloudinaryUpload({ onUpload, onError }) {
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const widgetRef = useRef(null);
 
   const openWidget = async () => {
     if (!window.cloudinary) {
-      alert('خطأ: Cloudinary widget لم يتم تحميله بعد');
-      return;
+      setLoading(true);
+      const loaded = await loadCloudinaryScript();
+      setLoading(false);
+      if (!loaded) {
+        alert('خطأ: فشل تحميل Cloudinary widget. تأكد من اتصالك بالإنترنت');
+        return;
+      }
     }
 
     const signatureUrl = getSignatureUrl();
@@ -97,9 +118,9 @@ export default function CloudinaryUpload({ onUpload, onError }) {
       type="button"
       onClick={openWidget}
       className="cloudinary-upload-btn"
-      disabled={uploading}
+      disabled={uploading || loading}
     >
-      📷 {uploading ? 'جاري الرفع...' : 'رفع صورة'}
+      📷 {loading ? 'جاري التحميل...' : uploading ? 'جاري الرفع...' : 'رفع صورة'}
     </button>
   );
 }
