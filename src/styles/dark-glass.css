@@ -424,6 +424,9 @@
 [data-theme="dark"] .install-main-btn { background: #fbbf24; color: #78350f; }
 [data-theme="dark"] .install-main-btn:hover { background: #f59e0b; }
 [data-theme="dark"] .install-apk-btn { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.05); }
+[data-theme="dark"] .update-banner { background: #1e293b; }
+[data-theme="dark"] .update-banner button { background: #38bdf8; color: #0c1220; }
+[data-theme="dark"] .update-banner-dismiss { color: rgba(255,255,255,0.5); }
 
 /* ─── Theme Toggle ─── */
 .acc-theme-card {

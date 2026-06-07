@@ -28,7 +28,6 @@ export default function App() {
     chatMessages, staffRole } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
-  const [updateAvailable, setUpdateAvailable] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
@@ -172,7 +171,7 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
-      {updateAvailable && <UpdateBanner />}
+      <UpdateBanner />
       <InstallPrompt />
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab}
