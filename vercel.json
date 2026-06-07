@@ -2,7 +2,8 @@
   "rewrites": [
     { "source": "/admin/:path*", "destination": "/index.html" },
     { "source": "/login", "destination": "/index.html" },
-    { "source": "/register", "destination": "/index.html" }
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/toggle/:path*", "destination": "/index.html" }
   ],
   "headers": [
     {
