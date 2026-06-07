@@ -1,7 +1,7 @@
 {
   "name": "أسواق ثراء الشرق ون",
   "short_name": "أسواق ثراء الشرق ون",
-  "start_url": ".",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone"],
