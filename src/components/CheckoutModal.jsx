@@ -74,9 +74,21 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
               <select
                 className="checkout-area-select"
                 value={selectedNeighborhood}
-                onChange={(e) => {
-                  setSelectedNeighborhood(e.target.value);
-                  if (e.target.value) fetchAreaSuggestions(e.target.value);
+                onChange={async (e) => {
+                  const val = e.target.value;
+                  setSelectedNeighborhood(val);
+                  if (!val) return;
+                  const query = `${val} الخفجي`;
+                  try {
+                    const viewbox = `${KHAFJI_BOUNDS.minLng},${KHAFJI_BOUNDS.maxLat},${KHAFJI_BOUNDS.maxLng},${KHAFJI_BOUNDS.minLat}`;
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ar&countrycodes=sa&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(query)}`;
+                    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                    const data = await r.json();
+                    if (Array.isArray(data) && data.length > 0) {
+                      const first = data[0];
+                      setPosition({ lat: parseFloat(first.lat), lng: parseFloat(first.lon) });
+                    }
+                  } catch {}
                 }}
               >
                 <option value="">-- اختر الحي --</option>
