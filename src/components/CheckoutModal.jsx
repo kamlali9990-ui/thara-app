@@ -1,4 +1,5 @@
 import { memo, useState, useCallback, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
@@ -12,6 +13,7 @@ const allNeighborhoods = [
 ];
 
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
+  const navigate = useNavigate();
   const { user } = useContext(StoreContext);
   const [position, setPosition] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
@@ -21,6 +23,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [areaResults, setAreaResults] = useState([]);
   const [areaErr, setAreaErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
   const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
   const phoneReady = /^05\d{8}$/.test(phone.trim());
@@ -149,7 +152,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
 <button className="checkout-confirm-btn" onClick={async () => {
   if (submitting || !position || !phoneReady) return;
   if (!user) {
-    showToast('يجب تسجيل الدخول لإتمام الطلب', 'error');
+    setShowLoginPrompt(true);
     return;
   }
   setSubmitting(true);
@@ -168,6 +171,24 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   }
   onClose();
 }} disabled={submitting || !position || !phoneReady || !user}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+
+          {/* Login Prompt Modal */}
+          {showLoginPrompt && (
+            <div className="delivery-info-overlay" onClick={() => setShowLoginPrompt(false)}>
+              <div className="auth-prompt-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="delivery-info-close" onClick={() => setShowLoginPrompt(false)}>✕</button>
+                <div className="auth-prompt-icon">🔒</div>
+                <h3>تسجيل الدخول مطلوب</h3>
+                <p className="auth-prompt-text">عذراً، يجب تسجيل الدخول أولاً لإتمام عملية الطلب. يمكنك إنشاء حساب جديد إذا لم يكن لديك حساب.</p>
+                <button className="auth-prompt-btn" onClick={() => { setShowLoginPrompt(false); onClose(); navigate('/login'); }}>
+                  تسجيل الدخول
+                </button>
+                <button className="auth-prompt-btn auth-prompt-btn-secondary" onClick={() => { setShowLoginPrompt(false); onClose(); navigate('/register'); }}>
+                  إنشاء حساب جديد
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
