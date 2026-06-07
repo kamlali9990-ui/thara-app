@@ -5,6 +5,7 @@ import ProductCard from './ProductCard';
 import { useStore } from '../context/StoreContext';
 import { sectionCats } from '../data/categories';
 import { supabase } from '../supabase/client';
+import InstallGuide from './InstallGuide';
 
 const BANNER_STORAGE_KEY = 'thara_banner_url';
 const DEFAULT_BANNER = `${BASE}123.jpg`;
@@ -144,18 +145,8 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
             </div>
           </div>
 
-          {/* Install Guide Card */}
-          <div className="home-section-card share-app-card" onClick={() => window.open('/install-guide.html', '_blank')} role="button" tabIndex={0} style={{background:'linear-gradient(135deg,#fefce8,#fef9c3)'}}>
-            <div className="share-app-inner">
-              <div className="share-app-info">
-                <h4>📱 كيف تثبت التطبيق على iPhone؟</h4>
-                <p>6 خطوات بالصور — حول الموقع إلى تطبيق على شاشتك الرئيسية</p>
-              </div>
-              <div className="share-app-icon">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#127443" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v10M9 9l3 3 3-3"/><path d="M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/></svg>
-              </div>
-            </div>
-          </div>
+          {/* Install Guide */}
+          <InstallGuide />
         </>
       )}
     </div>
