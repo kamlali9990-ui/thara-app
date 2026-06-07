@@ -39,6 +39,7 @@ export default function App() {
   const [showAllView, setShowAllView] = useState(null);
   const [preselectedCat, setPreselectedCat] = useState(null);
   const [prevTab, setPrevTab] = useState('home');
+  const [tabKey, setTabKey] = useState(0);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -156,11 +157,12 @@ export default function App() {
 
   const switchTab = useCallback((t) => {
     if (t === 'cart') { setIsCartOpen(true); return; }
-    if (t !== 'home') setShowAllView(null);
     const order = ['home', 'categories', 'orders', 'account'];
     const curIdx = order.indexOf(tab);
     const nextIdx = order.indexOf(t);
-    if (curIdx === nextIdx || nextIdx === -1) return;
+    if (nextIdx === -1) return;
+    if (curIdx === nextIdx) { setTabKey(k => k + 1); return; }
+    if (t !== 'home') setShowAllView(null);
     setSlideDir(nextIdx > curIdx ? 'left' : 'right');
     setPrevTab(tab);
     setTab(t);
@@ -193,7 +195,7 @@ export default function App() {
         </div>
         )}
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
-          {tab === 'categories' && <CategoriesTab key="categories"
+          {tab === 'categories' && <CategoriesTab key={`categories-${tabKey}`}
             preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
           {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} />}
