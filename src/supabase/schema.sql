@@ -976,6 +976,21 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 
 -- =============================================
+-- Settings table (key-value store for app settings like banner_url)
+-- =============================================
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "settings_select_all" ON settings FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "settings_insert_admin" ON settings FOR INSERT WITH CHECK (true);
+CREATE POLICY IF NOT EXISTS "settings_update_admin" ON settings FOR UPDATE USING (true);
+CREATE POLICY IF NOT EXISTS "settings_delete_deny" ON settings FOR DELETE USING (false);
+ALTER PUBLICATION supabase_realtime ADD TABLE IF NOT EXISTS settings;
+
+-- =============================================
 -- Performance indexes
 -- =============================================
 CREATE INDEX IF NOT EXISTS idx_orders_customer_email ON orders(customer_email);
