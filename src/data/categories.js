@@ -3,7 +3,7 @@ import { BASE } from '../utils/constants';
 export const sectionCats = [
   { name: 'مواد غذائية', img: `${BASE}cat_canned.png`, fallback: '🥫', color: '#10b981', desc: 'معلبات ومواد غذائية أساسية لأطباقك اليومية' },
   { name: 'منظفات', img: `${BASE}cat_vegetables.jpg`, fallback: '🧹', color: '#fbbf24', desc: 'منظفات ومستلزمات العناية بالمنزل ونظافته' },
-  { name: 'إلكترونيات', img: `${BASE}cat_electronics.png`, fallback: '📱', color: '#3b82f6', desc: 'أجهزة ذكية وإلكترونيات استهلاكية حديثة' },
+  { name: 'إلكترونيات', img: `${BASE}الكترونيات.jpg`, fallback: '📱', color: '#3b82f6', desc: 'أجهزة ذكية وإلكترونيات استهلاكية حديثة' },
   { name: 'أواني', img: `${BASE}اواني.jpg`, fallback: '🍳', color: '#ec4899', desc: 'أدوات ومعدات مطبخية متكاملة لطهي أسهل' },
   { name: 'مكسرات وبهارات', img: `${BASE}cat_canned.jpg`, fallback: '🥜', color: '#8b5cf6', desc: 'بهارات طازجة ومكسرات منوعة وعالية الجودة' },
   { name: 'خضروات وفواكه', img: `${BASE}Getty.webp`, fallback: '🥦', color: '#22c55e', desc: 'خضار وفواكه طازجة يومية من المزرعة إليك' },
