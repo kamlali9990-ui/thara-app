@@ -13,18 +13,34 @@ function getSignatureUrl() {
   return base.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign';
 }
 
+const CLOUDINARY_WIDGET_URL = 'https://upload-widget.cloudinary.com/2.72.7/global/all.js';
+
 function loadCloudinaryScript() {
   return new Promise((resolve) => {
-    if (window.cloudinary) return resolve(true);
+    if (window.cloudinary?.createUploadWidget) return resolve(true);
+
+    // Remove any existing script with same src to avoid duplicates
+    const existing = document.querySelector(`script[src="${CLOUDINARY_WIDGET_URL}"]`);
+    if (existing) existing.remove();
+
     const script = document.createElement('script');
-    script.src = 'https://upload-widget.cloudinary.com/2.72.7/global/all.js';
+    script.src = CLOUDINARY_WIDGET_URL;
     script.async = true;
-    script.onload = () => {
-      // Small delay to ensure widget registry is ready
-      setTimeout(() => resolve(true), 300);
-    };
-    script.onerror = () => resolve(false);
     document.head.appendChild(script);
+
+    // Poll for window.cloudinary instead of relying on onload timing
+    let attempts = 0;
+    const maxAttempts = 50; // ~10 seconds
+    const poll = setInterval(() => {
+      attempts++;
+      if (window.cloudinary?.createUploadWidget) {
+        clearInterval(poll);
+        resolve(true);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(poll);
+        resolve(false);
+      }
+    }, 200);
   });
 }
 
