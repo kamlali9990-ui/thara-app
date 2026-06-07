@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "com.tharasharqone.twa",
-        "sha256_cert_fingerprints": ["49:C3:D1:00:2D:0C:DD:D5:3E:24:94:CE:0F:10:A7:8F:25:6E:18:F2:B9:3A:90:91:F9:D5:EC:98:3F:1E:0E:1F"]
+        "sha256_cert_fingerprints": ["FA:54:6B:73:CF:49:6D:04:24:EA:D6:36:61:6C:5C:23:14:5F:F1:63:3D:7D:2B:98:3F:0C:19:A6:C0:40:2B:72"]
       }
     }]
