@@ -47,12 +47,17 @@ export const chatApi = {
     } else if (customerEmail) {
       filter.filter = `customer_email=eq.${customerEmail}`;
     }
-    return supabase
-      .channel('chat_messages' + (orderId ? `_${orderId}` : customerEmail ? `_${customerEmail.replace(/[@.]/g, '_')}` : ''))
-      .on('postgres_changes', filter, (payload) => {
-        onMessage(mapMessage(payload.new));
-      })
-      .subscribe();
+    try {
+      return supabase
+        .channel('chat_messages' + (orderId ? `_${orderId}` : customerEmail ? `_${customerEmail.replace(/[@.]/g, '_')}` : ''))
+        .on('postgres_changes', filter, (payload) => {
+          onMessage(mapMessage(payload.new));
+        })
+        .subscribe();
+    } catch (e) {
+      console.warn('chat subscribe failed:', e);
+      return { unsubscribe: () => {} };
+    }
   },
 
   subscribeTyping(orderId, customerEmail, onTyping) {
@@ -62,37 +67,32 @@ export const chatApi = {
     } else if (customerEmail) {
       filter.filter = `user_email=eq.${customerEmail}`;
     }
-    return supabase
-      .channel('typing_' + (orderId || customerEmail?.replace(/[@.]/g, '_') || 'all'))
-      .on('postgres_changes', filter, (payload) => {
-        onTyping({ userEmail: payload.new.user_email, orderId: payload.new.order_id ? String(payload.new.order_id) : null, isTyping: payload.new.is_typing });
-      })
-      .subscribe();
-  },
-
-  async sendTyping(userEmail, orderId = null, isTyping = true) {
-    let delQuery = supabase.from('typing_events').delete().eq('user_email', userEmail);
-    if (orderId) {
-      delQuery = delQuery.eq('order_id', orderId);
-    } else {
-      delQuery = delQuery.is('order_id', null);
+    try {
+      return supabase
+        .channel('typing_' + (orderId || customerEmail?.replace(/[@.]/g, '_') || 'all'))
+        .on('postgres_changes', filter, (payload) => {
+          onTyping({ userEmail: payload.new.user_email, orderId: payload.new.order_id ? String(payload.new.order_id) : null, isTyping: payload.new.is_typing });
+        })
+        .subscribe();
+    } catch (e) {
+      console.warn('typing subscribe failed:', e);
+      return { unsubscribe: () => {} };
     }
-    const { error: delErr } = await delQuery;
-    if (delErr) throw delErr;
-    const { error } = await supabase
-      .from('typing_events')
-      .insert([{ user_email: userEmail, order_id: orderId, is_typing: isTyping }]);
-    if (error) throw error;
   },
 
   async subscribeUpdates(onUpdate) {
     let filter = { event: 'UPDATE', schema: 'public', table: 'chat_messages' };
-    return supabase
-      .channel('chat_updates')
-      .on('postgres_changes', filter, (payload) => {
-        onUpdate(mapMessage(payload.new));
-      })
-      .subscribe();
+    try {
+      return supabase
+        .channel('chat_updates')
+        .on('postgres_changes', filter, (payload) => {
+          onUpdate(mapMessage(payload.new));
+        })
+        .subscribe();
+    } catch (e) {
+      console.warn('chat updates subscribe failed:', e);
+      return { unsubscribe: () => {} };
+    }
   }
 };
 

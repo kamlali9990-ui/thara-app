@@ -325,6 +325,10 @@
   .staff-add-form { flex-direction: column; }
   .staff-card { flex-direction: column; align-items: stretch; }
   .staff-actions { justify-content: flex-end; }
+  .staff-actions .btn,
+  .staff-actions .admin-delete-btn {
+    flex: 1;
+  }
 }
 
 @media (max-width: 380px) {

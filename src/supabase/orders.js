@@ -111,19 +111,24 @@ export const ordersApi = {
    * Returns the channel object; call .unsubscribe() (or supabase.removeChannel) to stop.
    */
   subscribe(onChange) {
-    const channel = supabase
-      .channel('orders-stream')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
-        try {
-          const mapped = payload.new ? mapOrder(payload.new) : null;
-          const mappedOld = payload.old ? mapOrder(payload.old) : null;
-          onChange({ eventType: payload.eventType, new: mapped, old: mappedOld });
-        } catch (e) {
-          console.error('orders subscribe map error', e);
-        }
-      })
-      .subscribe();
-    return channel;
+    try {
+      const channel = supabase
+        .channel('orders-stream')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, (payload) => {
+          try {
+            const mapped = payload.new ? mapOrder(payload.new) : null;
+            const mappedOld = payload.old ? mapOrder(payload.old) : null;
+            onChange({ eventType: payload.eventType, new: mapped, old: mappedOld });
+          } catch (e) {
+            console.error('orders subscribe map error', e);
+          }
+        })
+        .subscribe();
+      return channel;
+    } catch (e) {
+      console.warn('orders subscribe failed (realtime may be unavailable):', e);
+      return { unsubscribe: () => {} };
+    }
   }
 };
 

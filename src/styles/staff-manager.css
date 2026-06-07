@@ -38,13 +38,13 @@
   padding: 1rem;
   border-radius: 12px;
   border: 0.5px solid rgba(255,255,255,0.12);
-  flex-wrap: wrap;
 }
 .staff-info {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  min-width: 0;
 }
 .staff-email {
   color: #94a3b8;
@@ -64,6 +64,36 @@
 .staff-actions {
   display: flex;
   gap: 0.5rem;
+  flex-shrink: 0;
+}
+.staff-actions .btn,
+.staff-actions .admin-delete-btn {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.82rem;
+  border-radius: 8px;
+  white-space: nowrap;
+  width: auto;
+  min-width: 60px;
+  text-align: center;
+  font-weight: 700;
+}
+.staff-actions .admin-delete-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.staff-actions .admin-delete-btn:hover {
+  background: #dc2626;
+}
+.staff-card .btn {
+  background: #f2a900;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.staff-card .btn:hover {
+  background: #e09e00;
 }
 
 @keyframes splashOut {
