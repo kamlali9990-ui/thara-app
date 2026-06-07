@@ -1,25 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CloudinaryUpload from './CloudinaryUpload';
 import { showToast } from '../Toast';
 import { BASE } from '../../utils/constants';
 import { supabase } from '../../supabase/client';
 
 const STORAGE_KEY = 'thara_banner_url';
-const IS_STAFF_CACHE_KEY = 'thara_is_staff';
 
 const PRESET_BANNERS = [
   { label: 'البنر الافتراضي', url: `${BASE}123.jpg` },
   { label: 'بنر العروض', url: `${BASE}banner-offers.jpg` },
 ];
-
-function isAdmin() {
-  const stored = localStorage.getItem(IS_STAFF_CACHE_KEY);
-  if (stored) return true;
-  try {
-    const payload = JSON.parse(atob((document.cookie.match(/(?:^|;\s*)thara-auth-admin=([^;]*)/)?.[1] || '').split('.')?.[1] || '{}'));
-    return !!payload?.email;
-  } catch { return false; }
-}
 
 export default function AdminSettings() {
   const [bannerUrl, setBannerUrl] = useState(() => {
