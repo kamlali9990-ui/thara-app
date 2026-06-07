@@ -2,14 +2,7 @@ import { memo } from 'react';
 
 const UpdateBanner = memo(() => {
   const apply = () => {
-    const reg = window.__swRegistration;
-    if (!reg || !reg.waiting) return;
-    reg.waiting.addEventListener('statechange', (e) => {
-      if (e.target.state === 'activated') {
-        window.location.reload();
-      }
-    });
-    reg.waiting.postMessage('SKIP_WAITING');
+    window.location.reload();
   };
   return (
     <div className="update-banner">

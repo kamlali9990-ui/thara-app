@@ -1,50 +1,57 @@
 import { useState, useEffect, useRef } from 'react';
 
-const DISMISS_DURATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
+const DURATIONS = [3, 7, 30, 365]; // days per dismissal count
 
 export default function InstallPrompt({ variant }) {
   const BASE = import.meta.env.BASE_URL || '/';
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [show, setShow] = useState(false);
-  const timerRef = useRef(null);
+  const engagedRef = useRef(false);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 
+  const dismissedCount = parseInt(localStorage.getItem('pwa-install-dismiss-count') || '0', 10);
   const dismissedTime = localStorage.getItem('pwa-install-prompt-dismissed');
-  const isRecentlyDismissed = dismissedTime && (Date.now() - parseInt(dismissedTime, 10) < DISMISS_DURATION_MS);
+  const idx = Math.min(dismissedCount, DURATIONS.length - 1);
+  const isRecentlyDismissed = dismissedTime && (Date.now() - parseInt(dismissedTime, 10) < DURATIONS[idx] * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
     if (isStandalone) return;
+    const engage = () => { engagedRef.current = true; };
+    document.addEventListener('scroll', engage, { once: true });
+    document.addEventListener('click', engage, { once: true });
+    document.addEventListener('touchstart', engage, { once: true });
 
     const handler = (e) => {
       e.preventDefault();
       window.__deferredPrompt = e;
       setDeferredPrompt(e);
-      if (!isRecentlyDismissed) {
+      if (!isRecentlyDismissed && engagedRef.current) {
         setShow(true);
       }
-      if (timerRef.current) clearTimeout(timerRef.current);
     };
     const showHandler = () => {
       setShow(true);
     };
+    const cartHandler = () => {
+      if (!isRecentlyDismissed && !isStandalone && !show) {
+        setTimeout(() => setShow(true), 800);
+      }
+    };
 
     window.addEventListener('beforeinstallprompt', handler);
     window.addEventListener('show-pwa-install-prompt', showHandler);
-
-    // Auto-show after 3s only if a method to install is available
-    if (!isRecentlyDismissed) {
-      timerRef.current = setTimeout(() => {
-        if (window.__deferredPrompt || isIOS) setShow(true);
-      }, 3000);
-    }
+    window.addEventListener('cart-install-trigger', cartHandler);
 
     return () => {
+      document.removeEventListener('scroll', engage);
+      document.removeEventListener('click', engage);
+      document.removeEventListener('touchstart', engage);
       window.removeEventListener('beforeinstallprompt', handler);
       window.removeEventListener('show-pwa-install-prompt', showHandler);
-      if (timerRef.current) clearTimeout(timerRef.current);
+      window.removeEventListener('cart-install-trigger', cartHandler);
     };
-  }, [isStandalone, isRecentlyDismissed]);
+  }, [isStandalone, isRecentlyDismissed, show]);
 
   const install = async () => {
     if (deferredPrompt) {
@@ -74,6 +81,8 @@ export default function InstallPrompt({ variant }) {
   };
 
   const dismiss = () => {
+    const count = parseInt(localStorage.getItem('pwa-install-dismiss-count') || '0', 10) + 1;
+    localStorage.setItem('pwa-install-dismiss-count', count.toString());
     localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString());
     setShow(false);
   };
