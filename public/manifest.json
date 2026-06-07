@@ -5,7 +5,7 @@
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-override", "standalone"],
-  "background_color": "#127443",
+  "background_color": "#ffffff",
   "theme_color": "#127443",
   "id": "thara-app",
   "orientation": "any",
