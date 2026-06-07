@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
@@ -8,6 +8,7 @@ import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
 import MaintenancePage from './components/MaintenancePage.jsx'
+import { supabase } from './supabase/client.js'
 import * as Sentry from '@sentry/react'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
@@ -165,12 +166,23 @@ const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
 
 function MaintenanceGate({ children }) {
   const loc = useLocation();
-  try {
-    const maintenance = localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true';
-    if (maintenance && !loc.pathname.includes('/admin/login')) {
-      return <MaintenancePage />;
-    }
-  } catch {}
+  const [maintenance, setMaintenance] = useState(() => {
+    try { return localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true'; } catch { return false; }
+  });
+
+  useEffect(() => {
+    supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle()
+      .then(({ data }) => {
+        const val = data?.value === 'true';
+        setMaintenance(val);
+        try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, val ? 'true' : 'false'); } catch {}
+      })
+      .catch(() => {});
+  }, []);
+
+  if (maintenance && !loc.pathname.includes('/admin/login')) {
+    return <MaintenancePage />;
+  }
   return children;
 }
 
