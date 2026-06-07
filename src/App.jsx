@@ -64,7 +64,7 @@ export default function App() {
     setTheme(t => t === 'light' ? 'dark' : 'light');
   }, []);
 
-  useEffect(() => { const t = setTimeout(() => setShowSplash(false), 4400); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2000); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     const handler = () => setUpdateAvailable(true);

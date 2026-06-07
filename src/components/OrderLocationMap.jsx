@@ -8,7 +8,7 @@ export default function OrderLocationMap({ lat, lng, height = 150 }) {
 
   useEffect(() => {
     if (!mapRef.current || lat == null || lng == null) return;
-
+    import('leaflet/dist/leaflet.css');
     const map = L.map(mapRef.current, {
       center: [lat, lng],
       zoom: 16,

@@ -1,7 +1,8 @@
 import React, { lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import 'leaflet/dist/leaflet.css'
+
+
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'

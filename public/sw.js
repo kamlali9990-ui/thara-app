@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v15';
+const CACHE_NAME = 'thara-v16';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -52,18 +52,21 @@ self.addEventListener('fetch', (event) => {
 
   if (event.request.mode === 'navigate') {
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' })
-        .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => null);
-          return response;
-        })
-        .catch(() =>
-          caches.match(event.request).then((cached) => cached)
-            .then((cached) => cached || caches.match(`${BASE_PATH}index.html`.replace(/\/+/g, '/')))
-            .then((cached) => cached || caches.match(BASE_PATH))
-            .then((cached) => cached || new Response('', { status: 503 }))
-        )
+      caches.match(event.request).then((cached) => {
+        const fetchPromise = fetch(event.request, { cache: 'no-store' })
+          .then((response) => {
+            if (response && response.status === 200) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => null);
+            }
+            return response;
+          })
+          .catch(() => null);
+        return cached || fetchPromise;
+      })
+        .then((r) => r || caches.match(`${BASE_PATH}index.html`.replace(/\/+/g, '/')))
+        .then((r) => r || caches.match(BASE_PATH))
+        .then((r) => r || new Response('', { status: 503 }))
     );
   } else {
     const isStaticAsset = /\.(?:js|css|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico)$/i.test(url.pathname);
