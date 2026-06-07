@@ -720,29 +720,48 @@
   top: auto;
   right: auto;
 }
-.rotating-cat-dots {
+.rotating-cat-nav {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 0.75rem 0 0.25rem;
+  gap: 1rem;
+  padding: 0 0 0.6rem;
 }
-.rotating-cat-dot {
-  width: 7px;
-  height: 7px;
+.rotating-cat-arrow {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border, #e2e8f0);
   border-radius: 50%;
-  background: #d1d5db;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  padding: 0;
+  color: var(--text-main, #1e293b);
+  transition: all 0.15s;
+  flex-shrink: 0;
 }
-.rotating-cat-dot.active {
+.rotating-cat-arrow:hover {
   background: var(--cat-color, var(--primary));
-  width: 22px;
-  border-radius: 5px;
+  color: #fff;
+  border-color: var(--cat-color, var(--primary));
 }
-[data-theme="dark"] .rotating-cat-dot { background: #475569; }
-[data-theme="dark"] .rotating-cat-dot.active { background: var(--cat-color, #fbbf24); }
+.rotating-cat-pages {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary, #64748b);
+  direction: ltr;
+}
+[data-theme="dark"] .rotating-cat-arrow {
+  background: #1e293b;
+  border-color: #334155;
+  color: #94a3b8;
+}
+[data-theme="dark"] .rotating-cat-arrow:hover {
+  background: var(--cat-color, #fbbf24);
+  color: #0f172a;
+  border-color: var(--cat-color, #fbbf24);
+}
 
 /* Update Tabbar to fit 5 items */
 .app-tabbar {
