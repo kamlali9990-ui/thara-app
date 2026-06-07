@@ -1,0 +1,31 @@
+{
+  "packageId": "com.tharasharqone.twa",
+  "host": "tharasharqone.com",
+  "name": "أسواق ثراء الشرق ون",
+  "launcherName": "أسواق ثراء الشرق ون",
+  "display": "standalone",
+  "themeColor": "#127443",
+  "navigationColor": "#127443",
+  "backgroundColor": "#127443",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "https://tharasharqone.com/newicon.jpg",
+  "maskableIconUrl": "https://tharasharqone.com/newicon.jpg",
+  "webManifestUrl": "https://tharasharqone.com/manifest.json",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "أسواق ثراء الشرق ون - Google Play package (2)/signing.keystore",
+    "alias": "my-key-alias"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "enableSiteSettingsShortcut": true,
+  "orientation": "any",
+  "generateLocation": true,
+  "fallbackType": "customtabs",
+  "features": {
+    "locationDelegation": {
+      "enabled": true
+    }
+  }
+}
