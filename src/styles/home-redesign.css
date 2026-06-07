@@ -714,6 +714,9 @@
 .rotating-cat-grid .product-card-new-add {
   width: 26px;
   height: 26px;
+  position: relative;
+  top: auto;
+  right: auto;
 }
 .rotating-cat-grid .product-card-cart-qty {
   position: relative;
