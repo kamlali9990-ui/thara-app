@@ -7,6 +7,7 @@ import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
+import MaintenancePage from './components/MaintenancePage.jsx'
 import * as Sentry from '@sentry/react'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
@@ -160,6 +161,19 @@ function LeaveGuard() {
   return null;
 }
 
+const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
+
+function MaintenanceGate({ children }) {
+  const loc = useLocation();
+  try {
+    const maintenance = localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true';
+    if (maintenance && !loc.pathname.includes('/admin/login')) {
+      return <MaintenancePage />;
+    }
+  } catch {}
+  return children;
+}
+
 function ProtectedRoute({ children }) {
   const { user, loading, staffRole } = useStore();
   if (loading) return <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
@@ -189,20 +203,22 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ToastProvider>
         <StoreProvider>
           <BrowserRouter basename={BASENAME}>
-            <LeaveGuard />
-            <Routes>
-              <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
-              <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
-              <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
-              <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
-              <Route path="/admin/*" element={
-              <ProtectedRoute>
-                <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
-                  <Admin />
-                </Suspense>
-              </ProtectedRoute>
-              } />
-            </Routes>
+            <MaintenanceGate>
+              <LeaveGuard />
+              <Routes>
+                <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
+                <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
+                <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
+                <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
+                <Route path="/admin/*" element={
+                <ProtectedRoute>
+                  <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
+                    <Admin />
+                  </Suspense>
+                </ProtectedRoute>
+                } />
+              </Routes>
+            </MaintenanceGate>
           </BrowserRouter>
         </StoreProvider>
       </ToastProvider>
