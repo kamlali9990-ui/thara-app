@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase/client';
+import SnakeGame from '../components/SnakeGame';
 
 const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
 const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
@@ -132,7 +133,8 @@ export default function MaintenancePanel() {
           {loading ? 'جاري...' : (maintenance ? '🔴 إيقاف الصيانة وتشغيل الموقع' : '🟢 تفعيل وضع الصيانة')}
         </button>
 
-        <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        <SnakeGame />
+        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
           <a href="/" style={styles.link}>العودة للمتجر</a>
         </div>
       </div>
