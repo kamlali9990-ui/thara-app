@@ -6,6 +6,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const inst = useRef(null);
   const marker = useRef(null);
   const locating = useRef(false);
+  const fallbackPos = { lat: 28.4355, lng: 48.4988 };
 
   useEffect(() => {
     if (inst.current) return;
@@ -33,7 +34,13 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     syncMarker(position);
   }, [position, syncMarker]);
   const locate = useCallback(() => {
-    if (!navigator.geolocation || locating.current) return;
+    if (position) return;
+    if (!navigator.geolocation) {
+      syncMarker(fallbackPos);
+      setPosition(fallbackPos);
+      return;
+    }
+    if (locating.current) return;
     locating.current = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -42,10 +49,14 @@ const KhafjiMap = memo(({ position, setPosition }) => {
         syncMarker(p);
         setPosition(p);
       },
-      () => { locating.current = false; },
+      () => {
+        locating.current = false;
+        syncMarker(fallbackPos);
+        setPosition(fallbackPos);
+      },
       { enableHighAccuracy: true, timeout: 15000 }
     );
-  }, []);
+  }, [position]);
   useEffect(() => {
     if (!inst.current) return;
     const t = setTimeout(locate, 500);
