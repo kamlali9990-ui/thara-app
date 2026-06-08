@@ -257,7 +257,7 @@ function MaintenanceGate({ children }) {
         try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, val ? 'true' : 'false'); } catch {}
       })
       .catch(() => {});
-  }, []);
+  }, [loc.pathname]);
 
   if (maintenance && loc.pathname.startsWith('/toggle/')) {
     return children;
