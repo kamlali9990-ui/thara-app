@@ -123,7 +123,7 @@
 
 /* ─── App Header ─── */
 .app-header {
-  background: var(--primary); position: sticky; top: 0; z-index: 100;
+  background: var(--primary); position: -webkit-sticky; position: sticky; top: 0; z-index: 100;
   padding-top: env(safe-area-inset-top, 0);
 }
 .app-header-inner {
@@ -1581,7 +1581,7 @@
   font-size: 0.85rem;
   outline: none;
   background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
 }
 .khafji-search-input:focus { border-color: var(--primary); }
 .khafji-search-btn {

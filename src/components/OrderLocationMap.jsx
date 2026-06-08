@@ -25,8 +25,10 @@ export default function OrderLocationMap({ lat, lng, height = 150 }) {
     L.marker([lat, lng]).addTo(map);
     mapInst.current = map;
 
-    const ro = new ResizeObserver(() => map.invalidateSize());
-    ro.observe(mapRef.current);
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => map.invalidateSize());
+      ro.observe(mapRef.current);
+    }
 
     return () => {
       ro.disconnect();

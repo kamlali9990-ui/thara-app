@@ -297,7 +297,7 @@
 /* --- Sidebar --- */
 .admin-sidebar {
   background: var(--admin-sidebar) !important;
-  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important; backdrop-filter: blur(20px) !important;
   border-left: 1px solid var(--admin-border) !important;
 }
 .admin-layout .admin-sidebar-title {
@@ -353,7 +353,7 @@
 .admin-offer-row,
 .admin-chat-body {
   background: var(--admin-surface) !important;
-  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important; backdrop-filter: blur(12px) !important;
   border: 1px solid var(--admin-border) !important;
   box-shadow: var(--admin-shadow) !important;
 }

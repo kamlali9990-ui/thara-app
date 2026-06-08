@@ -38,7 +38,7 @@
 header {
   background: var(--primary);
   box-shadow: 0 4px 15px rgba(18, 116, 67, 0.2);
-  position: sticky;
+  position: -webkit-sticky; position: sticky;
   top: 0;
   z-index: 100;
   color: white;
@@ -347,7 +347,7 @@ header {
   border-radius: 20px;
   padding: 1rem;
   min-width: 240px;
-  position: sticky;
+  position: -webkit-sticky; position: sticky;
   top: 1rem;
   align-self: start;
   height: fit-content;

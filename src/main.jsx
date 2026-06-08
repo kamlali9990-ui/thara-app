@@ -35,7 +35,8 @@ const lazyWithRetry = (componentImport, componentName) => {
     // Use component-specific key to avoid collision between different lazy components
     const buildId = import.meta.env.MODE || 'dev';
     const storageKey = `thara_chunk_reload_${buildId}_${componentName || 'unknown'}`;
-    const reloadCount = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+    let reloadCount = 0;
+    try { reloadCount = parseInt(sessionStorage.getItem(storageKey) || '0', 10); } catch {}
     
     try {
       const component = await componentImport();

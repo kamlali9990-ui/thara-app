@@ -405,7 +405,7 @@ export function printInvoice(order, ctx) {
       cursor: pointer;
       transition: all 0.25s ease;
       width: 260px;
-      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
     }
     .card:hover {
       background: rgba(255,255,255,0.12);

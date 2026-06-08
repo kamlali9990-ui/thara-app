@@ -63,6 +63,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     return () => clearTimeout(t);
   }, [inst.current]);
   useEffect(() => {
+    if (typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => inst.current?.invalidateSize());
     if (mapRef.current) ro.observe(mapRef.current);
     return () => ro.disconnect();

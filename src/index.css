@@ -98,7 +98,7 @@ h3 { font-size: 1.15rem; }
 .theme-toggle-root { direction: rtl; }
 .theme-toggle-btn {
   width: 44px; height: 44px; border-radius: 50%; border: none;
-  background: var(--blur-bg); backdrop-filter: blur(12px);
+  background: var(--blur-bg); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   box-shadow: 0 2px 12px rgba(0,0,0,0.12); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--text-main); transition: transform 0.2s, box-shadow 0.2s;

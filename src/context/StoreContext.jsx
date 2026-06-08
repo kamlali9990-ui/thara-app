@@ -73,6 +73,7 @@ export const StoreProvider = ({ children }) => {
   // Push notification subscription — auto subscribe on login, unsubscribe on logout
   useEffect(() => {
     if (!user || !supabaseReady) return;
+    if (typeof Notification === 'undefined') return;
     const email = user.email;
     const role = staffRole || 'customer';
     if (!email) return;
