@@ -160,13 +160,12 @@ function LeaveGuard() {
   return null;
 }
 
-const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
-
 function ProtectedRoute({ children }) {
-  const { user, loading, currentStaff } = useStore();
+  const { user, loading, staffRole } = useStore();
   if (loading) return <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
   if (!user) return <Navigate to="/admin/login" replace />;
-  if (!currentStaff || currentStaff.email !== ADMIN_EMAIL) return <Navigate to="/admin/login" replace />;
+  const isAdmin = staffRole === 'admin' || staffRole === 'manager';
+  if (!isAdmin) return <Navigate to="/admin/login" replace />;
   return children;
 }
 
