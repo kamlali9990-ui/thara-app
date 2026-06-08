@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import ThemeToggle from '../components/ThemeToggle';
+import { useTheme } from '../utils/theme';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -9,6 +11,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useStore();
+  const { theme, setTheme } = useTheme();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -71,6 +74,7 @@ export default function Login() {
           <Link to="/">← العودة للمتجر</Link>
         </div>
       </div>
+      <ThemeToggle currentTheme={theme} onThemeChange={setTheme} />
     </div>
   );
 }
