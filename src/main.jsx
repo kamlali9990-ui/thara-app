@@ -167,22 +167,21 @@ function LeaveGuard() {
 const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
 
 function MaintenanceToggle() {
-  const { secret } = useParams();
+  const { action, secret } = useParams();
   const [status, setStatus] = useState('checking');
 
-  const performToggle = useCallback(async () => {
+  const performAction = useCallback(async () => {
     if (secret !== MAINTENANCE_SECRET) { setStatus('invalid'); return; }
+    if (action !== 'on' && action !== 'off') { setStatus('invalid'); return; }
+    const next = action === 'on';
     try {
-      const { data } = await supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle();
-      const current = data?.value === 'true';
-      const next = !current;
       await supabase.from('settings').upsert({ key: 'maintenance_mode', value: next ? 'true' : 'false' }, { onConflict: 'key' });
       localStorage.setItem(MAINTENANCE_STORAGE_KEY, next ? 'true' : 'false');
       setStatus(next ? 'activated' : 'deactivated');
     } catch { setStatus('error'); }
-  }, [secret]);
+  }, [action, secret]);
 
-  useEffect(() => { performToggle(); }, [performToggle]);
+  useEffect(() => { performAction(); }, [performAction]);
 
   const containerStyle = {
     display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -259,7 +258,7 @@ function MaintenanceGate({ children }) {
       .catch(() => {});
   }, [loc.pathname]);
 
-  if (maintenance && loc.pathname.startsWith('/toggle/')) {
+  if (maintenance && (loc.pathname.startsWith('/toggle/on/') || loc.pathname.startsWith('/toggle/off/'))) {
     return children;
   }
   if (maintenance) {
@@ -290,7 +289,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
                 <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
                 <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
-                <Route path="/toggle/:secret" element={<MaintenanceToggle />} />
+                <Route path="/toggle/:action/:secret" element={<MaintenanceToggle />} />
                 <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
                 <Route path="/admin/*" element={
                 <ProtectedRoute>
