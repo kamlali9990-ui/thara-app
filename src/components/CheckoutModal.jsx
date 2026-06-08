@@ -26,7 +26,10 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
   const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
-  const phoneReady = /^05\d{8}$/.test(phone.trim());
+  const phoneReady = (() => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length >= 9 && (digits.startsWith('966') ? digits.length === 12 : digits.length === 10);
+  })();
 
   const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
 
