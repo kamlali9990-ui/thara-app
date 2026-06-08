@@ -1,29 +1,78 @@
-/* ===================== Admin Theme: beige/gold on warm brown ===================== */
+/* ===================== Admin Theme: Pearl + Gold ===================== */
 
 /* --- Layout --- */
 .admin-layout {
-  background: #3d2817 !important;
+  background: #f5efe6 !important;
+  color: #2d2a24 !important;
+}
+.admin-layout h1, .admin-layout h2, .admin-layout h3,
+.admin-layout h4, .admin-layout h5, .admin-layout h6 {
+  color: #2d2a24 !important;
+}
+.admin-layout strong {
+  color: #2d2a24 !important;
+}
+.admin-layout label {
+  color: #5c574f !important;
+}
+.admin-layout p {
+  color: #5c574f !important;
+}
+.admin-layout .admin-section-title {
+  color: #2d2a24 !important;
 }
 
 /* --- Sidebar --- */
 .admin-sidebar {
-  background: linear-gradient(180deg, #5c4030 0%, #4a3222 100%) !important;
+  background: linear-gradient(180deg, #d4af37 0%, #c9a94e 100%) !important;
+}
+.admin-layout .admin-sidebar-title {
+  color: #2d2a24 !important;
+}
+.admin-sidebar-link {
+  color: #2d2a24 !important;
 }
 
 /* --- Mobile Nav --- */
 .admin-mobile-nav {
-  background: rgba(61, 40, 23, 0.97) !important;
-  border-top: 0.5px solid rgba(210, 180, 140, 0.2) !important;
+  background: rgba(245, 239, 230, 0.97) !important;
+  border-top: 1px solid #d4af37 !important;
 }
 .admin-mobile-header {
-  background: linear-gradient(135deg, #5c4030, #4a3222) !important;
+  background: linear-gradient(135deg, #d4af37, #c9a94e) !important;
+}
+.admin-mobile-header h2 {
+  color: #2d2a24 !important;
+}
+.admin-mobile-header a,
+.admin-mobile-header button {
+  color: #2d2a24 !important;
+}
+.admin-mobile-tab {
+  color: #5c574f !important;
 }
 .admin-mobile-tab.active {
-  background: rgba(201, 169, 78, 0.18) !important;
-  color: #d4a017 !important;
+  background: rgba(212, 175, 55, 0.2) !important;
+  color: #b8942e !important;
 }
 
-/* --- Cards & Containers (beige/gold tint) --- */
+/* --- Tabs --- */
+.admin-tab,
+.admin-product-form-submit {
+  background: rgba(212, 175, 55, 0.1) !important;
+  color: #2d2a24 !important;
+}
+.admin-tab:hover,
+.admin-product-form-submit:hover {
+  background: rgba(212, 175, 55, 0.18) !important;
+}
+.admin-tab.active {
+  background: rgba(212, 175, 55, 0.2) !important;
+  color: #b8942e !important;
+  font-weight: 700 !important;
+}
+
+/* --- Cards & Containers (white/cream + gold border) --- */
 .admin-card,
 .admin-stat-card,
 .admin-product-card,
@@ -33,173 +82,333 @@
 .admin-chat-main,
 .admin-offer-row,
 .admin-chat-body {
-  background: rgba(210, 180, 140, 0.07) !important;
-  border-color: rgba(210, 180, 140, 0.15) !important;
+  background: #ffffff !important;
+  border: 1.5px solid #d4af37 !important;
+  box-shadow: 0 2px 12px rgba(212, 175, 55, 0.08) !important;
 }
 .admin-card-header {
-  border-bottom-color: rgba(210, 180, 140, 0.12) !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.25) !important;
 }
 .admin-card-info {
-  background: rgba(0, 0, 0, 0.3) !important;
+  background: rgba(245, 239, 230, 0.5) !important;
+  color: #5c574f !important;
 }
 .admin-section-divider {
-  background: rgba(210, 180, 140, 0.12) !important;
+  background: rgba(212, 175, 55, 0.2) !important;
 }
 .admin-offer-row.is-offer {
-  background: rgba(201, 169, 78, 0.1) !important;
-  border-right-color: #d4a017 !important;
+  background: rgba(212, 175, 55, 0.06) !important;
+  border-right: 3px solid #d4af37 !important;
 }
 
-/* --- Tabs --- */
-.admin-tab,
-.admin-product-form-submit {
-  background: rgba(210, 180, 140, 0.12) !important;
-}
-.admin-tab:hover,
-.admin-product-form-submit:hover {
-  background: rgba(210, 180, 140, 0.2) !important;
-}
-.admin-tab.active {
-  background: rgba(201, 169, 78, 0.2) !important;
-  color: #d4a017 !important;
-}
-
-/* --- Buttons (green → gold/beige) --- */
+/* --- Buttons --- */
 .admin-product-add-btn {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+  background: linear-gradient(135deg, #d4af37, #c9a94e) !important;
+  color: #fff !important;
 }
 .admin-product-add-btn:hover {
-  background: linear-gradient(135deg, #c9a94e, #d4a017) !important;
+  background: linear-gradient(135deg, #c9a94e, #b8942e) !important;
 }
 .cloudinary-upload-btn {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+  background: linear-gradient(135deg, #d4af37, #c9a94e) !important;
+  color: #fff !important;
 }
 .cloudinary-upload-btn:hover {
-  background: linear-gradient(135deg, #c9a94e, #d4a017) !important;
+  background: linear-gradient(135deg, #c9a94e, #b8942e) !important;
 }
 .admin-edit-btn {
-  background: #8B7355 !important;
+  background: #c9a94e !important;
+  color: #fff !important;
 }
 .admin-edit-btn:hover {
-  background: #6b5b3e !important;
+  background: #b8942e !important;
 }
 .admin-edit-save-btn,
 .pr-save-btn {
-  background: #b89047 !important;
+  background: #d4af37 !important;
+  color: #fff !important;
 }
 .admin-edit-save-btn:hover,
 .pr-save-btn:hover {
-  background: #a07830 !important;
+  background: #c49a2e !important;
 }
 .admin-delete-btn {
   background: #c0392b !important;
+  color: #fff !important;
 }
 .admin-delete-btn:hover {
   background: #a93226 !important;
 }
 .admin-offer-toggle.active {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+  background: linear-gradient(135deg, #d4af37, #c9a94e) !important;
   color: #fff !important;
 }
 .admin-offer-save-btn {
-  background: #b89047 !important;
-  color: white !important;
+  background: #d4af37 !important;
+  color: #fff !important;
 }
 .admin-offer-add-btn {
-  background: linear-gradient(135deg, #b89047, #8B7355) !important;
+  background: linear-gradient(135deg, #d4af37, #c9a94e) !important;
+  color: #fff !important;
 }
 .admin-offer-add-btn:hover {
-  background: linear-gradient(135deg, #c9a94e, #b89047) !important;
+  background: linear-gradient(135deg, #c9a94e, #b8942e) !important;
 }
 .admin-offer-remove-btn {
   background: linear-gradient(135deg, #c0392b, #a93226) !important;
+  color: #fff !important;
 }
 .staff-role-admin {
-  background: #5c4030 !important;
+  background: #d4af37 !important;
+  color: #fff !important;
 }
 .staff-actions .admin-delete-btn {
   background: #c0392b !important;
+  color: #fff !important;
 }
 .staff-actions .admin-delete-btn:hover {
   background: #a93226 !important;
 }
 .order-status-select option {
-  background: #3d2817 !important;
-}
-
-/* --- Chat --- */
-.admin-chat-tab.active {
-  color: #d4a017 !important;
-  border-bottom-color: #d4a017 !important;
-}
-.admin-chat-thread-item.active {
-  background: rgba(201, 169, 78, 0.12) !important;
-  border-right-color: #d4a017 !important;
-}
-.admin-chat-thread-item.unread {
-  background: rgba(201, 169, 78, 0.06) !important;
-}
-.admin-bubble.admin {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
-  color: #2a1a0a !important;
-}
-.admin-chat-main-header {
-  border-bottom-color: rgba(210, 180, 140, 0.12) !important;
-}
-.admin-chat-main-title {
-  color: #f5e6d3 !important;
-}
-.admin-chat-thread-name {
-  color: #f5e6d3 !important;
-}
-.admin-chat-tab {
-  color: #a09080 !important;
-}
-.admin-chat-tab:hover {
-  color: #c9a94e !important;
-}
-.admin-chat-threads-header {
-  border-bottom-color: rgba(210, 180, 140, 0.12) !important;
-}
-.admin-chat-thread-item {
-  border-bottom-color: rgba(210, 180, 140, 0.06) !important;
-}
-.admin-chat-thread-item:hover {
-  background: rgba(210, 180, 140, 0.06) !important;
-}
-.admin-chat-search {
-  background: rgba(0, 0, 0, 0.35) !important;
-  border-color: rgba(210, 180, 140, 0.12) !important;
-}
-.admin-chat-input {
-  background: rgba(0, 0, 0, 0.35) !important;
-  border-color: rgba(210, 180, 140, 0.12) !important;
-}
-.admin-chat-input-area {
-  border-top-color: rgba(210, 180, 140, 0.12) !important;
+  background: #f5efe6 !important;
+  color: #2d2a24 !important;
 }
 
 /* --- Inputs --- */
+.admin-product-form-input,
+.admin-edit-input,
+.admin-product-field,
+.admin-input-half,
+.admin-chat-search,
+.admin-chat-input,
+.admin-offer-input,
+.admin-offers-search,
+.admin-offers-select {
+  background: #faf6ef !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  color: #2d2a24 !important;
+}
+.admin-product-form-input::placeholder,
+.admin-chat-input::placeholder,
+.admin-chat-search::placeholder {
+  color: #a09880 !important;
+}
 .admin-product-form-input:focus,
 .admin-edit-input:focus,
 .admin-product-field:focus,
 .admin-input-half:focus {
-  border-color: #d4a017 !important;
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15) !important;
 }
 
-/* --- Section Title Accents --- */
-[class*="admin"] .admin-section-title.offers-title::before { background: #c9a94e !important; }
-[class*="admin"] .admin-section-title.orders-title::before { background: #b89047 !important; }
+/* --- Chat --- */
+.admin-chat-tab {
+  color: #8a857d !important;
+}
+.admin-chat-tab.active {
+  color: #b8942e !important;
+  border-bottom-color: #d4af37 !important;
+}
+.admin-chat-tab:hover {
+  color: #c9a94e !important;
+}
+.admin-chat-thread-item {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.1) !important;
+}
+.admin-chat-thread-item:hover {
+  background: rgba(212, 175, 55, 0.05) !important;
+}
+.admin-chat-thread-item.active {
+  background: rgba(212, 175, 55, 0.1) !important;
+  border-right: 3px solid #d4af37 !important;
+}
+.admin-chat-thread-item.unread {
+  background: rgba(212, 175, 55, 0.04) !important;
+}
+.admin-chat-thread-name {
+  color: #2d2a24 !important;
+}
+.admin-chat-thread-time {
+  color: #8a857d !important;
+}
+.admin-chat-thread-preview {
+  color: #5c574f !important;
+}
+.admin-chat-unread-badge {
+  background: #c0392b !important;
+  color: #fff !important;
+}
+.admin-chat-main-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+.admin-chat-main-title {
+  color: #2d2a24 !important;
+}
+.admin-chat-main-sub {
+  color: #5c574f !important;
+}
+.admin-chat-close-btn {
+  color: #8a857d !important;
+}
+.admin-chat-threads-header {
+  border-bottom: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+.admin-chat-placeholder {
+  color: #8a857d !important;
+}
+.admin-bubble.admin {
+  background: linear-gradient(135deg, #d4af37, #c9a94e) !important;
+  color: #fff !important;
+}
+.admin-bubble.customer {
+  background: #f0ebe2 !important;
+  color: #2d2a24 !important;
+}
+.admin-bubble-sender {
+  color: inherit !important;
+  opacity: 0.75 !important;
+}
+.admin-bubble-time {
+  color: inherit !important;
+  opacity: 0.65 !important;
+}
+.admin-bubble-read {
+  color: #2d2a24 !important;
+}
+.admin-bubble-sent {
+  color: rgba(255,255,255,0.65) !important;
+}
+.admin-chat-input-area {
+  border-top: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+.admin-chat-empty {
+  color: #8a857d !important;
+}
+.admin-chat-empty-msg {
+  color: #8a857d !important;
+}
 
 /* --- Stats --- */
 .admin-stat-card strong {
-  color: #d4a017 !important;
+  color: #b8942e !important;
+}
+.admin-stat-card span {
+  color: #8a857d !important;
 }
 .order-total-text {
-  color: #d4a017 !important;
+  color: #d4af37 !important;
 }
 
-/* --- Order badge on AccountTab --- */
-.acc-card {
-  border: 1px solid rgba(210, 180, 140, 0.15) !important;
+/* --- Products --- */
+.admin-product-card {
+  background: #ffffff !important;
+  border: 1.5px solid #d4af37 !important;
+}
+.admin-product-img {
+  background: #f5efe6 !important;
+}
+.products-title {
+  color: #2d2a24 !important;
+}
+.admin-product-row.editing {
+  background: rgba(212, 175, 55, 0.06) !important;
+}
+.pr-name { color: #2d2a24 !important; }
+.pr-cat {
+  color: #5c574f !important;
+  background: rgba(212, 175, 55, 0.08) !important;
+}
+.pr-price { color: #b8942e !important; }
+.pr-stock { color: #5c574f !important; }
+.pr-unit { color: #8a857d !important; }
+.pr-edit-btn {
+  color: #8a857d !important;
+  border-color: rgba(212, 175, 55, 0.2) !important;
+}
+.pr-edit-btn:hover {
+  background: rgba(212, 175, 55, 0.1) !important;
+  border-color: #d4af37 !important;
+}
+.pr-delete-btn {
+  color: #8a857d !important;
+  border-color: rgba(212, 175, 55, 0.2) !important;
+}
+.pr-delete-btn:hover {
+  background: rgba(192, 57, 43, 0.1) !important;
+  border-color: #c0392b !important;
+  color: #c0392b !important;
+}
+.admin-product-form-input {
+  background: #faf6ef !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  color: #2d2a24 !important;
+}
+.admin-product-form-input::placeholder {
+  color: #8a857d !important;
+}
+
+/* --- Section Title Accents --- */
+[class*="admin"] .admin-section-title::before {
+  width: 4px;
+  height: 1.1em;
+  border-radius: 2px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.5rem;
+}
+[class*="admin"] .admin-section-title.offers-title::before { background: #d4af37 !important; }
+[class*="admin"] .admin-section-title.orders-title::before { background: #c9a94e !important; }
+[class*="admin"] .admin-section-title.products-title::before { background: #b8942e !important; }
+[class*="admin"] .admin-section-title.chat-title::before { background: #c9a94e !important; }
+[class*="admin"] .admin-section-title.staff-title::before { background: #b8942e !important; }
+
+/* --- Offers --- */
+.admin-offers-add-section {
+  background: rgba(212, 175, 55, 0.06) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+}
+.admin-offers-add-title {
+  color: #b8942e !important;
+}
+.admin-offer-name {
+  color: #2d2a24 !important;
+}
+.admin-offer-price {
+  color: #5c574f !important;
+}
+.admin-offer-checkbox {
+  color: #5c574f !important;
+}
+.admin-offer-price-input {
+  color: #5c574f !important;
+}
+.admin-offer-category {
+  color: #8a857d !important;
+}
+.admin-offer-toggle {
+  background: rgba(212, 175, 55, 0.1) !important;
+  color: #8a857d !important;
+  border: none !important;
+}
+.admin-offer-toggle:hover {
+  background: rgba(212, 175, 55, 0.2) !important;
+}
+.admin-offers-list-title {
+  color: #b8942e !important;
+}
+.admin-offers-empty {
+  color: #8a857d !important;
+}
+
+/* --- Staff --- */
+.admin-section-desc {
+  color: #8a857d !important;
+}
+
+/* --- General text overrides --- */
+.admin-layout .order-card .admin-card-header strong {
+  color: #2d2a24 !important;
+}
+.admin-layout .order-card small {
+  color: #5c574f !important;
 }
