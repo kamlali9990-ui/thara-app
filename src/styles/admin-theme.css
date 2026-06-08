@@ -2,7 +2,7 @@
 
 /* --- Layout --- */
 .admin-layout {
-  background: #f5efe6 !important;
+  background: #faf5eb !important;
   color: #2d2a24 !important;
 }
 .admin-layout h1, .admin-layout h2, .admin-layout h3,
@@ -170,7 +170,7 @@
   background: #a93226 !important;
 }
 .order-status-select option {
-  background: #f5efe6 !important;
+  background: #faf5eb !important;
   color: #2d2a24 !important;
 }
 
@@ -305,7 +305,7 @@
   border: 1.5px solid #d4af37 !important;
 }
 .admin-product-img {
-  background: #f5efe6 !important;
+  background: #faf5eb !important;
 }
 .products-title {
   color: #2d2a24 !important;
