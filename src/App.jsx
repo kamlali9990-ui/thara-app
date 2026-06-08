@@ -16,7 +16,9 @@ import CategoriesTab from './components/CategoriesTab';
 import OrdersTab from './components/OrdersTab';
 import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
+import ThemeToggle from './components/ThemeToggle';
 import { BASE } from './utils/constants';
+import { useTheme } from './utils/theme';
 
 L.Icon.Default.imagePath = BASE + 'leaflet-images/';
 
@@ -34,18 +36,11 @@ export default function App() {
   const [slideDir, setSlideDir] = useState('left');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
-  const [theme, setTheme] = useState(() => { try { return localStorage.getItem('theme') || 'light'; } catch { return 'light'; } });
+  const { theme, setTheme } = useTheme();
   const [showAllView, setShowAllView] = useState(null);
   const [preselectedCat, setPreselectedCat] = useState(null);
   const [prevTab, setPrevTab] = useState('home');
   const [tabKey, setTabKey] = useState(0);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c1220' : '#127443');
-  }, [theme]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -62,7 +57,7 @@ export default function App() {
 
   const toggleTheme = useCallback(() => {
     setTheme(t => t === 'light' ? 'dark' : 'light');
-  }, []);
+  }, [setTheme]);
 
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2500); return () => clearTimeout(t); }, []);
 
@@ -218,6 +213,7 @@ export default function App() {
         onClose={() => setIsNotifOpen(false)}
         orders={orders} onTabChange={switchTab} />}
 
+      <ThemeToggle currentTheme={theme} onThemeChange={setTheme} />
       <SupportChatWidget />
     </div>
   );

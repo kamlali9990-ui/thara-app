@@ -3,6 +3,8 @@ import { useNavigate, Link } from 'react-router-dom';
 import { StoreContext } from './context/StoreContext';
 import { supabase } from './supabase/client';
 import { showToast } from './components/Toast.jsx';
+import ThemeToggle from './components/ThemeToggle';
+import { useTheme } from './utils/theme';
 
 
 const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
@@ -79,6 +81,7 @@ export default function Admin() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [passwordChangeWithVerify, setPasswordChangeWithVerify] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -329,7 +332,8 @@ export default function Admin() {
         ))}
         <div className="admin-sidebar-footer">
           <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
-          <br/><br/>
+          <ThemeToggle currentTheme={theme} onThemeChange={setTheme} inline />
+          <br/>
           <button onClick={handleLogout} className="admin-tab" style={{ color: 'rgba(255,255,255,0.7)' }}>تسجيل الخروج</button>
         </div>
       </aside>

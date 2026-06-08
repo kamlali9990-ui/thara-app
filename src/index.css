@@ -91,3 +91,107 @@ h1, h2, h3 { color: var(--text-main); font-weight: 800; letter-spacing: -0.012em
 [data-theme="dark"] .maintenance-page h1 { color: #ef4444; }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1.15rem; }
+
+/* --- Theme Toggle --- */
+.theme-toggle-root { direction: rtl; }
+.theme-toggle-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: none;
+  background: var(--blur-bg); backdrop-filter: blur(12px);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-main); transition: transform 0.2s, box-shadow 0.2s;
+}
+.theme-toggle-btn:hover { transform: scale(1.08); box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.theme-toggle-btn:active { transform: scale(0.92); }
+.theme-menu {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 0.5rem; min-width: 150px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.theme-option {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.6rem 0.75rem; border-radius: 10px; cursor: pointer;
+  font-size: 0.9rem; color: var(--text-main); transition: background 0.15s;
+}
+.theme-option:hover { background: rgba(0,0,0,0.04); }
+[data-theme="dark"] .theme-option:hover,
+[data-theme="midnight"] .theme-option:hover { background: rgba(255,255,255,0.06); }
+.theme-option.active { background: rgba(18,116,67,0.08); font-weight: 700; }
+[data-theme="dark"] .theme-option.active,
+[data-theme="midnight"] .theme-option.active { background: rgba(255,255,255,0.08); }
+.theme-dot {
+  width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.1); display: inline-block;
+}
+.theme-check { margin-right: auto; font-size: 0.85rem; color: var(--primary); }
+[data-theme="dark"] .theme-check,
+[data-theme="midnight"] .theme-check { color: #fbbf24; }
+
+/* --- Data Theme Color Overrides for Store --- */
+[data-theme="pearl-white"] {
+  --bg-color: #f0eae1;
+  --bg-card: rgba(240, 234, 225, 0.85);
+  --surface: #f5f1ea;
+  --surface-2: #efe9df;
+  --text-main: #2e251e;
+  --text-light: #584e44;
+  --text-secondary: #584e44;
+  --border: rgba(201, 176, 151, 0.3);
+  --border-subtle: rgba(201, 176, 151, 0.15);
+  --blur-bg: rgba(240, 234, 225, 0.8);
+  --blur-header: rgba(201, 176, 151, 0.92);
+}
+[data-theme="pearl-white"] .theme-toggle-btn { background: rgba(240, 234, 225, 0.85); color: #2e251e; }
+
+[data-theme="emerald"] {
+  --primary: #059669;
+  --primary-dark: #047857;
+  --bg-color: #ecfdf5;
+  --bg-card: #ffffff;
+  --surface: #f0fdf4;
+  --surface-2: #dcfce7;
+  --text-main: #052e16;
+  --text-light: #166534;
+  --text-secondary: #14532d;
+  --border: rgba(5, 150, 105, 0.15);
+  --border-subtle: rgba(5, 150, 105, 0.08);
+  --blur-header: rgba(5, 150, 105, 0.92);
+}
+[data-theme="emerald"] .theme-option.active { background: rgba(5, 150, 105, 0.08); }
+[data-theme="emerald"] .theme-check { color: #059669; }
+
+[data-theme="midnight"] {
+  --primary: #818cf8;
+  --primary-dark: #6366f1;
+  --secondary: #fbbf24;
+  --accent: #f59e0b;
+  --bg-color: #020617;
+  --bg-card: rgba(15, 23, 42, 0.92);
+  --surface: rgba(30, 41, 59, 0.8);
+  --surface-2: rgba(30, 41, 59, 0.5);
+  --text-main: #f5e6c8;
+  --text-light: #c9b08a;
+  --text-secondary: #a89880;
+  --border: rgba(212, 168, 83, 0.18);
+  --border-subtle: rgba(212, 168, 83, 0.1);
+  --shadow: 0 1px 8px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 34px rgba(0,0,0,0.4);
+  --blur-bg: rgba(15, 23, 42, 0.8);
+  --blur-header: rgba(2, 6, 23, 0.94);
+}
+[data-theme="midnight"] .theme-toggle-btn { background: rgba(30, 41, 59, 0.85); color: #f5e6c8; }
+[data-theme="midnight"] body { background-color: #020617; color: #f5e6c8; }
+
+[data-theme="dark"] {
+  --bg-color: #0f172a;
+  --bg-card: rgba(30, 41, 59, 0.92);
+  --surface: rgba(30, 41, 59, 0.8);
+  --text-main: #f1f5f9;
+  --text-light: #94a3b8;
+  --text-secondary: #94a3b8;
+  --border: rgba(255,255,255,0.08);
+  --blur-bg: rgba(15, 23, 42, 0.8);
+  --blur-header: rgba(15, 23, 42, 0.94);
+}
+[data-theme="dark"] body { background-color: #0f172a; color: #f1f5f9; }

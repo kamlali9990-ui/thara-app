@@ -1,181 +1,303 @@
-/* ===================== Admin Theme: Beige Gradient ===================== */
+/* ===================== Admin Theme ===================== */
+/* All colors via CSS variables — theme overrides below     */
 
-/* --- Layout --- */
+/* --- Default Admin Variables (Pearl-White) --- */
+:root {
+  --admin-bg:
+    radial-gradient(ellipse 80% 50% at 95% 5%, rgba(212,168,83,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 8% 45%, rgba(201,150,60,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 40% at 50% 95%, rgba(232,196,104,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 80% at 70% 60%, rgba(212,168,83,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 75% 55% at 100% 0%, rgba(230,215,200,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(210,195,180,0.4) 0%, transparent 50%),
+    linear-gradient(180deg, #f0eae1 0%, #ece0c9 40%, #e8d8b8 70%, #e3d3b5 100%);
+  --admin-surface: rgba(240, 234, 225, 0.8);
+  --admin-border: rgba(201, 176, 151, 0.3);
+  --admin-border-subtle: rgba(201, 176, 151, 0.15);
+  --admin-shadow: 0 8px 32px rgba(201, 176, 151, 0.08);
+  --admin-text: #2e251e;
+  --admin-text-soft: #584e44;
+  --admin-text-muted: #786e64;
+  --admin-accent: #c9b097;
+  --admin-accent-hover: #baa084;
+  --admin-accent-text: #2e251e;
+  --admin-accent-gradient: linear-gradient(135deg, #c9b097, #b89d80);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #b89d80, #a68a6e);
+  --admin-secondary: #b89d80;
+  --admin-sidebar: rgba(238, 232, 222, 0.95);
+  --admin-danger: #c0392b;
+  --admin-danger-hover: #a93226;
+  --admin-gold: #8B7355;
+  --admin-gold-light: rgba(212, 168, 83, 0.08);
+  --admin-input-bg: rgba(247, 244, 235, 0.9);
+  --admin-input-border: rgba(201, 176, 151, 0.35);
+  --admin-input-focus-bg: #fdfcf9;
+  --admin-input-focus-shadow: rgba(201, 176, 151, 0.2);
+  --admin-bg-solid: #f0eae1;
+  --admin-highlight-bg: rgba(201, 176, 151, 0.15);
+  --admin-product-card-bg: rgba(247, 244, 235, 0.75);
+}
+
+/* --- Emerald Admin --- */
+[data-theme="emerald"] {
+  --admin-bg:
+    radial-gradient(ellipse 80% 50% at 95% 5%, rgba(16,185,129,0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 8% 45%, rgba(5,150,105,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 40% at 50% 95%, rgba(52,211,153,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 75% 55% at 100% 0%, rgba(167,243,208,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(187,247,208,0.3) 0%, transparent 50%),
+    linear-gradient(180deg, #ecfdf5 0%, #d1fae5 40%, #a7f3d0 70%, #6ee7b7 100%);
+  --admin-surface: rgba(236, 253, 245, 0.8);
+  --admin-border: rgba(5, 150, 105, 0.2);
+  --admin-border-subtle: rgba(5, 150, 105, 0.1);
+  --admin-shadow: 0 8px 32px rgba(5, 150, 105, 0.08);
+  --admin-text: #052e16;
+  --admin-text-soft: #166534;
+  --admin-text-muted: #14532d;
+  --admin-accent: #059669;
+  --admin-accent-hover: #047857;
+  --admin-accent-text: #ffffff;
+  --admin-accent-gradient: linear-gradient(135deg, #059669, #047857);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #047857, #065f46);
+  --admin-secondary: #10b981;
+  --admin-sidebar: rgba(236, 253, 245, 0.95);
+  --admin-gold: #059669;
+  --admin-gold-light: rgba(5, 150, 105, 0.06);
+  --admin-input-bg: rgba(255, 255, 255, 0.9);
+  --admin-input-border: rgba(5, 150, 105, 0.25);
+  --admin-input-focus-bg: #ffffff;
+  --admin-input-focus-shadow: rgba(5, 150, 105, 0.15);
+  --admin-bg-solid: #ecfdf5;
+  --admin-highlight-bg: rgba(5, 150, 105, 0.08);
+  --admin-product-card-bg: rgba(255, 255, 255, 0.75);
+}
+
+/* --- Midnight Admin --- */
+[data-theme="midnight"] {
+  --admin-bg:
+    radial-gradient(ellipse 80% 55% at 100% 0%, rgba(212, 168, 83, 0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(201, 150, 60, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(99, 102, 241, 0.10) 0%, transparent 60%),
+    linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  --admin-surface: rgba(30, 41, 59, 0.6);
+  --admin-border: rgba(212, 168, 83, 0.18);
+  --admin-border-subtle: rgba(212, 168, 83, 0.08);
+  --admin-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --admin-text: #f5e6c8;
+  --admin-text-soft: #c9b08a;
+  --admin-text-muted: #a89880;
+  --admin-accent: #fbbf24;
+  --admin-accent-hover: #f59e0b;
+  --admin-accent-text: #451a03;
+  --admin-accent-gradient: linear-gradient(135deg, #fbbf24, #f59e0b);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+  --admin-secondary: #818cf8;
+  --admin-sidebar: rgba(2, 6, 23, 0.88);
+  --admin-danger: #ef4444;
+  --admin-danger-hover: #dc2626;
+  --admin-gold: #fbbf24;
+  --admin-gold-light: rgba(212, 168, 83, 0.08);
+  --admin-input-bg: rgba(30, 41, 59, 0.8);
+  --admin-input-border: rgba(212, 168, 83, 0.2);
+  --admin-input-focus-bg: rgba(30, 41, 59, 0.95);
+  --admin-input-focus-shadow: rgba(251, 191, 36, 0.15);
+  --admin-bg-solid: #0f172a;
+  --admin-highlight-bg: rgba(212, 168, 83, 0.1);
+  --admin-product-card-bg: rgba(30, 41, 59, 0.6);
+}
+[data-theme="midnight"] .admin-mobile-header { background: #0f172a !important; }
+[data-theme="midnight"] .admin-mobile-header h2 { color: #fbbf24 !important; }
+[data-theme="midnight"] .admin-mobile-header a,
+[data-theme="midnight"] .admin-mobile-header button { color: #c9b08a !important; }
+[data-theme="midnight"] .admin-sidebar-title { color: #fbbf24 !important; }
+
+/* --- Dark Admin (backward compat) --- */
+[data-theme="dark"] {
+  --admin-bg: #0f172a;
+  --admin-surface: rgba(30, 41, 59, 0.7);
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-border-subtle: rgba(255, 255, 255, 0.04);
+  --admin-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --admin-text: #f1f5f9;
+  --admin-text-soft: #94a3b8;
+  --admin-text-muted: #64748b;
+  --admin-accent: #6366f1;
+  --admin-accent-hover: #4f46e5;
+  --admin-accent-text: #ffffff;
+  --admin-accent-gradient: linear-gradient(135deg, #6366f1, #4f46e5);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #4f46e5, #4338ca);
+  --admin-secondary: #818cf8;
+  --admin-sidebar: rgba(15, 23, 42, 0.9);
+  --admin-danger: #ef4444;
+  --admin-danger-hover: #dc2626;
+  --admin-gold: #94a3b8;
+  --admin-gold-light: rgba(255, 255, 255, 0.03);
+  --admin-input-bg: rgba(30, 41, 59, 0.8);
+  --admin-input-border: rgba(255, 255, 255, 0.1);
+  --admin-input-focus-bg: rgba(30, 41, 59, 0.95);
+  --admin-input-focus-shadow: rgba(99, 102, 241, 0.15);
+  --admin-bg-solid: #0f172a;
+  --admin-highlight-bg: rgba(255, 255, 255, 0.05);
+  --admin-product-card-bg: rgba(30, 41, 59, 0.6);
+}
+
+/* =============================================================== */
+/* ===== LAYOUT ===== */
+/* =============================================================== */
 .admin-layout {
-  background: linear-gradient(160deg, #e6dcd0 0%, #f5efe6 100%) !important;
-  color: #3a3228 !important;
+  background: var(--admin-bg) !important;
+  color: var(--admin-text) !important;
 }
 .admin-layout h1, .admin-layout h2, .admin-layout h3,
 .admin-layout h4, .admin-layout h5, .admin-layout h6 {
-  color: #3a3228 !important;
+  color: var(--admin-text) !important;
 }
-.admin-layout strong {
-  color: #3a3228 !important;
-}
-.admin-layout label {
-  color: #6b5b4a !important;
-}
-.admin-layout p {
-  color: #5c4f3e !important;
-}
-.admin-layout .admin-section-title {
-  color: #3a3228 !important;
-}
+.admin-layout strong { color: var(--admin-text) !important; }
+.admin-layout label { color: var(--admin-text-soft) !important; }
+.admin-layout p { color: var(--admin-text-soft) !important; }
+.admin-layout .admin-section-title { color: var(--admin-text) !important; }
 
 /* --- Sidebar --- */
 .admin-sidebar {
-  background: linear-gradient(180deg, #7a6b5a 0%, #5c4f3e 100%) !important;
+  background: var(--admin-sidebar) !important;
+  backdrop-filter: blur(20px) !important;
+  border-left: 1px solid var(--admin-border) !important;
 }
 .admin-layout .admin-sidebar-title {
-  color: #faf5eb !important;
+  color: var(--admin-text) !important;
 }
 .admin-sidebar-link {
-  color: #faf5eb !important;
+  color: var(--admin-text-soft) !important;
 }
 
 /* --- Mobile Nav --- */
 .admin-mobile-nav {
-  background: rgba(245, 239, 230, 0.97) !important;
-  border-top: 1px solid #d4c5a9 !important;
+  background: var(--admin-sidebar) !important;
+  border-top: 1px solid var(--admin-border) !important;
 }
 .admin-mobile-header {
-  background: linear-gradient(135deg, #7a6b5a, #5c4f3e) !important;
+  background: var(--admin-accent-gradient) !important;
 }
-.admin-mobile-header h2 {
-  color: #faf5eb !important;
-}
+.admin-mobile-header h2 { color: var(--admin-accent-text) !important; }
 .admin-mobile-header a,
-.admin-mobile-header button {
-  color: #faf5eb !important;
-}
-.admin-mobile-tab {
-  color: #6b5b4a !important;
-}
+.admin-mobile-header button { color: var(--admin-accent-text) !important; }
+.admin-mobile-tab { color: var(--admin-text-soft) !important; }
 .admin-mobile-tab.active {
-  background: rgba(201, 169, 78, 0.2) !important;
-  color: #b89047 !important;
+  background: var(--admin-highlight-bg) !important;
+  color: var(--admin-accent) !important;
 }
 
 /* --- Tabs --- */
 .admin-tab,
 .admin-product-form-submit {
-  background: rgba(255, 255, 255, 0.45) !important;
-  color: #3a3228 !important;
+  background: rgba(255, 255, 255, 0.4) !important;
+  color: var(--admin-text) !important;
   border: 1px solid transparent !important;
 }
 .admin-tab:hover,
 .admin-product-form-submit:hover {
   background: rgba(255, 255, 255, 0.7) !important;
-  border-color: #d4c5a9 !important;
+  border-color: var(--admin-border) !important;
 }
 .admin-tab.active {
-  background: rgba(201, 169, 78, 0.18) !important;
-  color: #b89047 !important;
+  background: var(--admin-highlight-bg) !important;
+  color: var(--admin-accent) !important;
   font-weight: 700 !important;
-  border-color: rgba(201, 169, 78, 0.3) !important;
+  border-color: var(--admin-border) !important;
 }
 
 /* --- Cards & Containers --- */
 .admin-card,
 .admin-stat-card,
-.admin-product-card,
 .admin-product-form-container,
 .admin-offers-list,
 .admin-chat-threads,
 .admin-chat-main,
 .admin-offer-row,
 .admin-chat-body {
-  background: rgba(255, 255, 255, 0.55) !important;
-  border: 1px solid #d4c5a9 !important;
-  box-shadow: 0 2px 12px rgba(90, 75, 55, 0.08) !important;
-  backdrop-filter: blur(6px) !important;
+  background: var(--admin-surface) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid var(--admin-border) !important;
+  box-shadow: var(--admin-shadow) !important;
 }
 .admin-card-header {
-  border-bottom: 1px solid rgba(212, 197, 169, 0.5) !important;
+  border-bottom: 1px solid var(--admin-border) !important;
 }
 .admin-card-info {
-  background: rgba(212, 197, 169, 0.2) !important;
-  color: #5c4f3e !important;
+  background: var(--admin-highlight-bg) !important;
+  color: var(--admin-text-soft) !important;
 }
 .admin-section-divider {
-  background: rgba(212, 197, 169, 0.4) !important;
+  background: var(--admin-border) !important;
 }
 .admin-offer-row.is-offer {
-  background: rgba(201, 169, 78, 0.08) !important;
-  border-right: 3px solid #c9a94e !important;
+  background: var(--admin-gold-light) !important;
+  border-right: 3px solid var(--admin-accent) !important;
 }
 
 /* --- Buttons --- */
 .admin-product-add-btn {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
-  color: #fff !important;
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
 }
 .admin-product-add-btn:hover {
-  background: linear-gradient(135deg, #c9a94e, #d4af37) !important;
+  background: var(--admin-accent-hover-gradient) !important;
 }
 .cloudinary-upload-btn {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
-  color: #fff !important;
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
 }
 .cloudinary-upload-btn:hover {
-  background: linear-gradient(135deg, #c9a94e, #d4af37) !important;
+  background: var(--admin-accent-hover-gradient) !important;
 }
 .admin-edit-btn {
-  background: #8B7355 !important;
-  color: #fff !important;
+  background: var(--admin-accent) !important;
+  color: var(--admin-accent-text) !important;
 }
-.admin-edit-btn:hover {
-  background: #6b5b4a !important;
-}
+.admin-edit-btn:hover { background: var(--admin-accent-hover) !important; }
 .admin-edit-save-btn,
 .pr-save-btn {
-  background: #b89047 !important;
-  color: #fff !important;
+  background: var(--admin-accent) !important;
+  color: var(--admin-accent-text) !important;
 }
 .admin-edit-save-btn:hover,
-.pr-save-btn:hover {
-  background: #c49a2e !important;
-}
+.pr-save-btn:hover { background: var(--admin-accent-hover) !important; }
 .admin-delete-btn {
-  background: #b03a2e !important;
+  background: var(--admin-danger) !important;
   color: #fff !important;
 }
-.admin-delete-btn:hover {
-  background: #8c2d23 !important;
-}
+.admin-delete-btn:hover { background: var(--admin-danger-hover) !important; }
 .admin-offer-toggle.active {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
-  color: #fff !important;
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
 }
 .admin-offer-save-btn {
-  background: #b89047 !important;
-  color: #fff !important;
+  background: var(--admin-accent) !important;
+  color: var(--admin-accent-text) !important;
 }
 .admin-offer-add-btn {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
-  color: #fff !important;
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
 }
 .admin-offer-add-btn:hover {
-  background: linear-gradient(135deg, #c9a94e, #d4af37) !important;
+  background: var(--admin-accent-hover-gradient) !important;
 }
 .admin-offer-remove-btn {
-  background: linear-gradient(135deg, #b03a2e, #8c2d23) !important;
+  background: linear-gradient(135deg, var(--admin-danger), var(--admin-danger-hover)) !important;
   color: #fff !important;
 }
 .staff-role-admin {
-  background: #7a6b5a !important;
-  color: #fff !important;
+  background: var(--admin-accent) !important;
+  color: var(--admin-accent-text) !important;
 }
 .staff-actions .admin-delete-btn {
-  background: #b03a2e !important;
+  background: var(--admin-danger) !important;
   color: #fff !important;
 }
-.staff-actions .admin-delete-btn:hover {
-  background: #8c2d23 !important;
-}
+.staff-actions .admin-delete-btn:hover { background: var(--admin-danger-hover) !important; }
 .order-status-select option {
-  background: #f5efe6 !important;
-  color: #3a3228 !important;
+  background: var(--admin-input-bg) !important;
+  color: var(--admin-text) !important;
 }
 
 /* --- Inputs --- */
@@ -188,173 +310,139 @@
 .admin-offer-input,
 .admin-offers-search,
 .admin-offers-select {
-  background: rgba(255, 255, 255, 0.7) !important;
-  border: 1px solid #d4c5a9 !important;
-  color: #3a3228 !important;
+  background: var(--admin-input-bg) !important;
+  border: 1px solid var(--admin-input-border) !important;
+  color: var(--admin-text) !important;
 }
 .admin-product-form-input::placeholder,
 .admin-chat-input::placeholder,
-.admin-chat-search::placeholder {
-  color: #b0a090 !important;
-}
+.admin-chat-search::placeholder { color: var(--admin-text-muted) !important; }
 .admin-product-form-input:focus,
 .admin-edit-input:focus,
 .admin-product-field:focus,
 .admin-input-half:focus {
-  border-color: #c9a94e !important;
-  box-shadow: 0 0 0 3px rgba(201, 169, 78, 0.12) !important;
-}
-
-/* --- Chat --- */
-.admin-chat-tab {
-  color: #8a7d6e !important;
-}
-.admin-chat-tab.active {
-  color: #b89047 !important;
-  border-bottom-color: #c9a94e !important;
-}
-.admin-chat-tab:hover {
-  color: #c9a94e !important;
-}
-.admin-chat-thread-item {
-  border-bottom: 1px solid rgba(212, 197, 169, 0.25) !important;
-}
-.admin-chat-thread-item:hover {
-  background: rgba(255, 255, 255, 0.3) !important;
-}
-.admin-chat-thread-item.active {
-  background: rgba(201, 169, 78, 0.12) !important;
-  border-right: 3px solid #c9a94e !important;
-}
-.admin-chat-thread-item.unread {
-  background: rgba(201, 169, 78, 0.06) !important;
-}
-.admin-chat-thread-name {
-  color: #3a3228 !important;
-}
-.admin-chat-thread-time {
-  color: #8a7d6e !important;
-}
-.admin-chat-thread-preview {
-  color: #6b5b4a !important;
-}
-.admin-chat-unread-badge {
-  background: #b03a2e !important;
-  color: #fff !important;
-}
-.admin-chat-main-header {
-  border-bottom: 1px solid rgba(212, 197, 169, 0.4) !important;
-}
-.admin-chat-main-title {
-  color: #3a3228 !important;
-}
-.admin-chat-main-sub {
-  color: #6b5b4a !important;
-}
-.admin-chat-close-btn {
-  color: #8a7d6e !important;
-}
-.admin-chat-threads-header {
-  border-bottom: 1px solid rgba(212, 197, 169, 0.4) !important;
-}
-.admin-chat-placeholder {
-  color: #8a7d6e !important;
-}
-.admin-bubble.admin {
-  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
-  color: #fff !important;
-}
-.admin-bubble.customer {
-  background: rgba(255, 255, 255, 0.7) !important;
-  border: 1px solid #d4c5a9 !important;
-  color: #3a3228 !important;
-}
-.admin-bubble-sender {
-  color: inherit !important;
-  opacity: 0.75 !important;
-}
-.admin-bubble-time {
-  color: inherit !important;
-  opacity: 0.65 !important;
-}
-.admin-bubble-read {
-  color: #3a3228 !important;
-}
-.admin-bubble-sent {
-  color: rgba(255,255,255,0.65) !important;
-}
-.admin-chat-input-area {
-  border-top: 1px solid rgba(212, 197, 169, 0.4) !important;
-}
-.admin-chat-empty {
-  color: #8a7d6e !important;
-}
-.admin-chat-empty-msg {
-  color: #8a7d6e !important;
-}
-
-/* --- Stats --- */
-.admin-stat-card strong {
-  color: #b89047 !important;
-}
-.admin-stat-card span {
-  color: #8a7d6e !important;
-}
-.order-total-text {
-  color: #b89047 !important;
+  border-color: var(--admin-accent) !important;
+  box-shadow: 0 0 0 3px var(--admin-input-focus-shadow) !important;
+  background: var(--admin-input-focus-bg) !important;
 }
 
 /* --- Products --- */
 .admin-product-card {
-  background: rgba(255, 255, 255, 0.55) !important;
-  border: 1px solid #d4c5a9 !important;
+  background: var(--admin-product-card-bg) !important;
+  border: 1px solid var(--admin-border) !important;
 }
-.admin-product-img {
-  background: #f0e8dc !important;
-}
-.products-title {
-  color: #3a3228 !important;
-}
-.admin-product-row.editing {
-  background: rgba(201, 169, 78, 0.08) !important;
-}
-.pr-name { color: #3a3228 !important; }
+.admin-product-img { background: var(--admin-bg-solid) !important; }
+.products-title { color: var(--admin-text) !important; }
+.admin-product-row.editing { background: var(--admin-gold-light) !important; }
+.pr-name { color: var(--admin-text) !important; }
 .pr-cat {
-  color: #6b5b4a !important;
-  background: rgba(212, 197, 169, 0.2) !important;
+  color: var(--admin-text-soft) !important;
+  background: var(--admin-highlight-bg) !important;
 }
-.pr-price { color: #b89047 !important; }
-.pr-stock { color: #6b5b4a !important; }
-.pr-unit { color: #8a7d6e !important; }
+.pr-price { color: var(--admin-accent) !important; }
+.pr-stock { color: var(--admin-text-soft) !important; }
+.pr-unit { color: var(--admin-text-muted) !important; }
 .pr-edit-btn {
-  color: #8a7d6e !important;
-  border-color: #d4c5a9 !important;
+  color: var(--admin-text-muted) !important;
+  border-color: var(--admin-border) !important;
 }
 .pr-edit-btn:hover {
-  background: rgba(201, 169, 78, 0.1) !important;
-  border-color: #c9a94e !important;
-  color: #b89047 !important;
+  background: var(--admin-highlight-bg) !important;
+  border-color: var(--admin-accent) !important;
+  color: var(--admin-accent) !important;
 }
 .pr-delete-btn {
-  color: #8a7d6e !important;
-  border-color: #d4c5a9 !important;
+  color: var(--admin-text-muted) !important;
+  border-color: var(--admin-border) !important;
 }
 .pr-delete-btn:hover {
-  background: rgba(176, 58, 46, 0.1) !important;
-  border-color: #b03a2e !important;
-  color: #b03a2e !important;
-}
-.admin-product-form-input {
-  background: rgba(255, 255, 255, 0.7) !important;
-  border: 1px solid #d4c5a9 !important;
-  color: #3a3228 !important;
-}
-.admin-product-form-input::placeholder {
-  color: #b0a090 !important;
+  background: rgba(192, 57, 43, 0.08) !important;
+  border-color: var(--admin-danger) !important;
+  color: var(--admin-danger) !important;
 }
 
+/* --- Chat --- */
+.admin-chat-tab { color: var(--admin-text-muted) !important; }
+.admin-chat-tab.active {
+  color: var(--admin-accent) !important;
+  border-bottom-color: var(--admin-accent) !important;
+}
+.admin-chat-tab:hover { color: var(--admin-accent) !important; }
+.admin-chat-thread-item {
+  border-bottom: 1px solid var(--admin-border-subtle) !important;
+}
+.admin-chat-thread-item:hover { background: rgba(255, 255, 255, 0.3) !important; }
+[data-theme="midnight"] .admin-chat-thread-item:hover,
+[data-theme="dark"] .admin-chat-thread-item:hover { background: rgba(255, 255, 255, 0.05) !important; }
+.admin-chat-thread-item.active {
+  background: var(--admin-highlight-bg) !important;
+  border-right: 3px solid var(--admin-accent) !important;
+}
+.admin-chat-thread-item.unread { background: var(--admin-gold-light) !important; }
+.admin-chat-thread-name { color: var(--admin-text) !important; }
+.admin-chat-thread-time { color: var(--admin-text-muted) !important; }
+.admin-chat-thread-preview { color: var(--admin-text-soft) !important; }
+.admin-chat-unread-badge {
+  background: var(--admin-danger) !important;
+  color: #fff !important;
+}
+.admin-chat-main-header { border-bottom: 1px solid var(--admin-border) !important; }
+.admin-chat-main-title { color: var(--admin-text) !important; }
+.admin-chat-main-sub { color: var(--admin-text-soft) !important; }
+.admin-chat-close-btn { color: var(--admin-text-muted) !important; }
+.admin-chat-threads-header { border-bottom: 1px solid var(--admin-border) !important; }
+.admin-chat-placeholder { color: var(--admin-text-muted) !important; }
+.admin-bubble.admin {
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
+}
+.admin-bubble.customer {
+  background: var(--admin-surface) !important;
+  border: 1px solid var(--admin-border) !important;
+  color: var(--admin-text) !important;
+}
+.admin-bubble-sender { color: inherit !important; opacity: 0.75 !important; }
+.admin-bubble-time { color: inherit !important; opacity: 0.65 !important; }
+.admin-bubble-read { color: var(--admin-accent) !important; }
+.admin-bubble-sent { color: var(--admin-text-muted) !important; }
+.admin-chat-input-area { border-top: 1px solid var(--admin-border) !important; }
+.admin-chat-empty { color: var(--admin-text-muted) !important; }
+.admin-chat-empty-msg { color: var(--admin-text-muted) !important; }
+
+/* --- Stats --- */
+.admin-stat-card strong { color: var(--admin-accent) !important; }
+.admin-stat-card span { color: var(--admin-text-muted) !important; }
+.order-total-text { color: var(--admin-accent) !important; }
+
+/* --- Offers --- */
+.admin-offers-add-section {
+  background: var(--admin-gold-light) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+.admin-offers-add-title { color: var(--admin-accent) !important; }
+.admin-offer-name { color: var(--admin-text) !important; }
+.admin-offer-price { color: var(--admin-text-soft) !important; }
+.admin-offer-checkbox { color: var(--admin-text-soft) !important; }
+.admin-offer-price-input { color: var(--admin-text-soft) !important; }
+.admin-offer-category { color: var(--admin-text-muted) !important; }
+.admin-offer-toggle {
+  background: var(--admin-highlight-bg) !important;
+  color: var(--admin-text-muted) !important;
+  border: none !important;
+}
+.admin-offer-toggle:hover { background: var(--admin-border) !important; }
+.admin-offers-list-title { color: var(--admin-accent) !important; }
+.admin-offers-empty { color: var(--admin-text-muted) !important; }
+
+/* --- Staff misc --- */
+.admin-section-desc { color: var(--admin-text-muted) !important; }
+
+/* --- General text overrides --- */
+.admin-layout .order-card .admin-card-header strong { color: var(--admin-text) !important; }
+.admin-layout .order-card small { color: var(--admin-text-soft) !important; }
+
 /* --- Section Title Accents --- */
-[class*="admin"] .admin-section-title::before {
+.admin-section-title::before {
   width: 4px;
   height: 1.1em;
   border-radius: 2px;
@@ -362,59 +450,8 @@
   vertical-align: middle;
   margin-left: 0.5rem;
 }
-[class*="admin"] .admin-section-title.offers-title::before { background: #c9a94e !important; }
-[class*="admin"] .admin-section-title.orders-title::before { background: #b89047 !important; }
-[class*="admin"] .admin-section-title.products-title::before { background: #a08050 !important; }
-[class*="admin"] .admin-section-title.chat-title::before { background: #b89047 !important; }
-[class*="admin"] .admin-section-title.staff-title::before { background: #a08050 !important; }
-
-/* --- Offers --- */
-.admin-offers-add-section {
-  background: rgba(201, 169, 78, 0.06) !important;
-  border: 1px solid rgba(201, 169, 78, 0.2) !important;
-}
-.admin-offers-add-title {
-  color: #b89047 !important;
-}
-.admin-offer-name {
-  color: #3a3228 !important;
-}
-.admin-offer-price {
-  color: #6b5b4a !important;
-}
-.admin-offer-checkbox {
-  color: #6b5b4a !important;
-}
-.admin-offer-price-input {
-  color: #6b5b4a !important;
-}
-.admin-offer-category {
-  color: #8a7d6e !important;
-}
-.admin-offer-toggle {
-  background: rgba(212, 197, 169, 0.2) !important;
-  color: #8a7d6e !important;
-  border: none !important;
-}
-.admin-offer-toggle:hover {
-  background: rgba(212, 197, 169, 0.35) !important;
-}
-.admin-offers-list-title {
-  color: #b89047 !important;
-}
-.admin-offers-empty {
-  color: #8a7d6e !important;
-}
-
-/* --- Staff --- */
-.admin-section-desc {
-  color: #8a7d6e !important;
-}
-
-/* --- General text overrides --- */
-.admin-layout .order-card .admin-card-header strong {
-  color: #3a3228 !important;
-}
-.admin-layout .order-card small {
-  color: #6b5b4a !important;
-}
+[class*="admin"] .admin-section-title.offers-title::before { background: var(--admin-accent) !important; }
+[class*="admin"] .admin-section-title.orders-title::before { background: var(--admin-accent) !important; }
+[class*="admin"] .admin-section-title.products-title::before { background: var(--admin-secondary) !important; }
+[class*="admin"] .admin-section-title.chat-title::before { background: var(--admin-accent) !important; }
+[class*="admin"] .admin-section-title.staff-title::before { background: var(--admin-secondary) !important; }
