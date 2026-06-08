@@ -383,29 +383,6 @@
 [data-theme="dark"] .chat-win-input button { background: #fbbf24; color: #78350f; }
 [data-theme="dark"] .chat-fab { background: #fbbf24; box-shadow: 0 4px 16px rgba(251,191,36,0.3); }
 
-/* ─── Auth Pages ─── */
-[data-theme="dark"] .auth-page { background: linear-gradient(180deg, #050505 0%, #0a0a18 50%, #050505 100%); }
-[data-theme="dark"] .auth-card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px) saturate(1.2);
-  -webkit-backdrop-filter: blur(20px) saturate(1.2);
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
-}
-[data-theme="dark"] .auth-header h1 { color: var(--text-main); }
-[data-theme="dark"] .auth-header p { color: var(--text-main); }
-[data-theme="dark"] .auth-field label { color: var(--text-main); }
-[data-theme="dark"] .auth-input { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--text-main); }
-[data-theme="dark"] .auth-input:focus { border-color: #fbbf24; box-shadow: 0 0 0 4px rgba(251,191,36,0.1); }
-[data-theme="dark"] .auth-input::placeholder { color: var(--text-main); }
-[data-theme="dark"] .auth-error { background: rgba(239,68,68,0.12); color: #f87171; }
-[data-theme="dark"] .auth-btn { background: #fbbf24; color: #78350f; }
-[data-theme="dark"] .auth-btn:hover { box-shadow: 0 4px 16px rgba(251,191,36,0.3); }
-[data-theme="dark"] .auth-footer { color: var(--text-main); }
-[data-theme="dark"] .auth-footer a { color: #fbbf24; }
-[data-theme="dark"] .auth-back a { color: var(--text-main); }
-[data-theme="dark"] .auth-back a:hover { color: #fbbf24; }
-
 /* ─── Share Button ─── */
 [data-theme="dark"] .app-share-btn { background: rgba(255,255,255,0.08); }
 [data-theme="dark"] .app-share-btn svg { stroke: #fbbf24; }
@@ -897,8 +874,7 @@
 [data-theme="dark"] .app-search-input,
 [data-theme="dark"] .checkout-phone-input,
 [data-theme="dark"] .checkout-notes-input,
-[data-theme="dark"] .acc-input,
-[data-theme="dark"] .auth-input {
+[data-theme="dark"] .acc-input {
   background: rgba(2, 20, 10, 0.85) !important;
   color: #ffffff !important;
   border: 1.5px solid rgba(16, 185, 129, 0.3) !important;
@@ -910,17 +886,12 @@
 [data-theme="dark"] .checkout-phone-input::placeholder,
 [data-theme="dark"] .checkout-notes-input::placeholder,
 [data-theme="dark"] .acc-input::placeholder,
-[data-theme="dark"] .auth-input::placeholder {
-  color: var(--text-main) !important;
-}
-
 [data-theme="dark"] .cat-search-input:focus,
 [data-theme="dark"] .all-products-search-input:focus,
 [data-theme="dark"] .app-search-input:focus,
 [data-theme="dark"] .checkout-phone-input:focus,
 [data-theme="dark"] .checkout-notes-input:focus,
-[data-theme="dark"] .acc-input:focus,
-[data-theme="dark"] .auth-input:focus {
+[data-theme="dark"] .acc-input:focus {
   border-color: #d4af37 !important;
 }
 

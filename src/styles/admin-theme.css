@@ -29,6 +29,27 @@
   --admin-bg-solid: #f6f7f9;
   --admin-highlight-bg: rgba(18, 116, 67, 0.06);
   --admin-product-card-bg: #ffffff;
+  --auth-bg: #f6f7f9;
+  --auth-card-bg: #ffffff;
+  --auth-card-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  --auth-header-color: #000000;
+  --auth-header-subtitle: #3f3f46;
+  --auth-label: #000000;
+  --auth-input-bg: #ffffff;
+  --auth-input-border: rgba(0,0,0,0.12);
+  --auth-input-text: #000000;
+  --auth-input-focus: #127443;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(18,116,67,0.1);
+  --auth-btn-bg: #127443;
+  --auth-btn-text: #ffffff;
+  --auth-btn-shadow: 0 4px 12px rgba(18,116,67,0.3);
+  --auth-error-bg: #fef2f2;
+  --auth-error-text: #dc2626;
+  --auth-footer-text: #52525b;
+  --auth-link: #127443;
+  --auth-back-link: #52525b;
+  --auth-back-hover: #127443;
+  --auth-logo-bg: #ffffff;
 }
 
 /* --- Pearl-White Admin (beige/gold) --- */
@@ -66,6 +87,27 @@
   --admin-bg-solid: #f0eae1;
   --admin-highlight-bg: rgba(201, 176, 151, 0.15);
   --admin-product-card-bg: rgba(247, 244, 235, 0.75);
+  --auth-bg: linear-gradient(180deg, #f0eae1 0%, #ece0c9 40%, #e8d8b8 70%, #e3d3b5 100%);
+  --auth-card-bg: rgba(247, 244, 235, 0.9);
+  --auth-card-shadow: 0 8px 32px rgba(201, 176, 151, 0.15);
+  --auth-header-color: #2e251e;
+  --auth-header-subtitle: #584e44;
+  --auth-label: #2e251e;
+  --auth-input-bg: rgba(247, 244, 235, 0.9);
+  --auth-input-border: rgba(201, 176, 151, 0.35);
+  --auth-input-text: #2e251e;
+  --auth-input-focus: #c9b097;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(201,176,151,0.15);
+  --auth-btn-bg: #c9b097;
+  --auth-btn-text: #2e251e;
+  --auth-btn-shadow: 0 4px 12px rgba(201,176,151,0.3);
+  --auth-error-bg: rgba(239,68,68,0.12);
+  --auth-error-text: #dc2626;
+  --auth-footer-text: #786e64;
+  --auth-link: #c9b097;
+  --auth-back-link: #786e64;
+  --auth-back-hover: #c9b097;
+  --auth-logo-bg: rgba(247, 244, 235, 0.9);
 }
 
 /* --- Emerald Admin --- */
@@ -100,6 +142,27 @@
   --admin-bg-solid: #ecfdf5;
   --admin-highlight-bg: rgba(5, 150, 105, 0.08);
   --admin-product-card-bg: rgba(255, 255, 255, 0.75);
+  --auth-bg: linear-gradient(135deg, #064e3b, #047857, #10b981);
+  --auth-card-bg: rgba(236, 253, 245, 0.92);
+  --auth-card-shadow: 0 20px 60px rgba(5, 150, 105, 0.2);
+  --auth-header-color: #064e3b;
+  --auth-header-subtitle: #166534;
+  --auth-label: #064e3b;
+  --auth-input-bg: #ffffff;
+  --auth-input-border: rgba(5, 150, 105, 0.25);
+  --auth-input-text: #052e16;
+  --auth-input-focus: #059669;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(5,150,105,0.1);
+  --auth-btn-bg: #059669;
+  --auth-btn-text: #ffffff;
+  --auth-btn-shadow: 0 4px 12px rgba(5,150,105,0.3);
+  --auth-error-bg: #fef2f2;
+  --auth-error-text: #dc2626;
+  --auth-footer-text: #14532d;
+  --auth-link: #047857;
+  --auth-back-link: #166534;
+  --auth-back-hover: #059669;
+  --auth-logo-bg: #ffffff;
 }
 
 /* --- Midnight Admin --- */
@@ -134,6 +197,28 @@
   --admin-bg-solid: #0f172a;
   --admin-highlight-bg: rgba(212, 168, 83, 0.1);
   --admin-product-card-bg: rgba(30, 41, 59, 0.6);
+  --auth-bg: linear-gradient(180deg, #020617 0%, #0f172a 100%);
+  --auth-card-bg: rgba(30, 41, 59, 0.85);
+  --auth-card-border: 1px solid rgba(212, 168, 83, 0.15);
+  --auth-card-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  --auth-header-color: #f5e6c8;
+  --auth-header-subtitle: #c9b08a;
+  --auth-label: #f5e6c8;
+  --auth-input-bg: rgba(30, 41, 59, 0.8);
+  --auth-input-border: rgba(212, 168, 83, 0.2);
+  --auth-input-text: #f5e6c8;
+  --auth-input-focus: #fbbf24;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(251,191,36,0.1);
+  --auth-btn-bg: #fbbf24;
+  --auth-btn-text: #451a03;
+  --auth-btn-shadow: 0 4px 16px rgba(251,191,36,0.3);
+  --auth-error-bg: rgba(239,68,68,0.12);
+  --auth-error-text: #f87171;
+  --auth-footer-text: #a89880;
+  --auth-link: #fbbf24;
+  --auth-back-link: #a89880;
+  --auth-back-hover: #fbbf24;
+  --auth-logo-bg: rgba(30, 41, 59, 0.8);
 }
 [data-theme="midnight"] .admin-mobile-header { background: #0f172a !important; }
 [data-theme="midnight"] .admin-mobile-header h2 { color: #fbbf24 !important; }
@@ -169,6 +254,28 @@
   --admin-bg-solid: #000000;
   --admin-highlight-bg: rgba(255, 255, 255, 0.05);
   --admin-product-card-bg: rgba(20, 20, 20, 0.7);
+  --auth-bg: linear-gradient(180deg, #050505 0%, #0a0a18 50%, #050505 100%);
+  --auth-card-bg: rgba(20, 20, 20, 0.85);
+  --auth-card-border: 1px solid rgba(255,255,255,0.08);
+  --auth-card-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+  --auth-header-color: #f1f5f9;
+  --auth-header-subtitle: #94a3b8;
+  --auth-label: #f1f5f9;
+  --auth-input-bg: rgba(255,255,255,0.06);
+  --auth-input-border: rgba(255,255,255,0.1);
+  --auth-input-text: #f1f5f9;
+  --auth-input-focus: #6366f1;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+  --auth-btn-bg: #6366f1;
+  --auth-btn-text: #ffffff;
+  --auth-btn-shadow: 0 4px 16px rgba(99,102,241,0.3);
+  --auth-error-bg: rgba(239,68,68,0.12);
+  --auth-error-text: #f87171;
+  --auth-footer-text: #64748b;
+  --auth-link: #818cf8;
+  --auth-back-link: #64748b;
+  --auth-back-hover: #818cf8;
+  --auth-logo-bg: rgba(20, 20, 20, 0.8);
 }
 
 /* =============================================================== */
