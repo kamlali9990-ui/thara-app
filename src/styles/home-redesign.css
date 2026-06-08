@@ -588,16 +588,16 @@
   gap: 0.5rem;
 }
 .delivery-option-item {
-  background: white;
+  background: var(--bg-card);
   border-radius: 16px;
   padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(18, 116, 67, 0.1);
+  border: 1px solid var(--border);
   min-height: 110px;
 }
 .delivery-option-info h4 {
@@ -819,14 +819,14 @@
   animation: fadeIn 0.2s ease;
 }
 .delivery-info-modal {
-  background: white;
+  background: var(--bg-card);
   border-radius: 20px;
   padding: 2rem 1.5rem;
   width: 100%;
   max-width: 360px;
   position: relative;
   text-align: center;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  box-shadow: var(--shadow-lg);
   animation: scaleIn 0.25s ease;
 }
 .delivery-info-close {
@@ -836,7 +836,7 @@
   background: none;
   border: none;
   font-size: 1.3rem;
-  color: #999;
+  color: var(--text-light);
   cursor: pointer;
   padding: 4px;
 }
@@ -849,13 +849,13 @@
 }
 .delivery-info-modal h3 {
   font-size: 1.05rem;
-  color: #127443;
+  color: var(--primary);
   margin: 0 0 0.25rem;
   line-height: 1.4;
 }
 .delivery-info-sub {
   font-size: 0.8rem;
-  color: #666;
+  color: var(--text-light);
   margin: 0 0 1.25rem;
 }
 .delivery-info-table {
@@ -868,37 +868,37 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.65rem 1rem;
-  background: #f8f9fa;
+  background: var(--surface-2);
   border-radius: 12px;
   font-size: 0.9rem;
 }
 .delivery-info-label {
-  color: #333;
+  color: var(--text-main);
   font-weight: 500;
 }
 .delivery-info-value {
-  color: #127443;
+  color: var(--primary);
   font-weight: 700;
 }
 .delivery-info-free {
-  background: #e8f5e9;
-  border: 1px solid #127443;
+  background: rgba(18, 116, 67, 0.08);
+  border: 1px solid var(--primary);
 }
 .delivery-info-free .delivery-info-value {
-  color: #127443;
+  color: var(--primary);
 }
 .delivery-info-contact {
   font-size: 0.8rem;
-  color: #555;
+  color: var(--text-light);
   line-height: 1.6;
   margin: 0 0 1rem;
   padding: 0.5rem 0.75rem;
-  background: #fff8e1;
+  background: rgba(255, 248, 225, 0.5);
   border-radius: 12px;
-  border: 1px solid #ffe082;
+  border: 1px solid rgba(255, 224, 130, 0.5);
 }
 .delivery-info-contact a {
-  color: #127443;
+  color: var(--primary);
   font-weight: 600;
   text-decoration: none;
 }
