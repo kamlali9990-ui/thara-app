@@ -79,10 +79,10 @@ export const StoreProvider = ({ children }) => {
 
     if (Notification.permission === 'default') {
       Notification.requestPermission().then((perm) => {
-        if (perm === 'granted') subscribePush(email, role);
-      });
+        if (perm === 'granted') subscribePush(email, role).catch(() => {});
+      }).catch(() => {});
     } else if (Notification.permission === 'granted') {
-      subscribePush(email, role);
+      subscribePush(email, role).catch(() => {});
     }
   }, [user?.id, supabaseReady]);
 
@@ -459,26 +459,30 @@ export const StoreProvider = ({ children }) => {
       const data = await authApi.signIn(normalizedEmail, password);
       setUser(data.user);
       return data;
-    } catch (err) {
+    } catch {
       if (supabase) {
         try {
           const { data: fixResult } = await supabase.rpc('ensure_staff_auth_user', {
             p_email: normalizedEmail, p_password: password
           });
           if (fixResult?.fixed) {
-            const data = await authApi.signIn(normalizedEmail, password);
-            setUser(data.user);
-            return data;
+            return await authApi.signIn(normalizedEmail, password).then(data => {
+              setUser(data.user);
+              return data;
+            });
           }
-        } catch { /* RPC not available */ }
+        } catch { /* RPC not available — fall through */ }
       }
-      throw err;
+      throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
   }, []);
 
   const logout = useCallback(async () => {
     if (hasSupabase) await authApi.signOut();
     setUser(null);
+    setStaffRole(null);
+    setCurrentStaff(null);
+    setCustomerProfile(null);
   }, []);
 
   // --- Customers Management ---
@@ -495,7 +499,7 @@ export const StoreProvider = ({ children }) => {
     const canLoadCustomers = staffRole === 'admin' || staffRole === 'manager' || staffRole === 'employee';
     if (!supabaseReady || !canLoadCustomers) return;
     loadCustomers();
-  }, [supabaseReady, staffRole]);
+  }, [supabaseReady, staffRole, loadCustomers]);
 
   // --- Staff Management ---
   const loadStaff = useCallback(async () => {

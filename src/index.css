@@ -56,6 +56,8 @@
   --blur-header: rgba(18,116,67,0.92);
   --font-family: 'Cairo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --font-display: 'IBM Plex Sans Arabic', 'Cairo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --bg-main: #f6f7f9;
+  --text-muted: #71717a;
 }
 
 * {

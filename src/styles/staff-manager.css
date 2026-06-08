@@ -1434,7 +1434,7 @@
 .acc-field { margin-bottom: 0.75rem; }
 .acc-field label {
   display: block; font-size: 0.8rem; font-weight: 600;
-  color: var(--text); margin-bottom: 0.3rem;
+  color: var(--text-main); margin-bottom: 0.3rem;
 }
 .acc-input {
   width: 100%; padding: 0.65rem 0.85rem; border: 2px solid #e2e8f0;
@@ -1454,7 +1454,7 @@
 .acc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .acc-btn-primary { background: var(--primary); color: white; }
 .acc-btn-primary:active { opacity: 0.85; }
-.acc-btn-ghost { background: #f1f5f9; color: var(--text); }
+.acc-btn-ghost { background: #f1f5f9; color: var(--text-main); }
 .acc-btn-ghost:active { background: #e2e8f0; }
 
 /* Logout */
@@ -1692,16 +1692,6 @@
   font-weight: 600;
 }
 
-/* ─── Locate Button ─── */
-.locate-btn {
-  position: absolute; top: 8px; right: 8px; z-index: 1000;
-  width: 36px; height: 36px; font-size: 18px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  background: white; border: none; border-radius: 6px;
-  outline: none; box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-.locate-btn:hover { background: #f0f0f0; }
-.locate-btn:active { background: #e0e0e0; }
 
 /* ─── Chat Widget ─── */
 .chat-widget { position: fixed; bottom: 70px; left: 1rem; z-index: 200; }
