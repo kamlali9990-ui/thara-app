@@ -162,11 +162,12 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
 <button className="checkout-confirm-btn" onClick={async () => {
-  if (submitting || !position || !phoneReady) return;
+  if (submitting) return;
   if (!user) {
     setShowLoginPrompt(true);
     return;
   }
+  if (!position || !phoneReady) return;
   setSubmitting(true);
   try {
     await placeOrder({
@@ -182,7 +183,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return;
   }
   onClose();
-}} disabled={submitting || !position || !phoneReady || !user}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+}} disabled={submitting || !position || !phoneReady}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
 
           {/* Login Prompt Modal */}
           {showLoginPrompt && (
