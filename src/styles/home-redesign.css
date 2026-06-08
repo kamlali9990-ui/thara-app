@@ -618,8 +618,8 @@
 .delivery-option-img {
   width: 140px;
   height: 120px;
-  object-fit: contain;
-  border-radius: 12px;
+  object-fit: cover;
+  border-radius: 20px;
 }
 
 /* ─── Rotating Category Grid ─── */
