@@ -181,7 +181,7 @@ function MaintenanceGate({ children }) {
       .catch(() => {});
   }, [loc.pathname]);
 
-  if (maintenance && (loc.pathname.startsWith('/admin') || loc.pathname.startsWith('/maintenance'))) {
+  if (maintenance && loc.pathname.startsWith('/maintenance')) {
     return children;
   }
   if (maintenance) {
