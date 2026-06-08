@@ -455,3 +455,129 @@
 [class*="admin"] .admin-section-title.products-title::before { background: var(--admin-secondary) !important; }
 [class*="admin"] .admin-section-title.chat-title::before { background: var(--admin-accent) !important; }
 [class*="admin"] .admin-section-title.staff-title::before { background: var(--admin-secondary) !important; }
+
+/* =============================================================== */
+/* ===== DESKTOP TYPOGRAPHY (1024px+) ===== */
+/* =============================================================== */
+@media (min-width: 1024px) {
+  .admin-layout,
+  .admin-layout * {
+    letter-spacing: 0.01em !important;
+  }
+  .admin-sidebar-title {
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    padding: 1.25rem 1.25rem 0.75rem !important;
+  }
+  .admin-tab {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    padding: 0.85rem 1.25rem !important;
+    margin: 0.35rem 0.75rem !important;
+    border-radius: 14px !important;
+  }
+  .admin-sidebar-link {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+  }
+  .admin-section-title {
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+  }
+  .admin-card-header strong {
+    font-size: 1.05rem !important;
+  }
+  .admin-card-header small {
+    font-size: 0.85rem !important;
+  }
+  .admin-card-info {
+    font-size: 0.95rem !important;
+  }
+  .pr-name {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+  }
+  .pr-price {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+  }
+  .pr-cat {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+  }
+  .pr-stock, .pr-unit {
+    font-size: 0.9rem !important;
+  }
+  .admin-chat-thread-name {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+  .admin-chat-thread-preview {
+    font-size: 0.9rem !important;
+  }
+  .admin-chat-main-title {
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+  }
+  .admin-stat-card strong {
+    font-size: 1.3rem !important;
+  }
+  .admin-stat-card span {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+  }
+  .admin-offer-name {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+  .admin-offers-add-title {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+  }
+  .admin-layout label {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+  }
+  .admin-layout .admin-product-form-submit {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+  }
+  .admin-product-form-input,
+  .admin-edit-input,
+  .admin-product-field,
+  .admin-input-half,
+  .admin-chat-search,
+  .admin-chat-input,
+  .admin-offer-input,
+  .admin-offers-search,
+  .admin-offers-select {
+    font-size: 0.95rem !important;
+  }
+  .admin-chat-tab {
+    font-size: 0.95rem !important;
+    font-weight: 600 !important;
+  }
+  .admin-section-desc {
+    font-size: 0.95rem !important;
+  }
+  .admin-layout p {
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
+  }
+  .admin-layout .order-card small {
+    font-size: 0.85rem !important;
+  }
+  .admin-edit-btn,
+  .admin-delete-btn,
+  .admin-offer-toggle,
+  .admin-product-add-btn,
+  .cloudinary-upload-btn {
+    font-size: 0.9rem !important;
+    font-weight: 700 !important;
+  }
+  .staff-role-admin {
+    font-size: 0.85rem !important;
+    font-weight: 700 !important;
+  }
+}
