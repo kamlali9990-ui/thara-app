@@ -1,34 +1,57 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase/client';
 
 const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
 const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
 
 export default function MaintenancePanel() {
-  const navigate = useNavigate();
   const [checking, setChecking] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [maintenance, setMaintenance] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPass, setLoginPass] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
   useEffect(() => {
-    const init = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || user.email !== ADMIN_EMAIL) {
-          navigate('/admin/login', { replace: true });
-          return;
-        }
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user && user.email === ADMIN_EMAIL) {
         setAuthorized(true);
-        const { data } = await supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle();
-        setMaintenance(data?.value === 'true');
-      } catch { navigate('/admin/login', { replace: true }); }
+        supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle()
+          .then(({ data }) => setMaintenance(data?.value === 'true'))
+          .catch(() => {});
+      } else {
+        setAuthorized(false);
+      }
       setChecking(false);
-    };
-    init();
-  }, [navigate]);
+    }).catch(() => { setChecking(false); setAuthorized(false); });
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPass });
+      if (error) throw error;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email !== ADMIN_EMAIL) {
+        await supabase.auth.signOut();
+        setLoginError('هذا الحساب غير مصرح له بالدخول');
+        setLoginLoading(false);
+        return;
+      }
+      setAuthorized(true);
+      const { data } = await supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle();
+      setMaintenance(data?.value === 'true');
+    } catch (err) {
+      setLoginError(err.message === 'Invalid login credentials' ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة' : 'حدث خطأ');
+    }
+    setLoginLoading(false);
+  };
 
   const toggle = async () => {
     setLoading(true);
@@ -47,7 +70,35 @@ export default function MaintenancePanel() {
       <div style={styles.card}><p style={{ color: '#94a3b8' }}>جاري التحقق...</p></div>
     </div>
   );
-  if (!authorized) return null;
+
+  if (!authorized) return (
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <img src="/newicon.jpg" alt="" style={styles.logo} />
+        <h1 style={styles.title}>تسجيل الدخول</h1>
+        <p style={styles.subtitle}>للدخول إلى صفحة الصيانة</p>
+        <form onSubmit={handleLogin} style={{ textAlign: 'right' }}>
+          <div style={styles.field}>
+            <label style={styles.label}>البريد الإلكتروني</label>
+            <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)}
+              placeholder="name@example.com" required style={styles.input} />
+          </div>
+          <div style={styles.field}>
+            <label style={styles.label}>كلمة المرور</label>
+            <input type="password" value={loginPass} onChange={e => setLoginPass(e.target.value)}
+              placeholder="••••••••" required style={styles.input} />
+          </div>
+          {loginError && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem' }}>{loginError}</p>}
+          <button type="submit" disabled={loginLoading} style={{
+            ...styles.btn, background: '#fbbf24', color: '#451a03', width: '100%',
+            opacity: loginLoading ? 0.6 : 1
+          }}>
+            {loginLoading ? 'جاري...' : 'تسجيل الدخول'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 
   return (
     <div style={styles.container}>
@@ -70,10 +121,10 @@ export default function MaintenancePanel() {
             : 'الموقع متاح للجميع. اضغط للتفعيل عند الحاجة.'}
         </p>
 
-        {error && <p style={{ color: '#ef4444', fontSize: '0.85rem' }}>{error}</p>}
+        {error && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '1rem' }}>{error}</p>}
 
         <button onClick={toggle} disabled={loading} style={{
-          ...styles.btn,
+          ...styles.btn, width: '100%',
           background: maintenance ? '#dc2626' : '#127443',
           boxShadow: maintenance ? '0 4px 15px rgba(220,38,38,0.3)' : '0 4px 15px rgba(18,116,67,0.3)',
           opacity: loading ? 0.6 : 1,
@@ -83,7 +134,6 @@ export default function MaintenancePanel() {
 
         <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
           <a href="/" style={styles.link}>العودة للمتجر</a>
-          <a href="/admin" style={styles.link}>لوحة التحكم</a>
         </div>
       </div>
     </div>
@@ -120,9 +170,21 @@ const styles = {
   btn: {
     color: '#fff', border: 'none', padding: '0.9rem 2rem', borderRadius: '14px',
     fontSize: '1rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-    transition: 'all 0.15s', width: '100%'
+    transition: 'all 0.15s'
   },
   link: {
     color: '#94a3b8', textDecoration: 'none', fontSize: '0.85rem'
+  },
+  field: {
+    marginBottom: '1rem', textAlign: 'right'
+  },
+  label: {
+    display: 'block', marginBottom: '0.4rem', color: '#94a3b8', fontSize: '0.85rem'
+  },
+  input: {
+    width: '100%', padding: '0.7rem 0.75rem', borderRadius: '10px',
+    border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.35)',
+    color: '#e2e8f0', fontSize: '0.9rem', fontFamily: 'inherit', outline: 'none',
+    boxSizing: 'border-box'
   }
 };
