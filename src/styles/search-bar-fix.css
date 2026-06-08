@@ -4,6 +4,7 @@
   position: relative;
   max-width: 600px;
   margin: 0 auto;
+  border-radius: 99px;
 }
 .app-search-hometab .app-search-input {
   width: 100%;

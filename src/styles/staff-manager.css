@@ -1088,6 +1088,7 @@
   aspect-ratio: 1.12;
   background: #f8fafc;
   overflow: hidden;
+  border-radius: var(--radius);
 }
 .product-detail-img {
   width: 100%;
