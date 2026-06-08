@@ -28,7 +28,10 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
   const phoneReady = (() => {
     const digits = phone.replace(/\D/g, '');
-    return digits.length >= 9 && (digits.startsWith('966') ? digits.length === 12 : digits.length === 10);
+    if (!digits) return false;
+    if (digits.startsWith('966')) return digits.length === 12;
+    if (digits.startsWith('05')) return digits.length === 10;
+    return false;
   })();
 
   const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
@@ -187,6 +190,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   }
   onClose();
 }} disabled={submitting || !position || !phoneReady}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+          {!position && <div className="checkout-hint-error">يرجى تحديد موقع التوصيل على الخريطة</div>}
+          {!phoneReady && phone.trim() && <div className="checkout-hint-error">رقم الجوال غير صحيح، يجب أن يبدأ بـ 05 (مثال: 0500000000)</div>}
 
           {/* Login Prompt Modal */}
           {showLoginPrompt && (

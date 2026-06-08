@@ -1684,6 +1684,13 @@
   letter-spacing: 0.01em;
 }
 .checkout-confirm-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.checkout-hint-error {
+  text-align: center;
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
 
 /* ─── Locate Button ─── */
 .locate-btn {
