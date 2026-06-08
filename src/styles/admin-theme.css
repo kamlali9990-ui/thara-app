@@ -1,8 +1,38 @@
 /* ===================== Admin Theme ===================== */
 /* All colors via CSS variables — theme overrides below     */
 
-/* --- Default Admin Variables (Pearl-White) --- */
+/* --- Default Admin Variables (Light - clean white) --- */
 :root {
+  --admin-bg: #f6f7f9;
+  --admin-surface: #ffffff;
+  --admin-border: rgba(0,0,0,0.08);
+  --admin-border-subtle: rgba(0,0,0,0.04);
+  --admin-shadow: 0 1px 8px rgba(0,0,0,0.06);
+  --admin-text: #000000;
+  --admin-text-soft: #3f3f46;
+  --admin-text-muted: #52525b;
+  --admin-accent: #127443;
+  --admin-accent-hover: #0a5c34;
+  --admin-accent-text: #ffffff;
+  --admin-accent-gradient: linear-gradient(135deg, #127443, #0a5c34);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #0a5c34, #065226);
+  --admin-secondary: #b89047;
+  --admin-sidebar: #ffffff;
+  --admin-danger: #c0392b;
+  --admin-danger-hover: #a93226;
+  --admin-gold: #127443;
+  --admin-gold-light: rgba(18, 116, 67, 0.06);
+  --admin-input-bg: #ffffff;
+  --admin-input-border: rgba(0,0,0,0.12);
+  --admin-input-focus-bg: #ffffff;
+  --admin-input-focus-shadow: rgba(18, 116, 67, 0.15);
+  --admin-bg-solid: #f6f7f9;
+  --admin-highlight-bg: rgba(18, 116, 67, 0.06);
+  --admin-product-card-bg: #ffffff;
+}
+
+/* --- Pearl-White Admin (beige/gold) --- */
+[data-theme="pearl-white"] {
   --admin-bg:
     radial-gradient(ellipse 80% 50% at 95% 5%, rgba(212,168,83,0.18) 0%, transparent 55%),
     radial-gradient(ellipse 60% 70% at 8% 45%, rgba(201,150,60,0.12) 0%, transparent 50%),
