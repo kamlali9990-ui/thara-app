@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import CloudinaryUpload from './CloudinaryUpload';
 import { showToast } from '../Toast';
 import { BASE } from '../../utils/constants';
-const BASENAME = (import.meta.env.BASE_URL || '/').replace(/\/$/, '');
 import { supabase } from '../../supabase/client';
 
 const STORAGE_KEY = 'thara_banner_url';
-const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
 
 const PRESET_BANNERS = [
   { label: 'البنر الافتراضي', url: `${BASE}123.jpg` },
@@ -19,29 +17,6 @@ export default function AdminSettings() {
   });
   const [previewUrl, setPreviewUrl] = useState(bannerUrl);
   const [urlInput, setUrlInput] = useState('');
-  const [maintenance, setMaintenance] = useState(() => {
-    return localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true';
-  });
-
-  useEffect(() => {
-    supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle()
-      .then(({ data }) => {
-        if (data?.value === 'true') {
-          setMaintenance(true);
-          localStorage.setItem(MAINTENANCE_STORAGE_KEY, 'true');
-        }
-      })
-      .catch(() => {});
-  }, []);
-
-  const toggleMaintenance = async () => {
-    const next = !maintenance;
-    setMaintenance(next);
-    localStorage.setItem(MAINTENANCE_STORAGE_KEY, next ? 'true' : 'false');
-    await supabase.from('settings').upsert({ key: 'maintenance_mode', value: next ? 'true' : 'false' }, { onConflict: 'key' })
-      .catch(() => {});
-    showToast(next ? 'تم تفعيل وضع الصيانة' : 'تم إلغاء وضع الصيانة', next ? 'warning' : 'success');
-  };
 
   const saveBannerUrl = async (url) => {
     const finalUrl = url || `${BASE}123.jpg`;
@@ -93,21 +68,6 @@ export default function AdminSettings() {
   return (
     <div>
       <h2 className="admin-section-title">⚙️ إعدادات الصفحة الرئيسية</h2>
-
-      <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
-        <h3 style={{ marginBottom: '1rem', color: '#fbbf24', fontSize: '1.05rem' }}>🔧 وضع الصيانة</h3>
-        <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-          عند التفعيل، يرى الزوار صفحة "الموقع قيد الصيانة". يمكنك الدخول من {BASENAME}admin/login لإلغائه.
-        </p>
-        <button onClick={toggleMaintenance} style={{
-          padding: '0.6rem 1.25rem', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit', fontSize: '0.9rem', fontWeight: 600,
-          border: 'none',
-          background: maintenance ? '#dc2626' : '#127443',
-          color: 'white'
-        }}>
-          {maintenance ? 'إلغاء وضع الصيانة' : 'تفعيل وضع الصيانة'}
-        </button>
-      </div>
 
       <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
         <h3 style={{ marginBottom: '1rem', color: '#f1f5f9', fontSize: '1.05rem' }}>صورة البنر الرئيسي</h3>

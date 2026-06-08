@@ -1,17 +1,13 @@
-import React, { lazy, Suspense, useState, useEffect, useCallback } from 'react'
+import React, { lazy, Suspense, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
-import MaintenancePage from './components/MaintenancePage.jsx'
-import { supabase } from './supabase/client.js'
 import * as Sentry from '@sentry/react'
-
-const MAINTENANCE_SECRET = 'm1s0c4r3t0k3y0xz7k9m2p4q8r1w3n5b6v0c9x1y2z3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8p';
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 if (SENTRY_DSN) {
@@ -164,119 +160,6 @@ function LeaveGuard() {
   return null;
 }
 
-const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
-
-function MaintenanceToggle() {
-  const { action, secret } = useParams();
-  const [status, setStatus] = useState('checking');
-
-  const performAction = useCallback(async () => {
-    if (secret !== MAINTENANCE_SECRET) { setStatus('invalid'); return; }
-    if (action !== 'on' && action !== 'off') { setStatus('invalid'); return; }
-    const next = action === 'on';
-    try {
-      await supabase.from('settings').upsert({ key: 'maintenance_mode', value: next ? 'true' : 'false' }, { onConflict: 'key' });
-      localStorage.setItem(MAINTENANCE_STORAGE_KEY, next ? 'true' : 'false');
-      setStatus(next ? 'activated' : 'deactivated');
-      window.dispatchEvent(new CustomEvent('thara:maintenance-change', { detail: { maintenance: next } }));
-    } catch { setStatus('error'); }
-  }, [action, secret]);
-
-  useEffect(() => { performAction(); }, [performAction]);
-
-  const containerStyle = {
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    minHeight: '100vh', background: '#06190e', direction: 'rtl',
-    fontFamily: 'system-ui, sans-serif', padding: '1rem'
-  };
-  const cardStyle = {
-    background: '#0d3d24', padding: '2.5rem', borderRadius: '20px',
-    textAlign: 'center', maxWidth: '400px', width: '100%',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
-  };
-
-  if (status === 'checking') return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
-        <p style={{ color: '#94a3b8' }}>جاري التبديل...</p>
-      </div>
-    </div>
-  );
-  if (status === 'invalid') return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚫</div>
-        <h2 style={{ color: '#ef4444', margin: '0 0 0.5rem' }}>رابط غير صالح</h2>
-        <p style={{ color: '#94a3b8' }}>هذا الرابط غير معروف. يرجى التحقق من الرابط والمحاولة مرة أخرى.</p>
-      </div>
-    </div>
-  );
-  if (status === 'error') return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>❌</div>
-        <h2 style={{ color: '#ef4444', margin: '0 0 0.5rem' }}>حدث خطأ</h2>
-        <p style={{ color: '#94a3b8' }}>تعذر تبديل وضع الصيانة. يرجى المحاولة مرة أخرى لاحقاً.</p>
-      </div>
-    </div>
-  );
-  return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>{status === 'activated' ? '🔧' : '✅'}</div>
-        <h2 style={{ color: status === 'activated' ? '#fbbf24' : '#22c55e', margin: '0 0 0.5rem' }}>
-          {status === 'activated' ? 'وضع الصيانة مفعّل' : 'وضع الصيانة معطّل'}
-        </h2>
-        <p style={{ color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.7' }}>
-          {status === 'activated'
-            ? 'تم تفعيل وضع الصيانة. الزوار سيشاهدون صفحة الصيانة.'
-            : 'تم إلغاء وضع الصيانة. الموقع يعمل بشكل طبيعي الآن.'}
-        </p>
-        <a href="/" style={{
-          display: 'inline-block', padding: '0.7rem 2rem', borderRadius: '12px',
-          background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#451a03',
-          fontWeight: 800, textDecoration: 'none', fontSize: '0.95rem'
-        }}>العودة للمتجر</a>
-      </div>
-    </div>
-  );
-}
-
-function MaintenanceGate({ children }) {
-  const loc = useLocation();
-  const [maintenance, setMaintenance] = useState(() => {
-    try { return localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true'; } catch { return false; }
-  });
-
-  useEffect(() => {
-    supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle()
-      .then(({ data }) => {
-        const val = data?.value === 'true';
-        setMaintenance(val);
-        try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, val ? 'true' : 'false'); } catch {}
-      })
-      .catch(() => {});
-  }, [loc.pathname]);
-
-  useEffect(() => {
-    const handler = (e) => {
-      setMaintenance(e.detail.maintenance);
-      try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, e.detail.maintenance ? 'true' : 'false'); } catch {}
-    };
-    window.addEventListener('thara:maintenance-change', handler);
-    return () => window.removeEventListener('thara:maintenance-change', handler);
-  }, []);
-
-  if (maintenance && (loc.pathname.startsWith('/toggle/on/') || loc.pathname.startsWith('/toggle/off/'))) {
-    return children;
-  }
-  if (maintenance) {
-    return <MaintenancePage />;
-  }
-  return children;
-}
-
 const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
 
 function ProtectedRoute({ children }) {
@@ -293,23 +176,20 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <ToastProvider>
         <StoreProvider>
           <BrowserRouter basename={BASENAME}>
-            <MaintenanceGate>
-              <LeaveGuard />
-              <Routes>
-                <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
-                <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
-                <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
-                <Route path="/toggle/:action/:secret" element={<MaintenanceToggle />} />
-                <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
-                <Route path="/admin/*" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
-                    <Admin />
-                  </Suspense>
-                </ProtectedRoute>
-                } />
-              </Routes>
-            </MaintenanceGate>
+            <LeaveGuard />
+            <Routes>
+              <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
+              <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
+              <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
+              <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
+              <Route path="/admin/*" element={
+              <ProtectedRoute>
+                <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
+                  <Admin />
+                </Suspense>
+              </ProtectedRoute>
+              } />
+            </Routes>
           </BrowserRouter>
         </StoreProvider>
       </ToastProvider>

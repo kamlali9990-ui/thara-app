@@ -78,16 +78,6 @@ export default function Admin() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [passwordChangeWithVerify, setPasswordChangeWithVerify] = useState(false);
-  const [maintenance, setMaintenance] = useState(null);
-  const [maintenanceConfirm, setMaintenanceConfirm] = useState(false);
-
-  useEffect(() => {
-    supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle()
-      .then(({ data }) => {
-        if (data?.value === 'true') setMaintenance(true);
-        else setMaintenance(false);
-      }).catch(() => setMaintenance(false));
-  }, []);
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -165,7 +155,6 @@ export default function Admin() {
     if (isAdminOrManager) {
       items.push({ id: 'store', label: 'المتجر', icon: '📦' });
       items.push({ id: 'settings', label: 'الإعدادات', icon: '⚙️' });
-      items.push({ id: 'maintenance', label: 'الصيانة', icon: '🔧' });
     }
     if (staffRole === 'admin') items.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
     return items;
@@ -174,15 +163,6 @@ export default function Admin() {
   const switchTab = useCallback((id) => {
     startTransition(() => setActiveTab(id));
   }, []);
-
-  const toggleMaintenance = useCallback(async () => {
-    const next = !maintenance;
-    setMaintenance(next);
-    await supabase.from('settings').upsert({ key: 'maintenance_mode', value: next ? 'true' : 'false' }, { onConflict: 'key' });
-    localStorage.setItem('thara_maintenance', next ? 'true' : 'false');
-    setMaintenanceConfirm(false);
-    showToast(next ? 'وضع الصيانة مفعّل الآن' : 'وضع الصيانة معطّل', 'success');
-  }, [maintenance, showToast]);
 
   const SUB_TAB_BTN = (active, label) => ({
     background: active ? 'rgba(251,191,36,0.2)' : 'transparent',
@@ -237,66 +217,6 @@ export default function Admin() {
               <button className="btn" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordChangeWithVerify(true); setShowPasswordPrompt(true); }}>
                 🔑 تغيير كلمة المرور
               </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-    if (activeTab === 'maintenance') return (
-      <div className="admin-store-section">
-        <div className="admin-card" style={{ padding: '2rem', marginTop: '1rem', textAlign: 'center' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔧</div>
-          <h2 className="admin-section-title" style={{ marginBottom: '0.5rem' }}>وضع الصيانة</h2>
-          <p style={{ color: '#94a3b8', marginBottom: '0.5rem', lineHeight: '1.7' }}>
-            عند تفعيل وضع الصيانة، سيتم توجيه جميع زوار المتجر إلى صفحة صيانة ولن يتمكنوا من تقديم الطلبات.
-          </p>
-          <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '0.85rem' }}>
-            ملاحظة: يمكنك أنت والموظفين الوصول إلى لوحة التحكم كالمعتاد.
-          </p>
-          {maintenance == null ? (
-            <div style={{ color: '#94a3b8' }}>جاري التحقق من الحالة...</div>
-          ) : (
-            <>
-              <div style={{
-                display: 'inline-block', padding: '0.4rem 1.2rem', borderRadius: '20px',
-                fontSize: '0.9rem', fontWeight: 700, marginBottom: '1.5rem',
-                background: maintenance ? 'rgba(220,38,38,0.2)' : 'rgba(18,116,67,0.2)',
-                color: maintenance ? '#ef4444' : '#22c55e'
-              }}>
-                {maintenance ? '🟢 الموقع نشط' : '🟡 الموقع يعمل طبيعي'}
-              </div>
-              <br />
-              <button onClick={() => setMaintenanceConfirm(true)} style={{
-                background: maintenance ? '#dc2626' : '#127443',
-                color: '#fff', border: 'none', padding: '0.9rem 2.5rem', borderRadius: '14px',
-                fontSize: '1.1rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit',
-                transition: 'all 0.15s', boxShadow: maintenance
-                  ? '0 4px 15px rgba(220,38,38,0.4)' : '0 4px 15px rgba(18,116,67,0.4)'
-              }}>
-                {maintenance ? 'إلغاء وضع الصيانة' : 'تفعيل وضع الصيانة'}
-              </button>
-            </>
-          )}
-        </div>
-        {maintenanceConfirm && (
-          <div className="confirm-overlay" onClick={() => setMaintenanceConfirm(false)}>
-            <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
-              <p style={{ fontWeight: 700, color: '#fff', fontSize: '1.1rem', marginBottom: '1rem' }}>
-                {maintenance ? 'إلغاء وضع الصيانة' : 'تفعيل وضع الصيانة'}
-              </p>
-              <p style={{ color: '#cbd5e1', marginBottom: '1.5rem', lineHeight: '1.7' }}>
-                {maintenance
-                  ? 'سيتم إعادة تشغيل الموقع للزوار. هل أنت متأكد؟'
-                  : 'سيتم إخفاء المتجر عن الزوار وتحويلهم لصفحة الصيانة. هل أنت متأكد؟'}
-              </p>
-              <div className="confirm-actions">
-                <button className="confirm-btn confirm-yes" onClick={toggleMaintenance} style={{ background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#451a03', fontWeight: 800 }}>
-                  تأكيد
-                </button>
-                <button className="confirm-btn confirm-no" onClick={() => setMaintenanceConfirm(false)} style={{ background: 'rgba(255,255,255,0.1)', color: '#fff' }}>
-                  إلغاء
-                </button>
-              </div>
             </div>
           </div>
         )}
