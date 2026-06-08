@@ -178,6 +178,7 @@ function MaintenanceToggle() {
       await supabase.from('settings').upsert({ key: 'maintenance_mode', value: next ? 'true' : 'false' }, { onConflict: 'key' });
       localStorage.setItem(MAINTENANCE_STORAGE_KEY, next ? 'true' : 'false');
       setStatus(next ? 'activated' : 'deactivated');
+      window.dispatchEvent(new CustomEvent('thara:maintenance-change', { detail: { maintenance: next } }));
     } catch { setStatus('error'); }
   }, [action, secret]);
 
@@ -257,6 +258,15 @@ function MaintenanceGate({ children }) {
       })
       .catch(() => {});
   }, [loc.pathname]);
+
+  useEffect(() => {
+    const handler = (e) => {
+      setMaintenance(e.detail.maintenance);
+      try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, e.detail.maintenance ? 'true' : 'false'); } catch {}
+    };
+    window.addEventListener('thara:maintenance-change', handler);
+    return () => window.removeEventListener('thara:maintenance-change', handler);
+  }, []);
 
   if (maintenance && (loc.pathname.startsWith('/toggle/on/') || loc.pathname.startsWith('/toggle/off/'))) {
     return children;
