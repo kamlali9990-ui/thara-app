@@ -119,13 +119,19 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = event.notification.data?.url || BASE_PATH;
+  if (event.action === 'close') return;
+  const relativeUrl = (event.notification.data?.url || '/').replace(/\/+/g, '/');
+  const targetUrl = relativeUrl.startsWith(BASE_PATH)
+    ? relativeUrl
+    : BASE_PATH.replace(/\/$/, '') + '/' + relativeUrl.replace(/^\//, '');
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url === url && 'focus' in client) return client.focus();
+        const clientBase = new URL(client.url).pathname.replace(/\/$/, '');
+        const targetPath = new URL(targetUrl, self.location.origin).pathname.replace(/\/$/, '');
+        if (clientBase === targetPath && 'focus' in client) return client.focus();
       }
-      if (clients.openWindow) return clients.openWindow(url);
+      if (clients.openWindow) return clients.openWindow(targetUrl);
     })
   );
 });
