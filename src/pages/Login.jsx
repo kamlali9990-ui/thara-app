@@ -1,17 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../utils/theme';
 
+const STORAGE_KEY = 'thara_login_remember';
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useStore();
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const { email: savedEmail, password: savedPassword } = JSON.parse(saved);
+        setEmail(savedEmail || '');
+        setPassword(savedPassword || '');
+        setRememberMe(true);
+      } catch {}
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -19,6 +34,11 @@ export default function Login() {
     setLoading(true);
     try {
       await login(email, password);
+      if (rememberMe) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
+      } else {
+        localStorage.removeItem(STORAGE_KEY);
+      }
       navigate('/admin');
     } catch (err) {
       setError(err.message === 'Invalid login credentials'
@@ -62,6 +82,15 @@ export default function Login() {
               className="auth-input"
             />
           </div>
+
+          <label className="auth-remember">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+            />
+            <span>تذكر بيانات الدخول</span>
+          </label>
 
           {error && <div className="auth-error">{error}</div>}
 
