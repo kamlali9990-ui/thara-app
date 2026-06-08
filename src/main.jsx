@@ -194,8 +194,8 @@ function ProtectedRoute({ children }) {
   const { user, loading, staffRole } = useStore();
   if (loading) return <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
   if (!user) return <Navigate to="/admin/login" replace />;
-  const isAdmin = staffRole === 'admin' || staffRole === 'manager';
-  if (!isAdmin) return <Navigate to="/admin/login" replace />;
+  const allowed = staffRole === 'admin' || staffRole === 'manager' || staffRole === 'driver';
+  if (!allowed) return <Navigate to="/admin/login" replace />;
   return children;
 }
 

@@ -1,0 +1,205 @@
+/* ===================== Admin Theme: beige/gold on warm brown ===================== */
+
+/* --- Layout --- */
+.admin-layout {
+  background: #3d2817 !important;
+}
+
+/* --- Sidebar --- */
+.admin-sidebar {
+  background: linear-gradient(180deg, #5c4030 0%, #4a3222 100%) !important;
+}
+
+/* --- Mobile Nav --- */
+.admin-mobile-nav {
+  background: rgba(61, 40, 23, 0.97) !important;
+  border-top: 0.5px solid rgba(210, 180, 140, 0.2) !important;
+}
+.admin-mobile-header {
+  background: linear-gradient(135deg, #5c4030, #4a3222) !important;
+}
+.admin-mobile-tab.active {
+  background: rgba(201, 169, 78, 0.18) !important;
+  color: #d4a017 !important;
+}
+
+/* --- Cards & Containers (beige/gold tint) --- */
+.admin-card,
+.admin-stat-card,
+.admin-product-card,
+.admin-product-form-container,
+.admin-offers-list,
+.admin-chat-threads,
+.admin-chat-main,
+.admin-offer-row,
+.admin-chat-body {
+  background: rgba(210, 180, 140, 0.07) !important;
+  border-color: rgba(210, 180, 140, 0.15) !important;
+}
+.admin-card-header {
+  border-bottom-color: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-card-info {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+.admin-section-divider {
+  background: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-offer-row.is-offer {
+  background: rgba(201, 169, 78, 0.1) !important;
+  border-right-color: #d4a017 !important;
+}
+
+/* --- Tabs --- */
+.admin-tab,
+.admin-product-form-submit {
+  background: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-tab:hover,
+.admin-product-form-submit:hover {
+  background: rgba(210, 180, 140, 0.2) !important;
+}
+.admin-tab.active {
+  background: rgba(201, 169, 78, 0.2) !important;
+  color: #d4a017 !important;
+}
+
+/* --- Buttons (green → gold/beige) --- */
+.admin-product-add-btn {
+  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+}
+.admin-product-add-btn:hover {
+  background: linear-gradient(135deg, #c9a94e, #d4a017) !important;
+}
+.cloudinary-upload-btn {
+  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+}
+.cloudinary-upload-btn:hover {
+  background: linear-gradient(135deg, #c9a94e, #d4a017) !important;
+}
+.admin-edit-btn {
+  background: #8B7355 !important;
+}
+.admin-edit-btn:hover {
+  background: #6b5b3e !important;
+}
+.admin-edit-save-btn,
+.pr-save-btn {
+  background: #b89047 !important;
+}
+.admin-edit-save-btn:hover,
+.pr-save-btn:hover {
+  background: #a07830 !important;
+}
+.admin-delete-btn {
+  background: #c0392b !important;
+}
+.admin-delete-btn:hover {
+  background: #a93226 !important;
+}
+.admin-offer-toggle.active {
+  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+  color: #fff !important;
+}
+.admin-offer-save-btn {
+  background: #b89047 !important;
+  color: white !important;
+}
+.admin-offer-add-btn {
+  background: linear-gradient(135deg, #b89047, #8B7355) !important;
+}
+.admin-offer-add-btn:hover {
+  background: linear-gradient(135deg, #c9a94e, #b89047) !important;
+}
+.admin-offer-remove-btn {
+  background: linear-gradient(135deg, #c0392b, #a93226) !important;
+}
+.staff-role-admin {
+  background: #5c4030 !important;
+}
+.staff-actions .admin-delete-btn {
+  background: #c0392b !important;
+}
+.staff-actions .admin-delete-btn:hover {
+  background: #a93226 !important;
+}
+.order-status-select option {
+  background: #3d2817 !important;
+}
+
+/* --- Chat --- */
+.admin-chat-tab.active {
+  color: #d4a017 !important;
+  border-bottom-color: #d4a017 !important;
+}
+.admin-chat-thread-item.active {
+  background: rgba(201, 169, 78, 0.12) !important;
+  border-right-color: #d4a017 !important;
+}
+.admin-chat-thread-item.unread {
+  background: rgba(201, 169, 78, 0.06) !important;
+}
+.admin-bubble.admin {
+  background: linear-gradient(135deg, #b89047, #c9a94e) !important;
+  color: #2a1a0a !important;
+}
+.admin-chat-main-header {
+  border-bottom-color: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-chat-main-title {
+  color: #f5e6d3 !important;
+}
+.admin-chat-thread-name {
+  color: #f5e6d3 !important;
+}
+.admin-chat-tab {
+  color: #a09080 !important;
+}
+.admin-chat-tab:hover {
+  color: #c9a94e !important;
+}
+.admin-chat-threads-header {
+  border-bottom-color: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-chat-thread-item {
+  border-bottom-color: rgba(210, 180, 140, 0.06) !important;
+}
+.admin-chat-thread-item:hover {
+  background: rgba(210, 180, 140, 0.06) !important;
+}
+.admin-chat-search {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border-color: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-chat-input {
+  background: rgba(0, 0, 0, 0.35) !important;
+  border-color: rgba(210, 180, 140, 0.12) !important;
+}
+.admin-chat-input-area {
+  border-top-color: rgba(210, 180, 140, 0.12) !important;
+}
+
+/* --- Inputs --- */
+.admin-product-form-input:focus,
+.admin-edit-input:focus,
+.admin-product-field:focus,
+.admin-input-half:focus {
+  border-color: #d4a017 !important;
+}
+
+/* --- Section Title Accents --- */
+[class*="admin"] .admin-section-title.offers-title::before { background: #c9a94e !important; }
+[class*="admin"] .admin-section-title.orders-title::before { background: #b89047 !important; }
+
+/* --- Stats --- */
+.admin-stat-card strong {
+  color: #d4a017 !important;
+}
+.order-total-text {
+  color: #d4a017 !important;
+}
+
+/* --- Order badge on AccountTab --- */
+.acc-card {
+  border: 1px solid rgba(210, 180, 140, 0.15) !important;
+}

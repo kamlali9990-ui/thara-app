@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { showToast } from './Toast.jsx';
 import InstallGuide from './InstallGuide';
 
-const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme, staffRole }) => {
+const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme, staffRole, orders }) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -172,6 +172,39 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
               </span>
             </div>
           </div>
+
+          {orders && orders.length > 0 && (
+            <div className="acc-card" style={{ padding: '1rem' }}>
+              <h3 style={{ margin: '0 0 0.75rem', fontSize: '0.95rem', color: '#f1f5f9' }}>📋 طلباتي السابقة</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {orders.slice(-5).reverse().map(o => (
+                  <div key={o.id} style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    padding: '0.5rem 0.65rem', borderRadius: 8,
+                    background: 'rgba(255,255,255,0.04)', fontSize: '0.8rem'
+                  }}>
+                    <div>
+                      <div style={{ color: '#e2e8f0', fontWeight: 600 }}>طلب #{o.id.slice(-6)}</div>
+                      <div style={{ color: '#64748b', fontSize: '0.7rem' }}>
+                        {o.date ? new Date(o.date).toLocaleDateString('ar-SA') : ''}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ color: '#fbbf24', fontWeight: 700 }}>{o.total?.toFixed(2)} ر.س</div>
+                      <span className={`order-badge ${o.status === 'مكتمل' ? 'badge-done' : o.status === 'ملغي' ? 'badge-cancel' : 'badge-new'}`}
+                        style={{
+                          fontSize: '0.6rem', padding: '0.1rem 0.35rem', borderRadius: 4,
+                          background: o.status === 'مكتمل' ? 'rgba(34,197,94,0.2)' : o.status === 'ملغي' ? 'rgba(239,68,68,0.2)' : 'rgba(251,191,36,0.2)',
+                          color: o.status === 'مكتمل' ? '#4ade80' : o.status === 'ملغي' ? '#fca5a5' : '#fbbf24'
+                        }}>
+                        {o.status === 'مكتمل' ? 'تم التوصيل' : o.status === 'ملغي' ? 'ملغي' : o.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="acc-theme-card" onClick={toggleTheme} role="button" tabIndex={0}>
             <div className="acc-theme-left">

@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef, useEffect, useMemo } from 'react';
 import { StoreContext } from '../../context/StoreContext';
 
 export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
-  const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, currentStaff } = useContext(StoreContext);
+  const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, currentStaff, staffRole, orders } = useContext(StoreContext);
   const [text, setText] = useState('');
   const [activeThread, setActiveThread] = useState(null);
   const [chatTab, setChatTab] = useState('support');
@@ -42,15 +42,24 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
     })
     .sort((a, b) => (b.lastMsg.timestamp || 0) > (a.lastMsg.timestamp || 0) ? 1 : -1);
 
+  const isDriver = staffRole === 'driver';
+  const driverOrderIds = useMemo(() => {
+    if (!isDriver || !currentStaff) return new Set();
+    return new Set(orders.filter(o => o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff.id)).map(o => o.id));
+  }, [isDriver, orders, currentStaff]);
+
   const threads = useMemo(() => {
     const raw = chatTab === 'support' ? supportThreads : orderThreads;
     let list = toThreadList(raw);
+    if (isDriver) {
+      list = list.filter(t => t.orderId && driverOrderIds.has(t.orderId));
+    }
     if (searchThread.trim()) {
       const q = searchThread.toLowerCase();
       list = list.filter(t => t.label.toLowerCase().includes(q));
     }
     return list;
-  }, [chatTab, supportThreads, orderThreads, searchThread]);
+  }, [chatTab, supportThreads, orderThreads, searchThread, isDriver, driverOrderIds]);
 
   const activeMessages = useMemo(() => {
     if (!activeThread) return [];
@@ -93,11 +102,13 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
         <div className="admin-chat-threads">
           <div className="admin-chat-threads-header">
             <div className="admin-chat-tabs">
-              <button className={`admin-chat-tab ${chatTab === 'support' ? 'active' : ''}`} onClick={() => { setChatTab('support'); setActiveThread(null); }}>
-                الدعم {Object.keys(supportThreads).length > 0 && `(${Object.keys(supportThreads).length})`}
-              </button>
+              {!isDriver && (
+                <button className={`admin-chat-tab ${chatTab === 'support' ? 'active' : ''}`} onClick={() => { setChatTab('support'); setActiveThread(null); }}>
+                  الدعم {Object.keys(supportThreads).length > 0 && `(${Object.keys(supportThreads).length})`}
+                </button>
+              )}
               <button className={`admin-chat-tab ${chatTab === 'orders' ? 'active' : ''}`} onClick={() => { setChatTab('orders'); setActiveThread(null); }}>
-                الطلبات {Object.keys(orderThreads).length > 0 && `(${Object.keys(orderThreads).length})`}
+                الطلبات {isDriver ? '' : Object.keys(orderThreads).length > 0 && `(${Object.keys(orderThreads).length})`}
               </button>
             </div>
             <div className="admin-chat-search-wrap">

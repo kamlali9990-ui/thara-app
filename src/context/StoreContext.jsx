@@ -11,6 +11,7 @@ import { showToast } from '../components/Toast.jsx';
 import { cleanProductImages } from '../utils/constants.js';
 import { usePersistence, useAuthListener, useLocalStorageSave } from './usePersistence.js';
 import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead } from './useRealtime.js';
+import { subscribePush, unsubscribePush } from '../utils/pushNotifications.js';
 
 export const StoreContext = createContext();
 
@@ -38,6 +39,7 @@ export const StoreProvider = ({ children }) => {
     try { const saved = localStorage.getItem('thara_orders'); if (saved) return JSON.parse(saved); } catch {}
     return [];
   });
+  const [archivedOrders, setArchivedOrders] = useState([]);
   const [chatMessages, setChatMessages] = useState(() => {
     try { const saved = localStorage.getItem('thara_chat'); if (saved) return JSON.parse(saved); } catch {}
     return [];
@@ -67,6 +69,31 @@ export const StoreProvider = ({ children }) => {
   const { markMessagesAsRead } = useMarkRead({ hasSupabase, supabaseReady, setChatMessages });
 
   useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart });
+
+  // Push notification subscription — auto subscribe on login, unsubscribe on logout
+  useEffect(() => {
+    if (!user || !supabaseReady) return;
+    const email = user.email;
+    const role = staffRole || 'customer';
+    if (!email) return;
+
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then((perm) => {
+        if (perm === 'granted') subscribePush(email, role);
+      });
+    } else if (Notification.permission === 'granted') {
+      subscribePush(email, role);
+    }
+  }, [user?.id, supabaseReady]);
+
+  const prevUserRef = useRef(null);
+  useEffect(() => {
+    if (prevUserRef.current && !user && supabaseReady) {
+      const prevEmail = prevUserRef.current.email;
+      if (prevEmail) unsubscribePush(prevEmail);
+    }
+    prevUserRef.current = user;
+  }, [user, supabaseReady]);
 
   // Most requested products (from order history)
   const mostRequested = useMemo(() => {
@@ -195,6 +222,7 @@ export const StoreProvider = ({ children }) => {
       total: cartTotal + deliveryFee,
       status: 'جديد',
       customerEmail: user?.email || null,
+      deliveryFee: deliveryFee,
       ...orderData
     };
 
@@ -240,33 +268,57 @@ export const StoreProvider = ({ children }) => {
     if (order && !isValidStatusTransition(order.status, newStatus)) {
       throw new Error('لا يمكن إرجاع الطلب أكثر من خطوة واحدة');
     }
+    const isAccepting = order && order.status === 'جديد' && newStatus === 'قيد التحضير';
     let updatedFromServer = null;
     if (hasSupabase && supabaseReady) {
       try {
         updatedFromServer = await ordersApi.updateStatus(orderId, newStatus, eta);
       } catch (err) {
-        // Surface RPC errors (unauthorized / etc.) so the UI can show them.
         throw err;
       }
     }
     setOrders(prev => prev.map(o => {
       if (o.id !== orderId) return o;
-      if (updatedFromServer) return { ...o, ...updatedFromServer };
-      const updated = { ...o, status: newStatus };
-      if (eta !== undefined && eta !== null) updated.estimatedDelivery = Number(eta);
-      return updated;
+      const base = updatedFromServer ? { ...o, ...updatedFromServer } : { ...o };
+      base.status = newStatus;
+      if (eta !== undefined && eta !== null) base.estimatedDelivery = Number(eta);
+      if (isAccepting && currentStaff && !base.acceptedBy) {
+        base.acceptedBy = { id: currentStaff.id, name: currentStaff.name, email: currentStaff.email };
+      }
+      return base;
     }));
-  }, [hasSupabase, supabaseReady, orders]);
+  }, [hasSupabase, supabaseReady, orders, currentStaff]);
 
-  const deleteOrder = useCallback(async (orderId) => {
+  const archiveOrder = useCallback(async (orderId) => {
     if (hasSupabase && supabaseReady) {
       try {
-        await ordersApi.deleteOrder(orderId);
+        const archived = await ordersApi.archiveOrder(orderId);
         setOrders(prev => prev.filter(o => o.id !== orderId));
+        setArchivedOrders(prev => archived ? [archived, ...prev] : prev);
       } catch (err) {
         throw err;
       }
     }
+  }, [hasSupabase, supabaseReady]);
+
+  const restoreOrder = useCallback(async (orderId) => {
+    if (hasSupabase && supabaseReady) {
+      try {
+        const restored = await ordersApi.restoreOrder(orderId);
+        setArchivedOrders(prev => prev.filter(o => o.id !== orderId));
+        if (restored) setOrders(prev => [restored, ...prev]);
+      } catch (err) {
+        throw err;
+      }
+    }
+  }, [hasSupabase, supabaseReady]);
+
+  const loadArchivedOrders = useCallback(async () => {
+    if (!hasSupabase || !supabaseReady) return;
+    try {
+      const archived = await ordersApi.listArchived();
+      if (Array.isArray(archived)) setArchivedOrders(archived);
+    } catch { /* ignore */ }
   }, [hasSupabase, supabaseReady]);
 
   // --- Driver assignment (admin/manager) ---
@@ -494,7 +546,8 @@ export const StoreProvider = ({ children }) => {
       selectedCategory, setSelectedCategory,
       placeOrder, getProductPrice,
       allProducts: products,
-      orders, updateOrderStatus, deleteOrder, loadOrders,
+      orders, updateOrderStatus, archiveOrder, restoreOrder, loadOrders,
+      archivedOrders, loadArchivedOrders,
       drivers, loadDrivers, assignDriverToOrder, claimOrder,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
       chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders

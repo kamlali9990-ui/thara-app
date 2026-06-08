@@ -7,16 +7,21 @@ import { printInvoice } from '../../utils/printInvoice.js';
 
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
 
-export default function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder }) {
-  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, deleteOrder } = useContext(StoreContext);
+export default function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder, allCustomers = [], staffList = [] }) {
+  const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, archiveOrder, restoreOrder, archivedOrders, loadArchivedOrders } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState({});
   const [confirmMsg, setConfirmMsg] = useState(null);
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
   const [showCompleted, setShowCompleted] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [activeDriverTab, setActiveDriverTab] = useState('available');
   const [etaModalOrder, setEtaModalOrder] = useState(null);
   const [etaModalValue, setEtaModalValue] = useState('30');
+
+  useEffect(() => {
+    if (showArchived && archivedOrders.length === 0) loadArchivedOrders();
+  }, [showArchived]);
 
   // Auto-mark order chat messages as read when modal opens
   useEffect(() => {
@@ -315,24 +320,24 @@ const handleStatusChange = (order, newStatus) => {
 
         <div style={{ marginTop: '0.4rem' }}>
           <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
-          <button type="button" className="chat-order-btn" style={{ marginRight: '0.4rem' }} onClick={() => printInvoice(order)}>🖨️ طباعة الفاتورة</button>
+          <button type="button" className="chat-order-btn" style={{ marginRight: '0.4rem' }} onClick={() => printInvoice(order, { currentStaff, drivers, customers: allCustomers, staffList })}>🖨️ طباعة الفاتورة</button>
           {!compact && staffRole === 'admin' && (
             <button type="button" className="admin-delete-btn" style={{ marginTop: '0.4rem' }}
               onClick={() => {
                 setConfirmMsg({
-                  text: `هل أنت متأكد من حذف الطلب #${String(order.id).slice(-6)} نهائياً؟`,
+                  text: `هل أنت متأكد من أرشفة الطلب #${String(order.id).slice(-6)}؟`,
                   onConfirm: async () => {
                     setConfirmMsg(null);
                     try {
-                      await deleteOrder(order.id);
-                      showToast('تم حذف الطلب بنجاح', 'success');
+                      await archiveOrder(order.id);
+                      showToast('تم أرشفة الطلب بنجاح', 'success');
                     } catch (err) {
-                      showToast('فشل حذف الطلب: ' + (err.message || ''), 'error');
+                      showToast('فشل أرشفة الطلب: ' + (err.message || ''), 'error');
                     }
                   }
                 });
               }}>
-              🗑️ حذف الطلب
+              📦 أرشفة الطلب
             </button>
           )}
         </div>
@@ -541,6 +546,41 @@ const handleStatusChange = (order, newStatus) => {
           {showCompleted && (
             <div className="admin-orders-list completed-orders-list">
               {completedOrders.map(order => renderOrderCard(order, { compact: true }))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {staffRole === 'admin' && (
+        <div className="completed-orders-section" style={{ marginTop: '0.75rem' }}>
+          <button
+            className="completed-toggle-btn"
+            onClick={() => setShowArchived(prev => !prev)}
+            style={{ borderColor: '#64748b' }}
+          >
+            {showArchived ? '▾' : '▸'} 📦 أرشيف الطلبات ({archivedOrders.length})
+          </button>
+          {showArchived && (
+            <div className="admin-orders-list completed-orders-list">
+              {archivedOrders.length === 0 ? (
+                <div className="empty-orders" style={{ color: '#64748b' }}>لا توجد طلبات في الأرشيف.</div>
+              ) : (
+                archivedOrders.map(order => (
+                  <div key={order.id} style={{ position: 'relative' }}>
+                    {renderOrderCard(order, { compact: true })}
+                    <div style={{ padding: '0 0.75rem 0.75rem', marginTop: '-0.5rem' }}>
+                      <button type="button" className="chat-order-btn" onClick={async () => {
+                        try {
+                          await restoreOrder(order.id);
+                          showToast('تم استعادة الطلب', 'success');
+                        } catch (err) {
+                          showToast('فشل استعادة الطلب', 'error');
+                        }
+                      }}>↩️ استعادة الطلب</button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>

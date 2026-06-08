@@ -1,13 +1,18 @@
 import { supabase } from './client';
 
 export const ordersApi = {
-  async list() {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
+  async list(includeArchived = false) {
+    let query = supabase.from('orders').select('*');
+    if (!includeArchived) query = query.eq('archived', false);
+    const { data, error } = await query.order('created_at', { ascending: false });
     if (error) throw error;
     return data.map(mapOrder);
+  },
+
+  async listArchived() {
+    const { data, error } = await supabase.rpc('list_archived_orders_rpc');
+    if (error) throw error;
+    return (data || []).map(mapOrder);
   },
 
   async create(order) {
@@ -79,12 +84,22 @@ export const ordersApi = {
     return mapOrder(typeof data === 'string' ? JSON.parse(data) : data);
   },
 
-  /** Admin only: delete an order permanently. */
-  async deleteOrder(id) {
-    const { data, error } = await supabase.rpc('delete_order_rpc', {
+  /** Soft-delete: move order to archive. */
+  async archiveOrder(id) {
+    const { data, error } = await supabase.rpc('archive_order_rpc', {
       p_order_id: Number(id)
     });
     if (error) throw error;
+    return mapOrder(typeof data === 'string' ? JSON.parse(data) : data);
+  },
+
+  /** Restore an archived order back to active. */
+  async restoreOrder(id) {
+    const { data, error } = await supabase.rpc('restore_order_rpc', {
+      p_order_id: Number(id)
+    });
+    if (error) throw error;
+    return mapOrder(typeof data === 'string' ? JSON.parse(data) : data);
   },
 
   /** Admin/manager assigns a driver to an order (pass null to unassign). */
@@ -147,6 +162,10 @@ function mapOrder(o) {
     location: o.location,
     customerEmail: o.customer_email,
     estimatedDelivery: o.estimated_delivery ?? null,
-    assignedDriverId: o.assigned_driver_id ?? null
+    assignedDriverId: o.assigned_driver_id ?? null,
+    deliveryFee: Number(o.delivery_fee) || 0,
+    acceptedBy: o.accepted_by_id ? { id: o.accepted_by_id } : null,
+    archived: !!o.archived,
+    archivedAt: o.archived_at || null
   };
 }
