@@ -308,7 +308,6 @@ export default function Admin() {
         ))}
         <div className="admin-sidebar-footer">
           <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
-          <ThemeToggle currentTheme={theme} onThemeChange={setTheme} inline />
           <br/>
           <button onClick={handleLogout} className="admin-tab">تسجيل الخروج</button>
         </div>
@@ -326,6 +325,7 @@ export default function Admin() {
           </button>
         ))}
       </nav>
+      <ThemeToggle currentTheme={theme} onThemeChange={setTheme} />
     </div>
   );
 }

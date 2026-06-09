@@ -69,8 +69,8 @@ const SupportChatWidget = memo(() => {
 
   return (
     <div className="chat-widgets-container" style={{
-      position: 'fixed', bottom: '80px', left: '0.25rem', zIndex: 300,
-      display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'center'
+      position: 'fixed', bottom: '140px', right: '16px', zIndex: 300,
+      display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center'
     }}>
       <a
         className="chat-fab whatsapp-fab"
@@ -80,7 +80,7 @@ const SupportChatWidget = memo(() => {
         aria-label="تواصل عبر واتساب"
         title="تواصل عبر واتساب"
         style={{
-          width: '36px', height: '36px', borderRadius: '50%',
+          width: '44px', height: '44px', borderRadius: '50%',
           background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 12px rgba(37, 211, 102, 0.3)', color: 'white', transition: 'transform 0.2s',
           border: 'none', cursor: 'pointer'
@@ -88,7 +88,7 @@ const SupportChatWidget = memo(() => {
         onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
         onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="currentColor">
           <path d="M19.11 17.38c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.5-1.8-1.68-2.1-.17-.3-.02-.46.13-.6.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.52.08-.8.37-.27.3-1.05 1.02-1.05 2.5 0 1.47 1.07 2.9 1.22 3.1.15.2 2.1 3.2 5.08 4.48.7.3 1.25.48 1.68.62.7.22 1.33.2 1.83.12.56-.08 1.77-.72 2.02-1.43.25-.7.25-1.3.17-1.42-.07-.12-.27-.2-.57-.35z"/>
           <path d="M16.03 3.2c-7.08 0-12.83 5.75-12.83 12.83 0 2.26.6 4.47 1.73 6.4L3 29l6.73-1.77a12.8 12.8 0 0 0 6.3 1.6h.01c7.08 0 12.83-5.75 12.83-12.83 0-3.43-1.33-6.65-3.76-9.08A12.75 12.75 0 0 0 16.03 3.2zm0 23.33h-.01c-1.93 0-3.82-.52-5.46-1.5l-.4-.24-3.99 1.05 1.07-3.9-.26-.4a10.48 10.48 0 0 1-1.61-5.55c0-5.8 4.72-10.52 10.53-10.52 2.8 0 5.43 1.1 7.41 3.08a10.45 10.45 0 0 1 3.08 7.43c0 5.8-4.73 10.52-10.53 10.52z"/>
         </svg>
@@ -100,7 +100,7 @@ const SupportChatWidget = memo(() => {
         aria-label="الدعم الفني المباشر"
         title="الدعم الفني المباشر"
         style={{
-          width: '36px', height: '36px', borderRadius: '50%', border: 'none',
+          width: '44px', height: '44px', borderRadius: '50%', border: 'none',
           background: '#fbbf24', display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 4px 12px rgba(251, 191, 38, 0.35)', color: '#78350f', cursor: 'pointer',
           position: 'relative', transition: 'all 0.2s'
@@ -108,7 +108,7 @@ const SupportChatWidget = memo(() => {
         onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.08)'}
         onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
       >
-        <span style={{ fontSize: '1rem' }}>💬</span>
+        <span style={{ fontSize: '1.2rem' }}>💬</span>
         {unreadCount > 0 && (
           <span style={{
             position: 'absolute', top: '-3px', right: '-3px',

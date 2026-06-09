@@ -15,7 +15,7 @@ export default function ThemeToggle({ currentTheme, onThemeChange, className = '
   const containerStyle = inline ? {} : {
     position: 'fixed',
     bottom: '90px',
-    left: '16px',
+    right: '16px',
     zIndex: 9000,
     display: 'flex',
     flexDirection: 'column-reverse',
