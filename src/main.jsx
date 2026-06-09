@@ -3,10 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 
-import L from 'leaflet';
 import './index.css'
-
-L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
 import { StoreProvider, useStore } from './context/StoreContext.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { ToastProvider } from './components/Toast.jsx'
@@ -228,33 +225,37 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function RouteErrorBoundary({ children }) {
+  return <ErrorBoundary>{children}</ErrorBoundary>;
+}
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <ToastProvider>
-        <StoreProvider>
-          <BrowserRouter basename={BASENAME}>
-            <MaintenanceGate>
-              <LeaveGuard />
-              <AuthErrorHandler />
-              <Routes>
-                <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
-                <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
-                <Route path="/register" element={<Suspense fallback={PageLoader}><Register /></Suspense>} />
-                <Route path="/maintenance" element={<MaintenancePanel />} />
-                <Route path="/admin/login" element={<Suspense fallback={PageLoader}><Login /></Suspense>} />
-                <Route path="/admin/*" element={
-                <ProtectedRoute>
-                  <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
-                    <Admin />
-                  </Suspense>
-                </ProtectedRoute>
-                } />
-              </Routes>
-            </MaintenanceGate>
-          </BrowserRouter>
-        </StoreProvider>
-      </ToastProvider>
-    </ErrorBoundary>
+    <ToastProvider>
+      <StoreProvider>
+        <BrowserRouter basename={BASENAME}>
+          <MaintenanceGate>
+            <LeaveGuard />
+            <AuthErrorHandler />
+            <Routes>
+              <Route path="/" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><App /></Suspense></RouteErrorBoundary>} />
+              <Route path="/login" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><CustomerLogin /></Suspense></RouteErrorBoundary>} />
+              <Route path="/register" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><Register /></Suspense></RouteErrorBoundary>} />
+              <Route path="/maintenance" element={<RouteErrorBoundary><MaintenancePanel /></RouteErrorBoundary>} />
+              <Route path="/admin/login" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><Login /></Suspense></RouteErrorBoundary>} />
+              <Route path="/admin/*" element={
+                <RouteErrorBoundary>
+                  <ProtectedRoute>
+                    <Suspense fallback={<div className="loading-screen"><div className="loading-spinner" /><p>جاري تحميل لوحة التحكم...</p></div>}>
+                      <Admin />
+                    </Suspense>
+                  </ProtectedRoute>
+                </RouteErrorBoundary>
+              } />
+            </Routes>
+          </MaintenanceGate>
+        </BrowserRouter>
+      </StoreProvider>
+    </ToastProvider>
   </React.StrictMode>,
 )

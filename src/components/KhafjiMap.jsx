@@ -1,6 +1,8 @@
 import { memo, useRef, useEffect, useCallback } from 'react';
 import L from 'leaflet';
 
+L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
+
 const KhafjiMap = memo(({ position, setPosition }) => {
   const mapRef = useRef(null);
   const inst = useRef(null);

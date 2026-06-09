@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 
+L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
+
 /** Read-only mini map — same OSM tiles as customer checkout. */
 export default function OrderLocationMap({ lat, lng, height = 150 }) {
   const mapRef = useRef(null);
