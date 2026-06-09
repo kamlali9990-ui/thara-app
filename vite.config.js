@@ -30,6 +30,11 @@ export default defineConfig(({ mode }) => {
     base: isVercel ? '/' : (mode === 'production' ? '/thara-app/' : '/'),
     plugins: [react(), swVersionPlugin()],
 
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/test/setup.js'],
+    },
     define: {
       'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),
       'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(env.VITE_SUPABASE_ANON_KEY),

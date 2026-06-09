@@ -1,10 +1,14 @@
 import { supabase } from './client';
 
 export const ordersApi = {
-  async list(includeArchived = false) {
+  async list(includeArchived = false, { limit, offset } = {}) {
     let query = supabase.from('orders').select('*');
     if (!includeArchived) query = query.eq('archived', false);
-    const { data, error } = await query.order('created_at', { ascending: false });
+    query = query.order('created_at', { ascending: false });
+    if (limit != null) {
+      query = query.range(offset ?? 0, (offset ?? 0) + limit - 1);
+    }
+    const { data, error } = await query;
     if (error) throw error;
     return data.map(mapOrder);
   },

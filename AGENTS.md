@@ -30,6 +30,8 @@
 - **Development**: `npm run dev` (Starts Vite dev server)
 - **Production Build**: `npm run build` (Outputs to `dist/`)
 - **Preview Build**: `npm run preview` (Locally preview production build)
+- **Run tests**: `npm test` (Vitest, single run)
+- **Watch tests**: `npm run test:watch` (Vitest, watch mode)
 - **Setup on new machine**: `npm run setup` (Installs deps + links Supabase project)
 - **Supabase CLI** (via npx, no global install needed):
   - `npm run supabase:login` — Login with PAT (set `SUPABASE_ACCESS_TOKEN` env var first)
@@ -46,8 +48,15 @@
 - **PWA**: Strict adherence to PWA standards for offline support and installation prompts.
 
 ## Deployment & Environments
-- **Base URL**: The application is configured to run under the `/thara-app/` base path.
+- **Base URL**: The application is configured to run under `/thara-app/` base path.
 - **CI/CD**: GitHub Actions workflow defined in `.\.github\workflows\deploy.yml`.
+
+## DB Maintenance
+- **Apply pending migrations**: `npx supabase db push`
+  - If version conflicts occur, use `npx supabase migration repair --status applied <version>` first
+  - Or: copy `scripts/apply-targeted-migration.sql` into Supabase Dashboard > SQL Editor
+- **Health check**: `node scripts/health-check.mjs`
+- **Supabase Dashboard**: https://supabase.com/dashboard/project/oqwphazzuxmrxwbnothk
 
 ## Commit & Pull Request Guidelines
 - **Language**: Commit messages are primarily in Arabic.

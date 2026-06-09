@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
+import { customersApi } from '../supabase/customers';
 import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
 
 const allNeighborhoods = [
@@ -12,19 +13,35 @@ const allNeighborhoods = [
   'قرطبة', 'الشروق', 'المريكبات', 'الخفجي الجديدة',
 ];
 
+function getSavedCheckout(userEmail) {
+  try {
+    const raw = localStorage.getItem('thara_checkout_' + userEmail);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function saveCheckout(userEmail, data) {
+  try {
+    const prev = getSavedCheckout(userEmail);
+    localStorage.setItem('thara_checkout_' + userEmail, JSON.stringify({ ...prev, ...data }));
+  } catch {}
+}
+
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const navigate = useNavigate();
-  const { user } = useContext(StoreContext);
-  const [position, setPosition] = useState(null);
+  const { user, customerProfile } = useContext(StoreContext);
+  const saved = user?.email ? getSavedCheckout(user.email) : {};
+  const dbLoc = (() => { try { return customerProfile?.location ? JSON.parse(customerProfile.location) : null; } catch { return null; } })();
+  const [position, setPosition] = useState(dbLoc || saved.position || null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [comingSoonMsg, setComingSoonMsg] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(customerProfile?.phone || saved.phone || '');
   const [notes, setNotes] = useState('');
   const [areaResults, setAreaResults] = useState([]);
   const [areaErr, setAreaErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryAddress, setDeliveryAddress] = useState(customerProfile?.delivery_address || saved.deliveryAddress || '');
   const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
   const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
   const phoneReady = (() => {
@@ -35,7 +52,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return false;
   })();
 
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState('');
+  const [selectedNeighborhood, setSelectedNeighborhood] = useState(customerProfile?.neighborhood || saved.neighborhood || '');
 
   const fetchAreaSuggestions = useCallback(async (q) => {
     const query = String(q || '').trim();
@@ -186,6 +203,22 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return;
   }
   if (!position || !phoneReady) return;
+  if (!navigator.onLine) {
+    showToast('أنت غير متصل بالإنترنت، يرجى الاتصال أولاً', 'error');
+    setSubmitting(false);
+    return;
+  }
+  if (user?.email) {
+    const locStr = position ? JSON.stringify({ lat: position.lat, lng: position.lng }) : '';
+    customersApi.update(user.email, customerProfile?.name || '', phone.trim(), deliveryAddress.trim() || '', selectedNeighborhood, locStr)
+      .catch(() => {});
+    saveCheckout(user.email, {
+      phone: phone.trim(),
+      position,
+      deliveryAddress: deliveryAddress.trim() || null,
+      neighborhood: selectedNeighborhood,
+    });
+  }
   setSubmitting(true);
   try {
     await placeOrder({

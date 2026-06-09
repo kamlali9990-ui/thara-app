@@ -19,8 +19,8 @@ function playNotificationSound() {
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.6);
     osc.start(ctx.currentTime);
     osc.stop(ctx.currentTime + 0.6);
-    setTimeout(() => { try { ctx.close(); } catch {} }, 700);
-  } catch {}
+    setTimeout(() => { try { ctx.close(); } catch (e) { console.error('ctx.close', e); } }, 700);
+  } catch (e) { console.error('playNotificationSound', e); }
 }
 
 export function useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, setChatMessages }) {
@@ -32,7 +32,7 @@ export function useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, s
         const isSelf = (msg.sender === 'admin' && staffRole) || (msg.sender === 'customer' && !staffRole);
         if (!isSelf) {
           playNotificationSound();
-          try { window.dispatchEvent(new CustomEvent('thara:new-message', { detail: msg })); } catch {}
+          try { window.dispatchEvent(new CustomEvent('thara:new-message', { detail: msg })); } catch (e) { console.error('dispatch new-message', e); }
         }
         return [...prev, msg];
       });
@@ -57,15 +57,15 @@ export function useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOr
         }
         if (eventType === 'INSERT') {
           if (staffRole) playNotificationSound();
-          try { window.dispatchEvent(new CustomEvent('thara:new-order', { detail: nextOrder })); } catch {}
+          try { window.dispatchEvent(new CustomEvent('thara:new-order', { detail: nextOrder })); } catch (e) { console.error('dispatch new-order', e); }
         }
         return [nextOrder, ...prev];
       });
       if (eventType === 'UPDATE' && prevOrder && nextOrder && prevOrder.status !== nextOrder.status) {
-        try { window.dispatchEvent(new CustomEvent('thara:order-status', { detail: nextOrder })); } catch {}
+        try { window.dispatchEvent(new CustomEvent('thara:order-status', { detail: nextOrder })); } catch (e) { console.error('dispatch order-status', e); }
       }
     });
-    return () => { try { channel.unsubscribe(); } catch {} };
+    return () => { try { channel.unsubscribe(); } catch (e) { console.error('channel.unsubscribe', e); } };
   }, [supabaseReady, staffRole, hasSupabase, setOrders]);
 }
 
@@ -75,10 +75,10 @@ export function useTypingIndicator({ hasSupabase, supabaseReady, user, setTyping
   const sendTyping = (orderId, customerEmail) => {
     if (!hasSupabase || !supabaseReady || !user?.email) return;
     const key = orderId || customerEmail || user.email;
-    chatApi.sendTyping(user.email, orderId, true).catch(() => {});
+    chatApi.sendTyping(user.email, orderId, true).catch(e => console.error('sendTyping start', e));
     clearTimeout(typingTimeouts.current[key]);
     typingTimeouts.current[key] = setTimeout(() => {
-      chatApi.sendTyping(user.email, orderId, false).catch(() => {});
+      chatApi.sendTyping(user.email, orderId, false).catch(e => console.error('sendTyping stop', e));
     }, 2000);
   };
 
@@ -105,7 +105,7 @@ export function useTypingIndicator({ hasSupabase, supabaseReady, user, setTyping
         }, 4000);
       }
     });
-    return () => { try { sub.unsubscribe(); } catch {} };
+    return () => { try { sub.unsubscribe(); } catch (e) { console.error('typing sub.unsubscribe', e); } };
   }, [supabaseReady, user, hasSupabase, setTypingUsers]);
 
   return { sendTyping, typingTimeouts };
@@ -117,14 +117,14 @@ export function useMessageStatus({ hasSupabase, supabaseReady, setChatMessages }
     const sub = chatApi.subscribeUpdates((msg) => {
       setChatMessages(prev => prev.map(m => m.id === msg.id ? { ...m, status: msg.status, readAt: msg.readAt } : m));
     });
-    return () => { try { sub.unsubscribe(); } catch {} };
+    return () => { try { sub.unsubscribe(); } catch (e) { console.error('msgStatus sub.unsubscribe', e); } };
   }, [supabaseReady, hasSupabase, setChatMessages]);
 }
 
 export function useMarkRead({ hasSupabase, supabaseReady, setChatMessages }) {
   const markMessagesAsRead = (messageIds) => {
     if (!messageIds || messageIds.length === 0 || !hasSupabase || !supabaseReady) return;
-    chatApi.markAsRead(messageIds).catch(() => {});
+    chatApi.markAsRead(messageIds).catch(e => console.error('markAsRead', e));
     setChatMessages(prev => prev.map(m => messageIds.includes(m.id) ? { ...m, status: 'read' } : m));
   };
   return { markMessagesAsRead };

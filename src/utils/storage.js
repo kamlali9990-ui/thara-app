@@ -39,7 +39,8 @@ export const storage = {
         req.onerror = () => reject(req.error);
         tx.oncomplete = () => db.close();
       });
-    } catch {
+    } catch (e) {
+      console.error('storage.get fallback to localStorage', e);
       const fallback = localStorage.getItem(key);
       return fallback ? JSON.parse(fallback) : null;
     }
@@ -56,7 +57,8 @@ export const storage = {
         req.onerror = () => reject(req.error);
         tx.oncomplete = () => db.close();
       });
-    } catch {
+    } catch (e) {
+      console.error('storage.set fallback to localStorage', e);
       localStorage.setItem(key, JSON.stringify(value));
     }
   },
@@ -72,7 +74,8 @@ export const storage = {
         req.onerror = () => reject(req.error);
         tx.oncomplete = () => db.close();
       });
-    } catch {
+    } catch (e) {
+      console.error('storage.remove fallback to localStorage', e);
       localStorage.removeItem(key);
     }
   }

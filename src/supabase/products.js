@@ -1,7 +1,16 @@
 import { supabase } from './client';
 
 export const productsApi = {
-  async list() {
+  async list({ limit, offset } = {}) {
+    if (limit != null) {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('id', { ascending: true })
+        .range(offset ?? 0, (offset ?? 0) + limit - 1);
+      if (error) throw error;
+      return (data || []).map(mapProduct);
+    }
     const PAGE_SIZE = 1000;
     let all = [];
     let from = 0;

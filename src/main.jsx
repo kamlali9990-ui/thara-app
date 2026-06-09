@@ -10,6 +10,7 @@ import { ToastProvider } from './components/Toast.jsx'
 import MaintenancePage from './components/MaintenancePage.jsx'
 import MaintenancePanel from './pages/MaintenancePanel.jsx'
 import { supabase } from './supabase/client.js'
+import { showToast } from './components/Toast.jsx'
 import * as Sentry from '@sentry/react'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
@@ -174,6 +175,7 @@ function AuthErrorHandler() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
         if (userRef.current) {
+          showToast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى', 'warning');
           setUser(null);
           setStaffRole(null);
           setCurrentStaff(null);
@@ -194,7 +196,7 @@ const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
 function MaintenanceGate({ children }) {
   const loc = useLocation();
   const [maintenance, setMaintenance] = useState(() => {
-    try { return localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true'; } catch { return false; }
+    try { return localStorage.getItem(MAINTENANCE_STORAGE_KEY) === 'true'; } catch (e) { return false; }
   });
 
   useEffect(() => {
@@ -202,9 +204,9 @@ function MaintenanceGate({ children }) {
       .then(({ data }) => {
         const val = data?.value === 'true';
         setMaintenance(val);
-        try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, val ? 'true' : 'false'); } catch {}
+        try { localStorage.setItem(MAINTENANCE_STORAGE_KEY, val ? 'true' : 'false'); } catch (e) { console.error('maintenance write', e); }
       })
-      .catch(() => {});
+      .catch((e) => console.error('maintenance fetch', e));
   }, [loc.pathname]);
 
   if (maintenance && loc.pathname.startsWith('/maintenance')) {

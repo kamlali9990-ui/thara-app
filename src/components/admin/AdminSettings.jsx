@@ -113,7 +113,7 @@ export default function AdminSettings() {
     setBannerUrl(defaultUrl);
     setPreviewUrl(defaultUrl);
     setUrlInput('');
-    showToast('تم استعادة البنر الافتراضي', 'success');
+    saveBannerUrl(defaultUrl);
   };
 
   return (

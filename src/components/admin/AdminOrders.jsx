@@ -6,6 +6,7 @@ import { showToast } from '../Toast.jsx';
 import { printInvoice } from '../../utils/printInvoice.js';
 
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'تم التوصيل', 'مكتمل'];
+const ORDERS_PAGE_SIZE = 50;
 
 export default function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder, allCustomers = [], staffList = [] }) {
   const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, archiveOrder, restoreOrder, archivedOrders, loadArchivedOrders } = useContext(StoreContext);
@@ -17,6 +18,8 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
   const [showArchived, setShowArchived] = useState(false);
   const [activeDriverTab, setActiveDriverTab] = useState('available');
   const [etaModalOrder, setEtaModalOrder] = useState(null);
+  const [activeVisible, setActiveVisible] = useState(ORDERS_PAGE_SIZE);
+  const [completedVisible, setCompletedVisible] = useState(ORDERS_PAGE_SIZE);
   const [etaModalValue, setEtaModalValue] = useState('30');
 
   useEffect(() => {
@@ -571,7 +574,15 @@ const handleStatusChange = (order, newStatus) => {
           {activeOrders.length === 0 && (
             <div className="empty-orders">لا توجد طلبات نشطة حالياً.</div>
           )}
-          {activeOrders.map(order => renderOrderCard(order))}
+          {activeOrders.slice(0, activeVisible).map(order => renderOrderCard(order))}
+          {activeOrders.length > activeVisible && (
+            <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+              <button onClick={() => setActiveVisible(prev => prev + ORDERS_PAGE_SIZE)}
+                style={{ background: '#127443', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                تحميل المزيد ({activeOrders.length - activeVisible} متبقي)
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -585,7 +596,15 @@ const handleStatusChange = (order, newStatus) => {
           </button>
           {showCompleted && (
             <div className="admin-orders-list completed-orders-list">
-              {completedOrders.map(order => renderOrderCard(order, { compact: true }))}
+              {completedOrders.slice(0, completedVisible).map(order => renderOrderCard(order, { compact: true }))}
+              {completedOrders.length > completedVisible && (
+                <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+                  <button onClick={() => setCompletedVisible(prev => prev + ORDERS_PAGE_SIZE)}
+                    style={{ background: '#127443', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    تحميل المزيد ({completedOrders.length - completedVisible} متبقي)
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>

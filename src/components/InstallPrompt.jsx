@@ -68,7 +68,7 @@ export default function InstallPrompt({ variant }) {
           url: window.location.origin + BASE
         });
       } catch (err) {
-        console.log('Share canceled:', err);
+        if (err.name !== 'AbortError') console.error('Share error:', err);
       }
     }
   };

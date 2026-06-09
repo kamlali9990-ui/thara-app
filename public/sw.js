@@ -107,8 +107,8 @@ self.addEventListener('push', (event) => {
     event.waitUntil(
       self.registration.showNotification(title || 'إشعار', {
         body: body || '',
-        icon: icon || '/icon-192.png',
-        badge: badge || '/icon-192.png',
+        icon: icon || `${BASE_PATH}icon-192.png`,
+        badge: badge || `${BASE_PATH}icon-192.png`,
         vibrate: [200, 100, 200],
         data: data || {},
         actions: [
@@ -117,7 +117,7 @@ self.addEventListener('push', (event) => {
         ],
       })
     );
-  } catch {}
+  } catch (e) { console.error('SW push error', e); }
 });
 
 self.addEventListener('notificationclick', (event) => {

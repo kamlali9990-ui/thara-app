@@ -131,11 +131,11 @@ export default function Admin() {
   useEffect(() => {
     if (!loadOrders) return;
     loadOrders();
-    if (isAdminOrManager || isDriver) { try { loadDrivers(); } catch {} }
+    if (isAdminOrManager || isDriver) { try { loadDrivers(); } catch (e) { console.error('loadDrivers', e); } }
   }, [loadOrders, staffRole, loadDrivers]);
 
   useEffect(() => {
-    if (!isDriver) { try { Notification.requestPermission().catch(() => {}); } catch {} }
+    if (!isDriver) { try { Notification.requestPermission().catch(e => console.error('Notif permission', e)); } catch (e) { console.error('Notif permission', e); } }
     const handler = (e) => { playNewOrderBeep(); notifyNewOrder(e.detail); };
     window.addEventListener('thara:new-order', handler);
     return () => window.removeEventListener('thara:new-order', handler);

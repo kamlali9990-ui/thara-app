@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import ProductCard from './ProductCard';
-import { BASE } from '../utils/constants';
 
 import { sectionCats } from '../data/categories';
 

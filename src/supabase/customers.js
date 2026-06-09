@@ -20,11 +20,14 @@ export const customersApi = {
     return data ? (typeof data === 'string' ? JSON.parse(data) : data) : null;
   },
 
-  async update(email, name, phone) {
+  async update(email, name, phone, deliveryAddress, neighborhood, location) {
     const { data, error } = await supabase.rpc('update_customer_rpc', {
       p_email: email,
       p_name: name,
-      p_phone: phone
+      p_phone: phone,
+      p_delivery_address: deliveryAddress ?? null,
+      p_neighborhood: neighborhood ?? null,
+      p_location: location ?? null
     });
     if (error) throw error;
     return typeof data === 'string' ? JSON.parse(data) : data;

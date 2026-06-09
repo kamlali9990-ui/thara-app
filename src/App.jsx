@@ -15,6 +15,7 @@ import OrdersTab from './components/OrdersTab';
 import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
 import ThemeToggle from './components/ThemeToggle';
+import OfflineBanner from './components/OfflineBanner';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
 
@@ -44,9 +45,9 @@ export default function App() {
       const { name } = e.detail || {};
       try {
         if (Notification.permission === 'granted') {
-          new Notification('🔥 عرض جديد في أسواق ثراء الشرق ون!', { body: `اطلع على ${name || 'العرض الجديد'} الآن`, icon: '/icon-192.png' });
+          new Notification('🔥 عرض جديد في أسواق ثراء الشرق ون!', { body: `اطلع على ${name || 'العرض الجديد'} الآن`, icon: BASE + 'icon-192.png' });
         }
-      } catch {}
+      } catch (e) { console.error('new-offer notification error', e); }
     };
     window.addEventListener('thara:new-offer', handler);
     return () => window.removeEventListener('thara:new-offer', handler);
@@ -61,7 +62,7 @@ export default function App() {
   useEffect(() => {
     if (!('Notification' in window)) return;
     if (Notification.permission === 'default') {
-      Notification.requestPermission().catch(() => {});
+      Notification.requestPermission().catch((e) => console.error('Notif permission request failed', e));
     }
   }, []);
 
@@ -82,7 +83,7 @@ export default function App() {
         else if (order.status === 'مكتمل') body = '🎉 تم التوصيل بنجاح';
         else body = `تحديث الطلب: ${order.status}`;
         new Notification('أسواق ثراء الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'cart-icon-192.png' });
-      } catch { /* ignore */ }
+      } catch (e) { console.error('order-status notification error', e); }
     };
     window.addEventListener('thara:order-status', handler);
     return () => window.removeEventListener('thara:order-status', handler);
@@ -124,12 +125,12 @@ export default function App() {
     };
   }, []);
 
-  const cartCount = cart.reduce((s, i) => s + i.qty, 0);
-  const userOrders = orders.filter(o => o.customerEmail === user?.email);
-  const notifLastOpened = (() => { try { return localStorage.getItem('thara_notif_last_opened') || ''; } catch { return ''; } })();
+  const cartCount = (cart || []).reduce((s, i) => s + i.qty, 0);
+  const userOrders = (orders || []).filter(o => o.customerEmail === user?.email);
+  const notifLastOpened = (() => { try { return localStorage.getItem('thara_notif_last_opened') || ''; } catch (e) { console.error('read notifLastOpened', e); return ''; } })();
   const unreadNotifs = useMemo(() => {
     if (!user) return 0;
-    const relevant = chatMessages.filter(m =>
+    const relevant = (chatMessages || []).filter(m =>
       (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) &&
       m.sender !== 'customer'
     );
@@ -159,6 +160,7 @@ export default function App() {
   return (
     <div className="app-wrapper">
       <UpdateBanner />
+      <OfflineBanner />
       <InstallPrompt />
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab}

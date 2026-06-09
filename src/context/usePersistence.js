@@ -23,7 +23,8 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
           let currentUser = null;
           try {
             currentUser = await authApi.getUser();
-          } catch {
+          } catch (e) {
+            console.error('authApi.getUser', e);
             localStorage.removeItem('thara_user');
             localStorage.removeItem('thara_session');
           }
@@ -42,11 +43,11 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
               try {
                 const p = await customersApi.get(currentUser.email);
                 if (p) setCustomerProfile(p);
-              } catch {}
+              } catch (e) { console.error('customersApi.get', e); }
             }
           }
           setSupabaseReady(true);
-        } catch {}
+        } catch (e) { console.error('usePersistence init', e); }
       }
       setLoading(false);
     };
@@ -57,13 +58,13 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
   useEffect(() => {
     const handler = (e) => {
       if (e.key === 'thara_products' && e.newValue) {
-        try { setProducts(JSON.parse(e.newValue)); } catch {}
+        try { setProducts(JSON.parse(e.newValue)); } catch (e) { console.error('cross-tab products parse', e); }
       }
       if (e.key === 'thara_orders' && e.newValue) {
-        try { setOrders(JSON.parse(e.newValue)); } catch {}
+        try { setOrders(JSON.parse(e.newValue)); } catch (e) { console.error('cross-tab orders parse', e); }
       }
       if (e.key === 'thara_cart' && e.newValue) {
-        try { setCart(JSON.parse(e.newValue)); } catch {}
+        try { setCart(JSON.parse(e.newValue)); } catch (e) { console.error('cross-tab cart parse', e); }
       }
     };
     window.addEventListener('storage', handler);
@@ -97,12 +98,12 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
             setCurrentStaff(null);
           }
           if (!staff) {
-            try {
-              const p = await customersApi.get(u.email);
-              if (p) setCustomerProfile(p);
-            } catch {}
-          }
-        } finally {
+              try {
+                const p = await customersApi.get(u.email);
+                if (p) setCustomerProfile(p);
+              } catch (e) { console.error('authListener customersApi.get', e); }
+            }
+          } finally {
           setLoading(false);
         }
       } else {
@@ -119,7 +120,7 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
   }, [hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading]);
 }
 
-function safeSet(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+function safeSet(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { console.error('safeSet ' + key, e); } }
 
 export function useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart }) {
   useEffect(() => { if (!supabaseReady) safeSet('thara_products', products); }, [products, supabaseReady]);

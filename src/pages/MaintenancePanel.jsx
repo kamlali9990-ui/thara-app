@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabase/client';
+import { BASE } from '../utils/constants';
 import SnakeGame from '../components/SnakeGame';
 
 const ADMIN_EMAIL = 'yaser.haroon79@gmail.com';
@@ -75,7 +76,7 @@ export default function MaintenancePanel() {
   if (!authorized) return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <img src="/newicon.jpg" alt="" style={styles.logo} />
+        <img src={BASE + 'newicon.jpg'} alt="" style={styles.logo} onError={(e) => { e.target.style.display='none'; }} />
         <h1 style={styles.title}>تسجيل الدخول</h1>
         <p style={styles.subtitle}>للدخول إلى صفحة الصيانة</p>
         <form onSubmit={handleLogin} style={{ textAlign: 'right' }}>
@@ -104,7 +105,7 @@ export default function MaintenancePanel() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <img src="/newicon.jpg" alt="" style={styles.logo} />
+        <img src={BASE + 'newicon.jpg'} alt="" style={styles.logo} onError={(e) => { e.target.style.display='none'; }} />
         <h1 style={styles.title}>🔧 صفحة الصيانة</h1>
         <p style={styles.subtitle}>التحكم في وضع الصيانة للمتجر</p>
 

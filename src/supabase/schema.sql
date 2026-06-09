@@ -240,6 +240,9 @@ CREATE TABLE IF NOT EXISTS customers (
   email TEXT NOT NULL UNIQUE,
   name TEXT NOT NULL DEFAULT '',
   phone TEXT DEFAULT '',
+  delivery_address TEXT DEFAULT '',
+  neighborhood TEXT DEFAULT '',
+  location TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -366,7 +369,14 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.update_customer_rpc(p_email TEXT, p_name TEXT, p_phone TEXT)
+CREATE OR REPLACE FUNCTION public.update_customer_rpc(
+  p_email TEXT,
+  p_name TEXT,
+  p_phone TEXT,
+  p_delivery_address TEXT DEFAULT NULL,
+  p_neighborhood TEXT DEFAULT NULL,
+  p_location TEXT DEFAULT NULL
+)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -380,7 +390,13 @@ BEGIN
   IF caller_email != lower(p_email) AND NOT public.is_staff() THEN
     RAISE EXCEPTION 'Unauthorized';
   END IF;
-  UPDATE customers SET name = p_name, phone = p_phone WHERE email = p_email
+  UPDATE customers SET
+    name = COALESCE(p_name, name),
+    phone = COALESCE(p_phone, phone),
+    delivery_address = COALESCE(p_delivery_address, delivery_address),
+    neighborhood = COALESCE(p_neighborhood, neighborhood),
+    location = COALESCE(p_location, location)
+  WHERE email = p_email
   RETURNING row_to_json(customers)::JSON INTO result;
   RETURN result;
 END;
@@ -390,6 +406,19 @@ GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_customer_auth_rpc TO anon, authenticated;
+
+-- Customer address fields: add columns if not exists
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='customers' AND column_name='delivery_address') THEN
+    ALTER TABLE customers ADD COLUMN delivery_address TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='customers' AND column_name='neighborhood') THEN
+    ALTER TABLE customers ADD COLUMN neighborhood TEXT DEFAULT '';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='customers' AND column_name='location') THEN
+    ALTER TABLE customers ADD COLUMN location TEXT DEFAULT '';
+  END IF;
+END $$;
 
 -- Loyalty: add column if not exists
 DO $$ BEGIN

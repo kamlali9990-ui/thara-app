@@ -180,7 +180,7 @@ function generateCashierHtml(order, ctx) {
         displayValue: true, fontSize: 11, margin: 0,
         background: 'transparent', lineColor: '#111'
       });
-    } catch(e) { document.getElementById('barcode').outerHTML = '<div style="font-size:14px;letter-spacing:4px;font-weight:bold;">${invoiceNum}</div>'; }
+    } catch(e) { console.error('JsBarcode error', e); document.getElementById('barcode').outerHTML = '<div style="font-size:14px;letter-spacing:4px;font-weight:bold;">${invoiceNum}</div>'; }
     setTimeout(function() { window.print(); }, 600);
   </script>
 </body>
@@ -356,7 +356,7 @@ function generateA4Html(order, ctx) {
         displayValue: true, fontSize: 14, margin: 5,
         background: 'transparent', lineColor: '#127443'
       });
-    } catch(e) { document.getElementById('barcode').outerHTML = '<div style="font-size:18px;letter-spacing:6px;font-weight:bold;color:#127443;">${invoiceNum}</div>'; }
+    } catch(e) { console.error('JsBarcode error', e); document.getElementById('barcode').outerHTML = '<div style="font-size:18px;letter-spacing:6px;font-weight:bold;color:#127443;">${invoiceNum}</div>'; }
     setTimeout(function() { window.print(); }, 600);
   </script>
 </body>
