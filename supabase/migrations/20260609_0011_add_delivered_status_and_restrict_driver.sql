@@ -1,13 +1,13 @@
 -- إضافة حالة "تم التوصيل" بين "في الطريق" و "مكتمل"
--- السائق يضغط "تم التوصيل" ثم الأدمن/المدير يؤكد "مكتمل"
--- وتقييد صلاحيات السائق في الخادم
+-- الكابتن يضغط "تم التوصيل" ثم الأدمن/المدير يؤكد "مكتمل"
+-- وتقييد صلاحيات الكابتن في الخادم
 
 -- 1. تحديث CHECK constraint لجدول orders
 ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_status_check;
 ALTER TABLE orders ADD CONSTRAINT orders_status_check
   CHECK (status IN ('جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'تم التوصيل', 'مكتمل', 'ملغي'));
 
--- 2. تحديث update_order_status_rpc لتقييد السائق
+-- 2. تحديث update_order_status_rpc لتقييد الكابتن
 CREATE OR REPLACE FUNCTION public.update_order_status_rpc(
   p_order_id BIGINT,
   p_status TEXT,
@@ -36,7 +36,7 @@ BEGIN
   IF caller_role IN ('admin', 'manager', 'employee') THEN
     allowed := TRUE;
   ELSIF caller_role = 'driver' AND cur_assigned = caller_id THEN
-    -- السائق مسموح له فقط: التوصيل → تم التوصيل
+    -- الكابتن مسموح له فقط: التوصيل → تم التوصيل
     IF cur_status = 'في الطريق' AND p_status = 'تم التوصيل' THEN
       allowed := TRUE;
     END IF;

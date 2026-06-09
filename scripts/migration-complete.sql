@@ -83,7 +83,7 @@ DROP POLICY IF EXISTS "products_update_admin" ON products;
 CREATE POLICY "products_update_admin" ON products
   FOR UPDATE USING (public.is_staff(ARRAY['admin']));
 
--- 3b. Orders: منع المدير من تحديث حالة الطلبات أو تعيين السائقين
+-- 3b. Orders: منع المدير من تحديث حالة الطلبات أو تعيين الكباتن
 DROP POLICY IF EXISTS "orders_update_staff" ON orders;
 DROP POLICY IF EXISTS "orders_update_admin" ON orders;
 CREATE POLICY "orders_update_staff" ON orders
