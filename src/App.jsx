@@ -20,7 +20,7 @@ import ThemeToggle from './components/ThemeToggle';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
 
-L.Icon.Default.imagePath = BASE + 'leaflet-images/';
+L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
 
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
