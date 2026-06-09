@@ -286,8 +286,24 @@ const handleStatusChange = (order, newStatus) => {
         </div>
       )}
       <div className="admin-card-info">
+        {/* Customer contact info block */}
+        <div className="customer-contact-block" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '10px', padding: '0.75rem', marginBottom: '0.75rem' }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#34d399', marginBottom: '0.4rem' }}>👤 معلومات العميل</div>
+          {order.phone && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
+              <strong style={{ fontSize: '0.85rem', color: '#e2e8f0' }}>📞 الجوال:</strong>
+              <span dir="ltr" style={{ fontSize: '1rem', fontWeight: 700, color: '#f1f5f9' }}>{order.phone}</span>
+              <a href={`tel:${order.phone}`} style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(16,185,129,0.2)', color: '#34d399', textDecoration: 'none' }}>📞 اتصال</a>
+              <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(34,197,94,0.2)', color: '#4ade80', textDecoration: 'none' }}>💬 واتساب</a>
+            </div>
+          )}
+          {order.deliveryAddress && (
+            <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.2rem' }}>
+              <strong>📍 العنوان:</strong> {order.deliveryAddress}
+            </div>
+          )}
+        </div>
         <strong>الدفع:</strong> {order.paymentMethod}
-        {order.phone && <><br/><strong>الجوال:</strong> <span dir="ltr">{order.phone}</span> <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" className="whatsapp-link" title="واتساب" style={{ padding: '0.1rem 0.3rem', borderRadius: '4px', background: 'rgba(34, 197, 94, 0.15)' }}>💬</a></>}
         {order.notes && !compact && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
         {!compact && renderLocationBlock(order, { showMap: !compact })}
         {compact && parseOrderLocation(order.location) && (

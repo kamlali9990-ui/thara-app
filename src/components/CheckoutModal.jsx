@@ -24,6 +24,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [areaErr, setAreaErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
   const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
   const phoneReady = (() => {
@@ -83,6 +84,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
                 onChange={async (e) => {
                   const val = e.target.value;
                   setSelectedNeighborhood(val);
+                  setDeliveryAddress(val ? `حي ${val}` : '');
                   if (!val) return;
                   const query = `${val} الخفجي`;
                   try {
@@ -119,7 +121,17 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             {position && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
           </div>
 
-          <div className="checkout-section">
+            {deliveryAddress && (
+              <input
+                className="checkout-phone-input"
+                type="text"
+                value={deliveryAddress}
+                onChange={e => setDeliveryAddress(e.target.value)}
+                placeholder="عنوان التوصيل (الشارع، رقم المبنى)"
+                style={{ marginBottom: '0.75rem' }}
+              />
+            )}
+            <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">2</span> بيانات التواصل</div>
             <input
               className="checkout-phone-input"
@@ -181,7 +193,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
       paymentMethod,
       phone: phone.trim(),
       notes: notes.trim(),
-      deliveryFee: fee
+      deliveryFee: fee,
+      deliveryAddress: deliveryAddress.trim() || null
     }, fee);
   } catch (e) {
     showToast(e?.message || 'فشل إرسال الطلب', 'error');

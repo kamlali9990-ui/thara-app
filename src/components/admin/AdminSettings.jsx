@@ -8,7 +8,6 @@ const STORAGE_KEY = 'thara_banner_url';
 
 const PRESET_BANNERS = [
   { label: 'البنر الافتراضي', url: `${BASE}123.jpg` },
-  { label: 'بنر العروض', url: `${BASE}banner-offers.jpg` },
 ];
 
 export default function AdminSettings() {

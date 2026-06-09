@@ -551,13 +551,16 @@ CREATE POLICY "orders_select_admin" ON orders
 CREATE POLICY "orders_update_admin" ON orders
   FOR UPDATE USING (public.is_staff());
 
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS delivery_address TEXT;
+
 CREATE OR REPLACE FUNCTION public.create_order_secure(
   cart_items JSONB,
   payment_method TEXT,
   delivery_location TEXT,
   customer_phone TEXT DEFAULT NULL,
   order_notes TEXT DEFAULT NULL,
-  delivery_fee NUMERIC DEFAULT NULL
+  delivery_fee NUMERIC DEFAULT NULL,
+  delivery_address TEXT DEFAULT NULL
 )
 RETURNS orders
 LANGUAGE plpgsql
@@ -652,7 +655,8 @@ BEGIN
     payment_method,
     phone,
     notes,
-    location
+    location,
+    delivery_address
   )
   VALUES (
     auth.jwt() ->> 'email',
@@ -661,7 +665,8 @@ BEGIN
     payment_method,
     customer_phone,
     order_notes,
-    delivery_location
+    delivery_location,
+    delivery_address
   )
   RETURNING * INTO created_order;
 
@@ -675,7 +680,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT, NUMERIC) TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_order_secure(JSONB, TEXT, TEXT, TEXT, TEXT, NUMERIC, TEXT) TO authenticated;
 
 -- 5. Chat Messages
 CREATE TABLE IF NOT EXISTS chat_messages (

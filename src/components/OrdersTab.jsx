@@ -108,7 +108,7 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
               <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'جاهز للتوصيل' ? 'badge-ready' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'تم التوصيل' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>
                 {order.status === 'جديد' ? '🕐 بانتظار الاستلام'
                   : order.status === 'قيد التحضير'
-                    ? (Date.now() - new Date(order.date).getTime() < 5 * 60 * 1000 ? '📋 تم استلام طلبك' : '👨‍🍳 يتم تجهيز طلبك')
+                    ? (Date.now() - new Date(order.date).getTime() < 2 * 60 * 1000 ? '📋 تم استلام طلبك' : '👨‍🍳 يتم تجهيز طلبك')
                   : order.status === 'جاهز للتوصيل' ? '🏍️ طلبك جاهز - بانتظار الكابتن'
                   : order.status === 'في الطريق' ? '🚚 طلبك في الطريق'
                   : order.status === 'تم التوصيل' ? '✅ تم التوصيل - بانتظار التأكيد'

@@ -25,7 +25,8 @@ export const ordersApi = {
       delivery_location: order.location,
       customer_phone: order.phone || null,
       order_notes: order.notes || null,
-      delivery_fee: order.deliveryFee ?? null
+      delivery_fee: order.deliveryFee ?? null,
+      delivery_address: order.deliveryAddress || null
     });
     if (error) {
       if (import.meta.env.DEV && error.message?.includes('create_order_secure')) {
@@ -46,7 +47,8 @@ export const ordersApi = {
         phone: order.phone || null,
         notes: order.notes || null,
         location: order.location,
-        customer_email: order.customerEmail || null
+        customer_email: order.customerEmail || null,
+        delivery_address: order.deliveryAddress || null
       }])
       .select()
       .single();
@@ -164,6 +166,7 @@ function mapOrder(o) {
     estimatedDelivery: o.estimated_delivery ?? null,
     assignedDriverId: o.assigned_driver_id ?? null,
     deliveryFee: Number(o.delivery_fee) || 0,
+    deliveryAddress: o.delivery_address || null,
     acceptedBy: o.accepted_by_id ? { id: o.accepted_by_id } : null,
     archived: !!o.archived,
     archivedAt: o.archived_at || null
