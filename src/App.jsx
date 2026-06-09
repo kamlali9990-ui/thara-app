@@ -1,6 +1,5 @@
 import { useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { StoreContext } from './context/StoreContext';
-import L from 'leaflet';
 import InstallPrompt from './components/InstallPrompt';
 import CheckoutModal from './components/CheckoutModal';
 import SupportChatWidget from './components/SupportChatWidget';
@@ -20,7 +19,6 @@ import ThemeToggle from './components/ThemeToggle';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
 
-L.Icon.Default.imagePath = 'https://unpkg.com/leaflet@1.9.4/dist/images/';
 
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,

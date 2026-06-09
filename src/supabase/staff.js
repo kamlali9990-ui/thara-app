@@ -92,10 +92,10 @@ export const staffApi = {
   async update(id, updates) {
     try {
       const data = await rpc('update_staff_rpc', {
-        p_email: updates.email,
         p_id: id,
         p_name: updates.name,
-        p_role: updates.role
+        p_role: updates.role,
+        ...(updates.email ? { p_email: updates.email } : {})
       });
       if (data) {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
