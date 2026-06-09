@@ -1,1 +1,0 @@
-DELETE FROM settings WHERE key = 'banner_url';

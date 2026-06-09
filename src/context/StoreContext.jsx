@@ -191,7 +191,7 @@ export const StoreProvider = ({ children }) => {
     try {
       const updated = await customersApi.addPoints(user.email, points);
       if (updated) setCustomerProfile(updated);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[addLoyaltyPoints]', err); }
   }, [user, hasSupabase]);
 
   // --- Order Actions ---
@@ -201,7 +201,7 @@ export const StoreProvider = ({ children }) => {
       const supaOrders = await ordersApi.list();
       // Always sync — even an empty array must clear stale local orders.
       if (Array.isArray(supaOrders)) setOrders(supaOrders);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[loadOrders]', err); showToast('تعذر تحميل الطلبات', 'error'); }
   }, [hasSupabase, supabaseReady]);
 
   const placeOrder = useCallback(async (orderData, deliveryFee = 0) => {
@@ -319,7 +319,7 @@ export const StoreProvider = ({ children }) => {
     try {
       const archived = await ordersApi.listArchived();
       if (Array.isArray(archived)) setArchivedOrders(archived);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[loadArchivedOrders]', err); }
   }, [hasSupabase, supabaseReady]);
 
   // --- Driver assignment (admin/manager) ---
@@ -328,7 +328,7 @@ export const StoreProvider = ({ children }) => {
     try {
       const list = await staffApi.listDrivers();
       setDrivers(Array.isArray(list) ? list : []);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[loadDrivers]', err); showToast('تعذر تحميل قائمة الكباتن', 'error'); }
   }, [hasSupabase, supabaseReady]);
 
   const assignDriverToOrder = useCallback(async (orderId, driverId) => {
@@ -463,7 +463,7 @@ export const StoreProvider = ({ children }) => {
     } catch (err) {
       // Handle "Invalid Refresh Token" - clear session and retry
       if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
-        try { await authApi.signOut(); } catch {}
+        try { await authApi.signOut(); } catch (e) { console.error('[login] signOut after invalid token', e); }
         setUser(null);
         setStaffRole(null);
         setCurrentStaff(null);
@@ -482,7 +482,7 @@ export const StoreProvider = ({ children }) => {
               return data;
             });
           }
-        } catch { /* RPC not available — fall through */ }
+        } catch (e) { console.error('[login] ensure_staff_auth_user', e); }
       }
       throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
     }
@@ -502,7 +502,7 @@ export const StoreProvider = ({ children }) => {
     try {
       const list = await customersApi.list();
       setAllCustomers(list);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[loadCustomers]', err); showToast('تعذر تحميل قائمة العملاء', 'error'); }
   }, []);
 
   // Load customers list on init if staff
@@ -518,7 +518,7 @@ export const StoreProvider = ({ children }) => {
     try {
       const list = await staffApi.list();
       setStaffList(list);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[loadStaff]', err); showToast('تعذر تحميل قائمة الموظفين', 'error'); }
   }, []);
 
   const addStaff = useCallback(async (staffMember) => {
@@ -544,7 +544,7 @@ export const StoreProvider = ({ children }) => {
       const updated = await customersApi.update(user.email, name, phone);
       setCustomerProfile(updated);
       return updated;
-    } catch { return null; }
+    } catch (err) { console.error('[updateCustomerProfile]', err); showToast('تعذر تحديث الملف الشخصي', 'error'); return null; }
   }, [user]);
 
   return (

@@ -41,7 +41,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
           setBannerSrc(val);
         }
       })
-      .catch(() => {});
+      .catch((e) => console.error('[banner fetch]', e));
   }, []);
 
   useEffect(() => {

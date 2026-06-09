@@ -96,7 +96,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
                       const first = data[0];
                       setPosition({ lat: parseFloat(first.lat), lng: parseFloat(first.lon) });
                     }
-                  } catch {}
+                  } catch (e) { console.error('[geocode neighborhood]', e); }
                 }}
               >
                 <option value="">-- اختر الحي --</option>

@@ -7,7 +7,7 @@ function getCache() {
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     return raw ? JSON.parse(raw) : { list: [], byEmail: {} };
-  } catch { return { list: [], byEmail: {} }; }
+  } catch (e) { console.error('[staff cache read]', e); return { list: [], byEmail: {} }; }
 }
 
 function updateCache(data) {
@@ -23,7 +23,7 @@ function updateCache(data) {
       cache.byEmail[data.email] = data;
     }
     localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  } catch { /* ignore */ }
+  } catch (e) { console.error('[staff cache write]', e); }
 }
 
 function removeFromCache(id) {
@@ -33,7 +33,7 @@ function removeFromCache(id) {
     cache.list = cache.list.filter(s => s.id !== id);
     if (removed) delete cache.byEmail[removed.email];
     localStorage.setItem(CACHE_KEY, JSON.stringify(cache));
-  } catch { /* ignore */ }
+  } catch (e) { console.error('[staff cache remove]', e); }
 }
 
 async function rpc(method, args) {
@@ -52,7 +52,7 @@ export const staffApi = {
         updateCache(parsed);
         return parsed;
       }
-    } catch { /* fallback */ }
+    } catch (e) { console.error('[staff list]', e); }
     const cache = getCache();
     return cache.list;
   },
@@ -64,7 +64,7 @@ export const staffApi = {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
         if (parsed) { updateCache(parsed); return parsed; }
       }
-    } catch { /* fallback */ }
+    } catch (e) { console.error('[staff getByEmail]', e); }
     const cache = getCache();
     return cache.byEmail[email] || null;
   },
@@ -102,7 +102,7 @@ export const staffApi = {
         updateCache(parsed);
         return parsed;
       }
-    } catch { /* fallback */ }
+    } catch (e) { console.error('[staff update]', e); }
     const merged = { id, ...updates };
     updateCache(merged);
     return merged;
@@ -111,7 +111,7 @@ export const staffApi = {
   async remove(id) {
     try {
       await rpc('delete_staff_rpc', { p_id: id });
-    } catch { /* fallback */ }
+    } catch (e) { console.error('[staff remove]', e); }
     removeFromCache(id);
   },
 
@@ -122,7 +122,7 @@ export const staffApi = {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
         return Array.isArray(parsed) ? parsed : [];
       }
-    } catch { /* fallback to cached list filter */ }
+    } catch (e) { console.error('[staff listDrivers]', e); }
     const cache = getCache();
     return cache.list.filter(s => s.role === 'driver');
   }

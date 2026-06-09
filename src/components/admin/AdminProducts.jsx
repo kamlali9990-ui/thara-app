@@ -136,7 +136,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       setDuplicateProducts([]);
       setShowDuplicateWarning(false);
       showToast('تمت إضافة المنتج بنجاح', 'success');
-    } catch (err) {}
+    } catch (err) { showToast('فشل إضافة المنتج: ' + (err.message || err), 'error'); }
   };
 
   const startEdit = (product) => {

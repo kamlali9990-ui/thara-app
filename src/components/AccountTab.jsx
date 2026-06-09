@@ -30,7 +30,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
     try {
       await updateCustomerProfile(editName, editPhone);
       setEditing(false);
-    } catch { /* ignore */ }
+    } catch (err) { console.error('[saveProfile]', err); showToast('فشل حفظ الملف الشخصي', 'error'); }
     setSaving(false);
   };
 
