@@ -170,10 +170,8 @@ function AuthErrorHandler() {
   const { user, setUser, setStaffRole, setCurrentStaff, setCustomerProfile } = useStore();
 
   useEffect(() => {
-    if (!hasSupabase) return;
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+      if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
         if (user) {
           setUser(null);
           setStaffRole(null);
