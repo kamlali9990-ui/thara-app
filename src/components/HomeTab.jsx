@@ -15,7 +15,11 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
   const [showBanner, setShowBanner] = useState(true);
   const [showDeliveryInfo, setShowDeliveryInfo] = useState(false);
   const [bannerSrc, setBannerSrc] = useState(() => {
-    try { return localStorage.getItem(BANNER_STORAGE_KEY) || DEFAULT_BANNER; } catch { return DEFAULT_BANNER; }
+    try {
+      const stored = localStorage.getItem(BANNER_STORAGE_KEY);
+      if (stored && (stored.startsWith('http') || stored.startsWith('/') || stored.startsWith(BASE))) return stored;
+      return DEFAULT_BANNER;
+    } catch { return DEFAULT_BANNER; }
   });
 
   useEffect(() => {
@@ -25,9 +29,10 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
       .eq('key', 'banner_url')
       .maybeSingle()
       .then(({ data }) => {
-        if (data?.value) {
-          localStorage.setItem(BANNER_STORAGE_KEY, data.value);
-          setBannerSrc(data.value);
+        const val = data?.value;
+        if (val && (val.startsWith('http') || val.startsWith('/') || val.startsWith(BASE))) {
+          localStorage.setItem(BANNER_STORAGE_KEY, val);
+          setBannerSrc(val);
         }
       })
       .catch(() => {});
@@ -70,7 +75,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
           {/* Hero Banner */}
           {showBanner && (
             <div className="hero-banner-new">
-              <img src={bannerSrc} alt="عروض حصرية" className="hero-banner-img-full" onError={(e) => { e.target.src = `${BASE}123.jpg`; }} />
+              <img src={bannerSrc} alt="عروض حصرية" className="hero-banner-img-full" onError={(e) => { const fallback = `${BASE}123.jpg`; if (e.target.src !== fallback) { e.target.src = fallback; try { localStorage.setItem(BANNER_STORAGE_KEY, fallback); } catch {} } }} />
             </div>
           )}
 
