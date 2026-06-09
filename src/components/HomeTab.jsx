@@ -8,7 +8,13 @@ import { supabase } from '../supabase/client';
 import { PHONE, WHATSAPP_NUM, EMAIL_1, SNAPCHAT } from '../utils/constants';
 
 const BANNER_STORAGE_KEY = 'thara_banner_url';
-const DEFAULT_BANNER = `${BASE}123.jpg`;
+
+function isValidBannerUrl(url) {
+  if (!url) return false;
+  if (url.startsWith('http')) return true;
+  if (url.startsWith(BASE)) return true;
+  return false;
+}
 
 const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, setShowAllView, onSelectCategory }) => {
   const { instantResults, allProducts } = useStore();
@@ -17,9 +23,9 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
   const [bannerSrc, setBannerSrc] = useState(() => {
     try {
       const stored = localStorage.getItem(BANNER_STORAGE_KEY);
-      if (stored && (stored.startsWith('http') || stored.startsWith('/') || stored.startsWith(BASE))) return stored;
-      return DEFAULT_BANNER;
-    } catch { return DEFAULT_BANNER; }
+      if (isValidBannerUrl(stored)) return stored;
+      return '';
+    } catch { return ''; }
   });
 
   useEffect(() => {
@@ -30,7 +36,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
       .maybeSingle()
       .then(({ data }) => {
         const val = data?.value;
-        if (val && (val.startsWith('http') || val.startsWith('/') || val.startsWith(BASE))) {
+        if (isValidBannerUrl(val)) {
           localStorage.setItem(BANNER_STORAGE_KEY, val);
           setBannerSrc(val);
         }
@@ -40,7 +46,7 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
 
   useEffect(() => {
     const handler = () => {
-      const src = localStorage.getItem(BANNER_STORAGE_KEY) || DEFAULT_BANNER;
+      const src = localStorage.getItem(BANNER_STORAGE_KEY) || '';
       setBannerSrc(src);
     };
     window.addEventListener('storage', handler);
@@ -73,9 +79,9 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
       ) : (
         <>
           {/* Hero Banner */}
-          {showBanner && (
+          {showBanner && bannerSrc && (
             <div className="hero-banner-new">
-              <img src={bannerSrc} alt="عروض حصرية" className="hero-banner-img-full" onError={(e) => { const fallback = `${BASE}123.jpg`; if (e.target.src !== fallback) { e.target.src = fallback; try { localStorage.setItem(BANNER_STORAGE_KEY, fallback); } catch {} } }} />
+              <img src={bannerSrc} alt="عروض حصرية" className="hero-banner-img-full" onError={() => setShowBanner(false)} />
             </div>
           )}
 

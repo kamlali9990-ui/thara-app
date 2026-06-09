@@ -1,0 +1,1 @@
+SELECT key, value FROM settings WHERE key LIKE '%banner%' OR key LIKE '%offer%';
