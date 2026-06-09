@@ -199,7 +199,7 @@ export default function Admin() {
               <p style={{ marginBottom: '1rem', color: '#94a3b8' }}>
                 <strong>البريد الإلكتروني:</strong> {currentStaff?.email || '—'}<br />
                 <strong>الاسم:</strong> {currentStaff?.name || '—'}<br />
-                <strong>الصلاحية:</strong> {staffRole === 'admin' ? 'مدير' : staffRole === 'manager' ? 'مدير عام' : staffRole === 'employee' ? 'موظف' : 'سائق'}
+                <strong>الصلاحية:</strong> {staffRole === 'admin' ? 'مدير' : staffRole === 'manager' ? 'مدير عام' : staffRole === 'employee' ? 'موظف' : 'كابتن'}
               </p>
               <button className="btn" onClick={() => { setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordChangeWithVerify(true); setShowPasswordPrompt(true); }}>
                 🔑 تغيير كلمة المرور
@@ -268,7 +268,7 @@ export default function Admin() {
         </p>
         {!passwordChangeWithVerify && (
           <p style={{ marginBottom: '1.25rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
-            يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
+            يفضل تغيير كلمة المرور لحساب الكابتن لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
           </p>
         )}
         {passwordChangeWithVerify && (
@@ -300,7 +300,7 @@ export default function Admin() {
         <Link to="/" className="admin-sidebar-link">المتجر</Link>
       </div>
       <aside className="admin-sidebar">
-        <h2 className="admin-sidebar-title">{isDriver ? 'لوحة السائق' : 'لوحة التحكم'}</h2>
+        <h2 className="admin-sidebar-title">{isDriver ? 'لوحة الكابتن' : 'لوحة التحكم'}</h2>
         {tabs.map(t => (
           <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
             {t.icon} {t.label}{t.badge != null ? ` (${t.badge})` : ''}

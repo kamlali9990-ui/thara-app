@@ -57,7 +57,7 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
                   <div key={m.id} className={`custom-chat-bubble ${isMe ? 'me' : 'them'}`}>
                     {!isMe && (
                       <div className="custom-chat-sender-label" style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#127443', marginBottom: '0.2rem' }}>
-                        {m.senderName ? (m.sender === 'driver' ? `🏍️ ${m.senderName}` : m.senderName) : (m.sender === 'driver' ? '🏍️ السائق' : '🏪 المتجر (الدعم)')}
+                        {m.senderName ? (m.sender === 'driver' ? `🏍️ ${m.senderName}` : m.senderName) : (m.sender === 'driver' ? '🏍️ الكابتن' : '🏪 المتجر (الدعم)')}
                       </div>
                     )}
                     <div>{m.text}</div>
@@ -105,8 +105,8 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
                   <div className="order-eta">🕐 وصول متوقع {formatETA(order.estimatedDelivery)}</div>
                 )}
               </div>
-              <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>
-                {order.status === 'قيد التحضير' ? 'يتم تجهيز طلبك' : order.status}
+              <span className={`order-badge ${order.status === 'جديد' ? 'badge-new' : order.status === 'قيد التحضير' ? 'badge-prep' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'تم التوصيل' ? 'badge-route' : order.status === 'مكتمل' ? 'badge-done' : 'badge-cancel'}`}>
+                {order.status === 'جديد' ? 'بانتظار القبول' : order.status === 'قيد التحضير' ? 'يتم تجهيز طلبك' : order.status === 'تم التوصيل' ? 'تم التوصيل - بانتظار التأكيد' : order.status}
               </span>
             </div>
             <div className="order-card-mini-items">

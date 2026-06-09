@@ -251,7 +251,7 @@ export const StoreProvider = ({ children }) => {
     return newOrder;
   }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints, products]);
 
-  const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
+  const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'تم التوصيل', 'مكتمل'];
 
   const getStatusIndex = (s) => STATUS_ORDER.indexOf(s);
 

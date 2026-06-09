@@ -5,7 +5,7 @@ import { parseOrderLocation, getMapLinks } from '../../utils/location.js';
 import { showToast } from '../Toast.jsx';
 import { printInvoice } from '../../utils/printInvoice.js';
 
-const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'مكتمل'];
+const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'تم التوصيل', 'مكتمل'];
 
 export default function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder, allCustomers = [], staffList = [] }) {
   const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, archiveOrder, restoreOrder, archivedOrders, loadArchivedOrders } = useContext(StoreContext);
@@ -40,6 +40,7 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
     preparing: orders.filter(o => o.status === 'قيد التحضير').length,
     ready: orders.filter(o => o.status === 'جاهز للتوصيل').length,
     onRoute: orders.filter(o => o.status === 'في الطريق').length,
+    delivered: orders.filter(o => o.status === 'تم التوصيل').length,
     completed: orders.filter(o => o.status === 'مكتمل').length,
     revenue: orders.filter(o => o.status !== 'ملغي').reduce((sum, o) => sum + Number(o.total || 0), 0)
   };
@@ -113,6 +114,7 @@ const handleStatusChange = (order, newStatus) => {
     if (status === 'قيد التحضير') return 'status-preparing';
     if (status === 'جاهز للتوصيل') return 'status-ready';
     if (status === 'في الطريق') return 'status-route';
+    if (status === 'تم التوصيل') return 'status-delivered';
     if (status === 'ملغي') return 'status-cancelled';
     if (status === 'مكتمل') return 'status-completed';
     return '';
@@ -178,10 +180,13 @@ const handleStatusChange = (order, newStatus) => {
     }
     if (order.status === 'في الطريق') {
       return (
-        <button type="button" className="btn driver-action-btn driver-action-done" onClick={() => doUpdate(order, 'مكتمل')}>
-          تم التسليم
+        <button type="button" className="btn driver-action-btn driver-action-done" onClick={() => doUpdate(order, 'تم التوصيل')}>
+          تم التوصيل
         </button>
       );
+    }
+    if (order.status === 'تم التوصيل') {
+      return <span className="driver-status-done" style={{ color: '#fbbf24' }}>بانتظار تأكيد الإدارة</span>;
     }
     return <span className="driver-status-done">مكتمل</span>;
   };
@@ -189,7 +194,7 @@ const handleStatusChange = (order, newStatus) => {
   const renderOrderCard = (order, { compact = false } = {}) => (
     <div
       key={order.id}
-      className={`admin-card order-card ${order.status === 'مكتمل' ? 'order-card-completed' : 'order-card-active'} ${getStatusClass(order.status)}`}
+      className={`admin-card order-card ${order.status === 'مكتمل' || order.status === 'تم التوصيل' ? 'order-card-completed' : 'order-card-active'} ${getStatusClass(order.status)}`}
     >
       <div className="admin-card-header">
         <div>
@@ -213,6 +218,14 @@ const handleStatusChange = (order, newStatus) => {
                   >
                     استلام الطلب
                   </button>
+                ) : order.status === 'تم التوصيل' ? (
+                  <button
+                    onClick={() => doUpdate(order, 'مكتمل')}
+                    className="btn btn-accept"
+                    style={{ background: '#10b981' }}
+                  >
+                    ✅ تأكيد التوصيل
+                  </button>
                 ) : (
                   <select
                     value={order.status}
@@ -223,6 +236,7 @@ const handleStatusChange = (order, newStatus) => {
                     <option value="قيد التحضير">قيد التحضير</option>
                     <option value="جاهز للتوصيل">جاهز للتوصيل</option>
                     <option value="في الطريق">في الطريق</option>
+                    <option value="تم التوصيل">تم التوصيل</option>
                     <option value="مكتمل">مكتمل</option>
                     <option value="ملغي">ملغي</option>
                   </select>
@@ -234,6 +248,14 @@ const handleStatusChange = (order, newStatus) => {
                 >
                   استلام الطلب
                 </button>
+              ) : order.status === 'تم التوصيل' ? (
+                <button
+                  onClick={() => doUpdate(order, 'مكتمل')}
+                  className="btn btn-accept"
+                  style={{ background: '#10b981' }}
+                >
+                  ✅ تأكيد التوصيل
+                </button>
               ) : (
                 <select
                   value={order.status}
@@ -244,6 +266,7 @@ const handleStatusChange = (order, newStatus) => {
                   <option value="قيد التحضير">قيد التحضير</option>
                   <option value="جاهز للتوصيل">جاهز للتوصيل</option>
                   <option value="في الطريق">في الطريق</option>
+                  <option value="تم التوصيل">تم التوصيل</option>
                   <option value="مكتمل">مكتمل</option>
                   <option value="ملغي">ملغي</option>
                 </select>
@@ -276,16 +299,16 @@ const handleStatusChange = (order, newStatus) => {
         {/* Driver assignment dropdown for admin/manager only */}
         {!compact && !isDriver && (staffRole === 'admin' || staffRole === 'manager') && (
           <div className="admin-assign-driver-block" style={{ marginTop: '0.75rem', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <strong style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🚚 تعيين السائق:</strong>
+            <strong style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🚚 تعيين الكابتن:</strong>
             <select
               value={order.assignedDriverId || ''}
               onChange={async (e) => {
                 const val = e.target.value;
                 try {
                   await assignDriverToOrder(order.id, val ? Number(val) : null);
-                  showToast('تم تحديث تعيين السائق بنجاح', 'success');
+                  showToast('تم تحديث تعيين الكابتن بنجاح', 'success');
                 } catch (err) {
-                  showToast('فشل تعيين السائق: ' + (err.message || 'خطأ غير معروف'), 'error');
+                  showToast('فشل تعيين الكابتن: ' + (err.message || 'خطأ غير معروف'), 'error');
                 }
               }}
               style={{
@@ -305,7 +328,7 @@ const handleStatusChange = (order, newStatus) => {
             </select>
             {order.assignedDriverId && (
               <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 'bold' }}>
-                ✓ معين لـ {drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'سائق'}
+                ✓ معين لـ {drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'كابتن'}
               </span>
             )}
           </div>
@@ -314,7 +337,7 @@ const handleStatusChange = (order, newStatus) => {
         {/* Display assigned driver name for drivers */}
         {!compact && isDriver && order.assignedDriverId && (
           <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#fbbf24' }}>
-            🏍️ السائق المكلف بالطلب: <strong>{String(order.assignedDriverId) === String(currentStaff?.id) ? 'أنت' : (drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'سائق آخر')}</strong>
+            🏍️ الكابتن المكلف بالطلب: <strong>{String(order.assignedDriverId) === String(currentStaff?.id) ? 'أنت' : (drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'كابتن آخر')}</strong>
           </div>
         )}
 
@@ -375,7 +398,7 @@ const handleStatusChange = (order, newStatus) => {
                   if (msg.sender === 'driver') {
                     const o = orders.find(x => x.id === chatOrder);
                     const dName = msg.senderName || (o ? drivers.find(d => String(d.id) === String(o.assignedDriverId))?.name : null);
-                    return dName ? `السائق (${dName})` : 'السائق';
+                    return dName ? `الكابتن (${dName})` : 'الكابتن';
                   }
                   if (msg.sender === 'admin') {
                     return msg.senderName || 'المتجر / الدعم';
@@ -480,6 +503,7 @@ const handleStatusChange = (order, newStatus) => {
         <div className="admin-stats-grid">
           <div className="admin-stat-card"><span>طلبات جديدة</span><strong>{stats.newOrders}</strong></div>
           <div className="admin-stat-card"><span>قيد التحضير</span><strong>{stats.preparing}</strong></div>
+          <div className="admin-stat-card"><span>تم التوصيل</span><strong>{stats.delivered}</strong></div>
           <div className="admin-stat-card"><span>مكتملة</span><strong>{stats.completed}</strong></div>
           <div className="admin-stat-card"><span>المبيعات</span><strong>{stats.revenue.toFixed(2)} ر.س</strong></div>
         </div>

@@ -49,7 +49,7 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
                     {m.sender === 'driver' ? '🏍️' : '🏪'}
                   </div>
                   <div className="notif-item-content">
-                    <div className="notif-item-sender">{m.senderName || (m.sender === 'driver' ? 'السائق' : 'المتجر')}</div>
+                    <div className="notif-item-sender">{m.senderName || (m.sender === 'driver' ? 'الكابتن' : 'المتجر')}</div>
                     <div className="notif-item-text">{m.text}</div>
                     <div className="notif-item-time">{m.time || ''}</div>
                   </div>
@@ -57,7 +57,7 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
               ))}
               {allDriverMsgs.length > 0 && (
                 <div className="notif-section">
-                  <div className="notif-section-title">رسائل السائقين</div>
+                  <div className="notif-section-title">رسائل الكباتن</div>
                   {orders.filter(o => o.status === 'في الطريق' || o.status === 'قيد التحضير').map(order => {
                     const driverMsgs = chatMessages.filter(m => m.orderId === order.id && m.sender === 'driver' && (m.customerEmail === user?.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)));
                     if (driverMsgs.length === 0) return null;

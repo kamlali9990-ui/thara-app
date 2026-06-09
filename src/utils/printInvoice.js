@@ -155,7 +155,7 @@ function generateCashierHtml(order, ctx) {
   <div class="staff-info">
     ${order.acceptedBy ? `<div style="display:flex;justify-content:space-between;"><span>مستلم الطلب:</span><span>${acceptedByStaff?.name || acceptedByStaff?.email || '—'}</span></div>` : ''}
     ${currentStaff ? `<div style="display:flex;justify-content:space-between;"><span>موظف الفاتورة:</span><span>${currentStaff.name || currentStaff.email || '—'}</span></div>` : ''}
-    ${driver ? `<div style="display:flex;justify-content:space-between;"><span>سائق التوصيل:</span><span>${driver.name || driver.email || '—'}</span></div>` : ''}
+    ${driver ? `<div style="display:flex;justify-content:space-between;"><span>كابتن التوصيل:</span><span>${driver.name || driver.email || '—'}</span></div>` : ''}
   </div>
 
   <div class="barcode">
@@ -328,7 +328,7 @@ function generateA4Html(order, ctx) {
         <strong>موظف الفاتورة:</strong> ${currentStaff ? (currentStaff.name || currentStaff.email || '—') : '—'}
       </div>
       <div class="col">
-        <strong>سائق التوصيل:</strong> ${driver ? (driver.name || driver.email || '—') : 'غير معين'}
+        <strong>كابتن التوصيل:</strong> ${driver ? (driver.name || driver.email || '—') : 'غير معين'}
       </div>
     </div>
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { showToast } from './Toast.jsx';
 import InstallGuide from './InstallGuide';
 
-const ROLE_LABELS = { admin: 'مدير', manager: 'مشرف', driver: 'سائق', employee: 'موظف' };
+const ROLE_LABELS = { admin: 'مدير', manager: 'مشرف', driver: 'كابتن', employee: 'موظف' };
 
 const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme, staffRole, currentStaff, orders }) => {
   const [editing, setEditing] = useState(false);

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useStore } from '../../context/StoreContext.jsx';
 import { showToast } from '../Toast';
 
-const ROLE_NAMES = { admin: 'مدير', manager: 'مدير عام', employee: 'موظف', driver: 'سائق' };
+const ROLE_NAMES = { admin: 'مدير', manager: 'مدير عام', employee: 'موظف', driver: 'كابتن' };
 
 function computeStaffStats(orders, staffList) {
   const map = {};

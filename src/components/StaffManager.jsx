@@ -52,7 +52,7 @@ export default function StaffManager() {
             placeholder="الاسم" required className="staff-input" />
           <select value={role} onChange={e => setRole(e.target.value)} className="staff-select">
             <option value="employee">موظف</option>
-            <option value="driver">سائق</option>
+            <option value="driver">كابتن</option>
             <option value="manager">مدير</option>
             <option value="admin">مدير عام</option>
           </select>
@@ -69,7 +69,7 @@ export default function StaffManager() {
                 <input value={editName} onChange={e => setEditName(e.target.value)} className="staff-input" />
                 <select value={editRole} onChange={e => setEditRole(e.target.value)} className="staff-select">
                   <option value="employee">موظف</option>
-                  <option value="driver">سائق</option>
+                  <option value="driver">كابتن</option>
                   <option value="manager">مدير</option>
                   <option value="admin">مدير عام</option>
                 </select>
@@ -82,7 +82,7 @@ export default function StaffManager() {
                   <strong>{s.name}</strong>
                   <span className="staff-email">{s.email}</span>
                   <span className={`staff-role staff-role-${s.role}`}>
-                    {s.role === 'admin' ? 'مدير عام' : s.role === 'manager' ? 'مدير' : s.role === 'driver' ? 'سائق' : 'موظف'}
+                    {s.role === 'admin' ? 'مدير عام' : s.role === 'manager' ? 'مدير' : s.role === 'driver' ? 'كابتن' : 'موظف'}
                   </span>
                 </div>
                 {isAdmin && (
