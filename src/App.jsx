@@ -2,7 +2,6 @@ import { useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { StoreContext } from './context/StoreContext';
 import InstallPrompt from './components/InstallPrompt';
 import CheckoutModal from './components/CheckoutModal';
-import SupportChatWidget from './components/SupportChatWidget';
 import CartScreen from './components/CartScreen';
 import SideDrawer from './components/SideDrawer';
 import NotifPanel from './components/NotifPanel';
@@ -213,7 +212,6 @@ export default function App() {
         orders={orders} onTabChange={switchTab} />}
 
       <ThemeToggle currentTheme={theme} onThemeChange={setTheme} />
-      <SupportChatWidget />
     </div>
   );
 }
