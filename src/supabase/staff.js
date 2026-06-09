@@ -92,8 +92,8 @@ export const staffApi = {
   async update(id, updates) {
     try {
       const data = await rpc('update_staff_rpc', {
-        p_id: id,
         p_email: updates.email,
+        p_id: id,
         p_name: updates.name,
         p_role: updates.role
       });
