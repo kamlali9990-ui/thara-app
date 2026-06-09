@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v21';
+const CACHE_NAME = 'thara-__BUILD_ID__';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -52,6 +52,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+  if (event.data?.type === 'GET_BUILD_ID') {
+    event.ports[0]?.postMessage(CACHE_NAME);
   }
 });
 

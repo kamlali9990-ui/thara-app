@@ -59,12 +59,6 @@ export default function App() {
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2500); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
-    const handler = () => setUpdateAvailable(true);
-    window.addEventListener('sw-update', handler);
-    return () => window.removeEventListener('sw-update', handler);
-  }, []);
-
-  useEffect(() => {
     if (!('Notification' in window)) return;
     if (Notification.permission === 'default') {
       Notification.requestPermission().catch(() => {});
