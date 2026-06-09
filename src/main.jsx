@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useState, useEffect } from 'react'
+import React, { lazy, Suspense, useState, useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
@@ -11,7 +11,6 @@ import MaintenancePage from './components/MaintenancePage.jsx'
 import MaintenancePanel from './pages/MaintenancePanel.jsx'
 import { supabase } from './supabase/client.js'
 import * as Sentry from '@sentry/react'
-import { showToast } from './components/Toast.jsx'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 if (SENTRY_DSN) {
@@ -168,11 +167,13 @@ function LeaveGuard() {
 function AuthErrorHandler() {
   const navigate = useNavigate();
   const { user, setUser, setStaffRole, setCurrentStaff, setCustomerProfile } = useStore();
+  const userRef = useRef(user);
+  userRef.current = user;
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
-        if (user) {
+        if (userRef.current) {
           setUser(null);
           setStaffRole(null);
           setCurrentStaff(null);
@@ -183,7 +184,7 @@ function AuthErrorHandler() {
     });
 
     return () => subscription.unsubscribe();
-  }, [user, navigate]);
+  }, []);
 
   return null;
 }
