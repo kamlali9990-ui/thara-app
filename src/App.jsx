@@ -27,7 +27,7 @@ export default function App() {
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
     placeOrder, user, logout, orders,
     customerProfile, updateCustomerProfile, loadOrders,
-    chatMessages, staffRole } = useContext(StoreContext);
+    chatMessages, staffRole, currentStaff } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -192,7 +192,7 @@ export default function App() {
           {tab === 'categories' && <CategoriesTab key={`categories-${tabKey}`}
             preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
-          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} orders={userOrders} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
           </div>
         </div>
 

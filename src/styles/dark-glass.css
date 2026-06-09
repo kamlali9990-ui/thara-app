@@ -325,6 +325,10 @@
   color: #f87171;
 }
 [data-theme="dark"] .acc-logout-btn:active { background: rgba(239,68,68,0.2); }
+[data-theme="dark"] .acc-staff-badge {
+  background: linear-gradient(135deg, #fbbf24, #d97706);
+  box-shadow: 0 2px 12px rgba(251,191,36,0.25);
+}
 
 /* ─── Empty States ─── */
 [data-theme="dark"] .empty-tab svg { opacity: 0.3; }

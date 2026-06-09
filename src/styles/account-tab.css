@@ -66,3 +66,31 @@
   background: #dc2626;
 }
 
+/* ─── Staff Badge ─── */
+.acc-staff-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #78350f;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0.5rem 0;
+  transition: transform 0.2s, box-shadow 0.2s;
+  justify-content: center;
+}
+.acc-staff-badge:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(251,191,36,0.4);
+}
+.acc-staff-role-tag {
+  background: rgba(120,53,15,0.15);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
