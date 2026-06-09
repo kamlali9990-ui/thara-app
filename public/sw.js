@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-v20';
+const CACHE_NAME = 'thara-v21';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  const isStaticAsset = /\.(?:js|css|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico)$/i.test(url.pathname);
+  const isStaticAsset = /\.(?:js|css|woff2?|ttf|eot|png|jpe?g|gif|webp|svg|ico|json)$/i.test(url.pathname);
   const isHtml = event.request.destination === 'document';
 
   if (isStaticAsset && url.origin !== self.location.origin) {
