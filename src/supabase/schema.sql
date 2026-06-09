@@ -281,6 +281,11 @@ AS $$
 DECLARE
   result JSON;
 BEGIN
+  IF p_phone IS NOT NULL AND p_phone != '' THEN
+    IF EXISTS (SELECT 1 FROM customers WHERE phone = p_phone AND email != p_email) THEN
+      RAISE EXCEPTION 'رقم الجوال مستخدم مسبقاً';
+    END IF;
+  END IF;
   INSERT INTO customers (email, name, phone)
   VALUES (p_email, p_name, p_phone)
   ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, phone = EXCLUDED.phone
@@ -389,6 +394,11 @@ BEGIN
   caller_email := lower(auth.jwt() ->> 'email');
   IF caller_email != lower(p_email) AND NOT public.is_staff() THEN
     RAISE EXCEPTION 'Unauthorized';
+  END IF;
+  IF p_phone IS NOT NULL AND p_phone != '' THEN
+    IF EXISTS (SELECT 1 FROM customers WHERE phone = p_phone AND email != p_email) THEN
+      RAISE EXCEPTION 'رقم الجوال مستخدم مسبقاً';
+    END IF;
   END IF;
   UPDATE customers SET
     name = COALESCE(p_name, name),

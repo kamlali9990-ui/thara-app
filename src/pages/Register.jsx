@@ -37,7 +37,9 @@ export default function Register() {
       navigate('/');
     } catch (err) {
       const msg = err.message || '';
-      if (msg.includes('already registered') || msg.includes('already exists')) {
+      if (msg.includes('رقم الجوال مستخدم مسبقاً')) {
+        setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
+      } else if (msg.includes('already registered') || msg.includes('already exists')) {
         setError('هذا البريد مسجل مسبقاً');
       } else if (msg.includes('429') || msg.includes('Too Many Requests') || msg.includes('rate limit')) {
         setError('تم تجاوز عدد محاولات التسجيل المسموحة، الرجاء المحاولة لاحقاً');

@@ -30,7 +30,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
     try {
       await updateCustomerProfile(editName, editPhone);
       setEditing(false);
-    } catch (err) { console.error('[saveProfile]', err); showToast('فشل حفظ الملف الشخصي', 'error'); }
+    } catch (err) { const m = err?.message || ''; console.error('[saveProfile]', err); showToast(m.includes('مستخدم مسبقاً') ? 'رقم الجوال مستخدم مسبقاً من حساب آخر' : 'فشل حفظ الملف الشخصي', 'error'); }
     setSaving(false);
   };
 
