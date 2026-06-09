@@ -60,3 +60,18 @@
   font-size: 0.8rem;
 }
 
+/* ─── Customer Order Badges ─── */
+.order-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 99px;
+  white-space: nowrap;
+}
+.badge-new { background: var(--status-new-bg, #fef3c7); color: var(--status-new-text, #92400e); }
+.badge-prep { background: var(--status-preparing-bg, #dbeafe); color: var(--status-preparing-text, #1e40af); }
+.badge-ready { background: var(--status-preparing-bg, #dbeafe); color: var(--status-preparing-text, #1e40af); }
+.badge-route { background: var(--status-route-bg, #e0e7ff); color: var(--status-route-text, #3730a3); }
+.badge-done { background: var(--status-done-bg, #d1fae5); color: var(--status-done-text, #065f46); }
+.badge-cancel { background: var(--status-cancelled-bg, #fee2e2); color: var(--status-cancelled-text, #991b1b); }
+

@@ -82,13 +82,13 @@ export default function App() {
         const order = e.detail;
         if (!order) return;
         let body = '';
-        if (order.status === 'قيد التحضير') body = 'طلبك قيد التحضير الآن';
-        else if (order.status === 'جاهز للتوصيل') body = 'طلبك جاهز للتوصيل!';
+        if (order.status === 'قيد التحضير') body = 'تم استلام طلبك وجاري تجهيزه';
+        else if (order.status === 'جاهز للتوصيل') body = 'طلبك جاهز بانتظار الكابتن';
       else if (order.status === 'في الطريق') {
           const eta = order.estimatedDelivery;
           body = eta ? `الكابتن في الطريق — الوصول خلال ${eta} دقيقة` : 'الكابتن في الطريق إليك';
         } else if (order.status === 'تم التوصيل') body = 'تم توصيل طلبك ✓، بانتظار تأكيد الإدارة';
-        else if (order.status === 'مكتمل') body = 'تم تأكيد توصيل طلبك بنجاح ✓';
+        else if (order.status === 'مكتمل') body = '🎉 تم التوصيل بنجاح';
         else body = `تحديث الطلب: ${order.status}`;
         new Notification('أسواق ثراء الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'cart-icon-192.png' });
       } catch { /* ignore */ }
