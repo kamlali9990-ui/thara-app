@@ -38,15 +38,31 @@ export async function subscribePush(userEmail, userRole) {
     };
 
     const { supabase } = await import('../supabase/client.js');
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.warn('Push subscribe skipped: no active session');
+      return null;
+    }
     const { error } = await supabase.from('push_subscriptions').upsert(payload, {
       onConflict: 'endpoint',
     });
-    if (error) throw error;
+    if (error) {
+      if (error.code === '42501' || error.message?.includes('401') || error.message?.includes('JWT')) {
+        console.warn('Push subscribe failed: auth error (session may have expired)');
+        return null;
+      }
+      throw error;
+    }
 
     return sub;
   } catch (err) {
     if (Notification.permission === 'denied') return null;
-    console.warn('Push subscribe failed:', err?.message || err);
+    const msg = err?.message || err;
+    if (msg?.includes('401') || msg?.includes('JWT') || msg?.includes('unauthorized')) {
+      console.warn('Push subscribe failed: auth error');
+      return null;
+    }
+    console.warn('Push subscribe failed:', msg);
     return null;
   }
 }
@@ -65,9 +81,21 @@ export async function unsubscribePush(userEmail) {
 
     if (endpoint) {
       const { supabase } = await import('../supabase/client.js');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        console.warn('Push unsubscribe skipped: no active session');
+        return;
+      }
       await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
     }
-  } catch {}
+  } catch (err) {
+    const msg = err?.message || err;
+    if (msg?.includes('401') || msg?.includes('JWT') || msg?.includes('unauthorized')) {
+      console.warn('Push unsubscribe failed: auth error');
+      return;
+    }
+    console.warn('Push unsubscribe failed:', msg);
+  }
 }
 
 export async function getPushSubscriptionStatus() {

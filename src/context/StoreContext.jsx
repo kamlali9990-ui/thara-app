@@ -460,13 +460,23 @@ export const StoreProvider = ({ children }) => {
       const data = await authApi.signIn(normalizedEmail, password);
       setUser(data.user);
       return data;
-    } catch {
+    } catch (err) {
+      // Handle "Invalid Refresh Token" - clear session and retry
+      if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
+        try { await authApi.signOut(); } catch {}
+        setUser(null);
+        setStaffRole(null);
+        setCurrentStaff(null);
+        setCustomerProfile(null);
+      }
       if (supabase) {
         try {
-          const { data: fixResult } = await supabase.rpc('ensure_staff_auth_user', {
+          const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {
             p_email: normalizedEmail, p_password: password
           });
-          if (fixResult?.fixed) {
+          if (rpcError) {
+            console.warn('ensure_staff_auth_user RPC failed:', rpcError.message);
+          } else if (fixResult?.fixed) {
             return await authApi.signIn(normalizedEmail, password).then(data => {
               setUser(data.user);
               return data;

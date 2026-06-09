@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 
 import './index.css'
@@ -11,6 +11,7 @@ import MaintenancePage from './components/MaintenancePage.jsx'
 import MaintenancePanel from './pages/MaintenancePanel.jsx'
 import { supabase } from './supabase/client.js'
 import * as Sentry from '@sentry/react'
+import { showToast } from './components/Toast.jsx'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 if (SENTRY_DSN) {
@@ -164,6 +165,31 @@ function LeaveGuard() {
   return null;
 }
 
+function AuthErrorHandler() {
+  const navigate = useNavigate();
+  const { user, setUser, setStaffRole, setCurrentStaff, setCustomerProfile } = useStore();
+
+  useEffect(() => {
+    if (!hasSupabase) return;
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+        if (user) {
+          setUser(null);
+          setStaffRole(null);
+          setCurrentStaff(null);
+          setCustomerProfile(null);
+          navigate('/admin/login', { replace: true });
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [user, navigate]);
+
+  return null;
+}
+
 const MAINTENANCE_STORAGE_KEY = 'thara_maintenance';
 
 function MaintenanceGate({ children }) {
@@ -208,6 +234,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <BrowserRouter basename={BASENAME}>
             <MaintenanceGate>
               <LeaveGuard />
+              <AuthErrorHandler />
               <Routes>
                 <Route path="/" element={<Suspense fallback={PageLoader}><App /></Suspense>} />
                 <Route path="/login" element={<Suspense fallback={PageLoader}><CustomerLogin /></Suspense>} />
