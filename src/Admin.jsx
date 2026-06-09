@@ -51,18 +51,6 @@ function notifyNewOrder(order) {
   } catch {}
 }
 
-const PASSWORD_INPUT_STYLE = {
-  width: '100%', padding: '0.75rem 1rem', border: '1.5px solid rgba(255,255,255,0.15)',
-  borderRadius: '12px', fontSize: '0.95rem', fontFamily: 'inherit',
-  background: 'rgba(0,0,0,0.3)', color: '#fff', outline: 'none',
-  marginBottom: '0.5rem', boxSizing: 'border-box', textAlign: 'right'
-};
-
-const PASSWORD_YES_BTN = {
-  background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#451a03', fontWeight: 800
-};
-const PASSWORD_NO_BTN = { background: 'rgba(255,255,255,0.1)', color: '#fff' };
-
 export default function Admin() {
   const {
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
@@ -169,15 +157,6 @@ export default function Admin() {
     startTransition(() => setActiveTab(id));
   }, []);
 
-  const SUB_TAB_BTN = (active, label) => ({
-    background: active ? 'rgba(251,191,36,0.2)' : 'transparent',
-    color: active ? '#fbbf24' : 'rgba(255,255,255,0.5)',
-    border: active ? '1px solid rgba(251,191,36,0.3)' : '1px solid transparent',
-    padding: '0.5rem 1rem', borderRadius: '12px', cursor: 'pointer',
-    fontFamily: 'inherit', fontSize: '0.85rem', fontWeight: active ? 700 : 500,
-    transition: 'all 0.15s'
-  });
-
   const renderTabContent = () => {
     if (activeTab === 'orders') return (
       <AdminOrders
@@ -191,8 +170,8 @@ export default function Admin() {
     if (activeTab === 'store') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          <button style={SUB_TAB_BTN(storeTab === 'products', 'المنتجات')} onClick={() => setStoreTab('products')}>📦 المنتجات</button>
-          <button style={SUB_TAB_BTN(storeTab === 'offers', 'العروض')} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>
+          <button className={`admin-sub-tab-btn ${storeTab === 'products' ? 'active' : ''}`} onClick={() => setStoreTab('products')}>📦 المنتجات</button>
+          <button className={`admin-sub-tab-btn ${storeTab === 'offers' ? 'active' : ''}`} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>
         </div>
         {storeTab === 'products' ? (
           <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />
@@ -205,10 +184,10 @@ export default function Admin() {
     if (activeTab === 'settings') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          <button style={SUB_TAB_BTN(settingsTab === 'main', 'الإعدادات')} onClick={() => setSettingsTab('main')}>⚙️ الإعدادات</button>
-          <button style={SUB_TAB_BTN(settingsTab === 'users', 'المستخدمين')} onClick={() => setSettingsTab('users')}>👤 المستخدمين</button>
-          <button style={SUB_TAB_BTN(settingsTab === 'stats', 'الإحصائيات')} onClick={() => setSettingsTab('stats')}>📊 الإحصائيات</button>
-          <button style={SUB_TAB_BTN(settingsTab === 'profile', 'الملف الشخصي')} onClick={() => setSettingsTab('profile')}>🔑 الملف الشخصي</button>
+          <button className={`admin-sub-tab-btn ${settingsTab === 'main' ? 'active' : ''}`} onClick={() => setSettingsTab('main')}>⚙️ الإعدادات</button>
+          <button className={`admin-sub-tab-btn ${settingsTab === 'users' ? 'active' : ''}`} onClick={() => setSettingsTab('users')}>👤 المستخدمين</button>
+          <button className={`admin-sub-tab-btn ${settingsTab === 'stats' ? 'active' : ''}`} onClick={() => setSettingsTab('stats')}>📊 الإحصائيات</button>
+          <button className={`admin-sub-tab-btn ${settingsTab === 'profile' ? 'active' : ''}`} onClick={() => setSettingsTab('profile')}>🔑 الملف الشخصي</button>
         </div>
         {settingsTab === 'main' && <AdminSettings />}
         {settingsTab === 'users' && <AdminUsers staffRole={staffRole} customers={allCustomers} loadCustomers={loadCustomers} />}
@@ -245,18 +224,15 @@ export default function Admin() {
               { label: 'تم التوصيل', value: completed.length },
               { label: 'إيرادات', value: revenue.toFixed(0) + ' ر.س' },
             ].map(c => (
-              <div key={c.label} style={{
-                background: 'rgba(255,255,255,0.06)', borderRadius: 12, padding: '1rem',
-                border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center'
-              }}>
-                <div style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '0.35rem' }}>{c.label}</div>
-                <div style={{ color: '#f1f5f9', fontSize: '1.1rem', fontWeight: 700 }}>{c.value}</div>
+              <div key={c.label} className="admin-stat-card-bg">
+                <div className="admin-stat-label">{c.label}</div>
+                <div className="admin-stat-value">{c.value}</div>
               </div>
             ))}
           </div>
           <div className="admin-orders-list">
             {myOrders.length === 0 ? (
-              <div className="empty-orders" style={{ color: '#64748b' }}>لا توجد طلبات مسندة إليك بعد.</div>
+              <div className="admin-empty-state">لا توجد طلبات مسندة إليك بعد.</div>
             ) : (
               myOrders.map(order => (
                 <div key={order.id} className="admin-card order-card" style={{ marginBottom: '0.75rem' }}>
@@ -286,28 +262,28 @@ export default function Admin() {
 
   const PasswordDialog = () => (
     <div className="confirm-overlay" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); } : handleSkipPasswordChange}>
-      <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
-        <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#fff', fontSize: '1.1rem' }}>
+      <div className="admin-confirm-dialog" onClick={e => e.stopPropagation()}>
+        <p style={{ marginBottom: '0.75rem', fontWeight: 700, fontSize: '1.1rem' }}>
           {passwordChangeWithVerify ? '🔑 تغيير كلمة المرور' : 'تحديث كلمة المرور (اختياري)'}
         </p>
         {!passwordChangeWithVerify && (
-          <p style={{ marginBottom: '1.25rem', color: '#cbd5e1', fontSize: '0.9rem', lineHeight: '1.5' }}>
+          <p style={{ marginBottom: '1.25rem', fontSize: '0.9rem', lineHeight: '1.5' }}>
             يفضل تغيير كلمة المرور لحساب السائق لزيادة الأمان. يمكنك التخطي الآن والتغيير لاحقًا.
           </p>
         )}
         {passwordChangeWithVerify && (
           <input type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)}
-            placeholder="كلمة المرور الحالية" style={PASSWORD_INPUT_STYLE} />
+            placeholder="كلمة المرور الحالية" className="admin-input-dark" />
         )}
         <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
-          placeholder="كلمة المرور الجديدة" style={PASSWORD_INPUT_STYLE} />
+          placeholder="كلمة المرور الجديدة" className="admin-input-dark" />
         <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
-          placeholder="تأكيد كلمة المرور" style={{ ...PASSWORD_INPUT_STYLE, marginBottom: '1.25rem' }} />
+          placeholder="تأكيد كلمة المرور" className="admin-input-dark" style={{ marginBottom: '1.25rem' }} />
         <div className="confirm-actions">
-          <button className="confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading} style={PASSWORD_YES_BTN}>
+          <button className="admin-btn-gold confirm-btn confirm-yes" onClick={handlePasswordChange} disabled={passwordLoading}>
             {passwordLoading ? 'جاري التحديث...' : (passwordChangeWithVerify ? 'تحديث كلمة المرور' : 'تحديث الآن')}
           </button>
-          <button className="confirm-btn confirm-no" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); } : handleSkipPasswordChange} style={PASSWORD_NO_BTN}>
+          <button className="admin-btn-ghost confirm-btn confirm-no" onClick={passwordChangeWithVerify ? () => { setShowPasswordPrompt(false); setPasswordChangeWithVerify(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); } : handleSkipPasswordChange}>
             {passwordChangeWithVerify ? 'إلغاء' : 'التخطي الآن'}
           </button>
         </div>
@@ -319,9 +295,9 @@ export default function Admin() {
     <div className="admin-layout">
       {showPasswordPrompt && <PasswordDialog />}
       <div className="admin-mobile-header">
-        <button onClick={handleLogout} style={{ color: 'rgba(255,255,255,0.8)', background: 'none', border: 'none', fontFamily: 'inherit', fontSize: '0.85rem', cursor: 'pointer' }}>خروج</button>
+        <button onClick={handleLogout} className="admin-mobile-logout-btn">خروج</button>
         <h2>{tabs.find(t => t.id === activeTab)?.label || ''}</h2>
-        <Link to="/" style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none', fontSize: '0.85rem' }}>المتجر</Link>
+        <Link to="/" className="admin-sidebar-link">المتجر</Link>
       </div>
       <aside className="admin-sidebar">
         <h2 className="admin-sidebar-title">{isDriver ? 'لوحة السائق' : 'لوحة التحكم'}</h2>
@@ -334,7 +310,7 @@ export default function Admin() {
           <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
           <ThemeToggle currentTheme={theme} onThemeChange={setTheme} inline />
           <br/>
-          <button onClick={handleLogout} className="admin-tab" style={{ color: 'rgba(255,255,255,0.7)' }}>تسجيل الخروج</button>
+          <button onClick={handleLogout} className="admin-tab">تسجيل الخروج</button>
         </div>
       </aside>
       <main className="admin-main">

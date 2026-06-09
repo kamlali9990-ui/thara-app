@@ -58,6 +58,26 @@
   --font-display: 'IBM Plex Sans Arabic', 'Cairo', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   --bg-main: #f6f7f9;
   --text-muted: #71717a;
+  --success: #16a34a;
+  --success-hover: #15803d;
+  --warning: #f59e0b;
+  --warning-hover: #d97706;
+  --info: #3b82f6;
+  --info-hover: #2563eb;
+  --status-new-bg: #dbeafe;
+  --status-new-text: #1d4ed8;
+  --status-preparing-bg: #fef3c7;
+  --status-preparing-text: #d97706;
+  --status-route-bg: #d1fae5;
+  --status-route-text: #059669;
+  --status-done-bg: #d1fae5;
+  --status-done-text: #059669;
+  --status-cancelled-bg: #fee2e2;
+  --status-cancelled-text: #dc2626;
+  --toast-success-bg: #16a34a;
+  --toast-error-bg: #dc2626;
+  --toast-warning-bg: #d97706;
+  --toast-info-bg: #2563eb;
 }
 
 * {
@@ -143,6 +163,26 @@ h3 { font-size: 1.15rem; }
   --border-subtle: rgba(201, 176, 151, 0.15);
   --blur-bg: rgba(240, 234, 225, 0.8);
   --blur-header: rgba(201, 176, 151, 0.92);
+  --success: #16a34a;
+  --success-hover: #15803d;
+  --warning: #d4af37;
+  --warning-hover: #b89047;
+  --info: #3b82f6;
+  --info-hover: #2563eb;
+  --status-new-bg: rgba(59, 130, 246, 0.15);
+  --status-new-text: #2563eb;
+  --status-preparing-bg: rgba(212, 175, 55, 0.2);
+  --status-preparing-text: #b89047;
+  --status-route-bg: rgba(16, 185, 129, 0.15);
+  --status-route-text: #10b981;
+  --status-done-bg: rgba(16, 185, 129, 0.15);
+  --status-done-text: #10b981;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.15);
+  --status-cancelled-text: #dc2626;
+  --toast-success-bg: #16a34a;
+  --toast-error-bg: #dc2626;
+  --toast-warning-bg: #d97706;
+  --toast-info-bg: #2563eb;
 }
 [data-theme="pearl-white"] .theme-toggle-btn { background: rgba(240, 234, 225, 0.85); color: #2e251e; }
 
@@ -159,6 +199,26 @@ h3 { font-size: 1.15rem; }
   --border: rgba(5, 150, 105, 0.15);
   --border-subtle: rgba(5, 150, 105, 0.08);
   --blur-header: rgba(5, 150, 105, 0.92);
+  --success: #16a34a;
+  --success-hover: #15803d;
+  --warning: #f59e0b;
+  --warning-hover: #d97706;
+  --info: #3b82f6;
+  --info-hover: #2563eb;
+  --status-new-bg: rgba(59, 130, 246, 0.15);
+  --status-new-text: #2563eb;
+  --status-preparing-bg: rgba(245, 158, 11, 0.2);
+  --status-preparing-text: #d97706;
+  --status-route-bg: rgba(16, 185, 129, 0.15);
+  --status-route-text: #10b981;
+  --status-done-bg: rgba(16, 185, 129, 0.15);
+  --status-done-text: #10b981;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.15);
+  --status-cancelled-text: #dc2626;
+  --toast-success-bg: #16a34a;
+  --toast-error-bg: #dc2626;
+  --toast-warning-bg: #d97706;
+  --toast-info-bg: #2563eb;
 }
 [data-theme="emerald"] .theme-option.active { background: rgba(5, 150, 105, 0.08); }
 [data-theme="emerald"] .theme-check { color: #059669; }
@@ -181,6 +241,26 @@ h3 { font-size: 1.15rem; }
   --shadow-lg: 0 12px 34px rgba(0,0,0,0.4);
   --blur-bg: rgba(15, 23, 42, 0.8);
   --blur-header: rgba(2, 6, 23, 0.94);
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --warning: #fbbf24;
+  --warning-hover: #f59e0b;
+  --info: #60a5fa;
+  --info-hover: #3b82f6;
+  --status-new-bg: rgba(96, 165, 250, 0.2);
+  --status-new-text: #93c5fd;
+  --status-preparing-bg: rgba(251, 191, 36, 0.2);
+  --status-preparing-text: #fde047;
+  --status-route-bg: rgba(16, 185, 129, 0.2);
+  --status-route-text: #6ee7b7;
+  --status-done-bg: rgba(16, 185, 129, 0.2);
+  --status-done-text: #6ee7b7;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.2);
+  --status-cancelled-text: #fca5a5;
+  --toast-success-bg: #22c55e;
+  --toast-error-bg: #ef4444;
+  --toast-warning-bg: #fbbf24;
+  --toast-info-bg: #60a5fa;
 }
 [data-theme="midnight"] .theme-toggle-btn { background: rgba(30, 41, 59, 0.85); color: #f5e6c8; }
 [data-theme="midnight"] body { background-color: #020617; color: #f5e6c8; }
@@ -198,5 +278,25 @@ h3 { font-size: 1.15rem; }
   --border: rgba(255,255,255,0.08);
   --blur-bg: rgba(0, 0, 0, 0.8);
   --blur-header: rgba(0, 0, 0, 0.94);
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --warning: #fbbf24;
+  --warning-hover: #f59e0b;
+  --info: #60a5fa;
+  --info-hover: #3b82f6;
+  --status-new-bg: rgba(59, 130, 246, 0.2);
+  --status-new-text: #93c5fd;
+  --status-preparing-bg: rgba(251, 191, 36, 0.2);
+  --status-preparing-text: #fde047;
+  --status-route-bg: rgba(16, 185, 129, 0.2);
+  --status-route-text: #6ee7b7;
+  --status-done-bg: rgba(16, 185, 129, 0.2);
+  --status-done-text: #6ee7b7;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.2);
+  --status-cancelled-text: #fca5a5;
+  --toast-success-bg: #22c55e;
+  --toast-error-bg: #ef4444;
+  --toast-warning-bg: #fbbf24;
+  --toast-info-bg: #60a5fa;
 }
 [data-theme="dark"] body { background-color: #000000; color: #f1f5f9; }

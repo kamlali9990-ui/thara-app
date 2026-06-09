@@ -31,11 +31,11 @@
   padding: 0.25rem 0.6rem;
   border-radius: 99px;
 }
-.order-status-جديد { background: #dbeafe; color: #1d4ed8; }
-.order-status-قيد_التحضير { background: #fef3c7; color: #d97706; }
-.order-status-في_الطريق { background: #d1fae5; color: #059669; }
-.order-status-مكتمل { background: #d1fae5; color: #059669; }
-.order-status-ملغي { background: #fee2e2; color: #dc2626; }
+.order-status-جديد { background: var(--status-new-bg); color: var(--status-new-text); }
+.order-status-قيد_التحضير { background: var(--status-preparing-bg); color: var(--status-preparing-text); }
+.order-status-في_الطريق { background: var(--status-route-bg); color: var(--status-route-text); }
+.order-status-مكتمل { background: var(--status-done-bg); color: var(--status-done-text); }
+.order-status-ملغي { background: var(--status-cancelled-bg); color: var(--status-cancelled-text); }
 .order-card-items {
   border-top: 1px solid var(--border);
   padding-top: 0.5rem;

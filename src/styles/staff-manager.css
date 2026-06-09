@@ -1290,11 +1290,11 @@
 .order-badge {
   font-size: 0.6rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 99px;
 }
-.badge-new { background: #e8f0fe; color: #1a73e8; }
-.badge-prep { background: #fef7e0; color: #e37400; }
-.badge-route { background: #e6f4ea; color: #1e8e3e; }
-.badge-done { background: #e6f4ea; color: #1e8e3e; }
-.badge-cancel { background: #fce8e6; color: #d93025; }
+.badge-new { background: var(--admin-status-new-bg); color: var(--admin-status-new-text); }
+.badge-prep { background: var(--admin-status-preparing-bg); color: var(--admin-status-preparing-text); }
+.badge-route { background: var(--admin-status-route-bg); color: var(--admin-status-route-text); }
+.badge-done { background: var(--admin-status-done-bg); color: var(--admin-status-done-text); }
+.badge-cancel { background: var(--admin-status-cancelled-bg); color: var(--admin-status-cancelled-text); }
 .order-card-mini-items {
   display: flex; flex-direction: column; gap: 0.15rem; padding: 0.4rem 0;
   font-size: 0.82rem; color: var(--text-light); line-height: 1.45;

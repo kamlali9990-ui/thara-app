@@ -50,6 +50,26 @@
   --auth-back-link: #52525b;
   --auth-back-hover: #127443;
   --auth-logo-bg: #ffffff;
+  --admin-success: #16a34a;
+  --admin-success-hover: #15803d;
+  --admin-warning: #d4af37;
+  --admin-warning-hover: #b89047;
+  --admin-info: #3b82f6;
+  --admin-info-hover: #2563eb;
+  --admin-status-new-bg: #dbeafe;
+  --admin-status-new-text: #1d4ed8;
+  --admin-status-preparing-bg: #fef3c7;
+  --admin-status-preparing-text: #d97706;
+  --admin-status-route-bg: #d1fae5;
+  --admin-status-route-text: #059669;
+  --admin-status-done-bg: #d1fae5;
+  --admin-status-done-text: #059669;
+  --admin-status-cancelled-bg: #fee2e2;
+  --admin-status-cancelled-text: #dc2626;
+  --admin-toast-success-bg: #16a34a;
+  --admin-toast-error-bg: #dc2626;
+  --admin-toast-warning-bg: #d97706;
+  --admin-toast-info-bg: #2563eb;
 }
 
 /* --- Pearl-White Admin (beige/gold) --- */
@@ -108,6 +128,26 @@
   --auth-back-link: #786e64;
   --auth-back-hover: #c9b097;
   --auth-logo-bg: rgba(247, 244, 235, 0.9);
+  --admin-success: #16a34a;
+  --admin-success-hover: #15803d;
+  --admin-warning: #d4af37;
+  --admin-warning-hover: #b89047;
+  --admin-info: #3b82f6;
+  --admin-info-hover: #2563eb;
+  --admin-status-new-bg: rgba(59, 130, 246, 0.15);
+  --admin-status-new-text: #2563eb;
+  --admin-status-preparing-bg: rgba(212, 175, 55, 0.2);
+  --admin-status-preparing-text: #b89047;
+  --admin-status-route-bg: rgba(16, 185, 129, 0.15);
+  --admin-status-route-text: #10b981;
+  --admin-status-done-bg: rgba(16, 185, 129, 0.15);
+  --admin-status-done-text: #10b981;
+  --admin-status-cancelled-bg: rgba(239, 68, 68, 0.15);
+  --admin-status-cancelled-text: #dc2626;
+  --admin-toast-success-bg: #16a34a;
+  --admin-toast-error-bg: #dc2626;
+  --admin-toast-warning-bg: #d97706;
+  --admin-toast-info-bg: #2563eb;
 }
 
 /* --- Emerald Admin --- */
@@ -163,6 +203,26 @@
   --auth-back-link: #166534;
   --auth-back-hover: #059669;
   --auth-logo-bg: #ffffff;
+  --admin-success: #16a34a;
+  --admin-success-hover: #15803d;
+  --admin-warning: #f59e0b;
+  --admin-warning-hover: #d97706;
+  --admin-info: #3b82f6;
+  --admin-info-hover: #2563eb;
+  --admin-status-new-bg: rgba(59, 130, 246, 0.15);
+  --admin-status-new-text: #2563eb;
+  --admin-status-preparing-bg: rgba(245, 158, 11, 0.2);
+  --admin-status-preparing-text: #d97706;
+  --admin-status-route-bg: rgba(16, 185, 129, 0.15);
+  --admin-status-route-text: #10b981;
+  --admin-status-done-bg: rgba(16, 185, 129, 0.15);
+  --admin-status-done-text: #10b981;
+  --admin-status-cancelled-bg: rgba(239, 68, 68, 0.15);
+  --admin-status-cancelled-text: #dc2626;
+  --admin-toast-success-bg: #16a34a;
+  --admin-toast-error-bg: #dc2626;
+  --admin-toast-warning-bg: #d97706;
+  --admin-toast-info-bg: #2563eb;
 }
 
 /* --- Midnight Admin --- */
@@ -219,6 +279,26 @@
   --auth-back-link: #a89880;
   --auth-back-hover: #fbbf24;
   --auth-logo-bg: rgba(30, 41, 59, 0.8);
+  --admin-success: #22c55e;
+  --admin-success-hover: #16a34a;
+  --admin-warning: #fbbf24;
+  --admin-warning-hover: #f59e0b;
+  --admin-info: #60a5fa;
+  --admin-info-hover: #3b82f6;
+  --admin-status-new-bg: rgba(96, 165, 250, 0.2);
+  --admin-status-new-text: #93c5fd;
+  --admin-status-preparing-bg: rgba(251, 191, 36, 0.2);
+  --admin-status-preparing-text: #fde047;
+  --admin-status-route-bg: rgba(16, 185, 129, 0.2);
+  --admin-status-route-text: #6ee7b7;
+  --admin-status-done-bg: rgba(16, 185, 129, 0.2);
+  --admin-status-done-text: #6ee7b7;
+  --admin-status-cancelled-bg: rgba(239, 68, 68, 0.2);
+  --admin-status-cancelled-text: #fca5a5;
+  --admin-toast-success-bg: #22c55e;
+  --admin-toast-error-bg: #ef4444;
+  --admin-toast-warning-bg: #fbbf24;
+  --admin-toast-info-bg: #60a5fa;
 }
 [data-theme="midnight"] .admin-mobile-header { background: #0f172a !important; }
 [data-theme="midnight"] .admin-mobile-header h2 { color: #fbbf24 !important; }
@@ -276,6 +356,26 @@
   --auth-back-link: #64748b;
   --auth-back-hover: #818cf8;
   --auth-logo-bg: rgba(20, 20, 20, 0.8);
+  --admin-success: #22c55e;
+  --admin-success-hover: #16a34a;
+  --admin-warning: #fbbf24;
+  --admin-warning-hover: #f59e0b;
+  --admin-info: #60a5fa;
+  --admin-info-hover: #3b82f6;
+  --admin-status-new-bg: rgba(96, 165, 250, 0.2);
+  --admin-status-new-text: #93c5fd;
+  --admin-status-preparing-bg: rgba(251, 191, 36, 0.2);
+  --admin-status-preparing-text: #fde047;
+  --admin-status-route-bg: rgba(16, 185, 129, 0.2);
+  --admin-status-route-text: #6ee7b7;
+  --admin-status-done-bg: rgba(16, 185, 129, 0.2);
+  --admin-status-done-text: #6ee7b7;
+  --admin-status-cancelled-bg: rgba(239, 68, 68, 0.2);
+  --admin-status-cancelled-text: #fca5a5;
+  --admin-toast-success-bg: #22c55e;
+  --admin-toast-error-bg: #ef4444;
+  --admin-toast-warning-bg: #fbbf24;
+  --admin-toast-info-bg: #60a5fa;
 }
 
 /* =============================================================== */
@@ -717,4 +817,357 @@
     font-size: 0.85rem !important;
     font-weight: 700 !important;
   }
+}
+
+/* =============================================================== */
+/* ===== UTILITY CLASSES FOR THEME-AWARE INLINE STYLES ===== */
+/* =============================================================== */
+
+.admin-input-dark {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  background: rgba(0,0,0,0.3);
+  color: var(--admin-text);
+  outline: none;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  text-align: right;
+}
+
+.admin-btn-gold {
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
+  font-weight: 800 !important;
+}
+
+.admin-btn-ghost {
+  background: rgba(255,255,255,0.1) !important;
+  color: var(--admin-text) !important;
+}
+
+.admin-sub-tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.15s;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  border: 1px solid transparent;
+}
+
+.admin-sub-tab-btn.active {
+  background: var(--admin-gold-light) !important;
+  color: var(--admin-gold) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+.admin-stat-card-bg {
+  background: rgba(255,255,255,0.06) !important;
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.08) !important;
+  text-align: center;
+}
+
+.admin-stat-label {
+  color: var(--admin-text-muted) !important;
+  font-size: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+.admin-stat-value {
+  color: var(--admin-text) !important;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.admin-profile-text {
+  color: var(--admin-text-soft) !important;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.admin-profile-text strong {
+  color: var(--admin-text) !important;
+}
+
+.admin-empty-state {
+  color: var(--admin-text-muted) !important;
+}
+
+.admin-confirm-dialog {
+  background: var(--admin-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+.admin-confirm-dialog h3 {
+  color: var(--admin-text) !important;
+  font-weight: 700;
+}
+
+.admin-confirm-dialog p {
+  color: var(--admin-text-soft) !important;
+}
+
+.admin-order-card {
+  background: var(--admin-surface) !important;
+  border: 1px solid var(--admin-border) !important;
+  border-radius: 14px;
+  box-shadow: var(--admin-shadow) !important;
+}
+
+.admin-badge-ready {
+  background: var(--admin-status-route-bg) !important;
+  color: var(--admin-status-route-text) !important;
+}
+
+.admin-mobile-logout-btn {
+  color: rgba(255,255,255,0.8) !important;
+  background: none !important;
+  border: none !important;
+  font-family: inherit !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+}
+
+.admin-accept-btn {
+  background: var(--admin-accent) !important;
+  color: var(--admin-accent-text) !important;
+  font-weight: 700 !important;
+}
+
+.admin-order-right {
+  text-align: left !important;
+}
+
+.admin-whatsapp-link {
+  padding: 0.1rem 0.3rem !important;
+  border-radius: 4px !important;
+  background: rgba(34, 197, 94, 0.15) !important;
+}
+
+.admin-location-actions {
+  margin-top: 0.5rem !important;
+}
+
+.admin-assign-driver-block {
+  margin-top: 0.75rem !important;
+  padding: 0.5rem !important;
+  background: rgba(255,255,255,0.05) !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 0.5rem !important;
+}
+
+.admin-assign-driver-label {
+  font-size: 0.85rem !important;
+  color: var(--admin-text-muted) !important;
+}
+
+.admin-driver-select {
+  flex: 1 !important;
+  min-width: 150px !important;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: 8px !important;
+  border: 1px solid var(--admin-input-border) !important;
+  background: var(--admin-input-bg) !important;
+  color: var(--admin-text) !important;
+  font-size: 0.85rem !important;
+  cursor: pointer !important;
+}
+
+.admin-driver-assigned {
+  font-size: 0.8rem !important;
+  color: var(--admin-success) !important;
+  font-weight: 700 !important;
+}
+
+.admin-eta-msg {
+  margin-top: 0.5rem !important;
+  font-size: 0.85rem !important;
+  color: var(--admin-warning) !important;
+}
+
+.admin-print-btn {
+  margin-right: 0.4rem !important;
+}
+
+.admin-delete-btn.mt-sm {
+  margin-top: 0.4rem !important;
+}
+
+.admin-retry-btn {
+  color: var(--admin-danger) !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  text-decoration: underline !important;
+  font-size: 0.65rem !important;
+}
+
+.admin-msg-read {
+  color: var(--admin-success) !important;
+}
+
+.admin-msg-sent {
+  color: var(--admin-text-muted) !important;
+}
+
+.admin-bubble-typing {
+  opacity: 0.6 !important;
+}
+
+.admin-typing-indicator {
+  font-style: italic !important;
+  color: var(--admin-text-muted) !important;
+}
+
+.admin-confirm-dialog-eta {
+  background: var(--admin-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+
+.admin-confirm-dialog-eta h3 {
+  margin-bottom: 0.75rem !important;
+  font-weight: 700 !important;
+  color: var(--admin-text) !important;
+  font-size: 1rem !important;
+}
+
+.admin-confirm-dialog-eta p {
+  margin-bottom: 1rem !important;
+  color: var(--admin-text-soft) !important;
+  font-size: 0.85rem !important;
+}
+
+.admin-btn-gold-bold {
+  background: var(--admin-accent-gradient) !important;
+  color: var(--admin-accent-text) !important;
+  font-weight: 800 !important;
+}
+
+.admin-btn-ghost-white {
+  background: rgba(255,255,255,0.1) !important;
+  color: var(--admin-text) !important;
+}
+
+.admin-driver-stats-container {
+  display: flex !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1.5rem !important;
+  width: 100% !important;
+}
+
+.admin-driver-stat-card {
+  flex: 1 !important;
+  padding: 0.75rem 0.25rem !important;
+  text-align: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border-radius: 12px !important;
+  border: 1px solid !important;
+}
+
+.admin-driver-stat-card.active-blue {
+  background: rgba(37, 99, 235, 0.4) !important;
+  border-color: #3b82f6 !important;
+}
+
+.admin-driver-stat-card.inactive-blue {
+  background: rgba(37, 99, 235, 0.15) !important;
+  border-color: rgba(37, 99, 235, 0.3) !important;
+}
+
+.admin-driver-stat-card.active-purple {
+  background: rgba(139, 92, 246, 0.4) !important;
+  border-color: #c084fc !important;
+}
+
+.admin-driver-stat-card.inactive-purple {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.3) !important;
+}
+
+.admin-driver-stat-card.active-green {
+  background: rgba(16, 185, 129, 0.4) !important;
+  border-color: #34d399 !important;
+}
+
+.admin-driver-stat-card.inactive-green {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.admin-driver-stat-label {
+  font-size: 0.75rem !important;
+  color: var(--admin-text) !important;
+  margin-bottom: 0.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+
+.admin-driver-stat-value {
+  font-size: 1.25rem !important;
+  color: var(--admin-text) !important;
+  font-weight: 700 !important;
+}
+
+.admin-driver-tab-content {
+  min-height: 300px !important;
+}
+
+.admin-driver-sub-title {
+  margin-top: 0.5rem !important;
+  margin-bottom: 1rem !important;
+  font-weight: 700 !important;
+}
+
+.admin-driver-sub-title-blue {
+  color: #3b82f6 !important;
+}
+
+.admin-driver-sub-title-purple {
+  color: #c084fc !important;
+}
+
+.admin-driver-sub-title-green {
+  color: #34d399 !important;
+}
+
+.admin-empty-orders-white {
+  color: var(--admin-text) !important;
+}
+
+.admin-empty-orders-muted {
+  color: var(--admin-text-muted) !important;
+}
+
+.admin-completed-section {
+  margin-top: 0.75rem !important;
+}
+
+.admin-completed-order-card {
+  position: relative !important;
+}
+
+.admin-completed-order-inner {
+  padding: 0 0.75rem 0.75rem !important;
+  margin-top: -0.5rem !important;
+}
+
+.admin-archived-border {
+  border-color: var(--admin-border-subtle) !important;
 }
