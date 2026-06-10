@@ -5,7 +5,7 @@ import { sectionCats } from '../data/categories';
 
 const CategorySection = memo(({ category, products, addToCart, cart, onViewAll }) => {
   const catInfo = sectionCats.find(c => c.name === category) || { img: '', fallback: '📦' };
-  const maxDisplay = products.slice(0, 6);
+  const maxDisplay = products.slice(0, 9);
 
   return (
     <div className="home-section-card category-section-card">
@@ -23,7 +23,7 @@ const CategorySection = memo(({ category, products, addToCart, cart, onViewAll }
           <h3 className="category-section-title">{category}</h3>
           <span className="category-section-count">{products.length} منتج</span>
         </div>
-        {products.length > 6 && (
+        {products.length > 9 && (
           <button className="category-section-view-all" onClick={() => onViewAll(category)}>
             عرض الكل
           </button>
