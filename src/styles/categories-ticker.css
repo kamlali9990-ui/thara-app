@@ -43,11 +43,11 @@
 
 [data-theme="dark"] .categories-ticker-container::before {
   left: 0;
-  background: linear-gradient(to right, #282c34, transparent);
+  background: linear-gradient(to right, #020f08, transparent);
 }
 [data-theme="dark"] .categories-ticker-container::after {
   right: 0;
-  background: linear-gradient(to left, #282c34, transparent);
+  background: linear-gradient(to left, #020f08, transparent);
 }
 
 .categories-ticker-track {

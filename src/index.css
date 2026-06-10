@@ -110,7 +110,7 @@ h1, h2, h3 { color: var(--text-main); font-weight: 800; letter-spacing: -0.012em
 .maintenance-icon { font-size: 3rem; margin-bottom: 0.5rem; }
 .maintenance-page h1 { color: #d32f2f; margin: 0 0 0.5rem; }
 .maintenance-page p { color: var(--text-muted); font-size: 0.95rem; max-width: 320px; }
-[data-theme="dark"] .maintenance-page h1 { color: #e06c75; }
+[data-theme="dark"] .maintenance-page h1 { color: #ef4444; }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1.15rem; }
 
@@ -147,7 +147,7 @@ h3 { font-size: 1.15rem; }
   border: 2px solid rgba(0,0,0,0.1); display: inline-block;
 }
 .theme-check { margin-right: auto; font-size: 0.85rem; color: var(--primary); }
-[data-theme="dark"] .theme-check { color: #61afef; }
+[data-theme="dark"] .theme-check,
 [data-theme="midnight"] .theme-check { color: #fbbf24; }
 
 /* --- Data Theme Color Overrides for Store --- */
@@ -266,46 +266,40 @@ h3 { font-size: 1.15rem; }
 [data-theme="midnight"] body { background-color: #020617; color: #f5e6c8; }
 
 [data-theme="dark"] {
-  --primary: #61afef;
-  --primary-dark: #4d8fc9;
-  --secondary: #e5c07b;
-  --accent: #c678dd;
-  --bg-color: #282c34;
-  --bg-card: rgba(33, 37, 43, 0.92);
-  --surface: rgba(33, 37, 43, 0.8);
-  --surface-2: rgba(40, 44, 52, 0.5);
-  --text-main: #abb2bf;
-  --text-light: #5c6370;
-  --text-secondary: #828997;
-  --border: rgba(171, 178, 191, 0.1);
-  --border-subtle: rgba(171, 178, 191, 0.06);
-  --shadow: 0 1px 8px rgba(0,0,0,0.3);
-  --shadow-lg: 0 12px 34px rgba(0,0,0,0.4);
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
-  --blur-bg: rgba(33, 37, 43, 0.8);
-  --blur-header: rgba(33, 37, 43, 0.94);
-  --success: #98c379;
-  --success-hover: #7dab64;
-  --warning: #d19a66;
-  --warning-hover: #bb7d47;
-  --info: #61afef;
-  --info-hover: #4d8fc9;
-  --status-new-bg: rgba(97, 175, 239, 0.2);
-  --status-new-text: #61afef;
-  --status-preparing-bg: rgba(229, 192, 123, 0.2);
-  --status-preparing-text: #e5c07b;
-  --status-route-bg: rgba(152, 195, 121, 0.2);
-  --status-route-text: #98c379;
-  --status-done-bg: rgba(152, 195, 121, 0.2);
-  --status-done-text: #98c379;
-  --status-cancelled-bg: rgba(224, 108, 117, 0.2);
-  --status-cancelled-text: #e06c75;
-  --toast-success-bg: #98c379;
-  --toast-error-bg: #e06c75;
-  --toast-warning-bg: #d19a66;
-  --toast-info-bg: #61afef;
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --bg-color: #000000;
+  --bg-card: rgba(20, 20, 20, 0.92);
+  --surface: rgba(20, 20, 20, 0.8);
+  --surface-2: rgba(30, 30, 30, 0.5);
+  --text-main: #f1f5f9;
+  --text-light: #94a3b8;
+  --text-secondary: #94a3b8;
+  --border: rgba(255,255,255,0.08);
+  --blur-bg: rgba(0, 0, 0, 0.8);
+  --blur-header: rgba(0, 0, 0, 0.94);
+  --success: #22c55e;
+  --success-hover: #16a34a;
+  --warning: #fbbf24;
+  --warning-hover: #f59e0b;
+  --info: #60a5fa;
+  --info-hover: #3b82f6;
+  --status-new-bg: rgba(59, 130, 246, 0.2);
+  --status-new-text: #93c5fd;
+  --status-preparing-bg: rgba(251, 191, 36, 0.2);
+  --status-preparing-text: #fde047;
+  --status-route-bg: rgba(16, 185, 129, 0.2);
+  --status-route-text: #6ee7b7;
+  --status-done-bg: rgba(16, 185, 129, 0.2);
+  --status-done-text: #6ee7b7;
+  --status-cancelled-bg: rgba(239, 68, 68, 0.2);
+  --status-cancelled-text: #fca5a5;
+  --toast-success-bg: #22c55e;
+  --toast-error-bg: #ef4444;
+  --toast-warning-bg: #fbbf24;
+  --toast-info-bg: #60a5fa;
 }
-[data-theme="dark"] body { background-color: #282c34; color: #abb2bf; }
+[data-theme="dark"] body { background-color: #000000; color: #f1f5f9; }
 
 .offline-banner {
   position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
