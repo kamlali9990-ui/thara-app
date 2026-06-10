@@ -428,11 +428,11 @@
 
 [data-theme="dark"] .offers-ticker-container::before {
   left: 0;
-  background: linear-gradient(to right, #020f08, transparent);
+  background: linear-gradient(to right, #282c34, transparent);
 }
 [data-theme="dark"] .offers-ticker-container::after {
   right: 0;
-  background: linear-gradient(to left, #020f08, transparent);
+  background: linear-gradient(to left, #282c34, transparent);
 }
 
 .offer-ticker-item {

@@ -1,32 +1,32 @@
-/* ==================== DARK GLASS THEME ==================== */
+/* ==================== DARK THEME — One Dark Pro ==================== */
 :root[data-theme="dark"] {
-  --primary: #10b981;
-  --primary-dark: #059669;
-  --secondary: #d4af37;
-  --accent: #fbbf24;
-  --bg-color: #020f08;
-  --bg-card: rgba(255,255,255,0.04);
-  --surface: rgba(255,255,255,0.04);
-  --surface-2: rgba(255,255,255,0.02);
-  --text-main: #ffffff;
-  --text-light: #ffffff;
-  --text-secondary: #ffffff;
-  --border: rgba(16, 185, 129, 0.12);
-  --border-subtle: rgba(16, 185, 129, 0.06);
-  --shadow: 0 1px 8px rgba(0,0,0,0.5);
-  --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.7);
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.5);
-  --blur-bg: rgba(2,15,8,0.9);
-  --blur-header: rgba(2,15,8,0.96);
-  --glass-bg: rgba(255,255,255,0.04);
-  --glass-border: rgba(16,185,129,0.10);
+  --primary: #61afef;
+  --primary-dark: #4d8fc9;
+  --secondary: #e5c07b;
+  --accent: #c678dd;
+  --bg-color: #282c34;
+  --bg-card: rgba(33, 37, 43, 0.8);
+  --surface: rgba(33, 37, 43, 0.7);
+  --surface-2: rgba(40, 44, 52, 0.5);
+  --text-main: #abb2bf;
+  --text-light: #828997;
+  --text-secondary: #5c6370;
+  --border: rgba(171, 178, 191, 0.1);
+  --border-subtle: rgba(171, 178, 191, 0.06);
+  --shadow: 0 1px 8px rgba(0,0,0,0.3);
+  --shadow-lg: 0 25px 50px -12px rgba(0,0,0,0.5);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.3);
+  --blur-bg: rgba(33, 37, 43, 0.9);
+  --blur-header: rgba(33, 37, 43, 0.96);
+  --glass-bg: rgba(171, 178, 191, 0.04);
+  --glass-border: rgba(171, 178, 191, 0.08);
   --glass-shadow: 0 8px 32px rgba(0,0,0,0.5);
-  --gold: #fbbf24;
-  --gold-dark: #78350f;
+  --gold: #e5c07b;
+  --gold-dark: #5c6370;
 }
 
 [data-theme="dark"] body {
-  background: linear-gradient(180deg, #020f08 0%, #052213 30%, #020f08 100%);
+  background: linear-gradient(180deg, #282c34 0%, #21252b 50%, #282c34 100%);
   background-attachment: fixed;
 }
 
@@ -912,8 +912,8 @@
 [data-theme="dark"] .orders-tab,
 [data-theme="dark"] .account-tab,
 [data-theme="dark"] .all-products-view {
-  background: linear-gradient(180deg, #020f08 0%, #052213 50%, #020f08 100%) !important;
-  background-color: #020f08 !important;
+  background: linear-gradient(180deg, #282c34 0%, #21252b 50%, #282c34 100%) !important;
+  background-color: #282c34 !important;
   background-attachment: fixed !important;
 }
 

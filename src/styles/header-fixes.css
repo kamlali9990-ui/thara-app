@@ -27,7 +27,7 @@
   border-radius: 6px;
 }
 .app-logo-img-new.logo-light { background: #ffffff; }
-.app-logo-img-new.logo-dark { background: #020f08; }
+.app-logo-img-new.logo-dark { background: #21252b; }
 .app-logo-img-new:hover {
   transform: scale(1.05);
 }

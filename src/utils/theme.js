@@ -5,7 +5,7 @@ export const THEMES = [
   { id: 'pearl-white', name: 'لؤلؤي', color: '#c9b097', metaColor: '#f0eae1' },
   { id: 'emerald', name: 'زمردي', color: '#059669', metaColor: '#022c1a' },
   { id: 'midnight', name: 'ليلي', color: '#38bdf8', metaColor: '#020617' },
-  { id: 'dark', name: 'داكن', color: '#6366f1', metaColor: '#0c1220' },
+  { id: 'dark', name: 'داكن', color: '#61afef', metaColor: '#282c34' },
 ];
 
 export function useTheme() {
