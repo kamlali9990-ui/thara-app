@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-mq8cdn3o';
+const CACHE_NAME = 'thara-mq8ck0p1';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
