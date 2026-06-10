@@ -562,6 +562,7 @@ export const StoreProvider = ({ children }) => {
   return (
     <StoreContext.Provider value={{
       user, loading, login, logout,
+      setUser, setStaffRole, setCurrentStaff, setCustomerProfile,
       staffRole, currentStaff, staffList, loadStaff, addStaff, updateStaff, removeStaff,
       allCustomers, loadCustomers,
       customerProfile, updateCustomerProfile,
