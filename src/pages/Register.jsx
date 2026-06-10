@@ -25,6 +25,10 @@ export default function Register() {
       setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
       return;
     }
+    if (!phone) {
+      setError('رقم الجوال مطلوب');
+      return;
+    }
     if (username && username.length < 3) {
       setError('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
       return;
@@ -35,12 +39,15 @@ export default function Register() {
     }
     setLoading(true);
     try {
-      const normalizedEmail = email.trim().toLowerCase();
+      const cleanPhone = phone.trim();
+      const hasEmail = email.trim().length > 0 && email.includes('@');
       const cleanUsername = username ? username.trim().toLowerCase() : null;
-      await authApi.signUpDirect(normalizedEmail, password, cleanUsername);
-      await authApi.signIn(normalizedEmail, password);
+      // Use phone as auth identifier if no email provided
+      const authEmail = hasEmail ? email.trim().toLowerCase() : `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
+      await authApi.signUpDirect(authEmail, password, cleanUsername);
+      await authApi.signIn(authEmail, password);
       try {
-        await customersApi.create(normalizedEmail, name, phone, cleanUsername);
+        await customersApi.create(authEmail, name, phone, cleanUsername);
       } catch {
         console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
@@ -92,9 +99,9 @@ export default function Register() {
           </div>
 
           <div className="auth-field">
-            <label>البريد الإلكتروني</label>
+            <label>البريد الإلكتروني (اختياري)</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com" required className="auth-input" />
+              placeholder="your@email.com" className="auth-input" />
           </div>
 
           <div className="auth-field">

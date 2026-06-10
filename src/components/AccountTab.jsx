@@ -131,7 +131,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             </div>
             <div className="acc-name">{displayName}</div>
             <div className="acc-phone">{displayPhone || 'رقم الجوال غير مضاف'}</div>
-            <div className="acc-email">{user.email}</div>
+            <div className="acc-email">{user.email?.includes('@thara.app') ? 'البريد الإلكتروني غير مضاف' : user.email}</div>
             {displayUsername && <div className="acc-username" style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '-0.25rem' }}>@{displayUsername}</div>}
             {staffRole && (
               <Link to="/admin" className="acc-staff-badge">
