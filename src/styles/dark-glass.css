@@ -393,8 +393,9 @@
 [data-theme="dark"] .app-share-btn:hover { background: rgba(255,255,255,0.12); }
 
 /* ─── Install Overlay ─── */
-[data-theme="dark"] .install-overlay { background: rgba(0,0,0,0.75); }
-[data-theme="dark"] .install-card { background: rgba(5,5,5,0.98); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); border: 0.5px solid rgba(56, 189, 248, 0.15); }
+[data-theme="dark"] .install-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(20px) saturate(1.2); }
+[data-theme="dark"] .install-card { background: linear-gradient(145deg, rgba(15,23,42,0.98), rgba(10,15,30,0.98)); box-shadow: 0 0 0 1px rgba(56,189,248,0.1), 0 25px 80px rgba(0,0,0,0.6); }
+[data-theme="dark"] .install-main-btn { color: #1e293b; }
 
 /* ─── Loading Screen ─── */
 .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; gap: 1rem; background: var(--bg, #f3f7f4); color: var(--text, #1a2e1a); }

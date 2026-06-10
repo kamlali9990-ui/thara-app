@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
 const DURATIONS = [3, 7, 30, 365];
@@ -7,6 +7,8 @@ export default function InstallPrompt({ variant }) {
   const BASE = import.meta.env.BASE_URL || '/';
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [show, setShow] = useState(false);
+  const [progress, setProgress] = useState(100);
+  const progressRef = useRef(null);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
   const permanentlyDismissed = localStorage.getItem('pwa-install-permanent-dismiss');
 
@@ -45,6 +47,25 @@ export default function InstallPrompt({ variant }) {
     };
   }, [isRecentlyDismissed, permanentlyDismissed, show]);
 
+  useEffect(() => {
+    if (!show) { setProgress(100); return; }
+    const start = Date.now();
+    const dur = 3000;
+    let frame;
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 100 - (elapsed / dur) * 100);
+      setProgress(remaining);
+      if (remaining <= 0) {
+        dismiss();
+      } else {
+        frame = requestAnimationFrame(tick);
+      }
+    };
+    frame = requestAnimationFrame(tick);
+    return () => { if (frame) cancelAnimationFrame(frame); };
+  }, [show]);
+
   const install = async () => {
     if (deferredPrompt) {
       try {
@@ -64,11 +85,13 @@ export default function InstallPrompt({ variant }) {
     }
   };
 
-  const dismiss = () => {
-    const count = parseInt(localStorage.getItem('pwa-install-dismiss-count') || '0', 10) + 1;
-    localStorage.setItem('pwa-install-dismiss-count', count.toString());
-    localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString());
-    if (count >= 3) localStorage.setItem('pwa-install-permanent-dismiss', '1');
+  const dismiss = (manual = false) => {
+    if (manual) {
+      const count = parseInt(localStorage.getItem('pwa-install-dismiss-count') || '0', 10) + 1;
+      localStorage.setItem('pwa-install-dismiss-count', count.toString());
+      localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString());
+      if (count >= 3) localStorage.setItem('pwa-install-permanent-dismiss', '1');
+    }
     setShow(false);
   };
 
@@ -115,42 +138,39 @@ export default function InstallPrompt({ variant }) {
   if (!show) return null;
 
   return (
-    <div className="install-overlay">
-      <div className="install-card">
-        <button className="install-close-btn" onClick={dismiss} aria-label="إغلاق">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+    <div className="install-overlay" onClick={() => dismiss(true)}>
+      <div className="install-card" onClick={e => e.stopPropagation()}>
         <div className="install-card-inner">
-          <div className="install-header-section">
-            <img src={`${BASE}newicon.jpg`} alt="" className="install-logo"
-              onError={(e) => { e.target.src = `${BASE}logo222.jpg`; }} />
-            <div className="install-app-info">
-              <h2 className="install-title">تطبيق أسواق ثراء الشرق ون</h2>
-              <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
-            </div>
+          <img src={`${BASE}newicon.jpg`} alt="" className="install-logo"
+            onError={(e) => { e.target.src = `${BASE}logo222.jpg`; }} />
+          <h2 className="install-title">تطبيق أسواق ثراء الشرق ون</h2>
+          <p className="install-subtitle">توصيل طلبات السوبرماركت لباب بيتك في الخفجي</p>
+
+          <div className="install-actions">
+            {canInstall && !isIOS ? (
+              <button className="install-main-btn" onClick={install}>📲 تثبيت التطبيق</button>
+            ) : (
+              <span className="install-ios-hint">
+                📲 شارك ← إضافة للشاشة الرئيسية للايفون
+              </span>
+            )}
+            {!canInstall && (
+              <a href={`${BASE}thara-app.apk`} download className="install-apk-link">
+                📦 تحميل تطبيق الاندرويد
+              </a>
+            )}
+            {isIOS && (
+              <a href="/install-guide.html" target="_blank" className="install-ios-guide-link">
+                📖 شرح بالصور
+              </a>
+            )}
           </div>
 
-          {canInstall && !isIOS && (
-            <button className="install-main-btn" onClick={install}>اضغط هنا للتثبيت</button>
-          )}
-          {!canInstall && isIOS && (
-            <div className="install-ios-hint">
-              <span className="ios-hint-icon">📲</span>
-              <span className="ios-hint-text">شارك ← إضافة للشاشة الرئيسية</span>
-              <a href="/install-guide.html" target="_blank" className="install-ios-guide-link">📖 شرح بالصور</a>
-            </div>
-          )}
-          {!canInstall && !isIOS && (
-            <a href={`${BASE}thara-app.apk`} download className="install-apk-btn">
-              📦 تحميل تطبيق أندرويد APK
-            </a>
-          )}
-
-          <button className="install-skip-btn" onClick={dismiss}>متابعة عبر المتصفح</button>
+          <button className="install-skip-btn" onClick={() => dismiss(true)}>
+            متابعة عبر المتصفح
+          </button>
         </div>
+        <div className="install-progress-bar" style={{ width: `${progress}%` }} />
       </div>
     </div>
   );
