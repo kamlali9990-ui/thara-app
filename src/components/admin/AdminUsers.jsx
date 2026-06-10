@@ -33,8 +33,12 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }) {
           <div key={c.id} className="admin-card">
             <div className="admin-card-header" style={{ alignItems: 'center' }}>
               <div>
-                <strong style={{ fontSize: '1rem' }}>{c.name || 'بدون اسم'}</strong>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <strong style={{ fontSize: '1rem' }}>{c.name || 'بدون اسم'}</strong>
+                  <span style={{ color: '#64748b', fontSize: '0.75rem', background: 'rgba(255,255,255,0.05)', padding: '0.1rem 0.5rem', borderRadius: '4px' }}>#{c.id}</span>
+                </div>
                 <div style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.2rem' }}>{c.email}</div>
+                {c.username && <div style={{ color: '#64748b', fontSize: '0.8rem' }}>@{c.username}</div>}
               </div>
               <div style={{ textAlign: 'left', display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                 <div>
@@ -54,7 +58,8 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }) {
               </div>
             </div>
             <div className="admin-card-info">
-              <strong>الهاتف:</strong> {c.phone || 'غير محدد'} | <strong>تاريخ التسجيل:</strong> {c.created_at ? new Date(c.created_at).toLocaleDateString('ar-SA') : '—'}
+              <strong>رقم الجوال:</strong> <span dir="ltr">{c.phone || 'غير محدد'}</span> |
+              <strong> تاريخ التسجيل:</strong> {c.created_at ? new Date(c.created_at).toLocaleDateString('ar-SA') : '—'}
             </div>
           </div>
         ))}
