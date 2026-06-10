@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authApi } from '../supabase/auth';
+import { customersApi } from '../supabase/customers';
 
 export default function CustomerLogin() {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -14,12 +14,15 @@ export default function CustomerLogin() {
     setError('');
     setLoading(true);
     try {
-      await authApi.signIn(email, password);
+      await customersApi.login(identifier, password);
       navigate('/');
     } catch (err) {
-      setError(err.message === 'Invalid login credentials'
-        ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
-        : 'حدث خطأ أثناء تسجيل الدخول');
+      const msg = err.message || '';
+      if (msg.includes('Invalid login credentials') || msg.includes('لا يوجد حساب')) {
+        setError('المعرف أو كلمة المرور غير صحيحة');
+      } else {
+        setError('حدث خطأ أثناء تسجيل الدخول');
+      }
     } finally {
       setLoading(false);
     }
@@ -36,9 +39,9 @@ export default function CustomerLogin() {
 
         <form onSubmit={handleLogin}>
           <div className="auth-field">
-            <label>البريد الإلكتروني</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com" required className="auth-input" />
+            <label>البريد الإلكتروني / رقم الجوال / اسم المستخدم / رقم العميل</label>
+            <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)}
+              placeholder="your@email.com أو 05xxxxxxxx أو username أو #ID" required className="auth-input" />
           </div>
 
           <div className="auth-field">

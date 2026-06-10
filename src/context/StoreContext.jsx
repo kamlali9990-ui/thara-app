@@ -465,24 +465,23 @@ export const StoreProvider = ({ children }) => {
   }, [chatMessages]);
 
   // --- Auth Actions ---
-  const login = useCallback(async (email, password) => {
+  const login = useCallback(async (identifier, password) => {
     if (!hasSupabase) throw new Error('Supabase غير مهيأ');
-    const normalizedEmail = String(email || '').trim().toLowerCase();
     try {
-      const data = await authApi.signIn(normalizedEmail, password);
+      // Try customer login (supports email/phone/username/id)
+      const data = await customersApi.login(identifier, password);
       setUser(data.user);
       return data;
     } catch (err) {
-      // Handle "Invalid Refresh Token" - clear session and retry
+      // Handle invalid refresh token — clear session and retry
       if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
         try { await authApi.signOut(); } catch (e) { console.error('[login] signOut after invalid token', e); }
-        setUser(null);
-        setStaffRole(null);
-        setCurrentStaff(null);
-        setCustomerProfile(null);
+        setUser(null); setStaffRole(null); setCurrentStaff(null); setCustomerProfile(null);
       }
-      if (supabase) {
+      // For staff login, try ensure_staff_auth_user as fallback
+      if (supabase && !err?.message?.includes('لا يوجد حساب')) {
         try {
+          const normalizedEmail = String(identifier || '').trim().toLowerCase();
           const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {
             p_email: normalizedEmail, p_password: password
           });
@@ -496,7 +495,7 @@ export const StoreProvider = ({ children }) => {
           }
         } catch (e) { console.error('[login] ensure_staff_auth_user', e); }
       }
-      throw new Error('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      throw new Error('المعرف أو كلمة المرور غير صحيحة');
     }
   }, []);
 
@@ -550,10 +549,10 @@ export const StoreProvider = ({ children }) => {
     setStaffList(prev => prev.filter(s => s.id !== id));
   }, []);
 
-  const updateCustomerProfile = useCallback(async (name, phone) => {
+  const updateCustomerProfile = useCallback(async (name, phone, username) => {
     if (!user) return;
     try {
-      const updated = await customersApi.update(user.email, name, phone);
+      const updated = await customersApi.update(user.email, name, phone, null, null, null, username);
       setCustomerProfile(updated);
       return updated;
     } catch (err) { console.error('[updateCustomerProfile]', err); showToast('تعذر تحديث الملف الشخصي', 'error'); return null; }

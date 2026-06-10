@@ -7,6 +7,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -24,13 +25,22 @@ export default function Register() {
       setError('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
       return;
     }
+    if (username && username.length < 3) {
+      setError('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
+      return;
+    }
+    if (username && !/^[a-zA-Z0-9_.]+$/.test(username)) {
+      setError('اسم المستخدم: أحرف إنجليزية وأرقام و _ . فقط');
+      return;
+    }
     setLoading(true);
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      await authApi.signUpDirect(normalizedEmail, password);
+      const cleanUsername = username ? username.trim().toLowerCase() : null;
+      await authApi.signUpDirect(normalizedEmail, password, cleanUsername);
       await authApi.signIn(normalizedEmail, password);
       try {
-        await customersApi.create(normalizedEmail, name, phone);
+        await customersApi.create(normalizedEmail, name, phone, cleanUsername);
       } catch {
         console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
@@ -39,6 +49,8 @@ export default function Register() {
       const msg = err.message || '';
       if (msg.includes('رقم الجوال مستخدم مسبقاً')) {
         setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
+      } else if (msg.includes('اسم المستخدم مستخدم مسبقاً')) {
+        setError('اسم المستخدم مستخدم مسبقاً من حساب آخر');
       } else if (msg.includes('already registered') || msg.includes('already exists')) {
         setError('هذا البريد مسجل مسبقاً');
       } else if (msg.includes('429') || msg.includes('Too Many Requests') || msg.includes('rate limit')) {
@@ -71,6 +83,12 @@ export default function Register() {
             <label>رقم الجوال</label>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
               placeholder="05xxxxxxxx" required className="auth-input" dir="ltr" />
+          </div>
+
+          <div className="auth-field">
+            <label>اسم المستخدم (اختياري)</label>
+            <input type="text" value={username} onChange={e => setUsername(e.target.value)}
+              placeholder="my_username" className="auth-input" dir="ltr" />
           </div>
 
           <div className="auth-field">

@@ -1,11 +1,13 @@
 import { supabase } from './client';
+import { authApi } from './auth';
 
 export const customersApi = {
-  async create(email, name, phone) {
+  async create(email, name, phone, username) {
     const { data, error } = await supabase.rpc('create_customer_rpc', {
       p_email: email,
       p_name: name,
-      p_phone: phone
+      p_phone: phone,
+      p_username: username || null
     });
     if (error) throw error;
     return typeof data === 'string' ? JSON.parse(data) : data;
@@ -20,14 +22,15 @@ export const customersApi = {
     return data ? (typeof data === 'string' ? JSON.parse(data) : data) : null;
   },
 
-  async update(email, name, phone, deliveryAddress, neighborhood, location) {
+  async update(email, name, phone, deliveryAddress, neighborhood, location, username) {
     const { data, error } = await supabase.rpc('update_customer_rpc', {
       p_email: email,
       p_name: name,
       p_phone: phone,
       p_delivery_address: deliveryAddress ?? null,
       p_neighborhood: neighborhood ?? null,
-      p_location: location ?? null
+      p_location: location ?? null,
+      p_username: username ?? null
     });
     if (error) throw error;
     return typeof data === 'string' ? JSON.parse(data) : data;
@@ -47,5 +50,23 @@ export const customersApi = {
     if (error) throw error;
     const arr = typeof data === 'string' ? JSON.parse(data) : data;
     return Array.isArray(arr) ? arr : [];
+  },
+
+  async resolveLogin(identifier) {
+    const { data, error } = await supabase.rpc('resolve_customer_login', {
+      p_identifier: identifier
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  async login(identifier, password) {
+    // Try to resolve identifier to email first (for customers with phone/username/id)
+    const resolvedEmail = await this.resolveLogin(identifier);
+    if (resolvedEmail) {
+      return await authApi.signIn(resolvedEmail, password);
+    }
+    // If no customer found, try direct email login (for staff or customers using email directly)
+    return await authApi.signIn(identifier, password);
   }
 };

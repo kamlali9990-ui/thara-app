@@ -9,6 +9,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [editUsername, setEditUsername] = useState('');
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -17,20 +18,31 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
 
   const displayName = customerProfile?.name || user?.email?.split('@')[0] || '';
   const displayPhone = customerProfile?.phone || '';
+  const displayUsername = customerProfile?.username || '';
   const avatarLetter = (customerProfile?.name || user?.email || '?').charAt(0).toUpperCase();
 
   const startEdit = () => {
     setEditName(customerProfile?.name || '');
     setEditPhone(customerProfile?.phone || '');
+    setEditUsername(customerProfile?.username || '');
     setEditing(true);
   };
 
   const saveProfile = async () => {
     setSaving(true);
     try {
-      await updateCustomerProfile(editName, editPhone);
+      await updateCustomerProfile(editName, editPhone, editUsername || null);
       setEditing(false);
-    } catch (err) { const m = err?.message || ''; console.error('[saveProfile]', err); showToast(m.includes('مستخدم مسبقاً') ? 'رقم الجوال مستخدم مسبقاً من حساب آخر' : 'فشل حفظ الملف الشخصي', 'error'); }
+    } catch (err) {
+      const m = err?.message || '';
+      if (m.includes('اسم المستخدم مستخدم مسبقاً')) {
+        showToast('اسم المستخدم مستخدم مسبقاً من حساب آخر', 'error');
+      } else if (m.includes('رقم الجوال مستخدم مسبقاً')) {
+        showToast('رقم الجوال مستخدم مسبقاً من حساب آخر', 'error');
+      } else {
+        showToast('فشل حفظ الملف الشخصي', 'error');
+      }
+    }
     setSaving(false);
   };
 
@@ -99,6 +111,11 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)}
               placeholder="05xxxxxxxx" className="acc-input ltr" dir="ltr" />
           </div>
+          <div className="acc-field">
+            <label>اسم المستخدم (اختياري)</label>
+            <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)}
+              placeholder="my_username" className="acc-input ltr" dir="ltr" />
+          </div>
           <div className="acc-edit-actions">
             <button className="acc-btn acc-btn-primary" onClick={saveProfile} disabled={saving}>
               {saving ? 'جاري الحفظ...' : 'حفظ التعديلات'}
@@ -115,6 +132,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             <div className="acc-name">{displayName}</div>
             <div className="acc-phone">{displayPhone || 'رقم الجوال غير مضاف'}</div>
             <div className="acc-email">{user.email}</div>
+            {displayUsername && <div className="acc-username" style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '-0.25rem' }}>@{displayUsername}</div>}
             {staffRole && (
               <Link to="/admin" className="acc-staff-badge">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
@@ -172,6 +190,10 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
           )}
 
           <div className="acc-card acc-info-card">
+            <div className="acc-info-row">
+              <span className="acc-info-label">رقم العميل</span>
+              <span className="acc-info-value">#{customerProfile?.id || '—'}</span>
+            </div>
             <div className="acc-info-row">
               <span className="acc-info-label">تاريخ التسجيل</span>
               <span className="acc-info-value">

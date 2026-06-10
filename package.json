@@ -16,7 +16,8 @@
     "test:watch": "vitest",
     "setup": "npm install && npm run supabase:link",
     "deploy:push": "node scripts/deploy-edge-function.cjs send-push",
-    "deploy:cloudinary": "node scripts/deploy-edge-function.cjs cloudinary-sign"
+    "deploy:cloudinary": "node scripts/deploy-edge-function.cjs cloudinary-sign",
+    "deploy:otp": "node scripts/deploy-edge-function.cjs send-otp"
   },
   "dependencies": {
     "@sentry/browser": "^10.56.0",

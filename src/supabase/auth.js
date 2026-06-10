@@ -15,11 +15,12 @@ export const authApi = {
     return data;
   },
 
-  async signUpDirect(email, password) {
+  async signUpDirect(email, password, username) {
     const normalizedEmail = String(email || '').trim().toLowerCase();
     const { data, error } = await supabase.rpc('create_customer_auth_rpc', {
       p_email: normalizedEmail,
-      p_password: password
+      p_password: password,
+      p_username: username || null
     });
     if (error) throw error;
     return data;
