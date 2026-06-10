@@ -514,23 +514,23 @@
 }
 
 .offer-ticker-price {
-  font-size: 1.25rem;
-  font-weight: 900;
+  font-size: 1.6rem;
+  font-weight: 950;
   color: var(--primary);
   direction: rtl;
-  letter-spacing: -0.5px;
+  line-height: 1;
 }
 
 .offer-ticker-old-price {
   text-decoration: line-through;
   color: var(--text-light);
-  font-size: 0.65rem;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .offer-ticker-currency {
-  font-size: 0.6rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 700;
   color: var(--text-light);
 }
 
