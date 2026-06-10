@@ -1000,11 +1000,11 @@
   display: none;
 }
 .product-card-new-price {
-  font-size: 1.15rem;
+  font-size: 0.86rem;
   font-weight: 950;
   color: #127443 !important;
   display: inline;
-  line-height: 1;
+  line-height: 1.1;
 }
 .product-card-new-currency {
   display: inline;

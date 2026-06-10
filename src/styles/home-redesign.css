@@ -514,23 +514,23 @@
 }
 
 .offer-ticker-price {
-  font-size: 1.6rem;
-  font-weight: 950;
+  font-size: 1.25rem;
+  font-weight: 900;
   color: var(--primary);
   direction: rtl;
-  line-height: 1;
+  letter-spacing: -0.5px;
 }
 
 .offer-ticker-old-price {
   text-decoration: line-through;
   color: var(--text-light);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.65rem;
+  font-weight: 500;
 }
 
 .offer-ticker-currency {
-  font-size: 0.75rem;
-  font-weight: 700;
+  font-size: 0.6rem;
+  font-weight: 600;
   color: var(--text-light);
 }
 
@@ -680,10 +680,10 @@
   flex-wrap: nowrap;
 }
 .rotating-cat-grid .product-card-new-price {
-  font-size: 1.4rem;
+  font-size: 0.86rem;
   font-weight: 950;
   color: #127443 !important;
-  line-height: 1;
+  line-height: 1.1;
 }
 .rotating-cat-grid .product-card-new-currency {
   display: inline;

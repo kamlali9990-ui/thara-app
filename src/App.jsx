@@ -168,6 +168,7 @@ export default function App() {
         unreadNotifs={unreadNotifs}
         theme={theme}
         onMenuClick={() => setIsDrawerOpen(true)}
+        onThemeToggle={toggleTheme}
         onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }} />
 
         <div className={`app-content ${tab === 'home' && !showAllView ? '' : 'app-content-nohome'}`}>

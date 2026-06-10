@@ -89,7 +89,7 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
           })}
         </div>
       ) : (
-        <div className="all-products-grid">
+        <div className={`all-products-grid ${view === 'offers' ? 'offers-grid' : ''}`}>
           {filtered.map(product => (
             <ProductCard key={product.id} product={product} addToCart={addToCart} cart={cart} />
           ))}
