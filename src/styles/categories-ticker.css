@@ -68,7 +68,7 @@
   gap: 12px;
   padding: 10px 20px;
   background: rgba(18, 116, 67, 0.06);
-  border: 1px solid rgba(18, 116, 67, 0.12);
+  border: none;
   border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -77,7 +77,6 @@
 
 [data-theme="dark"] .categories-ticker-item {
   background: rgba(16, 185, 129, 0.06);
-  border: 1px solid rgba(16, 185, 129, 0.15);
 }
 
 .categories-ticker-item:hover {
@@ -102,7 +101,7 @@
   height: 38px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid rgba(212, 175, 55, 0.45);
+  border: none;
   background: white;
 }
 
@@ -128,7 +127,6 @@
   color: var(--text-main) !important;
 }
 [data-theme="dark"] .ticker-item-img {
-  border-color: rgba(16, 185, 129, 0.4);
   background: rgba(3, 32, 17, 0.8);
 }
 

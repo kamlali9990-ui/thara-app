@@ -441,7 +441,7 @@
   gap: 8px;
   padding: 6px 10px;
   background: rgba(230, 81, 0, 0.04);
-  border: 1px solid rgba(230, 81, 0, 0.12);
+  border: none;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -452,7 +452,6 @@
 
 [data-theme="dark"] .offer-ticker-item {
   background: rgba(255, 138, 101, 0.06);
-  border: 1px solid rgba(255, 138, 101, 0.15);
 }
 
 .offer-ticker-item:hover {
@@ -492,7 +491,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border: 1px solid rgba(230, 81, 0, 0.2);
+  border: none;
 }
 
 .offer-ticker-info {
@@ -600,7 +599,7 @@
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--border);
+  border: none;
   min-height: 110px;
 }
 .delivery-option-info h4 {

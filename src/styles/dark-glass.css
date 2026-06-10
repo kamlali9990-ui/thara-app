@@ -689,7 +689,7 @@
   background: rgba(255,255,255,0.04);
   backdrop-filter: blur(16px) saturate(1.3);
   -webkit-backdrop-filter: blur(16px) saturate(1.3);
-  border: 0.5px solid rgba(56, 189, 248, 0.10);
+  border: none;
   box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 [data-theme="dark"] .delivery-option-info h4 { color: var(--text-main); }
@@ -831,7 +831,6 @@
   background: rgba(3, 32, 17, 0.93) !important;
   backdrop-filter: blur(16px) saturate(1.2) !important;
   -webkit-backdrop-filter: blur(16px) saturate(1.2) !important;
-  border: 1px solid rgba(16, 185, 129, 0.25) !important;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
   color: var(--text-main) !important;
 }
@@ -971,7 +970,7 @@
 }
 
 [data-theme="dark"] .home-tab-container .delivery-option-item {
-  border: 1.5px solid rgba(16, 185, 129, 0.25) !important;
+  border: none !important;
 }
 
 [data-theme="dark"] .home-tab-container .delivery-option-item:hover {
