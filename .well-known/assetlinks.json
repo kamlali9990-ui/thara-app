@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.tharasharqone.twa",
+        "sha256_cert_fingerprints": ["FA:54:6B:73:CF:49:6D:04:24:EA:D6:36:61:6C:5C:23:14:5F:F1:63:3D:7D:2B:98:3F:0C:19:A6:C0:40:2B:72"]
+      }
+    }]

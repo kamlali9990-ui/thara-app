@@ -1,0 +1,25 @@
+node_modules
+dist
+.env
+*.local
+npm
+thara-al-sharq-one-markets@*
+.DS_Store
+*.log
+supabase/.temp/
+supabase/.branches/
+*.db
+
+.vercel
+
+# Binary/build artifacts
+أسواق ثراء الشرق ون - Google Play package.zip
+/أسواق ثراء الشرق ون - Google Play package/
+*.zip
+*.apk
+*.aab
+app-release-*
+source/
+.gradle/
+build/
+*.keystore
