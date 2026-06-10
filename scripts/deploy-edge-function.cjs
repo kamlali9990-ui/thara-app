@@ -2,12 +2,18 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
+const fxnName = process.argv[2] || 'cloudinary-sign';
 const PAT = process.env.SUPABASE_ACCESS_TOKEN;
-if (!PAT) { process.exit(1); }
+if (!PAT) { console.error('Missing SUPABASE_ACCESS_TOKEN env var'); process.exit(1); }
 const PROJECT_REF = 'oqwphazzuxmrxwbnothk';
-const FXN = 'cloudinary-sign';
+const FXN = fxnName;
 const DIR = path.join(__dirname, '..', 'supabase', 'functions', FXN);
 const ENTRY = 'index.ts';
+
+if (!fs.existsSync(path.join(DIR, ENTRY))) {
+  console.error(`Entry not found: ${path.join(DIR, ENTRY)}`);
+  process.exit(1);
+}
 
 function api(method, urlPath, ct, body) {
   return new Promise((resolve) => {
@@ -44,22 +50,18 @@ function multipart(boundary, parts) {
 
 (async () => {
   const code = fs.readFileSync(path.join(DIR, ENTRY), 'utf-8');
-  const metadata = JSON.stringify({ entrypoint_path: ENTRY, verify_jwt: false, name: FXN });
+  const verifyJwt = FXN === 'send-push' ? false : true;
+  const metadata = JSON.stringify({ entrypoint_path: ENTRY, verify_jwt: verifyJwt, name: FXN });
   const boundary = `----${Date.now()}`;
   const body = multipart(boundary, [
     { name: 'metadata', value: metadata },
     { name: 'file', value: code, filename: ENTRY, type: 'application/vnd.deno.entrypoint' },
   ]);
   const r = await api('POST', `/v1/projects/${PROJECT_REF}/functions/deploy?slug=${FXN}`, `multipart/form-data; boundary=${boundary}`, body);
-  console.log(`Deploy: (${r.s})`, JSON.stringify(r.b || '').substring(0, 300));
+  console.log(`Deploy "${FXN}": (${r.s})`, JSON.stringify(r.b || '').substring(0, 300));
 
   if (r.s < 400) {
-    const anonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
-    const r3 = await new Promise((resolve) => {
-      const r = https.request({ hostname: `${PROJECT_REF}.supabase.co`, path: '/functions/v1/cloudinary-sign', method: 'POST', headers: { Authorization: `Bearer ${anonKey}`, 'Content-Type': 'application/json' } }, (res) => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve({ s: res.statusCode, b: d })); });
-      r.on('error', e => resolve({ s: 0, b: e.message }));
-      r.write(JSON.stringify({ upload_preset: 'test' })); r.end();
-    });
-    console.log(`Test: (${r3.s})`, r3.b);
+    const testPath = FXN === 'send-push' ? '' : 'test';
+    console.log(`Done. Verify at https://${PROJECT_REF}.supabase.co/functions/v1/${FXN}`);
   }
-})().catch(e => console.error('💥', e));
+})().catch(e => console.error('Deploy error:', e));

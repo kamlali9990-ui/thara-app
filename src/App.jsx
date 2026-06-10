@@ -16,6 +16,7 @@ import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
 
 import OfflineBanner from './components/OfflineBanner';
+import NotificationPermissionPrompt from './components/NotificationPermissionPrompt';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
 
@@ -162,6 +163,7 @@ export default function App() {
       <UpdateBanner />
       <OfflineBanner />
       <InstallPrompt />
+      <NotificationPermissionPrompt />
       <AppHeader cartCount={cartCount} user={user} logout={logout}
         onCartOpen={() => setIsCartOpen(true)} tab={tab}
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}

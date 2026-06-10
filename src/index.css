@@ -25,6 +25,7 @@
 @import './styles/header-fixes.css';
 @import './styles/search-bar-fix.css';
 @import './styles/notification-badge.css';
+@import './styles/notif-prompt.css';
 @import './styles/header-search-bar.css';
 @import './styles/categories-tab.css';
 @import './styles/side-drawer.css';

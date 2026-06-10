@@ -70,6 +70,18 @@ export const StoreProvider = ({ children }) => {
 
   useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart });
 
+  // Save user info for notification prompt
+  useEffect(() => {
+    if (user?.email) {
+      try { localStorage.setItem('thara_user_email', user.email); } catch {}
+    }
+    if (staffRole) {
+      try { localStorage.setItem('thara_staff_role', staffRole); } catch {}
+    } else {
+      try { localStorage.removeItem('thara_staff_role'); } catch {}
+    }
+  }, [user?.email, staffRole]);
+
   // Push notification subscription — auto subscribe on login, unsubscribe on logout
   useEffect(() => {
     if (!user || !supabaseReady) return;
@@ -78,11 +90,7 @@ export const StoreProvider = ({ children }) => {
     const role = staffRole || 'customer';
     if (!email) return;
 
-    if (Notification.permission === 'default') {
-      Notification.requestPermission().then((perm) => {
-        if (perm === 'granted') subscribePush(email, role).catch(() => {});
-      }).catch(() => {});
-    } else if (Notification.permission === 'granted') {
+    if (Notification.permission === 'granted') {
       subscribePush(email, role).catch(() => {});
     }
   }, [user?.id, supabaseReady]);

@@ -14,7 +14,9 @@
     "supabase:pull": "npx supabase db pull",
     "test": "vitest run",
     "test:watch": "vitest",
-    "setup": "npm install && npm run supabase:link"
+    "setup": "npm install && npm run supabase:link",
+    "deploy:push": "node scripts/deploy-edge-function.cjs send-push",
+    "deploy:cloudinary": "node scripts/deploy-edge-function.cjs cloudinary-sign"
   },
   "dependencies": {
     "@sentry/browser": "^10.56.0",
