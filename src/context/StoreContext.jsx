@@ -12,6 +12,7 @@ import { cleanProductImages } from '../utils/constants.js';
 import { usePersistence, useAuthListener, useLocalStorageSave } from './usePersistence.js';
 import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead } from './useRealtime.js';
 import { subscribePush, unsubscribePush } from '../utils/pushNotifications.js';
+import { usePermissions } from './usePermissions.js';
 
 export const StoreContext = createContext();
 
@@ -68,6 +69,7 @@ export const StoreProvider = ({ children }) => {
   useMessageStatus({ hasSupabase, supabaseReady, setChatMessages });
   const { markMessagesAsRead } = useMarkRead({ hasSupabase, supabaseReady, setChatMessages });
 
+  const { permissions: userPermissions, hasPermission, refreshPermissions } = usePermissions(staffRole, user);
   useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart });
 
   // Save user info for notification prompt
@@ -575,7 +577,8 @@ export const StoreProvider = ({ children }) => {
       archivedOrders, loadArchivedOrders,
       drivers, loadDrivers, assignDriverToOrder, claimOrder,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
-      chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders
+      chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders,
+      userPermissions, hasPermission, refreshPermissions
     }}>
       {children}
     </StoreContext.Provider>

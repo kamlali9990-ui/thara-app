@@ -1,0 +1,205 @@
+.permission-manager {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.permission-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.permission-refresh-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.permission-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 1.25rem;
+}
+
+.permission-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-light);
+}
+
+.permission-staff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.permission-staff-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.permission-staff-card.expanded {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.permission-staff-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.permission-staff-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.permission-staff-name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.permission-staff-email {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  direction: ltr;
+  text-align: left;
+}
+
+.permission-staff-role {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.role-admin { background: rgba(18, 116, 67, 0.15); color: #127443; }
+.role-manager { background: rgba(212, 175, 55, 0.2); color: #b8860b; }
+.role-employee { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
+.role-driver { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+
+.permission-expand-icon {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+.permission-staff-body {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 0.75rem;
+}
+
+.permission-defaults-row {
+  margin-bottom: 0.75rem;
+}
+
+.permission-defaults-btn {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.permission-defaults-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.permission-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.permission-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.permission-toggle:hover {
+  background: rgba(0,0,0,0.03);
+}
+
+.permission-toggle input {
+  display: none;
+}
+
+.permission-toggle-label {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.permission-toggle-switch {
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  position: relative;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.permission-toggle.on .permission-toggle-switch {
+  background: #127443;
+}
+
+.permission-toggle.off .permission-toggle-switch {
+  background: rgba(0,0,0,0.15);
+}
+
+.permission-toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.permission-toggle.on .permission-toggle-switch::after {
+  transform: translateX(18px);
+}
+
+[data-theme="dark"] .permission-staff-card {
+  background: rgba(33, 37, 43, 0.8);
+}
+
+[data-theme="dark"] .permission-toggle:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+[data-theme="dark"] .permission-toggle.off .permission-toggle-switch {
+  background: rgba(255,255,255,0.15);
+}
+
+[data-theme="dark"] .role-admin { background: rgba(97, 175, 239, 0.2); color: #61afef; }
+[data-theme="dark"] .role-manager { background: rgba(229, 192, 123, 0.2); color: #e5c07b; }
+[data-theme="dark"] .role-employee { background: rgba(86, 182, 194, 0.2); color: #56b6c2; }
+[data-theme="dark"] .role-driver { background: rgba(224, 108, 117, 0.2); color: #e06c75; }

@@ -15,6 +15,7 @@ const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
 const StaffManager = lazy(() => import('./components/StaffManager.jsx'));
 const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
 const AdminStats = lazy(() => import('./components/admin/AdminStats'));
+const PermissionManager = lazy(() => import('./components/admin/PermissionManager'));
 
 
 function playNewOrderBeep() {
@@ -56,7 +57,8 @@ export default function Admin() {
     allProducts, orders, updateOrderStatus, addProduct, updateProduct, deleteProduct,
     chatMessages, sendMessage, logout, staffRole, currentStaff,
     allCustomers, loadCustomers, loadOrders, staffList,
-    drivers, assignDriverToOrder, claimOrder, loadDrivers
+    drivers, assignDriverToOrder, claimOrder, loadDrivers,
+    hasPermission
   } = useContext(StoreContext);
   const navigate = useNavigate();
 
@@ -143,15 +145,17 @@ export default function Admin() {
 
   const tabs = useMemo(() => {
     const items = [{ id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length }];
-    items.push({ id: 'chat', label: 'العملاء', icon: '💬' });
+    if (hasPermission('manage_chat')) items.push({ id: 'chat', label: 'العملاء', icon: '💬' });
     if (isDriver) items.push({ id: 'myactivity', label: 'نشاطي', icon: '🏍️' });
-    if (isAdminOrManager) {
+    if (hasPermission('manage_products') || hasPermission('manage_offers')) {
       items.push({ id: 'store', label: 'المتجر', icon: '📦' });
+    }
+    if (hasPermission('manage_settings')) {
       items.push({ id: 'settings', label: 'الإعدادات', icon: '⚙️' });
     }
-    if (staffRole === 'admin') items.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
+    if (hasPermission('manage_staff')) items.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
     return items;
-  }, [orders.length, isDriver, isAdminOrManager, staffRole]);
+  }, [orders.length, isDriver, hasPermission]);
 
   const switchTab = useCallback((id) => {
     startTransition(() => setActiveTab(id));
@@ -165,31 +169,35 @@ export default function Admin() {
         isDriver={isDriver} drivers={drivers}
         assignDriverToOrder={assignDriverToOrder} claimOrder={claimOrder}
         allCustomers={allCustomers} staffList={staffList}
+        hasPermission={hasPermission}
       />
     );
     if (activeTab === 'store') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-          <button className={`admin-sub-tab-btn ${storeTab === 'products' ? 'active' : ''}`} onClick={() => setStoreTab('products')}>📦 المنتجات</button>
-          <button className={`admin-sub-tab-btn ${storeTab === 'offers' ? 'active' : ''}`} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>
+          {hasPermission('manage_products') && <button className={`admin-sub-tab-btn ${storeTab === 'products' ? 'active' : ''}`} onClick={() => setStoreTab('products')}>📦 المنتجات</button>}
+          {hasPermission('manage_offers') && <button className={`admin-sub-tab-btn ${storeTab === 'offers' ? 'active' : ''}`} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>}
         </div>
-        {storeTab === 'products' ? (
-          <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} />
-        ) : (
-          <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} />
-        )}
+        {storeTab === 'products' && hasPermission('manage_products') ? (
+          <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} hasPermission={hasPermission} />
+        ) : null}
+        {storeTab === 'offers' && hasPermission('manage_offers') ? (
+          <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} hasPermission={hasPermission} />
+        ) : null}
       </div>
     );
-    if (activeTab === 'chat') return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />;
+    if (activeTab === 'chat' && hasPermission('manage_chat')) return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />;
     if (activeTab === 'settings') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
           <button className={`admin-sub-tab-btn ${settingsTab === 'main' ? 'active' : ''}`} onClick={() => setSettingsTab('main')}>⚙️ الإعدادات</button>
+          {hasPermission('manage_staff') && <button className={`admin-sub-tab-btn ${settingsTab === 'permissions' ? 'active' : ''}`} onClick={() => setSettingsTab('permissions')}>🔐 الصلاحيات</button>}
           <button className={`admin-sub-tab-btn ${settingsTab === 'users' ? 'active' : ''}`} onClick={() => setSettingsTab('users')}>👤 المستخدمين</button>
           <button className={`admin-sub-tab-btn ${settingsTab === 'stats' ? 'active' : ''}`} onClick={() => setSettingsTab('stats')}>📊 الإحصائيات</button>
           <button className={`admin-sub-tab-btn ${settingsTab === 'profile' ? 'active' : ''}`} onClick={() => setSettingsTab('profile')}>🔑 الملف الشخصي</button>
         </div>
         {settingsTab === 'main' && <AdminSettings />}
+        {settingsTab === 'permissions' && <PermissionManager />}
         {settingsTab === 'users' && <AdminUsers staffRole={staffRole} customers={allCustomers} loadCustomers={loadCustomers} />}
         {settingsTab === 'stats' && <AdminStats />}
         {settingsTab === 'profile' && (
