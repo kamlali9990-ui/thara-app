@@ -157,7 +157,9 @@ export const StoreProvider = ({ children }) => {
       if (existing) {
         return prev.map(item => item.id === product.id ? { ...item, qty: newQty } : item);
       }
-      window.dispatchEvent(new CustomEvent('cart-install-trigger'));
+      if (!localStorage.getItem('pwa-install-cart-triggered')) {
+        window.dispatchEvent(new CustomEvent('cart-install-trigger'));
+      }
       return [...prev, { ...product, qty: 1, currentPrice: getProductPrice(product) }];
     });
   };

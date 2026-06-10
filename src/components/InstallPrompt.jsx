@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 const isIOS = (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.MSStream;
-const DURATIONS = [3, 7, 30, 365]; // days per dismissal count
+const DURATIONS = [3, 7, 30, 365];
 
 export default function InstallPrompt({ variant }) {
   const BASE = import.meta.env.BASE_URL || '/';
   const [deferredPrompt, setDeferredPrompt] = useState(window.__deferredPrompt || null);
   const [show, setShow] = useState(false);
-  const engagedRef = useRef(false);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+  const permanentlyDismissed = localStorage.getItem('pwa-install-permanent-dismiss');
+
+  if (isStandalone) return null;
 
   const dismissedCount = parseInt(localStorage.getItem('pwa-install-dismiss-count') || '0', 10);
   const dismissedTime = localStorage.getItem('pwa-install-prompt-dismissed');
@@ -16,21 +18,19 @@ export default function InstallPrompt({ variant }) {
   const isRecentlyDismissed = dismissedTime && (Date.now() - parseInt(dismissedTime, 10) < DURATIONS[idx] * 24 * 60 * 60 * 1000);
 
   useEffect(() => {
-    if (isStandalone) return;
-
     const handler = (e) => {
       e.preventDefault();
       window.__deferredPrompt = e;
       setDeferredPrompt(e);
-      if (!isRecentlyDismissed) {
+      if (!isRecentlyDismissed && !permanentlyDismissed) {
         setShow(true);
       }
     };
-    const showHandler = () => {
-      setShow(true);
-    };
+    const showHandler = () => { setShow(true); };
     const cartHandler = () => {
-      if (!isRecentlyDismissed && !isStandalone && !show) {
+      if (isRecentlyDismissed || permanentlyDismissed || show) return;
+      if (!localStorage.getItem('pwa-install-cart-triggered')) {
+        localStorage.setItem('pwa-install-cart-triggered', '1');
         setTimeout(() => setShow(true), 800);
       }
     };
@@ -38,38 +38,29 @@ export default function InstallPrompt({ variant }) {
     window.addEventListener('beforeinstallprompt', handler);
     window.addEventListener('show-pwa-install-prompt', showHandler);
     window.addEventListener('cart-install-trigger', cartHandler);
-
     return () => {
       window.removeEventListener('beforeinstallprompt', handler);
       window.removeEventListener('show-pwa-install-prompt', showHandler);
       window.removeEventListener('cart-install-trigger', cartHandler);
     };
-  }, [isStandalone, isRecentlyDismissed, show]);
+  }, [isRecentlyDismissed, permanentlyDismissed, show]);
 
   const install = async () => {
     if (deferredPrompt) {
       try {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          setShow(false);
-          return;
-        }
-      } catch (err) {
-        console.error('PWA install error:', err);
-      }
+        if (outcome === 'accepted') { setShow(false); return; }
+      } catch (err) { console.error('PWA install error:', err); }
     }
-    // Fallback: Web Share if supported
     if (navigator.share) {
       try {
-        await navigator.share({ 
-          title: 'أسواق ثراء الشرق ون', 
-          text: 'حمل تطبيق أسواق ثراء الشرق ون وتصفح أحدث العروض والمنتجات', 
+        await navigator.share({
+          title: 'أسواق ثراء الشرق ون',
+          text: 'حمل تطبيق أسواق ثراء الشرق ون وتصفح أحدث العروض والمنتجات',
           url: window.location.origin + BASE
         });
-      } catch (err) {
-        if (err.name !== 'AbortError') console.error('Share error:', err);
-      }
+      } catch (err) { if (err.name !== 'AbortError') console.error('Share error:', err); }
     }
   };
 
@@ -77,67 +68,44 @@ export default function InstallPrompt({ variant }) {
     const count = parseInt(localStorage.getItem('pwa-install-dismiss-count') || '0', 10) + 1;
     localStorage.setItem('pwa-install-dismiss-count', count.toString());
     localStorage.setItem('pwa-install-prompt-dismissed', Date.now().toString());
+    if (count >= 3) localStorage.setItem('pwa-install-permanent-dismiss', '1');
     setShow(false);
   };
 
   const canInstall = !!deferredPrompt;
 
   if (variant === 'admin') {
-    if (isStandalone) return null;
-    const adminDismissed = localStorage.getItem('admin-install-banner-dismissed');
-    if (adminDismissed) return null;
+    if (localStorage.getItem('admin-install-banner-dismissed')) return null;
     return (
       <div className="admin-install-banner" style={{
-        background: 'linear-gradient(90deg, #127443 0%, #1a9e5c 100%)', 
-        color: 'white', 
-        padding: '0.75rem 1.25rem',
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        gap: '1rem', 
-        fontSize: '0.85rem',
-        boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+        background: 'linear-gradient(90deg, #127443 0%, #1a9e5c 100%)',
+        color: 'white', padding: '0.75rem 1.25rem',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        gap: '1rem', fontSize: '0.85rem', boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
           <span style={{ fontSize: '1.2rem' }}>📲</span>
           <span>
             {isIOS
-              ? <span>أضف لوحة التحكم للشاشة الرئيسية (زر المشاركة ← إضافة للشاشة الرئيسية) <a href="/install-guide.html" target="_blank" style={{color:'#fde68a',fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>📖 شرح بالصور</a></span>
-              : canInstall
-                ? 'ثبّت التطبيق للوصول السريع ومتابعة الطلبات بشكل أسرع'
-                : 'افتح قائمة المتصفح ⋮ ← تثبيت التطبيق'}
+              ? <span>أضف لوحة التحكم للشاشة الرئيسية <a href="/install-guide.html" target="_blank" style={{color:'#fde68a',fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>📖 شرح بالصور</a></span>
+              : canInstall ? 'ثبّت التطبيق للوصول السريع' : 'افتح قائمة المتصفح ⋮ ← تثبيت التطبيق'}
           </span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
           {!isIOS && canInstall && (
             <button onClick={install} style={{
-              background: 'white', 
-              color: '#127443', 
-              border: 'none',
-              padding: '0.35rem 1.2rem', 
-              borderRadius: '12px', 
-              fontWeight: 700,
-              fontSize: '0.8rem', 
-              cursor: 'pointer', 
-              fontFamily: 'inherit',
+              background: 'white', color: '#127443', border: 'none',
+              padding: '0.35rem 1.2rem', borderRadius: '12px', fontWeight: 700,
+              fontSize: '0.8rem', cursor: 'pointer', fontFamily: 'inherit',
               boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
             }}>تثبيت</button>
           )}
           <button onClick={() => { localStorage.setItem('admin-install-banner-dismissed', '1'); window.location.reload(); }} style={{
-            background: 'rgba(255,255,255,0.2)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '50%',
-            width: '28px',
-            height: '28px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontFamily: 'inherit',
-            lineHeight: 1,
-            padding: 0
+            background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none',
+            borderRadius: '50%', width: '28px', height: '28px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', fontSize: '1rem', fontFamily: 'inherit',
+            lineHeight: 1, padding: 0
           }} aria-label="إغلاق">✕</button>
         </div>
       </div>
@@ -168,7 +136,6 @@ export default function InstallPrompt({ variant }) {
           {canInstall && !isIOS && (
             <button className="install-main-btn" onClick={install}>اضغط هنا للتثبيت</button>
           )}
-
           {!canInstall && isIOS && (
             <div className="install-ios-hint">
               <span className="ios-hint-icon">📲</span>
@@ -176,7 +143,6 @@ export default function InstallPrompt({ variant }) {
               <a href="/install-guide.html" target="_blank" className="install-ios-guide-link">📖 شرح بالصور</a>
             </div>
           )}
-
           {!canInstall && !isIOS && (
             <a href={`${BASE}thara-app.apk`} download className="install-apk-btn">
               📦 تحميل تطبيق أندرويد APK
