@@ -1,4 +1,4 @@
-const CACHE_NAME = 'thara-mq8ck0p1';
+const CACHE_NAME = 'thara-mq8csc22';
 const BASE_PATH = new URL(self.registration.scope).pathname;
 const LOCAL_ASSETS = [
   BASE_PATH,
@@ -119,6 +119,42 @@ self.addEventListener('push', (event) => {
     );
   } catch (e) { console.error('SW push error', e); }
 });
+
+// Background Sync — retry failed orders/chat messages when back online
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-orders') {
+    event.waitUntil(retryFailedOrders());
+  }
+  if (event.tag === 'sync-chat') {
+    event.waitUntil(retryFailedChat());
+  }
+});
+
+async function retryFailedOrders() {
+  try {
+    const cache = await caches.open('thara-failed-orders');
+    const requests = await cache.keys();
+    for (const req of requests) {
+      try {
+        const fetchRes = await fetch(req);
+        if (fetchRes.ok) await cache.delete(req);
+      } catch {}
+    }
+  } catch {}
+}
+
+async function retryFailedChat() {
+  try {
+    const cache = await caches.open('thara-failed-chat');
+    const requests = await cache.keys();
+    for (const req of requests) {
+      try {
+        const fetchRes = await fetch(req);
+        if (fetchRes.ok) await cache.delete(req);
+      } catch {}
+    }
+  } catch {}
+}
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
