@@ -647,13 +647,13 @@
   border: 1px solid var(--border);
 }
 .rotating-cat-grid .product-card-new-img-wrap {
-  aspect-ratio: 1;
+  aspect-ratio: 0.85;
   height: auto;
   background: #f8fafc;
 }
 .rotating-cat-grid .product-card-new-body {
-  padding: 0.4rem 0.42rem 0.45rem;
-  min-height: 72px;
+  padding: 0.35rem 0.35rem 0.4rem;
+  min-height: auto;
   gap: 0.08rem;
   border: none;
 }
@@ -661,12 +661,12 @@
   display: none;
 }
 .rotating-cat-grid .product-card-new-name {
-  font-size: 0.76rem;
-  font-weight: 900;
-  line-height: 1.3;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
   color: #111827;
-  min-height: 2.6em;
-  margin-bottom: 0.12rem;
+  min-height: auto;
+  margin-bottom: 0.08rem;
   white-space: normal;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -680,30 +680,28 @@
   flex-wrap: nowrap;
 }
 .rotating-cat-grid .product-card-new-price {
-  font-size: 0.86rem;
+  font-size: 1.6rem;
   font-weight: 950;
   color: #127443 !important;
-  line-height: 1.1;
+  line-height: 1;
 }
 .rotating-cat-grid .product-card-new-currency {
   display: inline;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: #475569;
 }
 .rotating-cat-grid .product-card-new-unit {
   display: block;
-  max-width: 34px;
-  overflow: hidden;
-  text-overflow: ellipsis;
   font-size: 0.6rem;
-  font-weight: 750;
+  font-weight: 700;
   color: #64748b;
   white-space: nowrap;
 }
 .rotating-cat-grid .product-card-new-price .offer-old {
-  font-size: 0.58rem;
+  font-size: 0.7rem;
   color: var(--text-light);
+  margin-left: 0.2rem;
 }
 .rotating-cat-grid .product-card-new-actions {
   top: 0.3rem;
