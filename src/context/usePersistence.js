@@ -77,7 +77,7 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
   useEffect(() => {
     if (!hasSupabase) return;
     const sub = authApi.onAuthChange((event, u) => {
-      savedCallback.current?.(event, u);
+      try { savedCallback.current?.(event, u); } catch (e) { console.error('[auth]', e); }
     });
     savedCallback.current = async (event, u) => {
       if (event === 'SIGNED_OUT') {

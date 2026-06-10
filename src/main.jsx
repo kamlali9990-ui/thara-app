@@ -173,16 +173,18 @@ function AuthErrorHandler() {
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
-        if (userRef.current) {
-          showToast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى', 'warning');
-          setUser(null);
-          setStaffRole(null);
-          setCurrentStaff(null);
-          setCustomerProfile(null);
-          navigate('/admin/login', { replace: true });
+      try {
+        if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+          if (userRef.current) {
+            showToast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى', 'warning');
+            setUser(null);
+            setStaffRole(null);
+            setCurrentStaff(null);
+            setCustomerProfile(null);
+            navigate('/admin/login', { replace: true });
+          }
         }
-      }
+      } catch (e) { console.error('[AuthErrorHandler]', e); }
     });
 
     return () => subscription.unsubscribe();

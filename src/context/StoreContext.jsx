@@ -501,7 +501,7 @@ export const StoreProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(async () => {
-    if (hasSupabase) await authApi.signOut();
+    try { if (hasSupabase) await authApi.signOut(); } catch (e) { console.error('[logout]', e); }
     setUser(null);
     setStaffRole(null);
     setCurrentStaff(null);
