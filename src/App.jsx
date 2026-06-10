@@ -14,7 +14,7 @@ import CategoriesTab from './components/CategoriesTab';
 import OrdersTab from './components/OrdersTab';
 import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
-import ThemeToggle from './components/ThemeToggle';
+
 import OfflineBanner from './components/OfflineBanner';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
@@ -168,7 +168,7 @@ export default function App() {
         unreadNotifs={unreadNotifs}
         theme={theme}
         onMenuClick={() => setIsDrawerOpen(true)}
-        onThemeToggle={toggleTheme}
+        onThemeChange={setTheme}
         onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }} />
 
         <div className={`app-content ${tab === 'home' && !showAllView ? '' : 'app-content-nohome'}`}>
@@ -207,8 +207,6 @@ export default function App() {
       {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
         onClose={() => setIsNotifOpen(false)}
         orders={orders} onTabChange={switchTab} />}
-
-      <ThemeToggle currentTheme={theme} onThemeChange={setTheme} />
     </div>
   );
 }
