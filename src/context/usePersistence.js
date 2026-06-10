@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { storage } from '../utils/storage.js';
 import { productsApi } from '../supabase/products.js';
 import { ordersApi } from '../supabase/orders.js';
@@ -73,9 +73,13 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
 }
 
 export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading }) {
+  const savedCallback = useRef(null);
   useEffect(() => {
     if (!hasSupabase) return;
-    const sub = authApi.onAuthChange(async (event, u) => {
+    const sub = authApi.onAuthChange((event, u) => {
+      savedCallback.current?.(event, u);
+    });
+    savedCallback.current = async (event, u) => {
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setStaffRole(null);
@@ -112,8 +116,9 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
         setCustomerProfile(null);
         setLoading(false);
       }
-    });
+    };
     return () => {
+      savedCallback.current = null;
       if (typeof sub.unsubscribe === 'function') sub.unsubscribe();
       else if (sub.data?.subscription?.unsubscribe) sub.data.subscription.unsubscribe();
     };
