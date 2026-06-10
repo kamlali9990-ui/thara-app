@@ -38,7 +38,7 @@ BEGIN
     url := func_url,
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'x-webhook-secret', '__WEBHOOK_SECRET__'
+      'x-webhook-secret', '773f23d5-23d1-45f1-9cbe-883a637ad704'
     ),
     body := payload
   );
@@ -91,7 +91,7 @@ BEGIN
       url := func_url,
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'x-webhook-secret', '__WEBHOOK_SECRET__'
+        'x-webhook-secret', '773f23d5-23d1-45f1-9cbe-883a637ad704'
       ),
       body := payload
     );
@@ -124,7 +124,7 @@ BEGIN
       url := func_url,
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'x-webhook-secret', '__WEBHOOK_SECRET__'
+        'x-webhook-secret', '773f23d5-23d1-45f1-9cbe-883a637ad704'
       ),
       body := payload
     );
@@ -172,7 +172,7 @@ BEGIN
       url := func_url,
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'x-webhook-secret', '__WEBHOOK_SECRET__'
+        'x-webhook-secret', '773f23d5-23d1-45f1-9cbe-883a637ad704'
       ),
       body := payload
     );

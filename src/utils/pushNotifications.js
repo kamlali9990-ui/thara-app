@@ -1,4 +1,4 @@
-const VAPID_PUBLIC_KEY = 'BMBdxfmSMtM_QjygEUCWMRp5d4eK0qwy7mPBi7mLw7tJocd8oVNHcBLPivcIPZnKrF5Bq9Nw8MkJ9o6v1SHjLCc';
+const VAPID_PUBLIC_KEY = 'BI_oYRkcLAacl7o2c2uO3SnGevanNNSmlr1FjTq6i-vZdUjmUPkHg_elyg0oeJ59z8uSkzyAHcIazOP95LfAYF8';
 
 async function getSWRegistration() {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return null;
