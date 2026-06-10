@@ -1,7 +1,7 @@
 import { memo, useState, useMemo, useRef, useCallback } from 'react';
 import ProductCard from './ProductCard';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 9;
 
 const RotatingCategoryRow = memo(({ category, categoryColor, allProducts, mostRequested, addToCart, cart, onViewAll }) => {
   const [page, setPage] = useState(0);
