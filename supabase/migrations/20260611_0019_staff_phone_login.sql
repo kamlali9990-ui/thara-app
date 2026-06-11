@@ -112,3 +112,24 @@ $$;
 GRANT EXECUTE ON FUNCTION public.create_staff_rpc(TEXT, TEXT, TEXT, TEXT, TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_staff_rpc(BIGINT, TEXT, TEXT, TEXT, TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user(TEXT, TEXT) TO authenticated;
+
+-- 5. RPC لتأكيد البريد الإلكتروني لمستخدمي GoTrue (حل مشكلة 500)
+CREATE OR REPLACE FUNCTION public.confirm_email_rpc(p_email TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_user_id UUID;
+BEGIN
+  SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = lower(trim(p_email)) LIMIT 1;
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+  UPDATE auth.users SET email_confirmed_at = COALESCE(email_confirmed_at, now()) WHERE id = v_user_id;
+  RETURN json_build_object('id', v_user_id, 'email', lower(trim(p_email)));
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.confirm_email_rpc TO anon, authenticated;

@@ -430,6 +430,27 @@ GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_customer_auth_rpc TO anon, authenticated;
 
+-- RPC لتأكيد البريد الإلكتروني (حل مشكلة 500 في goTrue)
+CREATE OR REPLACE FUNCTION public.confirm_email_rpc(p_email TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth
+AS $$
+DECLARE
+  v_user_id UUID;
+BEGIN
+  SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = lower(trim(p_email)) LIMIT 1;
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'User not found';
+  END IF;
+  UPDATE auth.users SET email_confirmed_at = COALESCE(email_confirmed_at, now()) WHERE id = v_user_id;
+  RETURN json_build_object('id', v_user_id, 'email', lower(trim(p_email)));
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.confirm_email_rpc TO anon, authenticated;
+
 -- Customer address fields: add columns if not exists
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='customers' AND column_name='delivery_address') THEN

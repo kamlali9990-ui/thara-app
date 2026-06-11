@@ -4,6 +4,7 @@ import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
 import { authApi } from '../supabase/auth';
+import { supabase } from '../supabase/client';
 import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
 
 const allNeighborhoods = [
@@ -100,8 +101,19 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         try {
           const cleanPhone = phone.trim();
           const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-          await authApi.signUpDirect(authEmail, loginPassword, null);
-          const loginData = await authApi.signIn(authEmail, loginPassword);
+          let loginData = null;
+          try {
+            const { error: signUpErr } = await supabase.auth.signUp({ email: authEmail, password: loginPassword });
+            if (signUpErr) throw signUpErr;
+            await supabase.rpc('confirm_email_rpc', { p_email: authEmail });
+            loginData = await authApi.signIn(authEmail, loginPassword);
+          } catch {
+            const { data: fixResult, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
+              p_email: authEmail, p_password: loginPassword, p_username: null
+            });
+            if (rpcErr) throw rpcErr;
+            loginData = await authApi.signIn(authEmail, loginPassword).catch(() => null);
+          }
           try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
           if (loginData?.user) setUser(loginData.user);
           setShowLoginPrompt(false);
