@@ -227,8 +227,13 @@ export const StoreProvider = ({ children }) => {
     if (!hasSupabase || !supabaseReady) return;
     try {
       const supaOrders = await ordersApi.list();
-      // Always sync — even an empty array must clear stale local orders.
-      if (Array.isArray(supaOrders)) setOrders(supaOrders);
+      if (Array.isArray(supaOrders)) {
+        setOrders(prev => {
+          const map = new Map(prev.map(o => [o.id, o]));
+          for (const o of supaOrders) map.set(o.id, { ...map.get(o.id), ...o });
+          return Array.from(map.values());
+        });
+      }
     } catch (err) { console.error('[loadOrders]', err); showToast('تعذر تحميل الطلبات', 'error'); }
   }, [hasSupabase, supabaseReady]);
 
@@ -483,37 +488,44 @@ export const StoreProvider = ({ children }) => {
   // --- Auth Actions ---
   const login = useCallback(async (identifier, password) => {
     if (!hasSupabase) throw new Error('Supabase غير مهيأ');
-    try {
-      // Try customer login (supports email/phone/username/id)
-      const data = await customersApi.login(identifier, password);
-      setUser(data.user);
-      return data;
-    } catch (err) {
-      // Handle invalid refresh token — clear session and retry
-      if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
-        try { await authApi.signOut(); } catch (e) { console.error('[login] signOut after invalid token', e); }
-        setUser(null); setStaffRole(null); setCurrentStaff(null); setCustomerProfile(null);
+
+    const normalized = String(identifier || '').trim();
+    const isEmail = normalized.includes('@');
+
+    // محاولة تسجيل الدخول المباشر للموظفين (للبريد الإلكتروني فقط)
+    if (isEmail) {
+      try {
+        const data = await authApi.signIn(normalized, password);
+        setUser(data.user);
+        return data;
+      } catch (err) {
+        if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
+          try { await authApi.signOut(); } catch (e) { console.error('[login] signOut after invalid token', e); }
+          setUser(null); setStaffRole(null); setCurrentStaff(null); setCustomerProfile(null);
+        }
+        if (err?.message !== 'Invalid login credentials') throw err;
       }
-      // For staff login, try ensure_staff_auth_user as fallback
-      if (supabase && !err?.message?.includes('Invalid Refresh Token')) {
-        try {
-          const normalizedEmail = String(identifier || '').trim().toLowerCase();
-          const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {
-            p_identifier: normalizedEmail, p_password: password
-          });
-          if (rpcError) {
-            console.warn('ensure_staff_auth_user RPC failed:', rpcError.message);
-          } else if (fixResult?.fixed) {
-            const staffEmail = fixResult.user?.email || normalizedEmail;
-            return await authApi.signIn(staffEmail, password).then(data => {
-              setUser(data.user);
-              return data;
-            });
-          }
-        } catch (e) { console.error('[login] ensure_staff_auth_user', e); }
-      }
-      throw new Error('المعرف أو كلمة المرور غير صحيحة');
     }
+
+    // ملجأ احتياطي: إنشاء/إصلاح حساب الموظف في auth.users
+    // يدعم البريد الإلكتروني ورقم الجوال
+    if (supabase) {
+      try {
+        const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {
+          p_identifier: normalized, p_password: password
+        });
+        if (!rpcError && fixResult?.fixed) {
+          const staffEmail = fixResult.user?.email || (isEmail ? normalized.toLowerCase() : normalized);
+          return await authApi.signIn(staffEmail, password).then(data => {
+            setUser(data.user);
+            return data;
+          });
+        }
+        if (rpcError) console.warn('ensure_staff_auth_user RPC failed:', rpcError.message);
+      } catch (e) { console.error('[login] ensure_staff_auth_user', e); }
+    }
+
+    throw new Error('المعرف أو كلمة المرور غير صحيحة');
   }, []);
 
   const logout = useCallback(async () => {

@@ -20,9 +20,8 @@ export default function Login() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
-        const { email: savedEmail, password: savedPassword } = JSON.parse(saved);
+        const { email: savedEmail } = JSON.parse(saved);
         setEmail(savedEmail || '');
-        setPassword(savedPassword || '');
         setRememberMe(true);
       } catch {}
     }
@@ -35,7 +34,7 @@ export default function Login() {
     try {
       await login(email, password);
       if (rememberMe) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email, password }));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ email }));
       } else {
         localStorage.removeItem(STORAGE_KEY);
       }

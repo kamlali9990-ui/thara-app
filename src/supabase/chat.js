@@ -80,6 +80,18 @@ export const chatApi = {
     }
   },
 
+  async sendTyping(userEmail, orderId = null, isTyping = true) {
+    try {
+      await supabase.from('typing_events').insert({
+        user_email: userEmail,
+        order_id: orderId,
+        is_typing: isTyping
+      });
+    } catch (e) {
+      console.warn('sendTyping failed:', e);
+    }
+  },
+
   async subscribeUpdates(onUpdate) {
     let filter = { event: 'UPDATE', schema: 'public', table: 'chat_messages' };
     try {

@@ -28,7 +28,20 @@ export function useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, s
     if (!hasSupabase || !supabaseReady) return;
     const sub = chatApi.subscribe(null, null, (msg) => {
       setChatMessages(prev => {
-        if (prev.some(m => m.id === msg.id || (m.sender === msg.sender && m.text === msg.text && m.orderId === msg.orderId && m.customerEmail === msg.customerEmail && Math.abs(new Date(m.timestamp || 0).getTime() - new Date(msg.timestamp).getTime()) < 5000))) return prev;
+        if (prev.some(m => m.id === msg.id)) return prev;
+        const pendingIdx = prev.findIndex(m =>
+          m.id !== msg.id
+          && m.sender === msg.sender
+          && m.text === msg.text
+          && m.orderId === msg.orderId
+          && m.customerEmail === msg.customerEmail
+          && !m.timestamp
+        );
+        if (pendingIdx !== -1) {
+          const updated = [...prev];
+          updated[pendingIdx] = msg;
+          return updated;
+        }
         const isSelf = (msg.sender === 'admin' && staffRole) || (msg.sender === 'customer' && !staffRole);
         if (!isSelf) {
           playNotificationSound();

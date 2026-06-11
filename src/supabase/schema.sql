@@ -1326,9 +1326,7 @@ BEGIN
   RETURN json_build_object('staff_exists', true, 'fixed', true, 'user', result);
 END;
 $$;
-GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO authenticated;
-REVOKE EXECUTE ON FUNCTION public.ensure_staff_auth_user FROM anon;
-REVOKE EXECUTE ON FUNCTION public.ensure_staff_auth_user FROM public;
+GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO anon, authenticated;
 
 -- =============================================
 -- صلاحيات الأدوار (Roles & Grants)
