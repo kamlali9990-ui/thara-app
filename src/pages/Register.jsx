@@ -55,8 +55,10 @@ export default function Register() {
       } catch {
         console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
-      const { error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password });
-      if (signInErr) console.warn('تعذر إنشاء جلسة الدخول:', signInErr.message);
+      const { data: sessData, error: sessErr } = await supabase.rpc('create_customer_session_rpc', { p_email: authEmail });
+      if (!sessErr && sessData?.refresh_token) {
+        await supabase.auth.refreshSession({ refresh_token: sessData.refresh_token });
+      }
       navigate('/');
     } catch (err) {
       const msg = err.message || '';

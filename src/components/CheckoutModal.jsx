@@ -93,22 +93,21 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     try {
       const cleanPhone = phone.trim();
       const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
+      let { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
       if (signInErr) {
         const { data: userData } = await supabase.rpc('create_customer_auth_rpc', {
           p_email: authEmail, p_password: loginPassword, p_username: null
         });
-        if (userData?.existing) {
-          setLoginError('بيانات الدخول غير صحيحة');
-          return;
+        if (!userData?.existing) {
+          try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
         }
-        try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
-        const { data: newData, error: newErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
-        if (newErr) { setLoginError('بيانات الدخول غير صحيحة'); return; }
-        if (newData?.user) setUser(newData.user);
-      } else {
-        if (signInData?.user) setUser(signInData.user);
+        const { data: sessData, error: sessErr } = await supabase.rpc('create_customer_session_rpc', { p_email: authEmail });
+        if (!sessErr && sessData?.refresh_token) {
+          const { data: refData } = await supabase.auth.refreshSession({ refresh_token: sessData.refresh_token });
+          signInData = refData;
+        }
       }
+      if (signInData?.user) setUser(signInData.user);
       setShowLoginPrompt(false);
     } catch {
       setLoginError('حدث خطأ، حاول مرة أخرى');
