@@ -100,14 +100,12 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         try {
           const cleanPhone = phone.trim();
           const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-          const { data: sessionData, error: rpcErr } = await supabase.rpc('auto_create_and_signin_rpc', {
+          const { data: userData, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
             p_email: authEmail, p_password: loginPassword, p_username: null
           });
           if (rpcErr) throw rpcErr;
-          const { data: session, error: refreshErr } = await supabase.auth.refreshSession({ refresh_token: sessionData.refresh_token });
-          if (refreshErr) throw refreshErr;
           try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
-          if (session?.user) setUser(session.user);
+          setUser({ email: authEmail, id: userData.id });
           setShowLoginPrompt(false);
         } catch {
           setLoginError('حدث خطأ أثناء إنشاء الحساب');

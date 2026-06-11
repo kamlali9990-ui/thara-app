@@ -41,12 +41,10 @@ export default function Register() {
       const cleanPhone = phone.trim();
       const cleanUsername = username ? username.trim().toLowerCase() : null;
       const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-      const { data: sessionData, error: rpcErr } = await supabase.rpc('auto_create_and_signin_rpc', {
+      const { data: userData, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
         p_email: authEmail, p_password: password, p_username: cleanUsername
       });
       if (rpcErr) throw rpcErr;
-      const { error: refreshErr } = await supabase.auth.refreshSession({ refresh_token: sessionData.refresh_token });
-      if (refreshErr) throw refreshErr;
       try {
         await customersApi.create(authEmail, name, cleanPhone, cleanUsername);
       } catch {
@@ -59,8 +57,6 @@ export default function Register() {
         setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
       } else if (msg.includes('اسم المستخدم مستخدم مسبقاً')) {
         setError('اسم المستخدم مستخدم مسبقاً من حساب آخر');
-      } else if (msg.includes('429') || msg.includes('Too Many Requests') || msg.includes('rate limit')) {
-        setError('تم تجاوز عدد محاولات التسجيل المسموحة، الرجاء المحاولة لاحقاً');
       } else {
         setError('حدث خطأ أثناء إنشاء الحساب');
       }
