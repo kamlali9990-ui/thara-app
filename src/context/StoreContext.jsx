@@ -483,12 +483,13 @@ export const StoreProvider = ({ children }) => {
         try {
           const normalizedEmail = String(identifier || '').trim().toLowerCase();
           const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {
-            p_email: normalizedEmail, p_password: password
+            p_identifier: normalizedEmail, p_password: password
           });
           if (rpcError) {
             console.warn('ensure_staff_auth_user RPC failed:', rpcError.message);
           } else if (fixResult?.fixed) {
-            return await authApi.signIn(normalizedEmail, password).then(data => {
+            const staffEmail = fixResult.user?.email || normalizedEmail;
+            return await authApi.signIn(staffEmail, password).then(data => {
               setUser(data.user);
               return data;
             });

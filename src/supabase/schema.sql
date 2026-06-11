@@ -85,7 +85,7 @@ $$;
 DROP FUNCTION IF EXISTS public.create_staff_rpc(TEXT, TEXT, TEXT);
 
 CREATE OR REPLACE FUNCTION public.create_staff_rpc(
-  p_email TEXT, p_name TEXT, p_role TEXT, p_password TEXT DEFAULT '123456'
+  p_email TEXT, p_name TEXT, p_role TEXT, p_password TEXT DEFAULT '123456', p_phone TEXT DEFAULT NULL
 )
 RETURNS JSON
 LANGUAGE plpgsql
@@ -99,6 +99,11 @@ DECLARE
 BEGIN
   IF NOT public.is_staff(ARRAY['admin']) THEN
     RAISE EXCEPTION 'Unauthorized: admin only';
+  END IF;
+  IF p_phone IS NOT NULL AND p_phone != '' THEN
+    IF EXISTS (SELECT 1 FROM staff WHERE phone = p_phone) THEN
+      RAISE EXCEPTION 'رقم الجوال مستخدم مسبقاً';
+    END IF;
   END IF;
 
   SELECT id INTO user_id FROM auth.users WHERE lower(email) = lower(p_email) LIMIT 1;
@@ -126,9 +131,9 @@ BEGIN
     );
   END IF;
 
-  INSERT INTO staff (email, name, role)
-  VALUES (lower(trim(p_email)), p_name, p_role)
-  ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role
+  INSERT INTO staff (email, name, role, phone)
+  VALUES (lower(trim(p_email)), p_name, p_role, NULLIF(p_phone, ''))
+  ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role, phone = COALESCE(NULLIF(p_phone, ''), staff.phone)
   RETURNING row_to_json(staff)::JSON INTO result;
   RETURN result;
 END;
@@ -137,7 +142,7 @@ $$;
 DROP FUNCTION IF EXISTS public.update_staff_rpc(BIGINT, TEXT, TEXT, TEXT);
 
 CREATE OR REPLACE FUNCTION public.update_staff_rpc(
-  p_id BIGINT, p_name TEXT, p_role TEXT, p_email TEXT DEFAULT NULL
+  p_id BIGINT, p_name TEXT, p_role TEXT, p_email TEXT DEFAULT NULL, p_phone TEXT DEFAULT NULL
 )
 RETURNS JSON
 LANGUAGE plpgsql
@@ -150,10 +155,16 @@ BEGIN
   IF NOT public.is_staff(ARRAY['admin']) THEN
     RAISE EXCEPTION 'Unauthorized: admin only';
   END IF;
+  IF p_phone IS NOT NULL AND p_phone != '' THEN
+    IF EXISTS (SELECT 1 FROM staff WHERE phone = p_phone AND id != p_id) THEN
+      RAISE EXCEPTION 'رقم الجوال مستخدم مسبقاً';
+    END IF;
+  END IF;
   UPDATE staff
   SET email = COALESCE(p_email, (SELECT email FROM staff WHERE id = p_id)),
       name = p_name,
-      role = p_role
+      role = p_role,
+      phone = CASE WHEN p_phone IS NOT NULL THEN NULLIF(p_phone, '') ELSE (SELECT phone FROM staff WHERE id = p_id) END
   WHERE id = p_id
   RETURNING row_to_json(staff)::JSON INTO result;
   RETURN result;
@@ -1210,22 +1221,25 @@ BEGIN
   END IF;
 END $$;
 
+-- إضافة عمود الجوال إلى جدول الموظفين
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS phone TEXT UNIQUE;
+
 -- أمان: دالة إصلاح تسجيل دخول الموظفين (للاستخدام من قبل الموظفين فقط)
-CREATE OR REPLACE FUNCTION public.ensure_staff_auth_user(p_email TEXT, p_password TEXT)
+CREATE OR REPLACE FUNCTION public.ensure_staff_auth_user(p_identifier TEXT, p_password TEXT)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public, auth, extensions
 AS $$
 DECLARE
-  staff_exists BOOLEAN;
+  found_email TEXT;
   result JSON;
 BEGIN
-  SELECT EXISTS(SELECT 1 FROM staff WHERE lower(email) = lower(p_email)) INTO staff_exists;
-  IF NOT staff_exists THEN
+  SELECT email INTO found_email FROM staff WHERE lower(email) = lower(p_identifier) OR phone = p_identifier LIMIT 1;
+  IF found_email IS NULL THEN
     RETURN json_build_object('staff_exists', false, 'fixed', false);
   END IF;
-  result := public.confirm_auth_user(p_email, p_password);
+  result := public.confirm_auth_user(found_email, p_password);
   RETURN json_build_object('staff_exists', true, 'fixed', true, 'user', result);
 END;
 $$;

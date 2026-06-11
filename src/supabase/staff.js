@@ -76,7 +76,8 @@ export const staffApi = {
         p_email: normalizedEmail,
         p_name: staffMember.name,
         p_role: staffMember.role,
-        p_password: STAFF_DEFAULT_PASSWORD
+        p_password: STAFF_DEFAULT_PASSWORD,
+        p_phone: staffMember.phone || null
       });
       if (data) {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
@@ -95,7 +96,8 @@ export const staffApi = {
         p_id: id,
         p_name: updates.name,
         p_role: updates.role,
-        ...(updates.email ? { p_email: updates.email } : {})
+        ...(updates.email ? { p_email: updates.email } : {}),
+        ...(updates.phone !== undefined ? { p_phone: updates.phone || null } : {})
       });
       if (data) {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;

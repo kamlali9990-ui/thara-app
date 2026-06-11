@@ -60,12 +60,12 @@ export default function Login() {
 
         <form onSubmit={handleLogin}>
           <div className="auth-field">
-            <label>البريد الإلكتروني</label>
+            <label>البريد الإلكتروني أو رقم الجوال</label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="name@example.com"
+              placeholder="name@example.com أو 05xxxxxxxx"
               required
               className="auth-input"
             />
