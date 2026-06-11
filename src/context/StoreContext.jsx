@@ -479,7 +479,7 @@ export const StoreProvider = ({ children }) => {
         setUser(null); setStaffRole(null); setCurrentStaff(null); setCustomerProfile(null);
       }
       // For staff login, try ensure_staff_auth_user as fallback
-      if (supabase && !err?.message?.includes('لا يوجد حساب')) {
+      if (supabase && !err?.message?.includes('Invalid Refresh Token')) {
         try {
           const normalizedEmail = String(identifier || '').trim().toLowerCase();
           const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {

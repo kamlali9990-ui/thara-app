@@ -61,12 +61,10 @@ export const customersApi = {
   },
 
   async login(identifier, password) {
-    // Try to resolve identifier to email first (for customers with phone/username/id)
     const resolvedEmail = await this.resolveLogin(identifier);
     if (resolvedEmail) {
       return await authApi.signIn(resolvedEmail, password);
     }
-    // If no customer found, try direct email login (for staff or customers using email directly)
-    return await authApi.signIn(identifier, password);
+    throw new Error('لا يوجد حساب بهذا المعرف');
   }
 };

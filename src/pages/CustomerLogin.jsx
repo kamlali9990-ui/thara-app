@@ -39,9 +39,9 @@ export default function CustomerLogin() {
 
         <form onSubmit={handleLogin}>
           <div className="auth-field">
-            <label>البريد الإلكتروني / رقم الجوال / اسم المستخدم / رقم العميل</label>
+            <label>رقم الجوال أو اسم المستخدم</label>
             <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)}
-              placeholder="your@email.com أو 05xxxxxxxx أو username أو #ID" required className="auth-input" />
+              placeholder="05xxxxxxxx أو username_123" required className="auth-input" dir="ltr" />
           </div>
 
           <div className="auth-field">

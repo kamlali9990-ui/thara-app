@@ -6,7 +6,6 @@ import { customersApi } from '../supabase/customers';
 export default function Register() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -40,10 +39,8 @@ export default function Register() {
     setLoading(true);
     try {
       const cleanPhone = phone.trim();
-      const hasEmail = email.trim().length > 0 && email.includes('@');
       const cleanUsername = username ? username.trim().toLowerCase() : null;
-      // Use phone as auth identifier if no email provided
-      const authEmail = hasEmail ? email.trim().toLowerCase() : `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
+      const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
       await authApi.signUpDirect(authEmail, password, cleanUsername);
       await authApi.signIn(authEmail, password);
       try {
@@ -54,12 +51,10 @@ export default function Register() {
       navigate('/');
     } catch (err) {
       const msg = err.message || '';
-      if (msg.includes('رقم الجوال مستخدم مسبقاً')) {
+      if (msg.includes('رقم الجوال مستخدم مسبقاً') || msg.includes('already registered')) {
         setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
       } else if (msg.includes('اسم المستخدم مستخدم مسبقاً')) {
         setError('اسم المستخدم مستخدم مسبقاً من حساب آخر');
-      } else if (msg.includes('already registered') || msg.includes('already exists')) {
-        setError('هذا البريد مسجل مسبقاً');
       } else if (msg.includes('429') || msg.includes('Too Many Requests') || msg.includes('rate limit')) {
         setError('تم تجاوز عدد محاولات التسجيل المسموحة، الرجاء المحاولة لاحقاً');
       } else {
@@ -96,12 +91,6 @@ export default function Register() {
             <label>اسم المستخدم (اختياري)</label>
             <input type="text" value={username} onChange={e => setUsername(e.target.value)}
               placeholder="my_username" className="auth-input" dir="ltr" />
-          </div>
-
-          <div className="auth-field">
-            <label>البريد الإلكتروني (اختياري)</label>
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="your@email.com" className="auth-input" />
           </div>
 
           <div className="auth-field">

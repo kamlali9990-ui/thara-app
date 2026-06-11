@@ -1,9 +1,9 @@
 import { memo, useState, useCallback, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
+import { authApi } from '../supabase/auth';
 import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
 
 const allNeighborhoods = [
@@ -28,8 +28,7 @@ function saveCheckout(userEmail, data) {
 }
 
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
-  const navigate = useNavigate();
-  const { user, customerProfile } = useContext(StoreContext);
+  const { user, customerProfile, setUser } = useContext(StoreContext);
   const saved = user?.email ? getSavedCheckout(user.email) : {};
   const dbLoc = (() => { try { return customerProfile?.location ? JSON.parse(customerProfile.location) : null; } catch { return null; } })();
   const [position, setPosition] = useState(dbLoc || saved.position || null);
@@ -41,6 +40,9 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [areaErr, setAreaErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState(customerProfile?.delivery_address || saved.deliveryAddress || '');
   const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
   const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
@@ -80,6 +82,42 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setPosition({ lat: r.lat, lng: r.lng });
     setAreaResults([]);
   }, []);
+
+  const handleLoginCheckout = async () => {
+    const digits = phone.replace(/\D/g, '');
+    const valid = digits.startsWith('966') ? digits.length === 12 : digits.startsWith('05') && digits.length === 10;
+    if (!valid) { setLoginError('رقم الجوال غير صحيح'); return; }
+    if (!loginPassword || loginPassword.length < 6) { setLoginError('كلمة المرور 6 أحرف على الأقل'); return; }
+    setLoggingIn(true);
+    setLoginError('');
+    try {
+      const data = await customersApi.login(phone.trim(), loginPassword);
+      if (data?.user) setUser(data.user);
+      setShowLoginPrompt(false);
+    } catch (err) {
+      const msg = err.message || '';
+      if (msg.includes('لا يوجد حساب')) {
+        try {
+          const cleanPhone = phone.trim();
+          const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
+          await authApi.signUpDirect(authEmail, loginPassword, null);
+          const loginData = await authApi.signIn(authEmail, loginPassword);
+          try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
+          if (loginData?.user) setUser(loginData.user);
+          setShowLoginPrompt(false);
+        } catch {
+          setLoginError('حدث خطأ أثناء إنشاء الحساب');
+        }
+      } else if (msg.includes('Invalid login credentials')) {
+        setLoginError('كلمة المرور غير صحيحة');
+      } else {
+        setLoginError('حدث خطأ، حاول مرة أخرى');
+      }
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
   return (
     <div className="checkout-overlay" onClick={onClose}>
       <div className="checkout-sheet" onClick={e => e.stopPropagation()}>
@@ -244,15 +282,25 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <div className="delivery-info-overlay" onClick={() => setShowLoginPrompt(false)}>
               <div className="auth-prompt-modal" onClick={(e) => e.stopPropagation()}>
                 <button className="delivery-info-close" onClick={() => setShowLoginPrompt(false)}>✕</button>
-                <div className="auth-prompt-icon">🔒</div>
-                <h3>تسجيل الدخول مطلوب</h3>
-                <p className="auth-prompt-text">عذراً، يجب تسجيل الدخول أولاً لإتمام عملية الطلب. يمكنك إنشاء حساب جديد إذا لم يكن لديك حساب.</p>
-                <button className="auth-prompt-btn" onClick={() => { setShowLoginPrompt(false); onClose(); navigate('/login'); }}>
-                  تسجيل الدخول
+                <h3 style={{ color: 'var(--primary, #127443)', margin: '0 0 0.5rem' }}>أكمل طلبك</h3>
+                <p className="auth-prompt-text">سجل برقم الجوال لإتمام الطلب — إن لم يكن لديك حساب سيتم إنشاؤه تلقائياً</p>
+                <div style={{ textAlign: 'right', marginBottom: '0.75rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>رقم الجوال</label>
+                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                    placeholder="05xxxxxxxx" required className="auth-input" dir="ltr" />
+                </div>
+                <div style={{ textAlign: 'right', marginBottom: '0.75rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.3rem' }}>كلمة المرور</label>
+                  <input type="password" value={loginPassword} onChange={e => setLoginPassword(e.target.value)}
+                    placeholder="••••••••" required className="auth-input" />
+                </div>
+                {loginError && <div className="auth-error">{loginError}</div>}
+                <button className="auth-prompt-btn" disabled={loggingIn} onClick={handleLoginCheckout}>
+                  {loggingIn ? 'جاري...' : 'تسجيل الدخول وإتمام الطلب'}
                 </button>
-                <button className="auth-prompt-btn auth-prompt-btn-secondary" onClick={() => { setShowLoginPrompt(false); onClose(); navigate('/register'); }}>
-                  إنشاء حساب جديد
-                </button>
+                <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.75rem' }}>
+                  نسيت كلمة المرور؟ <strong style={{ color: 'var(--primary, #127443)' }}>تواصل مع الإدارة لاسترجاعها</strong>
+                </p>
               </div>
             </div>
           )}
