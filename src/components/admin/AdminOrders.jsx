@@ -361,7 +361,13 @@ const handleStatusChange = (order, newStatus) => {
         )}
 
         <div style={{ marginTop: '0.4rem' }}>
-          <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
+          <div className="order-card-btn-wrap">
+            {(() => {
+              const uc = chatMessages.filter(m => m.orderId === order.id && m.sender === 'customer' && m.status !== 'read').length;
+              return uc > 0 ? <span className="order-card-unread-badge">{uc}</span> : null;
+            })()}
+            <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
+          </div>
           <button type="button" className="chat-order-btn" style={{ marginRight: '0.4rem' }} onClick={() => printInvoice(order, { currentStaff, drivers, customers: allCustomers, staffList })}>🖨️ طباعة الفاتورة</button>
           {!compact && staffRole === 'admin' && (
             <button type="button" className="admin-delete-btn" style={{ marginTop: '0.4rem' }}

@@ -1171,3 +1171,94 @@
 .admin-archived-border {
   border-color: var(--admin-border-subtle) !important;
 }
+
+/* =============================================================== */
+/* ===== ORDER CARDS GRID + STATUS ANIMATIONS (Desktop) ===== */
+/* =============================================================== */
+
+.admin-orders-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .admin-orders-list {
+    grid-template-columns: repeat(auto-fill, minmax(370px, 1fr));
+  }
+}
+
+/* ── Status border glow animations ── */
+@keyframes glow-new {
+  0%, 100% { box-shadow: 0 0 8px rgba(59, 130, 246, 0.25), 0 0 16px rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.4); }
+  50%      { box-shadow: 0 0 18px rgba(59, 130, 246, 0.5), 0 0 32px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.8); }
+}
+@keyframes glow-preparing {
+  0%, 100% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.25), 0 0 16px rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.4); }
+  50%      { box-shadow: 0 0 18px rgba(245, 158, 11, 0.5), 0 0 32px rgba(245, 158, 11, 0.2); border-color: rgba(245, 158, 11, 0.8); }
+}
+@keyframes glow-route {
+  0%, 100% { box-shadow: 0 0 8px rgba(16, 185, 129, 0.25), 0 0 16px rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4); }
+  50%      { box-shadow: 0 0 18px rgba(16, 185, 129, 0.5), 0 0 32px rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.8); }
+}
+@keyframes glow-delivered {
+  0%, 100% { box-shadow: 0 0 8px rgba(20, 184, 166, 0.25), 0 0 16px rgba(20, 184, 166, 0.1); border-color: rgba(20, 184, 166, 0.4); }
+  50%      { box-shadow: 0 0 18px rgba(20, 184, 166, 0.5), 0 0 32px rgba(20, 184, 166, 0.2); border-color: rgba(20, 184, 166, 0.8); }
+}
+@keyframes glow-cancelled {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.25), 0 0 16px rgba(239, 68, 68, 0.1); }
+  50%      { box-shadow: 0 0 18px rgba(239, 68, 68, 0.5), 0 0 32px rgba(239, 68, 68, 0.2); }
+}
+
+.order-card.status-new {
+  animation: glow-new 2s ease-in-out infinite;
+}
+.order-card.status-preparing {
+  animation: glow-preparing 2.5s ease-in-out infinite;
+}
+.order-card.status-ready {
+  animation: glow-preparing 3s ease-in-out infinite;
+}
+.order-card.status-route {
+  animation: glow-route 2.5s ease-in-out infinite;
+}
+.order-card.status-delivered {
+  animation: glow-delivered 2.5s ease-in-out infinite;
+}
+.order-card.status-cancelled {
+  animation: glow-cancelled 1.5s ease-in-out infinite;
+}
+/* completed cards — no glow, just subtle border */
+.order-card.status-completed {
+  opacity: 0.75;
+}
+
+/* ── Unread message badge on order cards ── */
+.order-card-unread-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.5);
+  z-index: 2;
+  animation: badge-pop 0.3s ease-out;
+}
+@keyframes badge-pop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+.order-card-btn-wrap {
+  position: relative;
+  display: inline-block;
+}
