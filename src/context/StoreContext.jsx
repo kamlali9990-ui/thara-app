@@ -106,6 +106,22 @@ export const StoreProvider = ({ children }) => {
     prevUserRef.current = user;
   }, [user, supabaseReady]);
 
+  // ─── Site Stats (visitor/member counter) ───
+  const [siteStats, setSiteStats] = useState({ member_count: 0, visit_count: 0 });
+  useEffect(() => {
+    if (!supabaseReady) return;
+    supabase.rpc('get_site_stats').then(({ data, error }) => {
+      if (!error && data) setSiteStats(data);
+    });
+    const seen = sessionStorage.getItem('thara_visit_counted');
+    if (!seen) {
+      supabase.rpc('increment_visit_count').then(({ data }) => {
+        if (data != null) setSiteStats(prev => ({ ...prev, visit_count: data }));
+      });
+      try { sessionStorage.setItem('thara_visit_counted', '1'); } catch {}
+    }
+  }, [supabaseReady]);
+
   // Most requested products (from order history)
   const mostRequested = useMemo(() => {
     const counts = {};
@@ -579,7 +595,8 @@ export const StoreProvider = ({ children }) => {
       drivers, loadDrivers, assignDriverToOrder, claimOrder,
       addProduct, updateProduct, deleteProduct, bulkImportProducts,
       chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders,
-      userPermissions, hasPermission, refreshPermissions
+      userPermissions, hasPermission, refreshPermissions,
+      siteStats
     }}>
       {children}
     </StoreContext.Provider>

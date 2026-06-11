@@ -26,7 +26,7 @@ export default function App() {
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
     placeOrder, user, logout, orders,
     customerProfile, updateCustomerProfile, loadOrders,
-    chatMessages, staffRole, currentStaff } = useContext(StoreContext);
+    chatMessages, staffRole, currentStaff, siteStats } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -171,7 +171,8 @@ export default function App() {
         theme={theme}
         onMenuClick={() => setIsDrawerOpen(true)}
         onThemeChange={setTheme}
-        onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }} />
+        onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }}
+        siteStats={siteStats} />
 
         <div className={`app-content ${tab === 'home' && !showAllView ? '' : 'app-content-nohome'}`}>
         {showAllView ? (

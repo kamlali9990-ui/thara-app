@@ -27,3 +27,27 @@
   line-height: 1;
 }
 
+/* ─── Site Stats (visitor/member counter) ─── */
+.app-header-stats {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 99px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  line-height: 1;
+}
+.app-header-stat-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+.app-header-stat-divider {
+  color: rgba(128, 128, 128, 0.4);
+  font-size: 0.55rem;
+}
+

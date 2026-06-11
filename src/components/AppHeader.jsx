@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { BASE, imgFallback, logoPath, logoPathDark } from '../utils/constants';
 import ThemeToggle from './ThemeToggle';
 
-const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSearchQuery, unreadNotifs, onMenuClick, onNotifClick, theme, onThemeChange }) => (
+const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSearchQuery, unreadNotifs, onMenuClick, onNotifClick, theme, onThemeChange, siteStats }) => (
   <header className="app-header-new">
     <div className="app-header-new-inner">
       <button className="app-header-icon-btn" onClick={onMenuClick} aria-label="القائمة">
@@ -18,6 +18,13 @@ const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSear
       </div>
 
       <div className="app-header-actions">
+        {siteStats && (
+          <div className="app-header-stats">
+            <span className="app-header-stat-item">👥 {siteStats.member_count}</span>
+            <span className="app-header-stat-divider">|</span>
+            <span className="app-header-stat-item">👁️ {siteStats.visit_count}</span>
+          </div>
+        )}
         <button className="app-header-icon-btn app-header-notif-btn" onClick={onNotifClick} aria-label="الإشعارات">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           {unreadNotifs > 0 && (
