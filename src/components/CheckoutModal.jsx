@@ -104,8 +104,14 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             p_email: authEmail, p_password: loginPassword, p_username: null
           });
           if (rpcErr) throw rpcErr;
-          try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
-          setUser({ email: authEmail, id: userData.id });
+          if (userData?.existing) {
+            // User has account but no customer record — try login again
+            const loginData = await customersApi.login(phone.trim(), loginPassword);
+            if (loginData?.user) setUser(loginData.user);
+          } else {
+            try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
+            setUser({ email: authEmail, id: userData.id });
+          }
           setShowLoginPrompt(false);
         } catch {
           setLoginError('حدث خطأ أثناء إنشاء الحساب');

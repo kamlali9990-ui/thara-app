@@ -450,7 +450,7 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO authenticated;
+GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_customer_auth_rpc TO anon, authenticated;

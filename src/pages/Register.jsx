@@ -45,6 +45,11 @@ export default function Register() {
         p_email: authEmail, p_password: password, p_username: cleanUsername
       });
       if (rpcErr) throw rpcErr;
+      if (userData?.existing) {
+        setError('لديك حساب بالفعل، سجل دخول');
+        setLoading(false);
+        return;
+      }
       try {
         await customersApi.create(authEmail, name, cleanPhone, cleanUsername);
       } catch {
@@ -53,10 +58,10 @@ export default function Register() {
       navigate('/');
     } catch (err) {
       const msg = err.message || '';
-      if (msg.includes('رقم الجوال مستخدم مسبقاً')) {
-        setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
-      } else if (msg.includes('اسم المستخدم مستخدم مسبقاً')) {
+      if (msg.includes('تكرار اسم المستخدم')) {
         setError('اسم المستخدم مستخدم مسبقاً من حساب آخر');
+      } else if (msg.includes('رقم الجوال')) {
+        setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
       } else {
         setError('حدث خطأ أثناء إنشاء الحساب');
       }
