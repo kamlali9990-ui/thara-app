@@ -673,6 +673,7 @@ $$;
 
 -- Helper: parse location text (handles multiple formats)
 DROP FUNCTION IF EXISTS public._parse_location(TEXT);
+DROP FUNCTION IF EXISTS public._parse_location(TEXT);
 CREATE OR REPLACE FUNCTION public._parse_location(loc TEXT)
 RETURNS TABLE(lat NUMERIC, lng NUMERIC)
 LANGUAGE sql IMMUTABLE AS $$
@@ -682,13 +683,15 @@ LANGUAGE sql IMMUTABLE AS $$
   SELECT
     CASE
       WHEN s ~* 'Lat:' THEN NULLIF(TRIM(SPLIT_PART(SPLIT_PART(s,'Lat:',2),',',1)),'')::NUMERIC
-      WHEN s ~ '^[\d\.\-]+[, ]+[\d\.\-]+$' THEN NULLIF(TRIM(SPLIT_PART(s,',',1)),'')::NUMERIC
+      WHEN s ~ '^[\(]?[\d\.\-]+[, ]+[\d\.\-]+[\)]?$' THEN
+        NULLIF(TRIM(REPLACE(REPLACE(SPLIT_PART(s,',',1),'(',''),')','')),'')::NUMERIC
       WHEN s ~* '"lat"' OR s ~* '"lng"' OR s ~* '"latitude"' THEN (s::json ->> 'lat')::NUMERIC
       ELSE NULL
     END,
     CASE
       WHEN s ~* 'Lng:' THEN NULLIF(TRIM(SPLIT_PART(s,'Lng:',2)),'')::NUMERIC
-      WHEN s ~ '^[\d\.\-]+[, ]+[\d\.\-]+$' THEN NULLIF(TRIM(SPLIT_PART(s,',',2)),'')::NUMERIC
+      WHEN s ~ '^[\(]?[\d\.\-]+[, ]+[\d\.\-]+[\)]?$' THEN
+        NULLIF(TRIM(REPLACE(REPLACE(SPLIT_PART(s,',',2),'(',''),')','')),'')::NUMERIC
       WHEN s ~* '"lng"' OR s ~* '"lon"' OR s ~* '"longitude"' THEN (s::json ->> 'lng')::NUMERIC
       ELSE NULL
     END
