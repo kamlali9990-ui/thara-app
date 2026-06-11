@@ -32,30 +32,6 @@ export const ordersApi = {
       delivery_fee: order.deliveryFee ?? null,
       delivery_address: order.deliveryAddress || null
     });
-    if (error) {
-      if (import.meta.env.DEV && error.message?.includes('create_order_secure')) {
-        return this.createLegacy(order);
-      }
-      throw error;
-    }
-    return mapOrder(data);
-  },
-
-  async createLegacy(order) {
-    const { data, error } = await supabase
-      .from('orders')
-      .insert([{
-        items: JSON.stringify(order.items),
-        total: order.total,
-        payment_method: order.paymentMethod,
-        phone: order.phone || null,
-        notes: order.notes || null,
-        location: order.location,
-        customer_email: order.customerEmail || null,
-        delivery_address: order.deliveryAddress || null
-      }])
-      .select()
-      .single();
     if (error) throw error;
     return mapOrder(data);
   },
