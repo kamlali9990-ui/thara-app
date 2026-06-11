@@ -195,26 +195,36 @@ DECLARE
   user_id UUID;
   pw_hash TEXT;
 BEGIN
-  pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf'));
+  pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf', 10));
   SELECT id INTO user_id FROM auth.users WHERE email = p_email;
   IF user_id IS NULL THEN
+    user_id := extensions.gen_random_uuid();
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password,
       email_confirmed_at, confirmation_sent_at, confirmation_token,
-      raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+      raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+      email_change, email_change_token_new, recovery_token
     ) VALUES (
       '00000000-0000-0000-0000-000000000000',
-      extensions.gen_random_uuid(), 'authenticated', 'authenticated', p_email,
+      user_id, 'authenticated', 'authenticated', p_email,
       pw_hash,
-      now(), now(), '', '{"provider":"email","providers":["email"]}', '{}',
-      now(), now()
-    ) RETURNING id INTO user_id;
+      now(), now(), NULL, '{"provider":"email","providers":["email"]}',
+      jsonb_build_object('sub', user_id::TEXT, 'email', p_email, 'email_verified', true, 'phone_verified', false),
+      now(), now(),
+      '', '', ''
+    );
+    INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
+    VALUES (
+      extensions.gen_random_uuid(),
+      user_id,
+      jsonb_build_object('sub', user_id::TEXT, 'email', p_email, 'email_verified', true, 'phone_verified', false),
+      'email',
+      user_id::TEXT,
+      now(), now(), now()
+    );
   ELSE
     UPDATE auth.users SET email_confirmed_at = COALESCE(email_confirmed_at, now()), encrypted_password = pw_hash WHERE id = user_id;
   END IF;
-  INSERT INTO auth.identities (id, user_id, identity_data, provider, provider_id, last_sign_in_at, created_at, updated_at)
-  VALUES (extensions.gen_random_uuid(), user_id, json_build_object('sub', user_id::TEXT, 'email', p_email), 'email', p_email, now(), now(), now())
-  ON CONFLICT DO NOTHING;
   RETURN json_build_object('id', user_id, 'email', p_email);
 END;
 $$;
@@ -332,19 +342,27 @@ BEGIN
     RAISE EXCEPTION 'User already registered';
   END IF;
 
-  pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf'));
+  pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf', 10));
   v_user_id := extensions.gen_random_uuid();
-  meta := jsonb_build_object('username', p_username);
+  meta := jsonb_build_object(
+    'sub', v_user_id::TEXT,
+    'email', clean_email,
+    'email_verified', true,
+    'phone_verified', false,
+    'username', p_username
+  );
 
   INSERT INTO auth.users (
     instance_id, id, aud, role, email, encrypted_password,
     email_confirmed_at, confirmation_sent_at, confirmation_token,
-    raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+    raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
+    email_change, email_change_token_new, recovery_token
   ) VALUES (
     '00000000-0000-0000-0000-000000000000',
     v_user_id, 'authenticated', 'authenticated', clean_email, pw_hash,
-    now(), now(), '', '{"provider":"email","providers":["email"]}', meta,
-    now(), now()
+    now(), now(), NULL, '{"provider":"email","providers":["email"]}', meta,
+    now(), now(),
+    '', '', ''
   );
 
   SELECT i.id INTO v_identity_id
@@ -357,9 +375,14 @@ BEGIN
     VALUES (
       extensions.gen_random_uuid(),
       v_user_id,
-      json_build_object('sub', v_user_id::TEXT, 'email', clean_email),
+      jsonb_build_object(
+        'sub', v_user_id::TEXT,
+        'email', clean_email,
+        'email_verified', true,
+        'phone_verified', false
+      ),
       'email',
-      clean_email,
+      v_user_id::TEXT,
       now(), now(), now()
     );
   END IF;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authApi } from '../supabase/auth';
 import { customersApi } from '../supabase/customers';
+import { supabase } from '../supabase/client';
 
 export default function Register() {
   const [name, setName] = useState('');
@@ -41,10 +42,21 @@ export default function Register() {
       const cleanPhone = phone.trim();
       const cleanUsername = username ? username.trim().toLowerCase() : null;
       const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-      await authApi.signUpDirect(authEmail, password, cleanUsername);
-      await authApi.signIn(authEmail, password);
+      let loginData = null;
       try {
-        await customersApi.create(authEmail, name, phone, cleanUsername);
+        const { error: signUpErr } = await supabase.auth.signUp({ email: authEmail, password });
+        if (signUpErr) throw signUpErr;
+        await supabase.rpc('confirm_email_rpc', { p_email: authEmail });
+        loginData = await authApi.signIn(authEmail, password);
+      } catch {
+        const { data: fixResult, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
+          p_email: authEmail, p_password: password, p_username: cleanUsername
+        });
+        if (rpcErr) throw rpcErr;
+        loginData = await authApi.signIn(authEmail, password).catch(() => null);
+      }
+      try {
+        await customersApi.create(authEmail, name, cleanPhone, cleanUsername);
       } catch {
         console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
