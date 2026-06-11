@@ -55,6 +55,8 @@ export default function Register() {
       } catch {
         console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password });
+      if (signInErr) console.warn('تعذر إنشاء جلسة الدخول:', signInErr.message);
       navigate('/');
     } catch (err) {
       const msg = err.message || '';

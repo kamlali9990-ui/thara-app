@@ -65,6 +65,6 @@ export const customersApi = {
     if (resolvedEmail) {
       return await authApi.signIn(resolvedEmail, password);
     }
-    throw new Error('لا يوجد حساب بهذا المعرف');
+    throw new Error('بيانات الدخول غير صحيحة');
   }
 };

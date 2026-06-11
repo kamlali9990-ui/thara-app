@@ -474,7 +474,9 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.confirm_email_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.confirm_email_rpc TO authenticated;
+REVOKE EXECUTE ON FUNCTION public.confirm_email_rpc FROM anon;
+REVOKE EXECUTE ON FUNCTION public.confirm_email_rpc FROM public;
 
 -- Customer address fields: add columns if not exists
 DO $$ BEGIN

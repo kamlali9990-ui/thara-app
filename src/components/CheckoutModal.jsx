@@ -91,36 +91,27 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setLoggingIn(true);
     setLoginError('');
     try {
-      const data = await customersApi.login(phone.trim(), loginPassword);
-      if (data?.user) setUser(data.user);
-      setShowLoginPrompt(false);
-    } catch (err) {
-      const msg = err.message || '';
-      if (msg.includes('لا يوجد حساب')) {
-        try {
-          const cleanPhone = phone.trim();
-          const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-          const { data: userData, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
-            p_email: authEmail, p_password: loginPassword, p_username: null
-          });
-          if (rpcErr) throw rpcErr;
-          if (userData?.existing) {
-            // User has account but no customer record — try login again
-            const loginData = await customersApi.login(phone.trim(), loginPassword);
-            if (loginData?.user) setUser(loginData.user);
-          } else {
-            try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
-            setUser({ email: authEmail, id: userData.id });
-          }
-          setShowLoginPrompt(false);
-        } catch {
-          setLoginError('حدث خطأ أثناء إنشاء الحساب');
+      const cleanPhone = phone.trim();
+      const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
+      if (signInErr) {
+        const { data: userData } = await supabase.rpc('create_customer_auth_rpc', {
+          p_email: authEmail, p_password: loginPassword, p_username: null
+        });
+        if (userData?.existing) {
+          setLoginError('بيانات الدخول غير صحيحة');
+          return;
         }
-      } else if (msg.includes('Invalid login credentials')) {
-        setLoginError('كلمة المرور غير صحيحة');
+        try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
+        const { data: newData, error: newErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
+        if (newErr) { setLoginError('بيانات الدخول غير صحيحة'); return; }
+        if (newData?.user) setUser(newData.user);
       } else {
-        setLoginError('حدث خطأ، حاول مرة أخرى');
+        if (signInData?.user) setUser(signInData.user);
       }
+      setShowLoginPrompt(false);
+    } catch {
+      setLoginError('حدث خطأ، حاول مرة أخرى');
     } finally {
       setLoggingIn(false);
     }

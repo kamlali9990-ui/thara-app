@@ -17,12 +17,7 @@ export default function CustomerLogin() {
       await customersApi.login(identifier, password);
       navigate('/');
     } catch (err) {
-      const msg = err.message || '';
-      if (msg.includes('Invalid login credentials') || msg.includes('لا يوجد حساب')) {
-        setError('المعرف أو كلمة المرور غير صحيحة');
-      } else {
-        setError('حدث خطأ أثناء تسجيل الدخول');
-      }
+      setError('بيانات الدخول غير صحيحة');
     } finally {
       setLoading(false);
     }
