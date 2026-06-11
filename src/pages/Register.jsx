@@ -53,7 +53,7 @@ export default function Register() {
       navigate('/');
     } catch (err) {
       const msg = err.message || '';
-      if (msg.includes('رقم الجوال مستخدم مسبقاً') || msg.includes('already registered')) {
+      if (msg.includes('رقم الجوال مستخدم مسبقاً')) {
         setError('رقم الجوال مستخدم مسبقاً من حساب آخر');
       } else if (msg.includes('اسم المستخدم مستخدم مسبقاً')) {
         setError('اسم المستخدم مستخدم مسبقاً من حساب آخر');

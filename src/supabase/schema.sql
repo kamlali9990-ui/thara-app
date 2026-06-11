@@ -339,7 +339,9 @@ BEGIN
 
   SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = clean_email LIMIT 1;
   IF v_user_id IS NOT NULL THEN
-    RAISE EXCEPTION 'User already registered';
+    pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf', 10));
+    UPDATE auth.users SET encrypted_password = pw_hash, updated_at = now() WHERE id = v_user_id;
+    RETURN json_build_object('id', v_user_id, 'email', clean_email, 'existing', true);
   END IF;
 
   pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf', 10));
