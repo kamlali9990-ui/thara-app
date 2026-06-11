@@ -181,7 +181,7 @@ function AuthErrorHandler() {
             setStaffRole(null);
             setCurrentStaff(null);
             setCustomerProfile(null);
-            navigate('/admin/login', { replace: true });
+            navigate(window.location.pathname.startsWith('/admin') ? '/admin/login' : '/login', { replace: true });
           }
         }
       } catch (e) { console.error('[AuthErrorHandler]', e); }
