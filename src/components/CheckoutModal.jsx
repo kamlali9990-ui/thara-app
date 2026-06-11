@@ -3,7 +3,6 @@ import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
-import { authApi } from '../supabase/auth';
 import { supabase } from '../supabase/client';
 import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
 
@@ -101,21 +100,14 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         try {
           const cleanPhone = phone.trim();
           const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-          let loginData = null;
-          try {
-            const { error: signUpErr } = await supabase.auth.signUp({ email: authEmail, password: loginPassword });
-            if (signUpErr) throw signUpErr;
-            await supabase.rpc('confirm_email_rpc', { p_email: authEmail });
-            loginData = await authApi.signIn(authEmail, loginPassword);
-          } catch {
-            const { data: fixResult, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
-              p_email: authEmail, p_password: loginPassword, p_username: null
-            });
-            if (rpcErr) throw rpcErr;
-            loginData = await authApi.signIn(authEmail, loginPassword).catch(() => null);
-          }
+          const { data: sessionData, error: rpcErr } = await supabase.rpc('auto_create_and_signin_rpc', {
+            p_email: authEmail, p_password: loginPassword, p_username: null
+          });
+          if (rpcErr) throw rpcErr;
+          const { data: session, error: refreshErr } = await supabase.auth.refreshSession({ refresh_token: sessionData.refresh_token });
+          if (refreshErr) throw refreshErr;
           try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
-          if (loginData?.user) setUser(loginData.user);
+          if (session?.user) setUser(session.user);
           setShowLoginPrompt(false);
         } catch {
           setLoginError('حدث خطأ أثناء إنشاء الحساب');
