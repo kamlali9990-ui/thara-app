@@ -77,8 +77,8 @@
 /* --- Green Dark Admin --- */
 [data-theme="green-dark"] {
   --admin-bg: #020f08;
-  --admin-surface: rgba(255,255,255,0.04);
-  --admin-border: rgba(255, 255, 255, 0.12);
+  --admin-surface: rgba(255,255,255,0.1);
+  --admin-border: rgba(255, 255, 255, 0.15);
   --admin-border-subtle: rgba(255, 255, 255, 0.06);
   --admin-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   --admin-text: #ffffff;
@@ -1387,6 +1387,15 @@
   opacity: 0.75;
 }
 
+/* ── Colored left border for fast status recognition ── */
+.order-card.status-new         { border-left: 4px solid #3b82f6 !important; }
+.order-card.status-preparing   { border-left: 4px solid #f59e0b !important; }
+.order-card.status-ready       { border-left: 4px solid #22c55e !important; }
+.order-card.status-route       { border-left: 4px solid #10b981 !important; }
+.order-card.status-delivered   { border-left: 4px solid #14b8a6 !important; }
+.order-card.status-completed   { border-left: 4px solid #64748b !important; }
+.order-card.status-cancelled   { border-left: 4px solid #ef4444 !important; }
+
 /* ── Unread message badge on order cards ── */
 .order-card-unread-badge {
   position: absolute;
@@ -1442,7 +1451,7 @@
   min-height: 40px;
 }
 .order-compact:hover {
-  background: rgba(255,255,255,0.06);
+  background: var(--admin-highlight-bg);
 }
 .order-compact-open {
   border-bottom: 1px solid var(--admin-border);
@@ -1463,13 +1472,13 @@
 }
 .order-status-icon { font-size: 0.7rem; }
 .order-status-label { font-size: 0.65rem; }
-.status-new      .order-status-pill { background: rgba(59,130,246,0.2); color: #60a5fa; }
-.status-preparing .order-status-pill { background: rgba(245,158,11,0.2);  color: #fbbf24; }
-.status-ready    .order-status-pill { background: rgba(34,197,94,0.2);  color: #4ade80; }
-.status-route    .order-status-pill { background: rgba(16,185,129,0.2); color: #34d399; }
-.status-delivered .order-status-pill { background: rgba(20,184,166,0.2); color: #2dd4bf; }
-.status-completed .order-status-pill { background: rgba(100,116,139,0.2);color: #94a3b8; }
-.status-cancelled .order-status-pill { background: rgba(239,68,68,0.2);  color: #f87171; }
+.status-new      .order-status-pill { background: rgba(59,130,246,0.35); color: #dbeafe; }
+.status-preparing .order-status-pill { background: rgba(245,158,11,0.35); color: #fef3c7; }
+.status-ready    .order-status-pill { background: rgba(34,197,94,0.35); color: #d1fae5; }
+.status-route    .order-status-pill { background: rgba(16,185,129,0.35); color: #d1fae5; }
+.status-delivered .order-status-pill { background: rgba(20,184,166,0.35); color: #ccfbf1; }
+.status-completed .order-status-pill { background: rgba(100,116,139,0.35); color: #e2e8f0; }
+.status-cancelled .order-status-pill { background: rgba(239,68,68,0.35); color: #fee2e2; }
 
 /* Main info group */
 .order-compact-main {
@@ -1667,7 +1676,7 @@
   gap: 0.4rem;
   flex-wrap: wrap;
   padding: 0.4rem 0.5rem;
-  background: rgba(255,255,255,0.04);
+  background: var(--admin-highlight-bg);
   border-radius: 8px;
 }
 .order-expanded-driver-select {
