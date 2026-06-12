@@ -271,126 +271,129 @@
 [data-theme="green-dark"] .admin-mobile-header button { color: #f1f5f9 !important; }
 [data-theme="green-dark"] .admin-sidebar-title { color: #ffffff !important; }
 
-/* ── Green-dark: all text white ── */
+/* ── Green-dark: order card matches turquoise (light bg, dark green text) ── */
 [data-theme="green-dark"] .order-status-pill {
   background: #065f46 !important;
   color: #ffffff !important;
-  border: 2px solid #10b981 !important;
-  box-shadow: 0 2px 12px rgba(6, 95, 70, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.3) !important;
+  border: 2px solid #059669 !important;
+  box-shadow: 0 2px 12px rgba(6, 95, 70, 0.4), 0 0 0 1px rgba(5, 150, 105, 0.3) !important;
 }
 [data-theme="green-dark"] .order-status-icon { color: #6ee7b7 !important; }
 [data-theme="green-dark"] .order-status-label { color: #ffffff !important; }
 [data-theme="green-dark"] .admin-tab.active {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .admin-sub-tab-btn.active {
-  color: #ffffff !important;
-  background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
+  color: #065f46 !important;
+  background: rgba(5, 150, 105, 0.12) !important;
+  border-color: #059669 !important;
 }
 [data-theme="green-dark"] .admin-mobile-tab {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .admin-mobile-tab.active {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .admin-mobile-tab.active::before {
-  background: rgba(16, 185, 129, 0.15) !important;
+  background: rgba(5, 150, 105, 0.12) !important;
 }
 [data-theme="green-dark"] .order-compact-total {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-compact-expand {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-compact-expand.expanded {
   background: #059669 !important;
   color: #ffffff !important;
 }
 [data-theme="green-dark"] .order-expanded-label {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-phone {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-phone-link {
-  color: #ffffff !important;
-  background: rgba(16, 185, 129, 0.15) !important;
+  color: #065f46 !important;
+  background: rgba(5, 150, 105, 0.1) !important;
 }
 [data-theme="green-dark"] .order-expanded-addr,
 [data-theme="green-dark"] .order-expanded-payment {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-eta {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-item {
-  color: #ffffff !important;
-  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #065f46 !important;
+  border-color: rgba(5, 150, 105, 0.2) !important;
 }
 [data-theme="green-dark"] .order-expanded-item-qty {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-notes {
-  color: #ffffff !important;
-  background: rgba(6, 95, 70, 0.3) !important;
+  color: #065f46 !important;
+  background: rgba(5, 150, 105, 0.06) !important;
 }
 [data-theme="green-dark"] .order-expanded-driver-assigned {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-driver-info {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .chat-order-btn {
-  color: #ffffff !important;
-  background: rgba(16, 185, 129, 0.15) !important;
+  color: #065f46 !important;
+  background: rgba(5, 150, 105, 0.1) !important;
 }
 [data-theme="green-dark"] .chat-order-btn:hover {
-  background: rgba(16, 185, 129, 0.25) !important;
+  background: rgba(5, 150, 105, 0.2) !important;
 }
 [data-theme="green-dark"] .map-link-google {
-  color: #ffffff !important;
-  background: rgba(16, 185, 129, 0.15) !important;
+  color: #065f46 !important;
+  background: rgba(5, 150, 105, 0.1) !important;
 }
 [data-theme="green-dark"] .map-link-osm {
-  color: #ffffff !important;
-  background: rgba(16, 185, 129, 0.15) !important;
+  color: #065f46 !important;
+  background: rgba(5, 150, 105, 0.1) !important;
 }
 [data-theme="green-dark"] .order-expanded-map-link {
-  background: rgba(16, 185, 129, 0.2) !important;
-  color: #ffffff !important;
+  background: rgba(5, 150, 105, 0.12) !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-expanded-map-link:hover {
-  background: rgba(16, 185, 129, 0.35) !important;
+  background: rgba(5, 150, 105, 0.25) !important;
 }
 [data-theme="green-dark"] .order-expanded-driver-select {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .completed-toggle-btn {
-  background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
-  color: #ffffff !important;
+  background: rgba(5, 150, 105, 0.12) !important;
+  border-color: #059669 !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .completed-toggle-btn:hover {
-  background: rgba(16, 185, 129, 0.25) !important;
+  background: rgba(5, 150, 105, 0.2) !important;
 }
 [data-theme="green-dark"] .order-card.status-completed {
   opacity: 1 !important;
-  background: rgba(6, 95, 70, 0.3) !important;
-  border-color: rgba(16, 185, 129, 0.25) !important;
-  border-left: 5px solid #10b981 !important;
+  background: rgba(5, 150, 105, 0.05) !important;
+  border-color: rgba(5, 150, 105, 0.15) !important;
+  border-left: 5px solid #059669 !important;
 }
 [data-theme="green-dark"] .order-card.status-completed .order-compact:hover {
-  background: rgba(6, 95, 70, 0.4) !important;
+  background: rgba(5, 150, 105, 0.1) !important;
 }
 [data-theme="green-dark"] .order-card.status-completed .order-compact-id,
 [data-theme="green-dark"] .order-card.status-completed .order-compact-total,
 [data-theme="green-dark"] .order-card.status-completed .order-compact-phone,
 [data-theme="green-dark"] .order-card.status-completed .order-compact-addr {
-  color: #ffffff !important;
+  color: #065f46 !important;
 }
 [data-theme="green-dark"] .order-card.status-completed .order-compact-time {
-  color: #6ee7b7 !important;
+  color: #065f46 !important;
+}
+[data-theme="green-dark"] .admin-card.order-card {
+  background: rgba(255,255,255,0.85) !important;
 }
 
 /* --- Navy Admin --- */
