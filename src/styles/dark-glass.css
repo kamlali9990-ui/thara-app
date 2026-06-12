@@ -285,7 +285,7 @@
 
 /* ─── Account Tab (Dark Glass) ─── */
 [data-theme="green-dark"] .acc-profile-header {
-  background: linear-gradient(145deg, #0a1a2e, #1a3a5c);
+  background: linear-gradient(145deg, #059669, #047857);
   box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 [data-theme="green-dark"] .acc-avatar { color: #10b981; }
@@ -332,23 +332,41 @@
 
 /* ─── Account Tab (Navy) ─── */
 [data-theme="navy"] .acc-profile-header {
-  background: linear-gradient(145deg, #1e40af, #1e3a5f);
+  background: linear-gradient(145deg, #ea580c, #c2410c) !important;
+  color: #1e40af !important;
 }
+[data-theme="navy"] .acc-profile-header .acc-name,
+[data-theme="navy"] .acc-profile-header .acc-phone,
+[data-theme="navy"] .acc-profile-header .acc-email,
+[data-theme="navy"] .acc-profile-header .acc-staff-badge { color: #1e40af !important; }
+[data-theme="navy"] .acc-profile-header .acc-edit-btn { color: #1e40af !important; background: rgba(30, 64, 175, 0.2) !important; }
 [data-theme="navy"] .acc-avatar { color: #ea580c; }
 [data-theme="navy"] .acc-card { background: rgba(255,255,255,0.85); }
 [data-theme="navy"] .acc-btn-primary { background: #ea580c; }
 
 /* ─── Account Tab (Orange) ─── */
 [data-theme="orange"] .acc-profile-header {
-  background: linear-gradient(145deg, #1e40af, #1e3a5f);
+  background: linear-gradient(145deg, #1e40af, #1e3a5f) !important;
+  color: #ea580c !important;
 }
+[data-theme="orange"] .acc-profile-header .acc-name,
+[data-theme="orange"] .acc-profile-header .acc-phone,
+[data-theme="orange"] .acc-profile-header .acc-email,
+[data-theme="orange"] .acc-profile-header .acc-staff-badge { color: #ea580c !important; }
+[data-theme="orange"] .acc-profile-header .acc-edit-btn { color: #ea580c !important; background: rgba(234, 88, 12, 0.2) !important; }
 [data-theme="orange"] .acc-avatar { color: #ea580c; }
 [data-theme="orange"] .acc-card { background: rgba(255,255,255,0.85); }
 
 /* ─── Account Tab (Pink) ─── */
 [data-theme="pink"] .acc-profile-header {
-  background: linear-gradient(145deg, #db2777, #be185d);
+  background: linear-gradient(145deg, #38bdf8, #0ea5e9) !important;
+  color: #db2777 !important;
 }
+[data-theme="pink"] .acc-profile-header .acc-name,
+[data-theme="pink"] .acc-profile-header .acc-phone,
+[data-theme="pink"] .acc-profile-header .acc-email,
+[data-theme="pink"] .acc-profile-header .acc-staff-badge { color: #db2777 !important; }
+[data-theme="pink"] .acc-profile-header .acc-edit-btn { color: #db2777 !important; background: rgba(219, 39, 119, 0.15) !important; }
 [data-theme="pink"] .acc-avatar { color: #38bdf8; }
 [data-theme="pink"] .acc-card { background: rgba(255,255,255,0.85); }
 
