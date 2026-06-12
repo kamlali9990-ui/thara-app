@@ -305,6 +305,16 @@
   --admin-toast-info-bg: #2563eb;
 }
 
+/* ── Orange: order status pill navy + orange ── */
+[data-theme="orange"] .order-status-pill {
+  background: #1e40af !important;
+  color: #ea580c !important;
+  border: 2px solid #ea580c !important;
+  box-shadow: 0 2px 12px rgba(30, 64, 175, 0.4), 0 0 0 1px rgba(234, 88, 12, 0.3) !important;
+}
+[data-theme="orange"] .order-status-icon { color: #ea580c !important; }
+[data-theme="orange"] .order-status-label { color: #ffffff !important; }
+
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
   --admin-secondary: #db2777;
@@ -381,6 +391,16 @@
   --admin-toast-warning-bg: #d97706;
   --admin-toast-info-bg: #2563eb;
 }
+
+/* ── Pink: order status pill azure + pink ── */
+[data-theme="pink"] .order-status-pill {
+  background: #0284c7 !important;
+  color: #fdf2f8 !important;
+  border: 2px solid #db2777 !important;
+  box-shadow: 0 2px 12px rgba(2, 132, 199, 0.4), 0 0 0 1px rgba(219, 39, 119, 0.3) !important;
+}
+[data-theme="pink"] .order-status-icon { color: #fbcfe8 !important; }
+[data-theme="pink"] .order-status-label { color: #ffffff !important; }
 
 /* =============================================================== */
 /* ===== LAYOUT ===== */
