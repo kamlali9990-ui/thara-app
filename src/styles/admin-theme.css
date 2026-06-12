@@ -3,6 +3,13 @@
 
 /* --- Default Admin Variables (Emerald Light) --- */
 :root {
+  --primary: #059669;
+  --primary-dark: #047857;
+  --text-main: #052e16;
+  --text-light: #166534;
+  --bg-card: #ffffff;
+  --border: rgba(5, 150, 105, 0.15);
+  --border-subtle: rgba(5, 150, 105, 0.08);
   --admin-bg: #ecfdf5;
   --admin-surface: #ffffff;
   --admin-border: rgba(5, 150, 105, 0.15);
@@ -196,6 +203,13 @@
 
 /* --- Green Dark Admin --- */
 [data-theme="green-dark"] {
+  --primary: #10b981;
+  --primary-dark: #059669;
+  --text-main: #ffffff;
+  --text-light: #f1f5f9;
+  --bg-card: rgba(255,255,255,0.1);
+  --border: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.06);
   --admin-bg: #020f08;
   --admin-surface: rgba(255,255,255,0.1);
   --admin-border: rgba(255, 255, 255, 0.15);
@@ -398,6 +412,13 @@
 
 /* --- Navy Admin --- */
 [data-theme="navy"] {
+  --primary: #ea580c;
+  --primary-dark: #c2410c;
+  --text-main: #1e293b;
+  --text-light: #334155;
+  --bg-card: rgba(219, 234, 254, 0.7);
+  --border: rgba(30, 64, 175, 0.2);
+  --border-subtle: rgba(30, 64, 175, 0.1);
   --admin-bg:
     radial-gradient(ellipse 80% 50% at 95% 5%, rgba(30,64,175,0.10) 0%, transparent 55%),
     radial-gradient(ellipse 60% 70% at 8% 45%, rgba(30,64,175,0.08) 0%, transparent 50%),
@@ -607,6 +628,13 @@
 
 /* --- Orange Admin --- */
 [data-theme="orange"] {
+  --primary: #ea580c;
+  --primary-dark: #c2410c;
+  --text-main: #1e40af;
+  --text-light: #1d4ed8;
+  --bg-card: rgba(254, 243, 199, 0.7);
+  --border: rgba(30, 64, 175, 0.2);
+  --border-subtle: rgba(30, 64, 175, 0.1);
   --admin-bg:
     radial-gradient(ellipse 80% 50% at 95% 5%, rgba(30,64,175,0.10) 0%, transparent 55%),
     radial-gradient(ellipse 60% 70% at 8% 45%, rgba(30,64,175,0.08) 0%, transparent 50%),
@@ -829,6 +857,13 @@
 
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
+  --primary: #38bdf8;
+  --primary-dark: #0ea5e9;
+  --text-main: #1f2937;
+  --text-light: #6b7280;
+  --bg-card: rgba(252, 231, 243, 0.7);
+  --border: rgba(56, 189, 248, 0.25);
+  --border-subtle: rgba(56, 189, 248, 0.1);
   --admin-secondary: #db2777;
   --admin-bg:
     radial-gradient(ellipse 80% 50% at 95% 5%, rgba(56,189,248,0.10) 0%, transparent 55%),
