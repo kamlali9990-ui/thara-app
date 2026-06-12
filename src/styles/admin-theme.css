@@ -151,6 +151,128 @@
 [data-theme="green-dark"] .admin-mobile-header button { color: #f1f5f9 !important; }
 [data-theme="green-dark"] .admin-sidebar-title { color: #ffffff !important; }
 
+/* ── Green-dark: all text dark green ── */
+[data-theme="green-dark"] .order-status-pill {
+  background: #065f46 !important;
+  color: #10b981 !important;
+  border: 2px solid #10b981 !important;
+  box-shadow: 0 2px 12px rgba(6, 95, 70, 0.4), 0 0 0 1px rgba(16, 185, 129, 0.3) !important;
+}
+[data-theme="green-dark"] .order-status-icon { color: #6ee7b7 !important; }
+[data-theme="green-dark"] .order-status-label { color: #ffffff !important; }
+[data-theme="green-dark"] .admin-tab.active {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .admin-sub-tab-btn.active {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+}
+[data-theme="green-dark"] .admin-mobile-tab {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .admin-mobile-tab.active {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .admin-mobile-tab.active::before {
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+[data-theme="green-dark"] .order-compact-total {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-compact-expand {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-compact-expand.expanded {
+  background: #059669 !important;
+  color: #ffffff !important;
+}
+[data-theme="green-dark"] .order-expanded-label {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-phone {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-phone-link {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+[data-theme="green-dark"] .order-expanded-addr,
+[data-theme="green-dark"] .order-expanded-payment {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-eta {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-item {
+  color: #10b981 !important;
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+[data-theme="green-dark"] .order-expanded-item-qty {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-notes {
+  color: #10b981 !important;
+  background: rgba(6, 95, 70, 0.3) !important;
+}
+[data-theme="green-dark"] .order-expanded-driver-assigned {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-driver-info {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .chat-order-btn {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+[data-theme="green-dark"] .chat-order-btn:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+}
+[data-theme="green-dark"] .map-link-google {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+[data-theme="green-dark"] .map-link-osm {
+  color: #10b981 !important;
+  background: rgba(16, 185, 129, 0.15) !important;
+}
+[data-theme="green-dark"] .order-expanded-map-link {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-expanded-map-link:hover {
+  background: rgba(16, 185, 129, 0.35) !important;
+}
+[data-theme="green-dark"] .order-expanded-driver-select {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .completed-toggle-btn {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .completed-toggle-btn:hover {
+  background: rgba(16, 185, 129, 0.25) !important;
+}
+[data-theme="green-dark"] .order-card.status-completed {
+  opacity: 1 !important;
+  background: rgba(6, 95, 70, 0.3) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  border-left: 5px solid #10b981 !important;
+}
+[data-theme="green-dark"] .order-card.status-completed .order-compact:hover {
+  background: rgba(6, 95, 70, 0.4) !important;
+}
+[data-theme="green-dark"] .order-card.status-completed .order-compact-id,
+[data-theme="green-dark"] .order-card.status-completed .order-compact-total,
+[data-theme="green-dark"] .order-card.status-completed .order-compact-phone,
+[data-theme="green-dark"] .order-card.status-completed .order-compact-addr {
+  color: #10b981 !important;
+}
+[data-theme="green-dark"] .order-card.status-completed .order-compact-time {
+  color: #6ee7b7 !important;
+}
+
 /* --- Navy Admin --- */
 [data-theme="navy"] {
   --admin-bg:
