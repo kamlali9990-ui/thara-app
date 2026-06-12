@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import ThemeToggle from '../components/ThemeToggle';
 import { useTheme } from '../utils/theme';
+import { supabase } from '../supabase/client';
 
 const STORAGE_KEY = 'thara_login_remember';
 
@@ -15,6 +16,11 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = useStore();
   const { theme, setTheme } = useTheme();
+
+  // Clear stale admin session on login page mount
+  useEffect(() => {
+    supabase.auth.signOut().catch(() => {});
+  }, []);
 
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -67,6 +73,7 @@ export default function Login() {
               placeholder="name@example.com أو 05xxxxxxxx"
               required
               className="auth-input"
+              autoComplete="username"
             />
           </div>
 
@@ -79,6 +86,7 @@ export default function Login() {
               placeholder="••••••••"
               required
               className="auth-input"
+              autoComplete="current-password"
             />
           </div>
 

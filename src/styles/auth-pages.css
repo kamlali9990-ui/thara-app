@@ -337,7 +337,7 @@
 
   /* Chat */
   .admin-chat-container { height: calc(100vh - 140px); }
-  .admin-bubble { max-width: 85%; font-size: 0.85rem; padding: 0.6rem 0.85rem; }
+  .admin-bubble { max-width: 85%; font-size: 0.85rem; padding: 0.5rem 0.75rem; }
 
   /* Section title */
   .admin-section-title { font-size: 1rem; margin-bottom: 1rem; }
@@ -501,33 +501,65 @@
   color: #e2e8f0;
 }
 
+@keyframes bubbleSlideIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .admin-bubble {
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  max-width: 70%;
+  padding: 0.5rem 0.85rem;
+  border-radius: 16px;
+  max-width: 80%;
+  line-height: 1.5;
+  position: relative;
+  animation: bubbleSlideIn 0.2s ease;
+  word-break: break-word;
 }
 .admin-bubble.admin {
   align-self: flex-end;
-  background: #fbbf24;
-  color: #78350f;
+  background: linear-gradient(135deg, #127443, #0a5c34);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
 }
 .admin-bubble.customer {
   align-self: flex-start;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.1);
   color: #e2e8f0;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.admin-bubble.consecutive {
+  margin-top: 2px;
+  border-radius: 16px;
+}
+.admin-bubble.admin.consecutive {
+  border-bottom-right-radius: 4px;
+}
+.admin-bubble.customer.consecutive {
+  border-bottom-left-radius: 4px;
+}
+.admin-bubble:not(.consecutive) {
+  margin-top: 0.4rem;
 }
 
 .admin-bubble-sender {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 0.2rem;
+  font-size: 0.75rem;
+  opacity: 0.75;
+  margin-bottom: 0.15rem;
+  font-weight: 600;
 }
 
 .admin-bubble-time {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   opacity: 0.6;
   margin-top: 0.2rem;
   text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  direction: ltr;
+  justify-content: flex-end;
 }
 
 .order-chat-dialog {
@@ -568,6 +600,14 @@
   cursor: pointer; font-family: inherit; font-size: 0.85rem;
 }
 .chat-order-btn:hover { background: rgba(251, 191, 36, 0.25); }
+.admin-bubble .voice-wave > div > div { background: rgba(255,255,255,0.4) !important; }
+.order-chat-input .chat-mic-btn {
+  background: none; border: none; cursor: pointer; font-size: 1.1rem;
+  padding: 0.2rem 0.3rem; color: rgba(255,255,255,0.5);
+}
+.order-chat-input .chat-mic-btn:hover { color: #fbbf24; }
+.order-chat-input .chat-mic-btn.recording { color: #ef4444; animation: micPulse 1s infinite; }
+@keyframes micPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 .empty-chat { text-align: center; opacity: 0.5; padding: 2rem; }
 
 .admin-offers-list {
@@ -1153,6 +1193,8 @@
   font-size: 1.1rem;
   cursor: pointer;
 }
+.admin-chat-close-btn .admin-chat-back-text { display: none; }
+.mobile-hidden { display: none !important; }
 .admin-chat-body {
   flex: 1;
   overflow-y: auto;
@@ -1231,9 +1273,16 @@
 
   .admin-chat-container { height: calc(100vh - 140px); }
   .admin-chat-inner { flex-direction: column; }
-  .admin-chat-threads { width: 100%; max-width: none; min-width: 0; max-height: 200px; }
-  .admin-chat-main { min-height: 300px; }
-  .admin-bubble { max-width: 85%; font-size: 0.85rem; padding: 0.6rem 0.85rem; }
+  .admin-chat-inner.mobile-chat-active .admin-chat-threads { display: none; }
+  .admin-chat-inner.mobile-chat-active .admin-chat-main { display: flex; }
+  .admin-chat-inner.mobile-threads-active .admin-chat-threads { display: flex; }
+  .admin-chat-inner.mobile-threads-active .admin-chat-main { display: none; }
+  .admin-chat-threads { width: 100%; max-width: none; min-width: 0; flex: 1; max-height: none; }
+  .admin-chat-main { height: 100%; }
+  .admin-chat-close-btn .admin-chat-back-text { display: inline; font-size: 0.85rem; }
+  .admin-chat-close-btn .admin-chat-close-x { display: none; }
+  .mobile-hidden { display: none !important; }
+  .admin-bubble { max-width: 85%; font-size: 0.85rem; padding: 0.5rem 0.75rem; }
 
   .admin-products-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
   .admin-product-card { padding: 0.5rem; border-radius: 10px; }

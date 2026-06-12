@@ -1,18 +1,49 @@
-import { memo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { productImgError } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
+import { sectionCats } from '../data/categories';
 
 const SearchResultsList = memo(({ results, addToCart, cart, searchQuery }) => {
   const { updateCartQty, removeFromCart } = useStore();
+  const [filterCat, setFilterCat] = useState('');
+
+  const catMap = useMemo(() => {
+    const m = {};
+    sectionCats.forEach(c => { m[c.name] = c.color; });
+    return m;
+  }, []);
+
+  const catList = useMemo(() => {
+    const cats = [...new Set(results.map(p => p.category).filter(Boolean))];
+    return cats.sort();
+  }, [results]);
+
+  const filtered = useMemo(() => {
+    if (!filterCat) return results;
+    return results.filter(p => p.category === filterCat);
+  }, [results, filterCat]);
+
   if (!searchQuery) return null;
 
   return (
     <div className="search-results-list">
-      <div className="search-results-count">{results.length} نتيجة لـ "{searchQuery}"</div>
-      {results.length === 0 && (
+      <div className="search-results-count">{filtered.length} نتيجة لـ "{searchQuery}"</div>
+      {catList.length > 1 && (
+        <div className="search-filter-cats">
+          <button className={`search-filter-pill ${!filterCat ? 'active' : ''}`} onClick={() => setFilterCat('')}>الكل</button>
+          {catList.map(cat => (
+            <button key={cat} className={`search-filter-pill ${filterCat === cat ? 'active' : ''}`}
+              style={{ '--pill-color': catMap[cat] || '#127443' }}
+              onClick={() => setFilterCat(cat === filterCat ? '' : cat)}>
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+      {filtered.length === 0 && (
         <div className="search-results-empty">لا توجد منتجات تطابق بحثك</div>
       )}
-      {results.map(product => {
+      {filtered.map(product => {
         const cartItem = cart?.find(item => item.id === product.id);
         const cartQty = cartItem?.qty || 0;
         const outOfStock = product.stock_quantity === 0;

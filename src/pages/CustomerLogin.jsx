@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { customersApi } from '../supabase/customers';
+import { supabase } from '../supabase/client';
+import { staffApi } from '../supabase/staff';
+
+const ADMIN_STORAGE_KEY = 'thara-auth-admin';
 
 export default function CustomerLogin() {
   const [identifier, setIdentifier] = useState('');
@@ -15,6 +19,19 @@ export default function CustomerLogin() {
     setLoading(true);
     try {
       await customersApi.login(identifier, password);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user?.email) {
+        const staff = await staffApi.getByEmail(user.email).catch(() => null);
+        if (staff) {
+          // Copy session to admin storage key so /admin recognizes it
+          const storeSession = localStorage.getItem('thara-auth-store');
+          if (storeSession) {
+            localStorage.setItem(ADMIN_STORAGE_KEY, storeSession);
+          }
+          navigate('/admin');
+          return;
+        }
+      }
       navigate('/');
     } catch (err) {
       setError('بيانات الدخول غير صحيحة');
@@ -36,13 +53,13 @@ export default function CustomerLogin() {
           <div className="auth-field">
             <label>رقم الجوال أو اسم المستخدم</label>
             <input type="text" value={identifier} onChange={e => setIdentifier(e.target.value)}
-              placeholder="05xxxxxxxx أو username_123" required className="auth-input" dir="ltr" />
+              placeholder="05xxxxxxxx أو username_123" required className="auth-input" dir="ltr" autoComplete="username" />
           </div>
 
           <div className="auth-field">
             <label>كلمة المرور</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••" required className="auth-input" />
+              placeholder="••••••••" required className="auth-input" autoComplete="current-password" />
           </div>
 
           {error && <div className="auth-error">{error}</div>}

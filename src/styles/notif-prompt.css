@@ -76,12 +76,12 @@
   font-weight: 600;
 }
 
-[data-theme="dark"] .notif-prompt-card {
+[data-theme="green-dark"] .notif-prompt-card {
   background: #21252b;
   border: 1px solid rgba(171, 178, 191, 0.1);
 }
 
-[data-theme="dark"] .notif-prompt-btn-allow {
+[data-theme="green-dark"] .notif-prompt-btn-allow {
   background: #61afef;
 }
 

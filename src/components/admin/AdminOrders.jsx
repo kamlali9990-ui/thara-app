@@ -1,4 +1,6 @@
 import React, { useContext, useState, useRef, useEffect } from 'react';
+import useAudioRecorder, { isVoiceMessage, getVoiceUrl, makeVoiceText } from '../../hooks/useAudioRecorder';
+import VoiceMessage from '../../components/VoiceMessage';
 import { StoreContext } from '../../context/StoreContext';
 import OrderLocationMap from '../OrderLocationMap.jsx';
 import { parseOrderLocation, getMapLinks } from '../../utils/location.js';
@@ -15,12 +17,33 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
   const [showCompleted, setShowCompleted] = useState(false);
+  const audio = useAudioRecorder();
   const [showArchived, setShowArchived] = useState(false);
   const [activeDriverTab, setActiveDriverTab] = useState('available');
   const [etaModalOrder, setEtaModalOrder] = useState(null);
   const [activeVisible, setActiveVisible] = useState(ORDERS_PAGE_SIZE);
   const [completedVisible, setCompletedVisible] = useState(ORDERS_PAGE_SIZE);
   const [etaModalValue, setEtaModalValue] = useState('30');
+  const [expandedOrders, setExpandedOrders] = useState(new Set());
+  const chatBodyRef = useRef(null);
+
+  const toggleExpand = (orderId) => {
+    setExpandedOrders(prev => {
+      const next = new Set(prev);
+      if (next.has(orderId)) next.delete(orderId); else next.add(orderId);
+      return next;
+    });
+  };
+
+  const timeAgo = (dateStr) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'الآن';
+    if (mins < 60) return `منذ ${mins} د`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `منذ ${hrs} س`;
+    return new Date(dateStr).toLocaleDateString('ar-SA');
+  };
 
   useEffect(() => {
     if (showArchived && archivedOrders.length === 0) loadArchivedOrders();
@@ -36,6 +59,13 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
       markMessagesAsRead(unreadIds);
     }
   }, [chatOrder]);
+
+  // Auto-scroll chat to bottom when messages change
+  useEffect(() => {
+    if (chatBodyRef.current) {
+      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+    }
+  }, [chatOrder, chatMessages]);
 
   if(orders.length === 0) return <h3 className="empty-orders">لا توجد طلبات حالياً.</h3>;
   const stats = {
@@ -123,21 +153,21 @@ const handleStatusChange = (order, newStatus) => {
     return '';
   };
 
-  const renderLocationBlock = (order, { showMap = true } = {}) => {
+  const renderLocationBlock = (order, { showMap = true, compact: mapCompact = false } = {}) => {
     const coords = parseOrderLocation(order.location);
     if (!coords) {
       return order.location ? <p className="order-location-missing">الموقع: {order.location}</p> : null;
     }
     const links = getMapLinks(coords);
     return (
-      <div className="order-location-block">
+      <div className={`order-location-block ${mapCompact ? 'order-location-compact' : ''}`}>
         {showMap && <OrderLocationMap lat={coords.lat} lng={coords.lng} />}
         <div className="admin-location-actions">
           <a href={links.googleDir} target="_blank" rel="noopener noreferrer" className="map-link map-link-google">
-            📍 توجيه Google Maps
+            📍 Google Maps
           </a>
           <a href={links.osmView} target="_blank" rel="noopener noreferrer" className="map-link map-link-osm">
-            🗺️ عرض OpenStreetMap
+            🗺️ OpenStreetMap
           </a>
         </div>
       </div>
@@ -194,204 +224,163 @@ const handleStatusChange = (order, newStatus) => {
     return <span className="driver-status-done">مكتمل</span>;
   };
 
-  const renderOrderCard = (order, { compact = false } = {}) => (
-    <div
-      key={order.id}
-      className={`admin-card order-card ${order.status === 'مكتمل' || order.status === 'تم التوصيل' ? 'order-card-completed' : 'order-card-active'} ${getStatusClass(order.status)}`}
-    >
-      <div className="admin-card-header">
-        <div>
-          <strong>طلب رقم:</strong> #{order.id.slice(-6)} <br/>
-          <small>{new Date(order.date).toLocaleString('ar-SA')}</small>
-          {order.estimatedDelivery && (
-            <div className="admin-eta-badge">
-              🕐 التوصيل خلال {order.estimatedDelivery} دقيقة
-            </div>
-          )}
-        </div>
-        <div className="admin-order-right" style={{ textAlign: 'left' }}>
-          <strong>الإجمالي:</strong> <span className="order-total-text">{order.total.toFixed(2)} ر.س</span><br/>
-          {!compact && (
-            isDriver ? renderDriverActions(order) : (
-              staffRole === 'manager' || staffRole === 'employee' ? (
-                order.status === 'جديد' ? (
-                  <button
-                    onClick={() => doUpdate(order, 'قيد التحضير')}
-                    className="btn btn-accept"
-                  >
-                    استلام الطلب
-                  </button>
-                ) : order.status === 'تم التوصيل' ? (
-                  <button
-                    onClick={() => doUpdate(order, 'مكتمل')}
-                    className="btn btn-accept"
-                    style={{ background: '#10b981' }}
-                  >
-                    ✅ تأكيد التوصيل
-                  </button>
-                ) : (
-                  <select
-                    value={order.status}
-                    onChange={(e) => handleStatusChange(order, e.target.value)}
-                    className="order-status-select"
-                  >
-                    <option value="جديد">جديد</option>
-                    <option value="قيد التحضير">قيد التحضير</option>
-                    <option value="جاهز للتوصيل">جاهز للتوصيل</option>
-                    <option value="في الطريق">في الطريق</option>
-                    <option value="تم التوصيل">تم التوصيل</option>
-                    <option value="مكتمل">مكتمل</option>
-                    <option value="ملغي">ملغي</option>
-                  </select>
-                )
-              ) : order.status === 'جديد' ? (
-                <button
-                  onClick={() => doUpdate(order, 'قيد التحضير')}
-                  className="btn btn-accept"
-                >
-                  استلام الطلب
-                </button>
-              ) : order.status === 'تم التوصيل' ? (
-                <button
-                  onClick={() => doUpdate(order, 'مكتمل')}
-                  className="btn btn-accept"
-                  style={{ background: '#10b981' }}
-                >
-                  ✅ تأكيد التوصيل
-                </button>
-              ) : (
-                <select
-                  value={order.status}
-                  onChange={(e) => handleStatusChange(order, e.target.value)}
-                  className="order-status-select"
-                >
-                  <option value="جديد">جديد</option>
-                  <option value="قيد التحضير">قيد التحضير</option>
-                  <option value="جاهز للتوصيل">جاهز للتوصيل</option>
-                  <option value="في الطريق">في الطريق</option>
-                  <option value="تم التوصيل">تم التوصيل</option>
-                  <option value="مكتمل">مكتمل</option>
-                  <option value="ملغي">ملغي</option>
-                </select>
-              )
-            )
-          )}
-        </div>
-      </div>
-      {!compact && (
-        <div>
-          <strong>المنتجات المطلوبة:</strong>
-          <ul className="order-items-list">
-            {order.items.map(item => (
-              <li key={item.id}>{item.name} (الكمية: {item.qty})</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      <div className="admin-card-info">
-        {/* Customer contact info block */}
-        <div className="customer-contact-block" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '10px', padding: '0.75rem', marginBottom: '0.75rem' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#34d399', marginBottom: '0.4rem' }}>👤 معلومات العميل</div>
-          {order.phone && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
-              <strong style={{ fontSize: '0.85rem', color: '#e2e8f0' }}>📞 الجوال:</strong>
-              <span dir="ltr" style={{ fontSize: '1rem', fontWeight: 700, color: '#f1f5f9' }}>{order.phone}</span>
-              <a href={`tel:${order.phone}`} style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(16,185,129,0.2)', color: '#34d399', textDecoration: 'none' }}>📞 اتصال</a>
-              <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(34,197,94,0.2)', color: '#4ade80', textDecoration: 'none' }}>💬 واتساب</a>
-            </div>
-          )}
-          {order.deliveryAddress && (
-            <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.2rem' }}>
-              <strong>📍 العنوان:</strong> {order.deliveryAddress}
-            </div>
-          )}
-        </div>
-        <strong>الدفع:</strong> {order.paymentMethod}
-        {order.notes && !compact && <><br/><strong>ملاحظات:</strong> {order.notes}</>}
-        {!compact && renderLocationBlock(order, { showMap: !compact })}
-        {compact && parseOrderLocation(order.location) && (
-          <div className="admin-location-actions" style={{ marginTop: '0.5rem' }}>
-            <a href={getMapLinks(parseOrderLocation(order.location)).googleDir} target="_blank" rel="noopener noreferrer" className="map-link">📍 خرائط</a>
-          </div>
-        )}
+  const getStatusMeta = (status) => {
+    const map = {
+      'جديد':         { icon: '🔵', label: 'جديد' },
+      'قيد التحضير':  { icon: '🟡', label: 'تجهيز' },
+      'جاهز للتوصيل': { icon: '🟢', label: 'جاهز' },
+      'في الطريق':    { icon: '🔷', label: 'بالتوصيل' },
+      'تم التوصيل':   { icon: '✅', label: 'تم التوصيل' },
+      'مكتمل':        { icon: '✔️', label: 'مكتمل' },
+      'ملغي':         { icon: '❌', label: 'ملغي' },
+    };
+    return map[status] || { icon: '◻️', label: status };
+  };
 
-        {/* Driver assignment dropdown for admin/manager only */}
-        {!compact && !isDriver && (staffRole === 'admin' || staffRole === 'manager') && (
-          <div className="admin-assign-driver-block" style={{ marginTop: '0.75rem', padding: '0.5rem', background: 'rgba(255,255,255,0.05)', borderRadius: '6px', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <strong style={{ fontSize: '0.85rem', color: '#94a3b8' }}>🚚 تعيين الكابتن:</strong>
-            <select
-              value={order.assignedDriverId || ''}
-              onChange={async (e) => {
-                const val = e.target.value;
-                try {
-                  await assignDriverToOrder(order.id, val ? Number(val) : null);
-                  showToast('تم تحديث تعيين الكابتن بنجاح', 'success');
-                } catch (err) {
-                  showToast('فشل تعيين الكابتن: ' + (err.message || 'خطأ غير معروف'), 'error');
-                }
-              }}
-              style={{
-                padding: '0.25rem 0.5rem',
-                fontSize: '0.85rem',
-                borderRadius: '4px',
-                background: '#0f172a',
-                color: '#e2e8f0',
-                border: '1px solid rgba(255,255,255,0.1)',
-                fontFamily: 'inherit'
-              }}
-            >
-              <option value="">-- غير معين --</option>
-              {drivers.map(d => (
-                <option key={d.id} value={d.id}>{d.name || d.email}</option>
-              ))}
-            </select>
-            {order.assignedDriverId && (
-              <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 'bold' }}>
-                ✓ معين لـ {drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'كابتن'}
-              </span>
+  const renderOperatorActions = (order) => {
+    if (order.status === 'جديد') return (
+      <button onClick={() => doUpdate(order, 'قيد التحضير')} className="btn btn-accept" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>استلام الطلب</button>
+    );
+    if (order.status === 'تم التوصيل') return (
+      <button onClick={() => doUpdate(order, 'مكتمل')} className="btn btn-accept" style={{ background: '#10b981', padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>✅ تأكيد التوصيل</button>
+    );
+    return (
+      <select value={order.status} onChange={e => handleStatusChange(order, e.target.value)} className="order-status-select" style={{ padding: '0.25rem 0.4rem', fontSize: '0.8rem', maxWidth: '130px' }}>
+        {['جديد','قيد التحضير','جاهز للتوصيل','في الطريق','تم التوصيل','مكتمل','ملغي'].map(s => <option key={s} value={s}>{s}</option>)}
+      </select>
+    );
+  };
+
+  const renderOrderCard = (order, { compact = false } = {}) => {
+    const isExpanded = compact ? false : expandedOrders.has(order.id);
+    const isCompletedOrDone = order.status === 'مكتمل' || order.status === 'تم التوصيل';
+    const meta = getStatusMeta(order.status);
+    const uc = chatMessages.filter(m => m.orderId === order.id && m.sender === 'customer' && m.status !== 'read').length;
+    const coords = parseOrderLocation(order.location);
+
+    return (
+      <div key={order.id} className={`admin-card order-card ${getStatusClass(order.status)} ${isExpanded ? 'order-card-expanded' : ''} ${compact ? 'order-card-compact-mode' : ''} ${isDriver ? 'is-driver-view' : ''}`}>
+        {/* ===== COMPACT STRIP (always visible) ===== */}
+          <div className={`order-compact ${isExpanded ? 'order-compact-open' : ''}`} onClick={() => { if (!compact) toggleExpand(order.id); }}>
+          <div className="order-compact-status">
+            <span className="order-status-pill">
+              <span className="order-status-icon">{meta.icon}</span>
+              <span className="order-status-label">{meta.label}</span>
+            </span>
+          </div>
+          <div className="order-compact-main">
+            <span className="order-compact-id">#{order.id.slice(-6)}</span>
+            <span className="order-compact-time">{timeAgo(order.date)}</span>
+            {order.phone && <span className="order-compact-phone" dir="ltr">{order.phone}</span>}
+            {order.deliveryAddress && <span className="order-compact-addr" title={order.deliveryAddress}>📍{order.deliveryAddress.slice(0, 18)}{order.deliveryAddress.length > 18 ? '…' : ''}</span>}
+          </div>
+          <div className="order-compact-right">
+            <span className="order-compact-total">{order.total.toFixed(2)} <small>ر.س</small></span>
+            {!compact && (
+              <div className="order-compact-actions">
+                <span className={`order-compact-expand ${isExpanded ? 'expanded' : ''}`}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </span>
+              </div>
             )}
           </div>
-        )}
-
-        {/* Display assigned driver name for drivers */}
-        {!compact && isDriver && order.assignedDriverId && (
-          <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#fbbf24' }}>
-            🏍️ الكابتن المكلف بالطلب: <strong>{String(order.assignedDriverId) === String(currentStaff?.id) ? 'أنت' : (drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'كابتن آخر')}</strong>
-          </div>
-        )}
-
-        <div style={{ marginTop: '0.4rem' }}>
-          <div className="order-card-btn-wrap">
-            {(() => {
-              const uc = chatMessages.filter(m => m.orderId === order.id && m.sender === 'customer' && m.status !== 'read').length;
-              return uc > 0 ? <span className="order-card-unread-badge">{uc}</span> : null;
-            })()}
-            <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة الطلب</button>
-          </div>
-          <button type="button" className="chat-order-btn" style={{ marginRight: '0.4rem' }} onClick={() => printInvoice(order, { currentStaff, drivers, customers: allCustomers, staffList })}>🖨️ طباعة الفاتورة</button>
-          {!compact && staffRole === 'admin' && (
-            <button type="button" className="admin-delete-btn" style={{ marginTop: '0.4rem' }}
-              onClick={() => {
-                setConfirmMsg({
-                  text: `هل أنت متأكد من أرشفة الطلب #${String(order.id).slice(-6)}؟`,
-                  onConfirm: async () => {
-                    setConfirmMsg(null);
-                    try {
-                      await archiveOrder(order.id);
-                      showToast('تم أرشفة الطلب بنجاح', 'success');
-                    } catch (err) {
-                      showToast('فشل أرشفة الطلب: ' + (err.message || ''), 'error');
-                    }
-                  }
-                });
-              }}>
-              📦 أرشفة الطلب
-            </button>
-          )}
         </div>
+
+        {/* ===== EXPANDED CONTENT ===== */}
+        {isExpanded && (
+          <div className="order-expanded">
+            {/* Status + ETA + Maps links strip */}
+            <div className="order-expanded-strip">
+              <div className="order-expanded-status-actions">
+                {!isDriver ? renderOperatorActions(order) : renderDriverActions(order)}
+              </div>
+              {order.estimatedDelivery && (
+                <span className="order-expanded-eta">🕐 {order.estimatedDelivery} د</span>
+              )}
+            </div>
+
+            {/* Customer info mini block */}
+            <div className="order-expanded-customer">
+              <span className="order-expanded-label">العميل</span>
+              {order.phone && (
+                <span className="order-expanded-phone">
+                  📞 {order.phone}
+                  <a href={`tel:${order.phone}`} className="order-expanded-phone-link">اتصال</a>
+                  <a href={`https://wa.me/${order.phone.replace(/^0/, '966')}`} target="_blank" rel="noopener noreferrer" className="order-expanded-phone-link">واتساب</a>
+                </span>
+              )}
+              {order.deliveryAddress && <span className="order-expanded-addr">📍 {order.deliveryAddress}</span>}
+              <span className="order-expanded-payment">💳 {order.paymentMethod === 'cod' ? 'كاش' : order.paymentMethod}</span>
+            </div>
+
+            {/* Items mini list */}
+            <div className="order-expanded-items">
+              <span className="order-expanded-label">المنتجات ({order.items?.length || 0})</span>
+              <div className="order-expanded-items-list">
+                {order.items?.map(item => (
+                  <span key={item.id} className="order-expanded-item">{item.name} <span className="order-expanded-item-qty">×{item.qty}</span></span>
+                ))}
+              </div>
+            </div>
+
+            {/* Notes */}
+            {order.notes && <div className="order-expanded-notes">📝 {order.notes}</div>}
+
+            {/* Map for all roles — important for driver */}
+            {renderLocationBlock(order, { showMap: true, compact: true })}
+
+            {/* Driver assignment */}
+            {!isDriver && (staffRole === 'admin' || staffRole === 'manager') && (
+              <div className="order-expanded-driver">
+                <span className="order-expanded-label">🚚 الكابتن</span>
+                <select value={order.assignedDriverId || ''} onChange={async e => {
+                  try { await assignDriverToOrder(order.id, e.target.value ? Number(e.target.value) : null); showToast('تم التحديث', 'success'); }
+                  catch (err) { showToast('فشل: ' + (err.message || ''), 'error'); }
+                }} className="order-expanded-driver-select">
+                  <option value="">-- غير معين --</option>
+                  {drivers.map(d => <option key={d.id} value={d.id}>{d.name || d.email}</option>)}
+                </select>
+                {order.assignedDriverId && (
+                  <span className="order-expanded-driver-assigned">✓ {drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || 'تم'}</span>
+                )}
+              </div>
+            )}
+            {isDriver && order.assignedDriverId && (
+              <div className="order-expanded-driver-info">🏍️ {String(order.assignedDriverId) === String(currentStaff?.id) ? 'هذا طلبي' : `للكابتن ${drivers.find(d => String(d.id) === String(order.assignedDriverId))?.name || ''}`}</div>
+            )}
+
+            {/* Map + Chat + Print in one row */}
+            <div className="order-expanded-actions">
+              {coords && (
+                <a href={getMapLinks(coords).googleDir} target="_blank" rel="noopener noreferrer" className="chat-order-btn" title="فتح الخريطة">📍 خرائط</a>
+              )}
+              <div className="order-card-btn-wrap">
+                {uc > 0 && <span className="order-card-unread-badge">{uc}</span>}
+                <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة</button>
+              </div>
+              <button type="button" className="chat-order-btn" onClick={() => printInvoice(order, { currentStaff, drivers, customers: allCustomers, staffList })}>🖨️ طباعة</button>
+              {staffRole === 'admin' && (
+                <button type="button" className="admin-delete-btn" onClick={() => {
+                  setConfirmMsg({
+                    text: `أرشفة الطلب #${String(order.id).slice(-6)}؟`,
+                    onConfirm: async () => { setConfirmMsg(null); try { await archiveOrder(order.id); showToast('تمت الأرشفة', 'success'); } catch (err) { showToast('فشل', 'error'); } }
+                  });
+                }}>📦 أرشفة</button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* For compact mode (completed/archived), show a minimal info bar */}
+        {compact && (
+          <div className="order-compact-footer">
+            <span>🕐 {new Date(order.date).toLocaleString('ar-SA')}</span>
+            {order.notes && <span>📝 {order.notes.slice(0, 30)}{order.notes.length > 30 ? '…' : ''}</span>}
+          </div>
+        )}
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div>
@@ -413,9 +402,12 @@ const handleStatusChange = (order, newStatus) => {
               <strong>محادثة الطلب #{chatOrder.slice(-6)}</strong>
               <button className="chat-close-btn" onClick={() => { setChatOrder(null); setChatText(''); }}>✕</button>
             </div>
-            <div className="order-chat-body">
+            <div className="order-chat-body" ref={chatBodyRef}>
               {orderChatMessages(chatOrder).length === 0 && <p className="empty-chat">لا توجد رسائل بعد.</p>}
-              {orderChatMessages(chatOrder).map(m => {
+              {orderChatMessages(chatOrder).map((m, i) => {
+                const msgs = orderChatMessages(chatOrder);
+                const prev = msgs[i - 1];
+                const isConsecutive = prev && prev.sender === m.sender;
                 const isMe = m.sender === senderRole;
                 const getSenderLabel = (msg) => {
                   if (msg.sender === senderRole) return msg.senderName || 'أنت';
@@ -431,9 +423,9 @@ const handleStatusChange = (order, newStatus) => {
                   return msg.sender;
                 };
                 return (
-                  <div key={m.id} className={`admin-bubble ${isMe ? 'admin' : 'customer'}`}>
-                    <div className="admin-bubble-sender">{getSenderLabel(m)}</div>
-                    <div>{m.text}</div>
+                  <div key={m.id} className={`admin-bubble ${isMe ? 'admin' : 'customer'}${isConsecutive ? ' consecutive' : ''}`}>
+                    {!isConsecutive && <div className="admin-bubble-sender">{getSenderLabel(m)}</div>}
+                    <div>{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text)} /> : m.text}</div>
                     <div className="admin-bubble-time">
                       {isMe && (
                         <span style={{ fontSize: '0.65rem', marginRight: '0.2rem' }}>
@@ -459,9 +451,17 @@ const handleStatusChange = (order, newStatus) => {
               )}
             </div>
             <div className="order-chat-input">
-                <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
-                  onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } } }}
-                  placeholder="اكتب رسالة..." />
+              {audio.recording ? (
+                <>
+                  <span style={{ color: '#ef4444', fontSize: '0.8rem', padding: '0 0.3rem', alignSelf: 'center' }}>{audio.formatTime(audio.recordingTime)}</span>
+                  <button className="chat-mic-btn recording" onClick={async () => { const blob = await audio.stopRecording(); if (blob && blob.size > 1000) { try { const url = await audio.uploadAudio(blob, chatOrder); const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, makeVoiceText(url), chatOrder, null, currentStaff?.name, o?.phone); } catch (e) { console.error('voice fail', e); } } }} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
+                </>
+              ) : (
+                <button className="chat-mic-btn" onClick={async () => { try { await audio.startRecording(); } catch (e) { if (e.message === 'permission_denied') alert('الرجاء السماح بتسجيل الصوت في إعدادات المتصفح'); } }} title="تسجيل رسالة صوتية" style={{ alignSelf: 'center' }}>🎤</button>
+              )}
+              <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
+                onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } } }}
+                placeholder="اكتب رسالة..." />
               <button onClick={() => { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } }}>إرسال</button>
             </div>
           </div>

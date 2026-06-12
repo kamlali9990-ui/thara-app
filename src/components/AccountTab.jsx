@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { showToast } from './Toast.jsx';
 import InstallGuide from './InstallGuide';
+import CustomerHelp from './CustomerHelp';
 
 const ROLE_LABELS = { admin: 'مدير', manager: 'مشرف', driver: 'كابتن', employee: 'موظف' };
 
@@ -90,6 +91,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
         <Link to="/login" className="btn" style={{ marginTop: '1rem' }}>تسجيل الدخول</Link>
         <Link to="/register" className="btn btn-ghost" style={{ marginTop: '0.5rem' }}>إنشاء حساب جديد</Link>
       </div>
+      <CustomerHelp />
       <InstallGuide />
     </div>
   );
@@ -190,18 +192,37 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
           )}
 
           <div className="acc-card acc-info-card">
-            <div className="acc-info-row">
-              <span className="acc-info-label">رقم العميل</span>
-              <span className="acc-info-value">#{customerProfile?.id || '—'}</span>
-            </div>
-            <div className="acc-info-row">
-              <span className="acc-info-label">تاريخ التسجيل</span>
-              <span className="acc-info-value">
-                {customerProfile?.created_at && !isNaN(new Date(customerProfile.created_at))
-                  ? new Date(customerProfile.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
-                  : 'غير متاح'}
-              </span>
-            </div>
+            {customerProfile ? (
+              <>
+                <div className="acc-info-row">
+                  <span className="acc-info-label">رقم العميل</span>
+                  <span className="acc-info-value">#{customerProfile.id}</span>
+                </div>
+                <div className="acc-info-row">
+                  <span className="acc-info-label">تاريخ التسجيل</span>
+                  <span className="acc-info-value">
+                    {customerProfile.created_at && !isNaN(new Date(customerProfile.created_at))
+                      ? new Date(customerProfile.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
+                      : 'غير متاح'}
+                  </span>
+                </div>
+              </>
+            ) : staffRole && currentStaff ? (
+              <>
+                <div className="acc-info-row">
+                  <span className="acc-info-label">رقم الموظف</span>
+                  <span className="acc-info-value">#{currentStaff.id}</span>
+                </div>
+                <div className="acc-info-row">
+                  <span className="acc-info-label">الدور</span>
+                  <span className="acc-info-value">{ROLE_LABELS[staffRole] || staffRole}</span>
+                </div>
+                <div className="acc-info-row">
+                  <span className="acc-info-label">البريد الإلكتروني</span>
+                  <span className="acc-info-value">{currentStaff.email || '—'}</span>
+                </div>
+              </>
+            ) : null}
           </div>
 
           {orders && orders.length > 0 && (
@@ -254,6 +275,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             </div>
           </div>
 
+          <CustomerHelp />
           <InstallGuide />
         </>
       )}

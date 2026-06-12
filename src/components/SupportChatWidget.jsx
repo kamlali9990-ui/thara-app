@@ -2,6 +2,8 @@ import { memo, useContext, useState, useRef, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
 import { WHATSAPP_NUM } from '../utils/constants';
+import useAudioRecorder, { isVoiceMessage, getVoiceUrl, makeVoiceText } from '../hooks/useAudioRecorder';
+import VoiceMessage from '../components/VoiceMessage';
 
 const SupportChatWidget = memo(() => {
   const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, user, customerProfile } = useContext(StoreContext);
@@ -10,6 +12,7 @@ const SupportChatWidget = memo(() => {
   const [lastOpenedSupport, setLastOpenedSupport] = useState(() => localStorage.getItem('thara_support_last_opened') || '');
   const chatBodyRef = useRef(null);
   const typingTimer = useRef(null);
+  const audio = useAudioRecorder();
 
   const supportMessages = useMemo(() => {
     if (!user) return [];
@@ -43,10 +46,26 @@ const SupportChatWidget = memo(() => {
     }
   }, [isOpen, supportMessages]);
 
-  const handleSend = () => {
-    if (!inputText.trim()) return;
-    sendMessage('customer', inputText.trim(), null, null, null, customerProfile?.phone);
+  const handleSend = (voiceUrl) => {
+    const msg = voiceUrl || inputText.trim();
+    if (!msg) return;
+    const finalText = voiceUrl ? makeVoiceText(voiceUrl) : msg;
+    sendMessage('customer', finalText, null, null, null, customerProfile?.phone);
     setInputText('');
+  };
+
+  const handleVoiceRecord = async () => {
+    if (audio.recording) {
+      const blob = await audio.stopRecording();
+      if (blob && blob.size > 1000) {
+        try { const url = await audio.uploadAudio(blob, null); handleSend(url); }
+        catch (e) { console.error('voice upload fail', e); }
+      }
+    } else {
+      try { await audio.startRecording(); } catch (e) {
+        if (e.message === 'permission_denied') alert('الرجاء السماح بتسجيل الصوت في إعدادات المتصفح');
+      }
+    }
   };
 
   const handleInputChange = (e) => {
@@ -161,9 +180,12 @@ const SupportChatWidget = memo(() => {
                     👋 أهلاً بك! اكتب رسالتك هنا وسيقوم فريق الدعم بالرد عليك في أقرب وقت.
                   </div>
                 )}
-                {supportMessages.map(m => (
-                  <div key={m.id} className={`chat-bubble ${m.sender === 'customer' ? 'me' : 'them'}`}>
-                    <div>{m.text}</div>
+                {supportMessages.map((m, i) => {
+                  const prev = supportMessages[i - 1];
+                  const isConsecutive = prev && prev.sender === m.sender;
+                  return (
+                  <div key={m.id} className={`chat-bubble ${m.sender === 'customer' ? 'me' : 'them'}${isConsecutive ? ' consecutive' : ''}`}>
+                    <div>{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text)} /> : m.text}</div>
                     <div className="chat-time">
                       {m.sender === 'customer' && <StatusIcon status={m.status} failed={m._failed} />}
                       {m.time}
@@ -177,7 +199,7 @@ const SupportChatWidget = memo(() => {
                       </button>
                     )}
                   </div>
-                ))}
+                );})}
                 {adminIsTyping && (
                   <div className="chat-bubble them" style={{ opacity: 0.6 }}>
                     <div className="chat-typing-dots"><span>.</span><span>.</span><span>.</span></div>
@@ -186,6 +208,14 @@ const SupportChatWidget = memo(() => {
               </div>
 
               <div className="chat-win-input">
+                {audio.recording ? (
+                  <>
+                    <span style={{ color: '#ef4444', fontSize: '0.8rem', padding: '0 0.3rem', alignSelf: 'center' }}>{audio.formatTime(audio.recordingTime)}</span>
+                    <button className="chat-mic-btn recording" onClick={handleVoiceRecord} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
+                  </>
+                ) : (
+                  <button className="chat-mic-btn" onClick={handleVoiceRecord} title="تسجيل رسالة صوتية" style={{ alignSelf: 'center' }}>🎤</button>
+                )}
                 <input
                   type="text"
                   value={inputText}
@@ -193,7 +223,7 @@ const SupportChatWidget = memo(() => {
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder="اكتب استفسارك هنا..."
                 />
-                <button onClick={handleSend}>إرسال</button>
+                <button onClick={() => handleSend()}>إرسال</button>
               </div>
             </>
           )}

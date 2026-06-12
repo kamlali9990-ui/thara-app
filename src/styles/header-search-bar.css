@@ -26,6 +26,43 @@
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(18, 116, 67, 0.08);
 }
+.search-header-clear {
+  position: absolute;
+  left: 0.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-light, #94a3b8);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 2;
+  line-height: 1;
+}
+.search-header-clear:hover {
+  color: var(--text-main, #1e293b);
+}
+
+.global-search-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.28);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  padding-top: 160px;
+}
+.global-search-content {
+  background: var(--bg-color, #fff);
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 20px 20px 0 0;
+  max-height: calc(100vh - 180px);
+  overflow-y: auto;
+  box-shadow: 0 -8px 30px rgba(0,0,0,0.1);
+}
+
 .app-search-bar .app-search-icon {
   position: absolute;
   left: 1rem;

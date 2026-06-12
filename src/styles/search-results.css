@@ -2,12 +2,67 @@
 .search-results-list {
   padding: 0.5rem 1rem 2rem;
 }
+.search-filter-cats {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 0.5rem 0 0.75rem;
+  -webkit-overflow-scrolling: touch;
+}
+.search-filter-cats::-webkit-scrollbar { display: none; }
+.search-filter-pill {
+  flex-shrink: 0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 99px;
+  border: 1.5px solid var(--border, #e2e8f0);
+  background: var(--bg-color, #fff);
+  color: var(--text-main, #1e293b);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.search-filter-pill.active {
+  background: var(--pill-color, #127443);
+  color: #fff;
+  border-color: var(--pill-color, #127443);
+}
+.search-filter-pill:hover:not(.active) {
+  border-color: var(--pill-color, #127443);
+  background: rgba(18, 116, 67, 0.06);
+}
 .search-results-count {
   font-size: 0.85rem;
   color: var(--text-light);
   margin-bottom: 0.75rem;
   padding: 0.5rem 0;
   border-bottom: 0.5px solid var(--border);
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+.skeleton-block { flex-shrink: 0; }
+.skeleton-product-card {
+  background: var(--bg-card, #fff);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.skeleton-ticker {
+  display: flex;
+  gap: 20px;
+  padding: 14px 20px;
+  overflow: hidden;
+}
+.skeleton-ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 .search-results-empty {
   text-align: center;
@@ -170,7 +225,7 @@
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1.2;
-  color: #b91c1c;
+  color: var(--text-main);
   min-height: auto;
   margin-bottom: 0;
 }
@@ -181,7 +236,7 @@
 .category-section-grid .product-card-new-price {
   font-size: 1.8rem;
   font-weight: 950;
-  color: #127443 !important;
+  color: var(--primary) !important;
   line-height: 1;
 }
 .category-section-grid .product-card-new-currency {

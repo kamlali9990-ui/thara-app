@@ -2,7 +2,9 @@ import { memo } from 'react';
 import { BASE, imgFallback, logoPath, logoPathDark } from '../utils/constants';
 import ThemeToggle from './ThemeToggle';
 
-const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSearchQuery, unreadNotifs, onMenuClick, onNotifClick, theme, onThemeChange, siteStats }) => (
+const isSearching = (q) => q?.trim().length > 0;
+
+const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSearchQuery, unreadNotifs, onMenuClick, onNotifClick, theme, onThemeChange, siteStats, hideSearch }) => (
   <header className="app-header-new">
     <div className="app-header-new-inner">
       <button className="app-header-icon-btn" onClick={onMenuClick} aria-label="القائمة">
@@ -33,6 +35,18 @@ const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSear
         </button>
       </div>
     </div>
+    {!hideSearch && (
+    <div className="app-header-search">
+      <div className="app-search-bar">
+        <svg className="app-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" className="app-search-input" placeholder="ابحث عن منتج..." value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)} autoComplete="off" />
+        {isSearching(searchQuery) && (
+          <button className="search-header-clear" onClick={() => setSearchQuery('')} aria-label="مسح">✕</button>
+        )}
+      </div>
+    </div>
+    )}
   </header>
 ));
 

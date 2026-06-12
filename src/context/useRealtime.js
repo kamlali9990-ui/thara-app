@@ -69,7 +69,6 @@ export function useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOr
           return prev.map(o => o.id === nextOrder.id ? { ...o, ...nextOrder } : o);
         }
         if (eventType === 'INSERT') {
-          if (staffRole) playNotificationSound();
           try { window.dispatchEvent(new CustomEvent('thara:new-order', { detail: nextOrder })); } catch (e) { console.error('dispatch new-order', e); }
         }
         return [nextOrder, ...prev];

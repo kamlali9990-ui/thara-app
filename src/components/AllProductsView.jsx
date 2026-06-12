@@ -1,17 +1,19 @@
 import { memo, useState, useMemo } from 'react';
 import ProductCard from './ProductCard';
+import Breadcrumb from './Breadcrumb';
 import { useStore } from '../context/StoreContext';
 import { sectionCats } from '../data/categories';
 
 const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
   const { updateCartQty, removeFromCart } = useStore();
   const catNames = sectionCats.map(c => c.name);
-  const title = view === 'offers' ? 'العروض المميزة' : view === 'bestsellers' ? 'الأكثر مبيعا' : catNames.includes(view) ? view : 'جميع المنتجات';
+  const title = view === 'offers' ? 'العروض المميزة' : view === 'top-stock' ? 'تشكيلة مميزة' : view === 'bestsellers' ? 'الأكثر مبيعا' : catNames.includes(view) ? view : 'جميع المنتجات';
   const [catSearch, setCatSearch] = useState('');
   const isSearching = catSearch.trim().length > 0;
   const filtered = useMemo(() => {
     let base;
     if (view === 'offers') base = products.filter(p => p.isOffer);
+    else if (view === 'top-stock') base = [...products].sort((a, b) => (b.stock_quantity || 0) - (a.stock_quantity || 0)).slice(0, 100);
     else if (view === 'bestsellers') base = products.slice(0, 12);
     else if (catNames.includes(view)) base = products.filter(p => p.category === view);
     else base = products;
@@ -27,7 +29,10 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
         </button>
         <h2 className="all-products-title">{title}</h2>
       </div>
-      <div className="all-products-search">
+        <Breadcrumb items={[
+          { label: title, onClick: onBack }
+        ]} />
+        <div className="all-products-search">
         <svg className="all-products-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" className="all-products-search-input" placeholder="ابحث عن منتج..." value={catSearch} onChange={e => setCatSearch(e.target.value)} />
         {catSearch && <button className="all-products-search-clear" onClick={() => setCatSearch('')} aria-label="مسح">✕</button>}

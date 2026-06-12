@@ -187,19 +187,19 @@
   transform: translateX(18px);
 }
 
-[data-theme="dark"] .permission-staff-card {
+[data-theme="green-dark"] .permission-staff-card {
   background: rgba(33, 37, 43, 0.8);
 }
 
-[data-theme="dark"] .permission-toggle:hover {
+[data-theme="green-dark"] .permission-toggle:hover {
   background: rgba(255,255,255,0.04);
 }
 
-[data-theme="dark"] .permission-toggle.off .permission-toggle-switch {
+[data-theme="green-dark"] .permission-toggle.off .permission-toggle-switch {
   background: rgba(255,255,255,0.15);
 }
 
-[data-theme="dark"] .role-admin { background: rgba(97, 175, 239, 0.2); color: #61afef; }
-[data-theme="dark"] .role-manager { background: rgba(229, 192, 123, 0.2); color: #e5c07b; }
-[data-theme="dark"] .role-employee { background: rgba(86, 182, 194, 0.2); color: #56b6c2; }
-[data-theme="dark"] .role-driver { background: rgba(224, 108, 117, 0.2); color: #e06c75; }
+[data-theme="green-dark"] .role-admin { background: rgba(97, 175, 239, 0.2); color: #61afef; }
+[data-theme="green-dark"] .role-manager { background: rgba(229, 192, 123, 0.2); color: #e5c07b; }
+[data-theme="green-dark"] .role-employee { background: rgba(86, 182, 194, 0.2); color: #56b6c2; }
+[data-theme="green-dark"] .role-driver { background: rgba(224, 108, 117, 0.2); color: #e06c75; }

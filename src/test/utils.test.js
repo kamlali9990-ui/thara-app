@@ -78,9 +78,12 @@ describe('THEMES', () => {
     });
   });
 
-  it('includes light and dark themes', () => {
+  it('includes all 5 new theme IDs', () => {
     const ids = THEMES.map(t => t.id);
-    expect(ids).toContain('light');
-    expect(ids).toContain('dark');
+    expect(ids).toContain('emerald-light');
+    expect(ids).toContain('green-dark');
+    expect(ids).toContain('navy');
+    expect(ids).toContain('orange');
+    expect(ids).toContain('pink');
   });
 });

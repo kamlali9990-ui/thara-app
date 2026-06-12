@@ -1,12 +1,16 @@
 import React, { useContext, useState, useRef, useEffect, useMemo } from 'react';
 import { StoreContext } from '../../context/StoreContext';
+import useAudioRecorder, { isVoiceMessage, getVoiceUrl, makeVoiceText } from '../../hooks/useAudioRecorder';
+import VoiceMessage from '../../components/VoiceMessage';
 
 export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
   const { sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, currentStaff, staffRole, orders } = useContext(StoreContext);
   const [text, setText] = useState('');
+  const audio = useAudioRecorder();
   const [activeThread, setActiveThread] = useState(null);
   const [chatTab, setChatTab] = useState('support');
   const [searchThread, setSearchThread] = useState('');
+  const [mobileView, setMobileView] = useState('threads');
   const chatBodyRef = useRef(null);
 
   const { supportThreads, orderThreads } = useMemo(() => {
@@ -79,14 +83,50 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
     if (unreadIds.length > 0) markMessagesAsRead(unreadIds);
   }, [activeThread, activeMessages, markMessagesAsRead]);
 
-  const handleSend = () => {
-    if (!text.trim() || !activeThread) return;
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth > 768) setMobileView('threads');
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleThreadClick = (t) => {
+    setActiveThread(t);
+    if (window.innerWidth <= 768) setMobileView('chat');
+  };
+
+  const handleBackToThreads = () => {
+    setActiveThread(null);
+    setMobileView('threads');
+  };
+
+  const handleSend = (voiceUrl) => {
+    const msg = voiceUrl || text.trim();
+    if (!msg || !activeThread) return;
+    const finalText = voiceUrl ? makeVoiceText(voiceUrl) : msg;
     if (activeThread.orderId) {
-      sendMessage('admin', text, activeThread.orderId, null, currentStaff?.name, activeThread.phone);
+      sendMessage('admin', finalText, activeThread.orderId, null, currentStaff?.name, activeThread.phone);
     } else if (activeThread.email) {
-      sendMessage('admin', text, null, activeThread.email, currentStaff?.name, activeThread.phone);
+      sendMessage('admin', finalText, null, activeThread.email, currentStaff?.name, activeThread.phone);
     }
     setText('');
+  };
+
+  const handleVoiceRecord = async () => {
+    if (audio.recording) {
+      const blob = await audio.stopRecording();
+      if (blob && blob.size > 1000 && activeThread) {
+        try {
+          const url = await audio.uploadAudio(blob, activeThread.orderId);
+          handleSend(url);
+        } catch (e) { console.error('voice upload fail', e); }
+      }
+    } else {
+      try { await audio.startRecording(); } catch (e) {
+        if (e.message === 'permission_denied') alert('الرجاء السماح بتسجيل الصوت في إعدادات المتصفح');
+      }
+    }
   };
 
   const customer = activeThread?.email ? allCustomers.find(c => c.email === activeThread.email) : null;
@@ -97,17 +137,17 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
         {chatTab === 'support' ? 'خدمة العملاء — محادثات دعم' : 'محادثات الطلبات'}
       </h2>
 
-      <div className="admin-chat-inner">
+      <div className={`admin-chat-inner${mobileView === 'chat' && window.innerWidth <= 768 ? ' mobile-chat-active' : ''}${mobileView === 'threads' && window.innerWidth <= 768 ? ' mobile-threads-active' : ''}`}>
         {/* Left: Threads */}
-        <div className="admin-chat-threads">
+        <div className={`admin-chat-threads${mobileView === 'chat' && window.innerWidth <= 768 ? ' mobile-hidden' : ''}`}>
           <div className="admin-chat-threads-header">
             <div className="admin-chat-tabs">
               {!isDriver && (
-                <button className={`admin-chat-tab ${chatTab === 'support' ? 'active' : ''}`} onClick={() => { setChatTab('support'); setActiveThread(null); }}>
+                <button className={`admin-chat-tab ${chatTab === 'support' ? 'active' : ''}`} onClick={() => { setChatTab('support'); setActiveThread(null); setMobileView('threads'); }}>
                   الدعم {Object.keys(supportThreads).length > 0 && `(${Object.keys(supportThreads).length})`}
                 </button>
               )}
-              <button className={`admin-chat-tab ${chatTab === 'orders' ? 'active' : ''}`} onClick={() => { setChatTab('orders'); setActiveThread(null); }}>
+              <button className={`admin-chat-tab ${chatTab === 'orders' ? 'active' : ''}`} onClick={() => { setChatTab('orders'); setActiveThread(null); setMobileView('threads'); }}>
                 الطلبات {isDriver ? '' : Object.keys(orderThreads).length > 0 && `(${Object.keys(orderThreads).length})`}
               </button>
             </div>
@@ -122,7 +162,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
             )}
             {threads.map(t => (
               <div key={t.key} className={`admin-chat-thread-item ${activeThread?.key === t.key ? 'active' : ''} ${t.unread > 0 ? 'unread' : ''}`}
-                onClick={() => setActiveThread(t)}>
+                onClick={() => handleThreadClick(t)}>
                 <div className="admin-chat-thread-top">
                   <span className="admin-chat-thread-name">{t.label}</span>
                   <span className="admin-chat-thread-time">{t.lastMsg.time}</span>
@@ -138,7 +178,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
         </div>
 
         {/* Right: Active Chat */}
-        <div className="admin-chat-main">
+        <div className={`admin-chat-main${mobileView === 'threads' && window.innerWidth <= 768 ? ' mobile-hidden' : ''}`}>
           {!activeThread ? (
             <div className="admin-chat-placeholder">
               <span className="admin-chat-placeholder-icon">💬</span>
@@ -160,15 +200,21 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
                     <div className="admin-chat-main-sub">طلب رقم  #{activeThread.orderId.slice(-8)}</div>
                   )}
                 </div>
-                <button className="admin-chat-close-btn" onClick={() => setActiveThread(null)}>✕</button>
+                <button className="admin-chat-close-btn" onClick={handleBackToThreads}>
+                  <span className="admin-chat-back-text">العودة</span>
+                  <span className="admin-chat-close-x">✕</span>
+                </button>
               </div>
 
               <div ref={chatBodyRef} className="admin-chat-body">
                 {activeMessages.length === 0 && <p className="admin-chat-empty-msg">لا توجد رسائل بعد.</p>}
-                {activeMessages.map(m => (
-                  <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
-                    <div className="admin-bubble-sender">{m.sender === 'admin' ? (m.senderName || 'أنت') : (m.senderName || 'العميل')}</div>
-                    <div className="admin-bubble-text">{m.text}</div>
+                {activeMessages.map((m, i) => {
+                  const prev = activeMessages[i - 1];
+                  const isConsecutive = prev && prev.sender === m.sender;
+                  return (
+                  <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}${isConsecutive ? ' consecutive' : ''}`}>
+                    {!isConsecutive && <div className="admin-bubble-sender">{m.sender === 'admin' ? (m.senderName || 'أنت') : (m.senderName || 'العميل')}</div>}
+                    <div className="admin-bubble-text">{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text)} /> : m.text}</div>
                     <div className="admin-bubble-time">
                       {m.sender === 'admin' && (
                         <span className="admin-bubble-status">
@@ -184,7 +230,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
                       {m.time}
                     </div>
                   </div>
-                ))}
+                );})}
                 {activeThread && typingUsers[activeThread.email || activeThread.orderId] && (
                   <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
                     <div className="admin-bubble-sender">العميل</div>
@@ -194,11 +240,19 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
               </div>
 
               <div className="admin-chat-input-area">
+                {audio.recording ? (
+                  <>
+                    <span style={{ color: '#ef4444', fontSize: '0.8rem', padding: '0 0.3rem' }}>{audio.formatTime(audio.recordingTime)}</span>
+                    <button className="admin-chat-mic-btn recording" onClick={handleVoiceRecord} title="إيقاف التسجيل">⏹</button>
+                  </>
+                ) : (
+                  <button className={`admin-chat-mic-btn${audio.recording ? ' recording' : ''}`} onClick={handleVoiceRecord} title="تسجيل رسالة صوتية">🎤</button>
+                )}
                 <input type="text" value={text}
                   onChange={e => { setText(e.target.value); if (activeThread?.email) sendTyping(null, activeThread.email); }}
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder="اكتب رسالتك..." className="admin-chat-input" />
-                <button className="btn" onClick={handleSend} disabled={!text.trim()}>إرسال</button>
+                <button className="btn" onClick={() => handleSend()} disabled={!text.trim() && !audio.recording}>إرسال</button>
               </div>
             </>
           )}

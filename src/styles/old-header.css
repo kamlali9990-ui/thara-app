@@ -1086,6 +1086,10 @@ header {
 /* Cart Overlay */
 .app-wrapper {
   background: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .cart-overlay {

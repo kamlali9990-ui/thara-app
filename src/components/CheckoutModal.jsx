@@ -1,8 +1,9 @@
-import { memo, useState, useCallback, useContext } from 'react';
+import { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
+import { ordersApi } from '../supabase/orders';
 import { supabase } from '../supabase/client';
 import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
 
@@ -44,8 +45,28 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [loggingIn, setLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState(customerProfile?.delivery_address || saved.deliveryAddress || '');
-  const distKm = position ? Math.round(haversineKm(SHOP_POS, position) * 10) / 10 : null;
-  const fee = !position ? 0 : cartTotal >= 100 ? 0 : distKm <= 3 ? 5 : distKm <= 6 ? 10 : distKm <= 10 ? 15 : 20;
+  const [serverFee, setServerFee] = useState(null); // null = loading, -1 = error, 0+ = confirmed
+  const feeFetchRef = useRef(0);
+  useEffect(() => {
+    if (!position) { setServerFee(null); return; }
+    if (cartTotal >= 100) { setServerFee(0); return; }
+    setServerFee(null);
+    const id = ++feeFetchRef.current;
+    ordersApi.getDeliveryFee(position.lat, position.lng, cartTotal).then(f => {
+      if (id === feeFetchRef.current) setServerFee(f);
+    }).catch(() => {
+      if (id === feeFetchRef.current) setServerFee(-1);
+    });
+  }, [position?.lat, position?.lng, cartTotal]);
+  const fee = (() => {
+    if (serverFee >= 0) return serverFee;
+    if (serverFee === -1 || !position) { // fallback or no position
+      if (!position) return 0;
+      const d = haversineKm(SHOP_POS, position);
+      return d <= 3 ? 5 : d <= 6 ? 10 : d <= 10 ? 15 : 20;
+    }
+    return null; // loading
+  })();
   const phoneReady = (() => {
     const digits = phone.replace(/\D/g, '');
     if (!digits) return false;
@@ -229,8 +250,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
           </div>
             <div className="checkout-total-box">
             <div className="checkout-total-row"><span>المجموع الفرعي</span><span>{cartTotal.toFixed(2)} ر.س</span></div>
-            <div className="checkout-total-row">{fee === 0 ? <span>رسوم التوصيل <span className="checkout-free">مجاناً</span></span> : <span>رسوم التوصيل {distKm ? `(${distKm} كم)` : ''}</span>}<span>{fee === 0 ? '0' : fee.toFixed(2)} ر.س</span></div>
-            <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row">{fee === null ? <span>رسوم التوصيل <span className="checkout-free" style={{fontSize:'0.8rem'}}>جاري الحساب...</span></span> : fee === 0 ? <span>رسوم التوصيل <span className="checkout-free">مجاناً</span></span> : <span>رسوم التوصيل</span>}<span>{fee === null ? '...' : fee === 0 ? '0' : fee.toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(fee === null ? cartTotal : cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
 <button className="checkout-confirm-btn" onClick={async () => {
   if (submitting) return;
@@ -238,7 +259,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setShowLoginPrompt(true);
     return;
   }
-  if (!position || !phoneReady) return;
+  if (!position || !phoneReady || fee === null) return;
   if (!navigator.onLine) {
     showToast('أنت غير متصل بالإنترنت، يرجى الاتصال أولاً', 'error');
     setSubmitting(false);
@@ -271,8 +292,9 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return;
   }
   onClose();
-}} disabled={submitting || !position || !phoneReady}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+}} disabled={submitting || !position || !phoneReady || fee === null}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
           {!position && <div className="checkout-hint-error">يرجى تحديد موقع التوصيل على الخريطة</div>}
+{position && fee === null && <div className="checkout-hint-error">جاري حساب رسوم التوصيل من النظام...</div>}
           {!phoneReady && phone.trim() && <div className="checkout-hint-error">رقم الجوال غير صحيح، يجب أن يبدأ بـ 05 (مثال: 0500000000)</div>}
 
           {/* Login Prompt Modal */}

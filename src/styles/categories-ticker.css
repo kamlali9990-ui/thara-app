@@ -1,7 +1,9 @@
-/* ==================== CATEGORIES TICKER STYLE ==================== */
 .categories-ticker-container {
-  overflow: hidden;
-  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
   background: var(--bg-card);
   padding: 14px 0;
   border-radius: 20px;
@@ -9,11 +11,11 @@
   box-shadow: 0 4px 18px rgba(18, 116, 67, 0.06);
   margin: 10px 16px 20px 16px;
   position: relative;
-  direction: ltr; /* Force LTR for ticker container to guarantee stable CSS animation direction across browsers */
+  direction: ltr;
 }
+.categories-ticker-container::-webkit-scrollbar { display: none; }
 
-/* Elegant glassmorphic look in dark theme */
-[data-theme="dark"] .categories-ticker-container {
+[data-theme="green-dark"] .categories-ticker-container {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -21,7 +23,6 @@
   box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
 }
 
-/* Gradient fading masks on edges */
 .categories-ticker-container::before,
 .categories-ticker-container::after {
   content: "";
@@ -41,55 +42,31 @@
   background: linear-gradient(to left, var(--bg-color), transparent);
 }
 
-[data-theme="dark"] .categories-ticker-container::before {
-  left: 0;
+[data-theme="green-dark"] .categories-ticker-container::before {
   background: linear-gradient(to right, #020f08, transparent);
 }
-[data-theme="dark"] .categories-ticker-container::after {
-  right: 0;
+[data-theme="green-dark"] .categories-ticker-container::after {
   background: linear-gradient(to left, #020f08, transparent);
 }
 
 .categories-ticker-track {
   display: inline-flex;
   gap: 20px;
-  animation: ticker-slide-ltr 32s linear infinite;
   width: max-content;
   padding-left: 20px;
-}
-
-.categories-ticker-track:hover {
-  animation-play-state: paused;
 }
 
 .categories-ticker-item {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 20px;
-  background: rgba(18, 116, 67, 0.06);
-  border: none;
-  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease;
   user-select: none;
+  scroll-snap-align: start;
 }
-
-[data-theme="dark"] .categories-ticker-item {
-  background: rgba(16, 185, 129, 0.06);
-}
-
 .categories-ticker-item:hover {
   transform: translateY(-2px);
-  background: rgba(18, 116, 67, 0.12);
-  border-color: var(--accent);
-  box-shadow: 0 6px 15px rgba(212, 175, 55, 0.25);
-}
-
-[data-theme="dark"] .categories-ticker-item:hover {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: var(--accent);
-  box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
 }
 
 .ticker-item-icon {
@@ -110,23 +87,13 @@
   font-weight: 700;
   color: var(--text-main);
   font-family: var(--font-family);
-  direction: rtl; /* Ensure Arabic texts display correctly inside LTR track */
+  direction: rtl;
 }
 
-@keyframes ticker-slide-ltr {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-/* Dark theme text override */
-[data-theme="dark"] .ticker-item-name {
+[data-theme="green-dark"] .ticker-item-name {
   color: var(--text-main) !important;
 }
-[data-theme="dark"] .ticker-item-img {
+[data-theme="green-dark"] .ticker-item-img {
   background: rgba(3, 32, 17, 0.8);
 }
 
@@ -149,4 +116,3 @@
     font-size: 1.1rem;
   }
 }
-

@@ -3,6 +3,7 @@ import { BASE } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
 import ProductCard from './ProductCard';
 import RotatingCategoryRow from './RotatingCategoryRow';
+import Breadcrumb from './Breadcrumb';
 
 import { sectionCats } from '../data/categories';
 
@@ -59,6 +60,10 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange, preselectedCat, setPr
           </button>
           <h2 className="all-products-title">{selectedCat.name}</h2>
         </div>
+        <Breadcrumb items={[
+          { label: 'تصفح الأقسام', onClick: () => setSelectedCat(null) },
+          { label: selectedCat.name }
+        ]} />
         <div className="all-products-search">
           <svg className="all-products-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <input type="text" className="all-products-search-input" placeholder="ابحث عن منتج..." value={prodSearch} onChange={e => setProdSearch(e.target.value)} />
@@ -144,6 +149,14 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange, preselectedCat, setPr
         {catSearch && <button className="cat-search-clear" onClick={() => setCatSearch('')} aria-label="مسح">✕</button>}
       </div>
       <div className="categories-tab-grid">
+        {!catSearch.trim() && (
+          <button className="category-tab-card category-offers-card" onClick={() => setShowAllView('offers')}>
+            <div className="category-offers-overlay">
+              <span className="category-offers-icon">🔥</span>
+              <span className="category-offers-label">عروض حصرية</span>
+            </div>
+          </button>
+        )}
         {filtered.length ? filtered.map(cat => (
           <button key={cat.name} className="category-tab-card" style={{ backgroundColor: cat.color, '--cat-color': cat.color }} onClick={() => selectCat(cat)}>
             <img src={cat.img} alt={cat.name} className="category-tab-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />

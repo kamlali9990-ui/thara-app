@@ -53,7 +53,7 @@ describe('authApi', () => {
       const rpc = supabase.rpc;
       rpc.mockResolvedValue({ data: true, error: null });
       await authApi.signUpDirect('  DIR@DIR.COM ', 'pass');
-      expect(rpc).toHaveBeenCalledWith('create_customer_auth_rpc', { p_email: 'dir@dir.com', p_password: 'pass' });
+      expect(rpc).toHaveBeenCalledWith('create_customer_auth_rpc', { p_email: 'dir@dir.com', p_password: 'pass', p_username: null });
     });
   });
 

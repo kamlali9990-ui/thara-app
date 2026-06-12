@@ -1,6 +1,14 @@
 import { supabase } from './client';
 
 export const ordersApi = {
+  async getDeliveryFee(lat, lng, cartTotal) {
+    const { data, error } = await supabase.rpc('get_delivery_fee_rpc', {
+      p_lat: Number(lat), p_lng: Number(lng), p_cart_total: Number(cartTotal)
+    });
+    if (error) throw error;
+    return Number(data) || 0;
+  },
+
   async list(includeArchived = false, { limit, offset } = {}) {
     let query = supabase.from('orders').select('*');
     if (!includeArchived) query = query.eq('archived', false);

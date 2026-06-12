@@ -9,7 +9,7 @@ vi.mock('../../supabase/client', () => {
 });
 
 const mockRpc = (await import('../../supabase/client')).__mockRpc;
-const { staffApi } = await import('../../supabase/staff');
+const { staffApi, STAFF_DEFAULT_PASSWORD } = await import('../../supabase/staff');
 
 describe('staffApi', () => {
   beforeEach(() => {
@@ -59,7 +59,8 @@ describe('staffApi', () => {
         p_email: 'new@a.com',
         p_name: 'New',
         p_role: 'employee',
-        p_password: '123456',
+        p_password: STAFF_DEFAULT_PASSWORD,
+        p_phone: null,
       });
     });
 

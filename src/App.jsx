@@ -14,6 +14,7 @@ import CategoriesTab from './components/CategoriesTab';
 import OrdersTab from './components/OrdersTab';
 import AccountTab from './components/AccountTab';
 import AllProductsView from './components/AllProductsView';
+import SearchResultsList from './components/SearchResultsList';
 
 import OfflineBanner from './components/OfflineBanner';
 import NotificationPermissionPrompt from './components/NotificationPermissionPrompt';
@@ -26,7 +27,7 @@ export default function App() {
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
     placeOrder, user, logout, orders,
     customerProfile, updateCustomerProfile, loadOrders,
-    chatMessages, staffRole, currentStaff, siteStats } = useContext(StoreContext);
+    chatMessages, staffRole, currentStaff, siteStats, instantResults } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -55,7 +56,7 @@ export default function App() {
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(t => t === 'light' ? 'dark' : 'light');
+    setTheme(t => t === 'emerald-light' ? 'green-dark' : 'emerald-light');
   }, [setTheme]);
 
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2500); return () => clearTimeout(t); }, []);
@@ -88,6 +89,21 @@ export default function App() {
     };
     window.addEventListener('thara:order-status', handler);
     return () => window.removeEventListener('thara:order-status', handler);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      try {
+        if (!('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+        const msg = e.detail;
+        if (!msg || !msg.sender || msg.sender === 'customer') return;
+        const preview = msg?.text ? (msg.text.length > 80 ? msg.text.slice(0, 80) + '...' : msg.text) : 'رسالة صوتية';
+        new Notification('رد من المتجر', { body: preview, tag: 'thara-msg-' + (msg?.id || 'x'), icon: BASE + 'cart-icon-192.png', lang: 'ar' });
+      } catch (e) { console.error('new-message notification error', e); }
+    };
+    window.addEventListener('thara:new-message', handler);
+    return () => window.removeEventListener('thara:new-message', handler);
   }, []);
 
   useEffect(() => {
@@ -172,7 +188,8 @@ export default function App() {
         onMenuClick={() => setIsDrawerOpen(true)}
         onThemeChange={setTheme}
         onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }}
-        siteStats={siteStats} />
+        siteStats={siteStats}
+        hideSearch={showAllView !== null || tab === 'categories'} />
 
         <div className={`app-content ${tab === 'home' && !showAllView ? '' : 'app-content-nohome'}`}>
         {showAllView ? (
@@ -188,6 +205,7 @@ export default function App() {
         )}
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
           {tab === 'categories' && <CategoriesTab key={`categories-${tabKey}`}
+            setShowAllView={setShowAllView}
             preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
           {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
@@ -195,6 +213,14 @@ export default function App() {
         </div>
 
       <AppTabbar tab={tab} onTabChange={switchTab} cartCount={cartCount} onCartOpen={() => setIsCartOpen(true)} />
+
+      {searchQuery.trim() && (
+        <div className="global-search-overlay" onClick={() => setSearchQuery('')}>
+          <div className="global-search-content" onClick={(e) => e.stopPropagation()}>
+            <SearchResultsList results={instantResults} addToCart={addToCart} cart={cart} searchQuery={searchQuery} />
+          </div>
+        </div>
+      )}
 
       {isCartOpen && <CartScreen cart={cart} cartTotal={cartTotal} cartCount={cartCount}
         updateCartQty={updateCartQty} removeFromCart={removeFromCart}

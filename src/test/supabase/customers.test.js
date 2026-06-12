@@ -16,7 +16,7 @@ describe('customersApi', () => {
     it('calls create_customer_rpc', async () => {
       mockRpc.mockResolvedValue({ data: { id: 1, email: 'a@a.com' }, error: null });
       const result = await customersApi.create('a@a.com', 'A', '966500000');
-      expect(mockRpc).toHaveBeenCalledWith('create_customer_rpc', { p_email: 'a@a.com', p_name: 'A', p_phone: '966500000' });
+      expect(mockRpc).toHaveBeenCalledWith('create_customer_rpc', { p_email: 'a@a.com', p_name: 'A', p_phone: '966500000', p_username: null });
       expect(result.email).toBe('a@a.com');
     });
   });
@@ -41,7 +41,7 @@ describe('customersApi', () => {
       const result = await customersApi.update('c@c.com', 'Updated', '966511111');
       expect(mockRpc).toHaveBeenCalledWith('update_customer_rpc', {
         p_email: 'c@c.com', p_name: 'Updated', p_phone: '966511111',
-        p_delivery_address: null, p_neighborhood: null, p_location: null
+        p_delivery_address: null, p_neighborhood: null, p_location: null, p_username: null
       });
     });
 
@@ -50,7 +50,7 @@ describe('customersApi', () => {
       const result = await customersApi.update('c@c.com', 'Updated', '966511111', 'شارع ١', 'العزيزية', '{"lat":28.42,"lng":48.5}');
       expect(mockRpc).toHaveBeenCalledWith('update_customer_rpc', {
         p_email: 'c@c.com', p_name: 'Updated', p_phone: '966511111',
-        p_delivery_address: 'شارع ١', p_neighborhood: 'العزيزية', p_location: '{"lat":28.42,"lng":48.5}'
+        p_delivery_address: 'شارع ١', p_neighborhood: 'العزيزية', p_location: '{"lat":28.42,"lng":48.5}', p_username: null
       });
     });
   });

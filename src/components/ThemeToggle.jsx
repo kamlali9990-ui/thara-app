@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { THEMES } from '../utils/theme';
 
-const lightThemes = ['light', 'pearl-white'];
+const lightThemes = ['emerald-light', 'navy', 'orange', 'pink'];
 
 export default function ThemeToggle({ currentTheme, onThemeChange, className = '', inline = false }) {
   const [open, setOpen] = useState(false);

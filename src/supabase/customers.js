@@ -65,6 +65,17 @@ export const customersApi = {
     if (resolvedEmail) {
       return await authApi.signIn(resolvedEmail, password);
     }
+    // If identifier is an email, try staff login
+    if (typeof identifier === 'string' && identifier.includes('@')) {
+      const { data, error } = await supabase.rpc('ensure_staff_auth_user', {
+        p_identifier: identifier.trim().toLowerCase(),
+        p_password: password
+      });
+      if (!error && data?.fixed) {
+        const staffEmail = data.user?.email || identifier.trim().toLowerCase();
+        return await authApi.signIn(staffEmail, password);
+      }
+    }
     throw new Error('بيانات الدخول غير صحيحة');
   }
 };

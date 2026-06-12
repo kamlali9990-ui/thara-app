@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { productImgError } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
+import { addRecentlyViewed } from '../utils/recentlyViewed';
 
 const ProductCard = memo(({ product, addToCart, cart }) => {
   const { updateCartQty, removeFromCart } = useStore();
@@ -23,7 +24,7 @@ const ProductCard = memo(({ product, addToCart, cart }) => {
     setTimeout(() => setAdded(false), 600);
   };
 
-  const openDetails = () => setShowDetails(true);
+  const openDetails = () => { setShowDetails(true); addRecentlyViewed(product); };
   const closeDetails = (e) => {
     e?.stopPropagation();
     setShowDetails(false);
@@ -112,10 +113,23 @@ const ProductCard = memo(({ product, addToCart, cart }) => {
                 {product.unit && <span className="product-detail-unit">/{product.unit}</span>}
               </div>
               {!outOfStock ? (
-                <button type="button" className={`product-detail-add ${added ? 'added' : ''}`} onClick={handleAdd}>
-                  {added ? 'تمت الإضافة' : 'أضف للسلة'}
-                  {cartQty > 0 && <span>{cartQty}</span>}
-                </button>
+                <div className="product-detail-actions">
+                  {cartQty > 0 ? (
+                    <div className="product-detail-qty-row">
+                      <button type="button" className="product-detail-qty-btn" onClick={(e) => { e.stopPropagation(); if (cartQty <= 1) { removeFromCart(product.id); } else { updateCartQty(product.id, -1); } }} aria-label="تقليل">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      </button>
+                      <span className="product-detail-qty-num">{cartQty}</span>
+                      <button type="button" className="product-detail-qty-btn" onClick={(e) => { e.stopPropagation(); addToCart(product); }} aria-label="زيادة">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <button type="button" className={`product-detail-add ${added ? 'added' : ''}`} onClick={handleAdd}>
+                      {added ? 'تمت الإضافة ✓' : 'أضف للسلة'}
+                    </button>
+                  )}
+                </div>
               ) : (
                 <div className="product-detail-out-label">هذا المنتج غير متوفر حالياً</div>
               )}

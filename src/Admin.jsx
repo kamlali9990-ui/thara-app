@@ -11,11 +11,14 @@ const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
 const AdminProducts = lazy(() => import('./components/admin/AdminProducts'));
 const AdminOffers = lazy(() => import('./components/admin/AdminOffers'));
 const AdminChat = lazy(() => import('./components/admin/AdminChat'));
+const AdminCleanup = lazy(() => import('./components/admin/AdminCleanup'));
 const AdminUsers = lazy(() => import('./components/admin/AdminUsers'));
 const StaffManager = lazy(() => import('./components/StaffManager.jsx'));
 const AdminSettings = lazy(() => import('./components/admin/AdminSettings'));
 const AdminStats = lazy(() => import('./components/admin/AdminStats'));
 const PermissionManager = lazy(() => import('./components/admin/PermissionManager'));
+const AdminInstructions = lazy(() => import('./components/admin/AdminInstructions'));
+const AdminDiagnostics = lazy(() => import('./components/admin/AdminDiagnostics'));
 
 
 function playNewOrderBeep() {
@@ -50,6 +53,40 @@ function notifyNewOrder(order) {
       lang: 'ar'
     });
   } catch {}
+}
+
+function notifyNewMessage(msg) {
+  try {
+    if (!('Notification' in window)) return;
+    if (Notification.permission !== 'granted') return;
+    const preview = msg?.text ? (msg.text.length > 80 ? msg.text.slice(0, 80) + '...' : msg.text) : 'رسالة صوتية';
+    new Notification('رسالة جديدة من عميل', {
+      body: preview,
+      tag: 'thara-new-msg-' + (msg?.id || 'x'),
+      icon: (import.meta.env.BASE_URL || '/') + 'cart-icon-192.png',
+      lang: 'ar'
+    });
+  } catch {}
+}
+
+function TabIcon({ name, badge, size = 22 }) {
+  const icons = {
+    orders: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4"/></svg>,
+    chat: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>,
+    store: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>,
+    settings: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="18" y1="16" x2="22" y2="16"/></svg>,
+    staff: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>,
+    cleanup: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>,
+    myactivity: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-4M17 17h2v-4"/><path d="M9 17h6"/><path d="M3 10h8V6l4 2 2 4 3-1"/></svg>,
+    instructions: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+    diagnostics: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
+  };
+  return (
+    <span className="admin-nav-icon">
+      {icons[name] || null}
+      {badge != null && badge > 0 && <span className="admin-nav-badge">{badge > 99 ? '99+' : badge}</span>}
+    </span>
+  );
 }
 
 export default function Admin() {
@@ -137,25 +174,38 @@ export default function Admin() {
   }, [loadOrders, staffRole, loadDrivers]);
 
   useEffect(() => {
-    if (!isDriver) { try { Notification.requestPermission().catch(e => console.error('Notif permission', e)); } catch (e) { console.error('Notif permission', e); } }
-    const handler = (e) => { playNewOrderBeep(); notifyNewOrder(e.detail); };
-    window.addEventListener('thara:new-order', handler);
-    return () => window.removeEventListener('thara:new-order', handler);
-  }, [isDriver]);
+    try { Notification.requestPermission().catch(() => {}); } catch {}
+    const orderHandler = (e) => { playNewOrderBeep(); notifyNewOrder(e.detail); };
+    window.addEventListener('thara:new-order', orderHandler);
+    const msgHandler = (e) => { notifyNewMessage(e.detail); };
+    window.addEventListener('thara:new-message', msgHandler);
+    return () => {
+      window.removeEventListener('thara:new-order', orderHandler);
+      window.removeEventListener('thara:new-message', msgHandler);
+    };
+  }, []);
+
+  const newOrdersCount = useMemo(() => orders.filter(o => o.status === 'جديد').length, [orders]);
+  const unreadChatCount = useMemo(() => {
+    return chatMessages.filter(m => m.status !== 'read' && m.sender !== staffRole && m.sender !== 'system').length;
+  }, [chatMessages, staffRole]);
 
   const tabs = useMemo(() => {
-    const items = [{ id: 'orders', label: 'الطلبات', icon: '📋', badge: orders.length }];
-    if (hasPermission('manage_chat')) items.push({ id: 'chat', label: 'العملاء', icon: '💬' });
-    if (isDriver) items.push({ id: 'myactivity', label: 'نشاطي', icon: '🏍️' });
+    const items = [{ id: 'orders', label: 'الطلبات', icon: 'orders', badge: newOrdersCount }];
+    if (hasPermission('manage_chat')) items.push({ id: 'chat', label: 'العملاء', icon: 'chat', badge: unreadChatCount });
+    if (isDriver) items.push({ id: 'myactivity', label: 'نشاطي', icon: 'myactivity' });
     if (hasPermission('manage_products') || hasPermission('manage_offers')) {
-      items.push({ id: 'store', label: 'المتجر', icon: '📦' });
+      items.push({ id: 'store', label: 'المتجر', icon: 'store' });
     }
     if (hasPermission('manage_settings')) {
-      items.push({ id: 'settings', label: 'الإعدادات', icon: '⚙️' });
+      items.push({ id: 'settings', label: 'الإعدادات', icon: 'settings' });
     }
-    if (hasPermission('manage_staff')) items.push({ id: 'staff', label: 'الموظفين', icon: '👥' });
+    if (hasPermission('manage_staff')) items.push({ id: 'staff', label: 'الموظفين', icon: 'staff' });
+    if (staffRole === 'admin') items.push({ id: 'cleanup', label: 'التنظيف', icon: 'cleanup' });
+    items.push({ id: 'diagnostics', label: 'إصلاح المتصفح', icon: 'diagnostics' });
+    items.push({ id: 'instructions', label: 'تعليمات', icon: 'instructions' });
     return items;
-  }, [orders.length, isDriver, hasPermission]);
+  }, [newOrdersCount, unreadChatCount, isDriver, hasPermission, staffRole]);
 
   const switchTab = useCallback((id) => {
     startTransition(() => setActiveTab(id));
@@ -265,6 +315,9 @@ export default function Admin() {
       );
     }
     if (activeTab === 'staff') return <StaffManager />;
+    if (activeTab === 'cleanup') return <AdminCleanup currentStaff={currentStaff} />;
+    if (activeTab === 'instructions') return <AdminInstructions staffRole={staffRole} />;
+    if (activeTab === 'diagnostics') return <AdminDiagnostics />;
     return null;
   };
 
@@ -311,25 +364,27 @@ export default function Admin() {
         <h2 className="admin-sidebar-title">{isDriver ? 'لوحة الكابتن' : 'لوحة التحكم'}</h2>
         {tabs.map(t => (
           <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
-            {t.icon} {t.label}{t.badge != null ? ` (${t.badge})` : ''}
+            <TabIcon name={t.icon} badge={t.badge} />
+            <span>{t.label}</span>
           </button>
         ))}
         <div className="admin-sidebar-footer">
           <Link to="/" className="admin-sidebar-link">العودة للمتجر</Link>
-          <br/>
-          <button onClick={handleLogout} className="admin-tab">تسجيل الخروج</button>
+          <button onClick={handleLogout} className="admin-sidebar-logout">تسجيل الخروج</button>
         </div>
       </aside>
       <main className="admin-main">
         <Suspense fallback={<div className="admin-loading">جاري التحميل...</div>}>
-          {renderTabContent()}
+          <div key={activeTab} className="admin-tab-content">
+            {renderTabContent()}
+          </div>
         </Suspense>
       </main>
       <nav className="admin-mobile-nav">
         {tabs.map(t => (
           <button key={t.id} className={`admin-mobile-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
-            <span className="tab-icon">{t.icon}</span>
-            <span>{t.label}{t.badge != null ? ` (${t.badge})` : ''}</span>
+            <TabIcon name={t.icon} badge={t.badge} />
+            <span className="admin-mobile-tab-label">{t.label}</span>
           </button>
         ))}
       </nav>

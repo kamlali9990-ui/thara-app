@@ -1,6 +1,8 @@
 /* ==================== APP CONTENT ==================== */
 .app-content {
-  min-height: calc(100vh - 110px);
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding-bottom: 60px;
 }
 
