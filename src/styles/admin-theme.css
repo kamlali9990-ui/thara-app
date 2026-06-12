@@ -377,6 +377,52 @@
   background: rgba(234, 88, 12, 0.15) !important;
 }
 
+/* ── Orange: all order panel text navy ── */
+[data-theme="orange"] .order-compact-total {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-compact-expand {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-compact-expand.expanded {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
+[data-theme="orange"] .order-expanded-label {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-phone {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-phone-link {
+  color: #1e40af !important;
+  background: rgba(30, 64, 175, 0.1) !important;
+}
+[data-theme="orange"] .order-expanded-addr,
+[data-theme="orange"] .order-expanded-payment {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-eta {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-item {
+  color: #1e40af !important;
+  border-color: rgba(30, 64, 175, 0.2) !important;
+}
+[data-theme="orange"] .order-expanded-item-qty {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-notes {
+  color: #1e40af !important;
+  background: rgba(234, 88, 12, 0.08) !important;
+}
+[data-theme="orange"] .order-expanded-driver-assigned {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-driver-info {
+  color: #1e40af !important;
+}
+
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
   --admin-secondary: #db2777;
