@@ -198,10 +198,14 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
                   <div className="admin-offer-price-edit">
                     <label className="admin-offer-price-label">سعر العرض:</label>
                     <input
-                      type="number"
+                      type="text"
+                      inputMode="decimal"
                       className="admin-offer-input"
                       value={hasPriceEdit ? editPrices[product.id] : (product.offerPrice || '')}
-                      onChange={e => setEditPrices(prev => ({ ...prev, [product.id]: parseFloat(e.target.value) || 0 }))}
+                      onChange={e => {
+                        const v = e.target.value.replace(/[^0-9.]/g, '');
+                        setEditPrices(prev => ({ ...prev, [product.id]: v === '' ? '' : parseFloat(v) || 0 }));
+                      }}
                       placeholder="سعر العرض"
                     />
                     {hasPriceEdit && (
