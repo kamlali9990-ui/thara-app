@@ -1012,7 +1012,7 @@
   font-weight: 500;
   transition: all 0.15s;
   background: transparent;
-  color: rgba(255,255,255,0.5);
+  color: var(--admin-text-muted);
   border: 1px solid transparent;
 }
 
