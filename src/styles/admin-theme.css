@@ -315,6 +315,42 @@
 [data-theme="orange"] .order-status-icon { color: #ea580c !important; }
 [data-theme="orange"] .order-status-label { color: #ffffff !important; }
 
+/* ── Orange: completed/archived containers orange bg + navy text ── */
+[data-theme="orange"] .completed-toggle-btn {
+  background: rgba(234, 88, 12, 0.15) !important;
+  border-color: #ea580c !important;
+  color: #1e40af !important;
+}
+[data-theme="orange"] .completed-toggle-btn:hover {
+  background: rgba(234, 88, 12, 0.25) !important;
+}
+[data-theme="orange"] .order-card.status-completed {
+  opacity: 1 !important;
+  background: rgba(234, 88, 12, 0.08) !important;
+  border-color: rgba(234, 88, 12, 0.25) !important;
+}
+[data-theme="orange"] .order-card.status-completed .order-compact:hover {
+  background: rgba(234, 88, 12, 0.12) !important;
+}
+[data-theme="orange"] .order-card.status-completed .order-compact-id {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-card.status-completed .order-compact-total {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-card.status-completed .order-compact-phone {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-card.status-completed .order-compact-time {
+  color: #2563eb !important;
+}
+[data-theme="orange"] .order-card.status-completed .order-compact-addr {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-card.status-completed {
+  border-left: 5px solid #ea580c !important;
+}
+
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
   --admin-secondary: #db2777;
