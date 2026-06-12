@@ -228,6 +228,138 @@
   --admin-toast-info-bg: #2563eb;
 }
 
+/* ── Navy: invert text/accent to orange ── */
+[data-theme="navy"] .order-status-pill {
+  background: #1e40af !important;
+  color: #ea580c !important;
+  border: 2px solid #ea580c !important;
+  box-shadow: 0 2px 12px rgba(30, 64, 175, 0.4), 0 0 0 1px rgba(234, 88, 12, 0.3) !important;
+}
+[data-theme="navy"] .order-status-icon { color: #ea580c !important; }
+[data-theme="navy"] .order-status-label { color: #ffffff !important; }
+
+[data-theme="navy"] .completed-toggle-btn {
+  background: rgba(30, 64, 175, 0.12) !important;
+  border-color: #1e40af !important;
+  color: #ea580c !important;
+}
+[data-theme="navy"] .completed-toggle-btn:hover {
+  background: rgba(30, 64, 175, 0.2) !important;
+}
+[data-theme="navy"] .order-card.status-completed {
+  opacity: 1 !important;
+  background: rgba(30, 64, 175, 0.06) !important;
+  border-color: rgba(30, 64, 175, 0.2) !important;
+  border-left: 5px solid #1e40af !important;
+}
+[data-theme="navy"] .order-card.status-completed .order-compact:hover {
+  background: rgba(30, 64, 175, 0.1) !important;
+}
+[data-theme="navy"] .order-card.status-completed .order-compact-id,
+[data-theme="navy"] .order-card.status-completed .order-compact-total,
+[data-theme="navy"] .order-card.status-completed .order-compact-phone,
+[data-theme="navy"] .order-card.status-completed .order-compact-addr {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-card.status-completed .order-compact-time {
+  color: #ea580c !important;
+}
+
+[data-theme="navy"] .admin-mobile-header h2 {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .admin-mobile-header a,
+[data-theme="navy"] .admin-mobile-header button {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .admin-tab.active {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .admin-sub-tab-btn.active {
+  color: #ea580c !important;
+  background: rgba(30, 64, 175, 0.12) !important;
+  border-color: #1e40af !important;
+}
+[data-theme="navy"] .admin-mobile-tab {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .admin-mobile-tab.active {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .admin-mobile-tab.active::before {
+  background: rgba(30, 64, 175, 0.12) !important;
+}
+
+[data-theme="navy"] .order-compact-total {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-compact-expand {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-compact-expand.expanded {
+  background: #ea580c !important;
+  color: #ffffff !important;
+}
+[data-theme="navy"] .order-expanded-label {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-phone {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-phone-link {
+  color: #ea580c !important;
+  background: rgba(234, 88, 12, 0.1) !important;
+}
+[data-theme="navy"] .order-expanded-addr,
+[data-theme="navy"] .order-expanded-payment {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-eta {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-item {
+  color: #ea580c !important;
+  border-color: rgba(234, 88, 12, 0.2) !important;
+}
+[data-theme="navy"] .order-expanded-item-qty {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-notes {
+  color: #ea580c !important;
+  background: rgba(30, 64, 175, 0.06) !important;
+}
+[data-theme="navy"] .order-expanded-driver-assigned {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-driver-info {
+  color: #ea580c !important;
+}
+[data-theme="navy"] .chat-order-btn {
+  color: #ea580c !important;
+  background: rgba(234, 88, 12, 0.1) !important;
+}
+[data-theme="navy"] .chat-order-btn:hover {
+  background: rgba(234, 88, 12, 0.2) !important;
+}
+[data-theme="navy"] .map-link-google {
+  color: #ea580c !important;
+  background: rgba(234, 88, 12, 0.1) !important;
+}
+[data-theme="navy"] .map-link-osm {
+  color: #ea580c !important;
+  background: rgba(234, 88, 12, 0.1) !important;
+}
+[data-theme="navy"] .order-expanded-map-link {
+  background: rgba(30, 64, 175, 0.12) !important;
+  color: #ea580c !important;
+}
+[data-theme="navy"] .order-expanded-map-link:hover {
+  background: rgba(30, 64, 175, 0.25) !important;
+}
+[data-theme="navy"] .order-expanded-driver-select {
+  color: #ea580c !important;
+}
+
 /* --- Orange Admin --- */
 [data-theme="orange"] {
   --admin-bg:
