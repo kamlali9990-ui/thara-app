@@ -351,6 +351,32 @@
   border-left: 5px solid #ea580c !important;
 }
 
+/* ── Orange: header + top/bottom bars all navy text ── */
+[data-theme="orange"] .admin-mobile-header h2 {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .admin-mobile-header a,
+[data-theme="orange"] .admin-mobile-header button {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .admin-tab.active {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .admin-sub-tab-btn.active {
+  color: #1e40af !important;
+  background: rgba(234, 88, 12, 0.15) !important;
+  border-color: #ea580c !important;
+}
+[data-theme="orange"] .admin-mobile-tab {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .admin-mobile-tab.active {
+  color: #1e40af !important;
+}
+[data-theme="orange"] .admin-mobile-tab.active::before {
+  background: rgba(234, 88, 12, 0.15) !important;
+}
+
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
   --admin-secondary: #db2777;
