@@ -669,6 +669,147 @@
 [data-theme="pink"] .order-status-icon { color: #fbcfe8 !important; }
 [data-theme="pink"] .order-status-label { color: #ffffff !important; }
 
+/* ── Pink: top bar + bottom bar pink backgrounds ── */
+[data-theme="pink"] .admin-mobile-header {
+  background: linear-gradient(135deg, #db2777, #be185d) !important;
+}
+[data-theme="pink"] .admin-mobile-header h2 {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .admin-mobile-header a,
+[data-theme="pink"] .admin-mobile-header button {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .admin-mobile-nav {
+  background: linear-gradient(135deg, #db2777, #be185d) !important;
+  border-top: none !important;
+}
+[data-theme="pink"] .admin-sidebar {
+  background: linear-gradient(180deg, #db2777, #be185d) !important;
+}
+[data-theme="pink"] .admin-sidebar .admin-tab {
+  color: #38bdf8 !important;
+  background: rgba(255,255,255,0.15) !important;
+}
+[data-theme="pink"] .admin-sidebar .admin-tab.active {
+  background: rgba(56, 189, 248, 0.25) !important;
+  color: #ffffff !important;
+}
+
+/* ── Pink: all text azure ── */
+[data-theme="pink"] .admin-tab.active {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .admin-sub-tab-btn.active {
+  color: #38bdf8 !important;
+  background: rgba(219, 39, 119, 0.12) !important;
+  border-color: #db2777 !important;
+}
+[data-theme="pink"] .admin-mobile-tab {
+  color: #fbcfe8 !important;
+}
+[data-theme="pink"] .admin-mobile-tab.active {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .admin-mobile-tab.active::before {
+  background: rgba(255,255,255,0.15) !important;
+}
+[data-theme="pink"] .order-compact-total {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-compact-expand {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-compact-expand.expanded {
+  background: #38bdf8 !important;
+  color: #1e293b !important;
+}
+[data-theme="pink"] .order-expanded-label {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-phone {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-phone-link {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+}
+[data-theme="pink"] .order-expanded-addr,
+[data-theme="pink"] .order-expanded-payment {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-eta {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-item {
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="pink"] .order-expanded-item-qty {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-notes {
+  color: #38bdf8 !important;
+  background: rgba(219, 39, 119, 0.08) !important;
+}
+[data-theme="pink"] .order-expanded-driver-assigned {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-driver-info {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .chat-order-btn {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+}
+[data-theme="pink"] .chat-order-btn:hover {
+  background: rgba(56, 189, 248, 0.2) !important;
+}
+[data-theme="pink"] .map-link-google {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+}
+[data-theme="pink"] .map-link-osm {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+}
+[data-theme="pink"] .order-expanded-map-link {
+  background: rgba(219, 39, 119, 0.15) !important;
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-expanded-map-link:hover {
+  background: rgba(219, 39, 119, 0.3) !important;
+}
+[data-theme="pink"] .order-expanded-driver-select {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .completed-toggle-btn {
+  background: rgba(219, 39, 119, 0.12) !important;
+  border-color: #db2777 !important;
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .completed-toggle-btn:hover {
+  background: rgba(219, 39, 119, 0.2) !important;
+}
+[data-theme="pink"] .order-card.status-completed {
+  opacity: 1 !important;
+  background: rgba(219, 39, 119, 0.06) !important;
+  border-color: rgba(219, 39, 119, 0.2) !important;
+  border-left: 5px solid #db2777 !important;
+}
+[data-theme="pink"] .order-card.status-completed .order-compact:hover {
+  background: rgba(219, 39, 119, 0.1) !important;
+}
+[data-theme="pink"] .order-card.status-completed .order-compact-id,
+[data-theme="pink"] .order-card.status-completed .order-compact-total,
+[data-theme="pink"] .order-card.status-completed .order-compact-phone,
+[data-theme="pink"] .order-card.status-completed .order-compact-addr {
+  color: #38bdf8 !important;
+}
+[data-theme="pink"] .order-card.status-completed .order-compact-time {
+  color: #38bdf8 !important;
+}
+
 /* =============================================================== */
 /* ===== LAYOUT ===== */
 /* =============================================================== */
