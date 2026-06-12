@@ -423,6 +423,33 @@
   color: #1e40af !important;
 }
 
+/* ── Orange: action buttons (chat, map, print) navy ── */
+[data-theme="orange"] .chat-order-btn {
+  color: #1e40af !important;
+  background: rgba(30, 64, 175, 0.1) !important;
+}
+[data-theme="orange"] .chat-order-btn:hover {
+  background: rgba(30, 64, 175, 0.2) !important;
+}
+[data-theme="orange"] .map-link-google {
+  color: #1e40af !important;
+  background: rgba(30, 64, 175, 0.1) !important;
+}
+[data-theme="orange"] .map-link-osm {
+  color: #1e40af !important;
+  background: rgba(30, 64, 175, 0.1) !important;
+}
+[data-theme="orange"] .order-expanded-map-link {
+  background: rgba(234, 88, 12, 0.15) !important;
+  color: #1e40af !important;
+}
+[data-theme="orange"] .order-expanded-map-link:hover {
+  background: rgba(234, 88, 12, 0.3) !important;
+}
+[data-theme="orange"] .order-expanded-driver-select {
+  color: #1e40af !important;
+}
+
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
   --admin-secondary: #db2777;
