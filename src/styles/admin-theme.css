@@ -231,57 +231,57 @@
 /* --- Orange Admin --- */
 [data-theme="orange"] {
   --admin-bg:
-    radial-gradient(ellipse 80% 50% at 95% 5%, rgba(234,88,12,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 70% at 8% 45%, rgba(234,88,12,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 90% 40% at 50% 95%, rgba(251,146,60,0.10) 0%, transparent 50%),
-    radial-gradient(ellipse 75% 55% at 100% 0%, rgba(254,215,170,0.4) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(254,235,200,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 95% 5%, rgba(30,64,175,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 8% 45%, rgba(30,64,175,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 40% at 50% 95%, rgba(59,130,246,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 75% 55% at 100% 0%, rgba(191,219,254,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(219,234,254,0.3) 0%, transparent 50%),
     linear-gradient(180deg, #fff7ed 0%, #ffedd5 40%, #fed7aa 70%, #fdba74 100%);
   --admin-surface: rgba(254, 243, 199, 0.7);
-  --admin-border: rgba(234, 88, 12, 0.2);
-  --admin-border-subtle: rgba(234, 88, 12, 0.1);
-  --admin-shadow: 0 8px 32px rgba(234, 88, 12, 0.08);
-  --admin-text: #1c1917;
-  --admin-text-soft: #57534e;
-  --admin-text-muted: #78716c;
-  --admin-accent: #ea580c;
-  --admin-accent-hover: #c2410c;
+  --admin-border: rgba(30, 64, 175, 0.2);
+  --admin-border-subtle: rgba(30, 64, 175, 0.1);
+  --admin-shadow: 0 8px 32px rgba(30, 64, 175, 0.08);
+  --admin-text: #1e293b;
+  --admin-text-soft: #334155;
+  --admin-text-muted: #475569;
+  --admin-accent: #1e40af;
+  --admin-accent-hover: #1d4ed8;
   --admin-accent-text: #ffffff;
-  --admin-accent-gradient: linear-gradient(135deg, #ea580c, #c2410c);
-  --admin-accent-hover-gradient: linear-gradient(135deg, #c2410c, #9a3412);
-  --admin-secondary: #1e40af;
+  --admin-accent-gradient: linear-gradient(135deg, #1e40af, #1d4ed8);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #1d4ed8, #2563eb);
+  --admin-secondary: #ea580c;
   --admin-sidebar: rgba(254, 243, 199, 0.9);
   --admin-danger: #c0392b;
   --admin-danger-hover: #a93226;
-  --admin-gold: #1e40af;
-  --admin-gold-light: rgba(30, 64, 175, 0.12);
+  --admin-gold: #ea580c;
+  --admin-gold-light: rgba(234, 88, 12, 0.12);
   --admin-input-bg: rgba(254, 243, 199, 0.7);
-  --admin-input-border: rgba(234, 88, 12, 0.2);
+  --admin-input-border: rgba(30, 64, 175, 0.2);
   --admin-input-focus-bg: rgba(254, 243, 199, 0.9);
-  --admin-input-focus-shadow: rgba(234, 88, 12, 0.15);
+  --admin-input-focus-shadow: rgba(30, 64, 175, 0.15);
   --admin-bg-solid: #fff7ed;
-  --admin-highlight-bg: rgba(234, 88, 12, 0.12);
+  --admin-highlight-bg: rgba(30, 64, 175, 0.12);
   --admin-product-card-bg: rgba(254, 243, 199, 0.6);
-  --auth-bg: linear-gradient(135deg, #7c2d12, #c2410c, #ea580c);
+  --auth-bg: linear-gradient(135deg, #1e3a5f, #1e40af, #2563eb);
   --auth-card-bg: rgba(254, 243, 199, 0.9);
-  --auth-card-shadow: 0 20px 60px rgba(234, 88, 12, 0.2);
-  --auth-header-color: #1c1917;
-  --auth-header-subtitle: #57534e;
-  --auth-label: #1c1917;
+  --auth-card-shadow: 0 20px 60px rgba(30, 64, 175, 0.2);
+  --auth-header-color: #1e293b;
+  --auth-header-subtitle: #334155;
+  --auth-label: #1e293b;
   --auth-input-bg: rgba(254, 243, 199, 0.7);
-  --auth-input-border: rgba(234, 88, 12, 0.2);
-  --auth-input-text: #1c1917;
-  --auth-input-focus: #ea580c;
-  --auth-input-focus-shadow: 0 0 0 4px rgba(234,88,12,0.1);
-  --auth-btn-bg: #ea580c;
+  --auth-input-border: rgba(30, 64, 175, 0.2);
+  --auth-input-text: #1e293b;
+  --auth-input-focus: #1e40af;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(30,64,175,0.1);
+  --auth-btn-bg: #1e40af;
   --auth-btn-text: #ffffff;
-  --auth-btn-shadow: 0 4px 12px rgba(234,88,12,0.3);
+  --auth-btn-shadow: 0 4px 12px rgba(30,64,175,0.3);
   --auth-error-bg: #fef2f2;
   --auth-error-text: #dc2626;
-  --auth-footer-text: #78716c;
-  --auth-link: #ea580c;
-  --auth-back-link: #78716c;
-  --auth-back-hover: #ea580c;
+  --auth-footer-text: #475569;
+  --auth-link: #1e40af;
+  --auth-back-link: #475569;
+  --auth-back-hover: #1e40af;
   --auth-logo-bg: rgba(254, 243, 199, 0.7);
   --admin-success: #16a34a;
   --admin-success-hover: #15803d;
@@ -307,58 +307,58 @@
 
 /* --- Pink Admin (نسائي) --- */
 [data-theme="pink"] {
-  --admin-secondary: #38bdf8;
+  --admin-secondary: #db2777;
   --admin-bg:
-    radial-gradient(ellipse 80% 50% at 95% 5%, rgba(219,39,119,0.10) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 70% at 8% 45%, rgba(219,39,119,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse 90% 40% at 50% 95%, rgba(244,114,182,0.10) 0%, transparent 50%),
-    radial-gradient(ellipse 75% 55% at 100% 0%, rgba(249,168,212,0.4) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(251,207,232,0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 50% at 95% 5%, rgba(56,189,248,0.10) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 70% at 8% 45%, rgba(56,189,248,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 90% 40% at 50% 95%, rgba(147,197,253,0.10) 0%, transparent 50%),
+    radial-gradient(ellipse 75% 55% at 100% 0%, rgba(186,230,253,0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 45% at 0% 100%, rgba(224,242,254,0.3) 0%, transparent 50%),
     linear-gradient(180deg, #fdf2f8 0%, #fce7f3 40%, #fbcfe8 70%, #f9a8d4 100%);
   --admin-surface: rgba(252, 231, 243, 0.7);
-  --admin-border: rgba(219, 39, 119, 0.2);
-  --admin-border-subtle: rgba(219, 39, 119, 0.1);
-  --admin-shadow: 0 8px 32px rgba(219, 39, 119, 0.08);
+  --admin-border: rgba(56, 189, 248, 0.25);
+  --admin-border-subtle: rgba(56, 189, 248, 0.1);
+  --admin-shadow: 0 8px 32px rgba(56, 189, 248, 0.12);
   --admin-text: #1f2937;
   --admin-text-soft: #6b7280;
   --admin-text-muted: #9ca3af;
-  --admin-accent: #db2777;
-  --admin-accent-hover: #be185d;
-  --admin-accent-text: #ffffff;
-  --admin-accent-gradient: linear-gradient(135deg, #db2777, #be185d);
-  --admin-accent-hover-gradient: linear-gradient(135deg, #be185d, #9d174d);
+  --admin-accent: #38bdf8;
+  --admin-accent-hover: #0ea5e9;
+  --admin-accent-text: #1e293b;
+  --admin-accent-gradient: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  --admin-accent-hover-gradient: linear-gradient(135deg, #0ea5e9, #0284c7);
   --admin-sidebar: rgba(252, 231, 243, 0.9);
   --admin-danger: #c0392b;
   --admin-danger-hover: #a93226;
-  --admin-gold: #38bdf8;
-  --admin-gold-light: rgba(56, 189, 248, 0.12);
+  --admin-gold: #db2777;
+  --admin-gold-light: rgba(219, 39, 119, 0.12);
   --admin-input-bg: rgba(252, 231, 243, 0.7);
-  --admin-input-border: rgba(219, 39, 119, 0.2);
+  --admin-input-border: rgba(56, 189, 248, 0.25);
   --admin-input-focus-bg: rgba(252, 231, 243, 0.9);
-  --admin-input-focus-shadow: rgba(219, 39, 119, 0.15);
+  --admin-input-focus-shadow: rgba(56, 189, 248, 0.15);
   --admin-bg-solid: #fdf2f8;
-  --admin-highlight-bg: rgba(219, 39, 119, 0.12);
+  --admin-highlight-bg: rgba(56, 189, 248, 0.12);
   --admin-product-card-bg: rgba(252, 231, 243, 0.6);
-  --auth-bg: linear-gradient(135deg, #831843, #be185d, #db2777);
+  --auth-bg: linear-gradient(135deg, #0c4a6e, #0ea5e9, #38bdf8);
   --auth-card-bg: rgba(252, 231, 243, 0.9);
-  --auth-card-shadow: 0 20px 60px rgba(219, 39, 119, 0.2);
+  --auth-card-shadow: 0 20px 60px rgba(56, 189, 248, 0.2);
   --auth-header-color: #1f2937;
   --auth-header-subtitle: #6b7280;
   --auth-label: #1f2937;
   --auth-input-bg: rgba(252, 231, 243, 0.7);
-  --auth-input-border: rgba(219, 39, 119, 0.2);
+  --auth-input-border: rgba(56, 189, 248, 0.25);
   --auth-input-text: #1f2937;
-  --auth-input-focus: #db2777;
-  --auth-input-focus-shadow: 0 0 0 4px rgba(219,39,119,0.1);
-  --auth-btn-bg: #db2777;
-  --auth-btn-text: #ffffff;
-  --auth-btn-shadow: 0 4px 12px rgba(219,39,119,0.3);
+  --auth-input-focus: #38bdf8;
+  --auth-input-focus-shadow: 0 0 0 4px rgba(56,189,248,0.1);
+  --auth-btn-bg: #38bdf8;
+  --auth-btn-text: #1e293b;
+  --auth-btn-shadow: 0 4px 12px rgba(56,189,248,0.3);
   --auth-error-bg: #fef2f2;
   --auth-error-text: #dc2626;
   --auth-footer-text: #9ca3af;
-  --auth-link: #db2777;
+  --auth-link: #38bdf8;
   --auth-back-link: #9ca3af;
-  --auth-back-hover: #db2777;
+  --auth-back-hover: #38bdf8;
   --auth-logo-bg: rgba(252, 231, 243, 0.7);
   --admin-success: #16a34a;
   --admin-success-hover: #15803d;
