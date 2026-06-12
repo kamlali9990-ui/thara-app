@@ -330,6 +330,28 @@
   box-shadow: 0 2px 12px rgba(251,191,36,0.25);
 }
 
+/* ─── Account Tab (Navy) ─── */
+[data-theme="navy"] .acc-profile-header {
+  background: linear-gradient(145deg, #1e40af, #1e3a5f);
+}
+[data-theme="navy"] .acc-avatar { color: #ea580c; }
+[data-theme="navy"] .acc-card { background: rgba(255,255,255,0.85); }
+[data-theme="navy"] .acc-btn-primary { background: #ea580c; }
+
+/* ─── Account Tab (Orange) ─── */
+[data-theme="orange"] .acc-profile-header {
+  background: linear-gradient(145deg, #1e40af, #1e3a5f);
+}
+[data-theme="orange"] .acc-avatar { color: #ea580c; }
+[data-theme="orange"] .acc-card { background: rgba(255,255,255,0.85); }
+
+/* ─── Account Tab (Pink) ─── */
+[data-theme="pink"] .acc-profile-header {
+  background: linear-gradient(145deg, #db2777, #be185d);
+}
+[data-theme="pink"] .acc-avatar { color: #38bdf8; }
+[data-theme="pink"] .acc-card { background: rgba(255,255,255,0.85); }
+
 /* ─── Empty States ─── */
 [data-theme="green-dark"] .empty-tab svg { opacity: 0.3; }
 [data-theme="green-dark"] .empty-tab h3 { color: var(--text-main); }
