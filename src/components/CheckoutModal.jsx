@@ -186,7 +186,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
                 {locationError}
               </div>
             )}
-            <a href={`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent('السلام عليكم، هذا موقع توصيل طلبي')}`}
+            <a href={`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent(position ? `موقع توصيل طلبي: ${position.lat.toFixed(6)}, ${position.lng.toFixed(6)}\nhttps://www.google.com/maps?q=${position.lat},${position.lng}\n\nالرجاء تأكيد الموقع أو إرسال موقعك الحي هنا` : 'السلام عليكم، أريد مشاركة موقع التوصيل الخاص بي')}`}
               target="_blank" rel="noopener noreferrer"
               style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'0.5rem',width:'100%',padding:'0.85rem',background:'#25D366',borderRadius:'12px',fontSize:'0.95rem',fontWeight:600,color:'#fff',cursor:'pointer',marginBottom:'0.75rem',textDecoration:'none'}}>
               💬 أرسل موقعك عبر واتساب لدقة أعلى
