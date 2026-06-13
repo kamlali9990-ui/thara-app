@@ -108,6 +108,12 @@ if ('serviceWorker' in navigator && import.meta.env.PROD) {
           window.dispatchEvent(new CustomEvent('sw-update'));
         }
         
+        navigator.serviceWorker.addEventListener('message', (event) => {
+          if (event.data?.type === 'NEW_VERSION') {
+            window.location.reload();
+          }
+        });
+
         reg.addEventListener('updatefound', () => {
           const newSW = reg.installing;
           newSW.addEventListener('statechange', () => {

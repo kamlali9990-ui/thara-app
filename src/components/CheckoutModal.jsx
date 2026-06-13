@@ -69,6 +69,11 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
       if (!ok) setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
       return;
     }
+    const perm = navigator.permissions ? await navigator.permissions.query({ name: 'geolocation' }).catch(() => null) : null;
+    if (perm?.state === 'denied') {
+      setLocationError('⚠️ الموقع محظور — اذهب لإعدادات المتصفح > الموقع > سماح');
+      return;
+    }
     setLocationError('');
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
@@ -85,6 +90,9 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     if (locatedRef.current) return;
     locatedRef.current = true;
     if (!navigator.geolocation) { locateByIP(); return; }
+    navigator.permissions?.query({ name: 'geolocation' }).then(p => {
+      if (p.state === 'denied') { locateByIP(); return; }
+    }).catch(() => {});
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(onLocateSuccess, () => { setIsLocating(false); locateByIP(); }, geoOptions);
   }, []);

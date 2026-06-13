@@ -18,7 +18,7 @@ describe('ErrorBoundary', () => {
 
   it('renders fallback UI on error', () => {
     render(<ErrorBoundary><BadChild /></ErrorBoundary>);
-    expect(screen.getByText('عذراً، حدث خطأ غير متوقع')).toBeTruthy();
+    expect(screen.getByText('عذراً منك')).toBeTruthy();
   });
 
   it('shows reload button on error', () => {
@@ -30,5 +30,6 @@ describe('ErrorBoundary', () => {
     const StorageBad = () => { throw new Error('QuotaExceededError'); };
     render(<ErrorBoundary><StorageBad /></ErrorBoundary>);
     expect(screen.getByText(/يرجى تعطيل التصفح الخاص/)).toBeTruthy();
+    expect(screen.getByText(/شكراً لصبرك/)).toBeTruthy();
   });
 });

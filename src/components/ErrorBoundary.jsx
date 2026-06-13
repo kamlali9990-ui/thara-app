@@ -24,11 +24,12 @@ export default class ErrorBoundary extends React.Component {
           minHeight: '100vh', padding: '2rem', textAlign: 'center', background: '#f8fafc',
           fontFamily: "'Tajawal', sans-serif"
         }}>
-          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
-          <h1 style={{ color: '#1e293b', marginBottom: '0.5rem' }}>عذراً، حدث خطأ غير متوقع</h1>
-          <p style={{ color: '#64748b', marginBottom: '2rem' }}>
-            {isStorageError ? 'يرجى تعطيل التصفح الخاص أو السماح للتخزين المحلي' : 'نعمل على حل المشكلة، يرجى إعادة تحميل الصفحة'}
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌿</div>
+          <h1 style={{ color: '#1e293b', marginBottom: '0.5rem' }}>عذراً منك</h1>
+          <p style={{ color: '#64748b', marginBottom: '2rem', lineHeight: 1.7 }}>
+            {isStorageError ? 'يبدو أن هناك مشكلة في التخزين المحلي — يرجى تعطيل التصفح الخاص أو السماح للتخزين المحلي والمحاولة مرة أخرى' : 'واجهنا خللاً بسيطاً أثناء تصفحك، يرجى إعادة تحميل الصفحة للمتابعة'}
           </p>
+          <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1.5rem' }}>نحن نعمل على تحسين تجربتك — شكراً لصبرك ❤️</p>
           <button
             onClick={() => window.location.reload()}
             style={{
