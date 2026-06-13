@@ -94,12 +94,38 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   useEffect(() => {
     if (locatedRef.current) return;
     locatedRef.current = true;
-    if (!navigator.geolocation) { locateByIP(); return; }
-    navigator.permissions?.query({ name: 'geolocation' }).then(p => {
-      if (p.state === 'denied') { locateByIP(); return; }
-    }).catch(() => {});
-    setIsLocating(true);
-    watchIdRef.current = navigator.geolocation.watchPosition(onLocateSuccess, () => { setIsLocating(false); locateByIP(); }, geoOptions);
+    const doAutoLocate = async () => {
+      if (!navigator.geolocation) {
+        setIsLocating(true);
+        const ok = await locateByIP();
+        setIsLocating(false);
+        if (!ok) setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
+        return;
+      }
+      if (navigator.permissions) {
+        try {
+          const p = await navigator.permissions.query({ name: 'geolocation' });
+          if (p.state === 'denied') {
+            setIsLocating(true);
+            const ok = await locateByIP();
+            setIsLocating(false);
+            if (!ok) setLocationError('⚠️ الموقع محظور — اذهب لإعدادات المتصفح > الموقع > سماح');
+            return;
+          }
+        } catch {}
+      }
+      setIsLocating(true);
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        onLocateSuccess,
+        async () => {
+          const ok = await locateByIP();
+          setIsLocating(false);
+          if (!ok) setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
+        },
+        geoOptions
+      );
+    };
+    doAutoLocate();
     return () => clearWatch();
   }, []);
   const MAX_DELIVERY_KM = 15;
@@ -222,7 +248,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
               value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="05XXXXXXXX"
-              maxLength={10}
+              maxLength={13}
             />
             <textarea
               className="checkout-notes-input"

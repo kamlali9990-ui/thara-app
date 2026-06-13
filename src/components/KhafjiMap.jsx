@@ -16,7 +16,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     import('leaflet/dist/leaflet.css');
     const map = L.map(mapRef.current, { center: [20, 0], zoom: 2 });
     L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a>' }).addTo(map);
+      attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
     inst.current = map;
     return () => { map.remove(); inst.current = null; marker.current = null; };
   }, []);
