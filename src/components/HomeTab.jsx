@@ -26,11 +26,25 @@ const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, 
       return '';
     } catch { return ''; }
   });
+  const [featuredVer, setFeaturedVer] = useState(0);
+
+  useEffect(() => {
+    const h = () => setFeaturedVer(v => v + 1);
+    window.addEventListener('thara:featured-changed', h);
+    return () => window.removeEventListener('thara:featured-changed', h);
+  }, []);
 
   const topStock = useMemo(() => {
     const all = allProducts || [];
+    try {
+      const ids = JSON.parse(localStorage.getItem('thara_featured_ids') || '[]');
+      if (ids.length > 0) {
+        const featured = all.filter(p => ids.includes(p.id));
+        if (featured.length > 0) return featured;
+      }
+    } catch {}
     return [...all].sort((a, b) => (b.stock_quantity || 0) - (a.stock_quantity || 0)).slice(0, 8);
-  }, [allProducts]);
+  }, [allProducts, featuredVer]);
 
   useEffect(() => {
     supabase

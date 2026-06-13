@@ -7,7 +7,7 @@
   background: var(--bg-card);
   padding: 14px 0;
   border-radius: 20px;
-  border: 1.5px solid rgba(212, 175, 55, 0.22);
+  border: none;
   box-shadow: 0 4px 18px rgba(18, 116, 67, 0.06);
   margin: 10px 16px 20px 16px;
   position: relative;
@@ -19,7 +19,7 @@
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 175, 55, 0.25);
+  border: none;
   box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08);
 }
 

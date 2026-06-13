@@ -348,11 +348,11 @@
 
 /* ─── Section Card (shared) ─── */
 .home-section-card {
-  background: rgba(18, 116, 67, 0.04);
+  background: transparent;
   border-radius: 18px;
   padding: 0.45rem 0.55rem;
   margin-bottom: 0.4rem;
-  border: 0.5px solid rgba(18, 116, 67, 0.08);
+  border: none;
 }
 .section-card-header {
   display: flex;
@@ -395,7 +395,7 @@
 /* Green cards: categories & products */
 .categories-card,
 .products-list-card {
-  border: 2px solid var(--primary) !important;
+  border: none !important;
   background: rgba(18, 116, 67, 0.06) !important;
 }
 .products-list-card {
@@ -419,17 +419,12 @@
 /* Orange/Red cards: offers */
 .offers-card,
 .bestsellers-card {
-  border: 2px solid #e65100 !important;
+  border: none !important;
   background: rgba(18, 116, 67, 0.06) !important;
   position: relative;
-  animation: offerBorderPulse 3s ease-in-out infinite;
   padding-bottom: 0.35rem;
   max-height: none !important;
   min-height: auto !important;
-}
-@keyframes offerBorderPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(230, 81, 0, 0.15), inset 0 0 0 0 rgba(230, 81, 0, 0.03); }
-  50% { box-shadow: 0 0 12px 2px rgba(230, 81, 0, 0.2), inset 0 0 8px 1px rgba(230, 81, 0, 0.06); }
 }
 .offers-card .section-card-header .section-card-title {
   color: #bf360c;

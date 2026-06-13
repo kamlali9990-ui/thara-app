@@ -5,6 +5,7 @@ import { supabase } from './supabase/client';
 import { showToast } from './components/Toast.jsx';
 import ThemeToggle from './components/ThemeToggle';
 import { useTheme } from './utils/theme';
+import { safeProductUrl } from './utils/constants';
 
 
 const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
@@ -226,10 +227,14 @@ export default function Admin() {
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
           {hasPermission('manage_products') && <button className={`admin-sub-tab-btn ${storeTab === 'products' ? 'active' : ''}`} onClick={() => setStoreTab('products')}>📦 المنتجات</button>}
+          <button className={`admin-sub-tab-btn ${storeTab === 'featured' ? 'active' : ''}`} onClick={() => setStoreTab('featured')}>⭐ تشكيلة مميزة</button>
           {hasPermission('manage_offers') && <button className={`admin-sub-tab-btn ${storeTab === 'offers' ? 'active' : ''}`} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>}
         </div>
         {storeTab === 'products' && hasPermission('manage_products') ? (
           <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} hasPermission={hasPermission} />
+        ) : null}
+        {storeTab === 'featured' ? (
+          <FeaturedManager allProducts={allProducts || []} />
         ) : null}
         {storeTab === 'offers' && hasPermission('manage_offers') ? (
           <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} hasPermission={hasPermission} />
@@ -389,6 +394,89 @@ export default function Admin() {
         ))}
       </nav>
       <ThemeToggle currentTheme={theme} onThemeChange={setTheme} />
+    </div>
+  );
+}
+
+/* ─── Featured Products Manager ─── */
+function FeaturedManager({ allProducts }) {
+  const [featured, setFeatured] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('thara_featured_ids') || '[]'); } catch { return []; }
+  });
+  const [searchQ, setSearchQ] = useState('');
+
+  const toggleFeatured = (id) => {
+    const next = featured.includes(id) ? featured.filter(i => i !== id) : [...featured, id];
+    setFeatured(next);
+    localStorage.setItem('thara_featured_ids', JSON.stringify(next));
+    window.dispatchEvent(new Event('thara:featured-changed'));
+    showToast(featured.includes(id) ? 'تمت إزالة المنتج من التشكيلة' : 'تمت إضافة المنتج للتشكيلة');
+  };
+
+  const featuredProducts = allProducts.filter(p => featured.includes(p.id));
+  const otherProducts = allProducts.filter(p => !featured.includes(p.id) && (!searchQ || p.name.includes(searchQ)));
+
+  return (
+    <div className="admin-card" style={{ padding: '1.5rem' }}>
+      <h3 className="admin-section-title" style={{ marginBottom: '1rem' }}>⭐ تشكيلة مميزة</h3>
+      <p style={{ color: '#94a3b8', marginBottom: '1rem', fontSize: '0.9rem' }}>
+        أضف المنتجات التي تريد عرضها في قسم "تشكيلة مميزة" بالصفحة الرئيسية:
+      </p>
+
+      {/* Current featured products */}
+      {featuredProducts.length > 0 && (
+        <>
+          <h4 style={{ fontSize: '0.85rem', color: '#127443', marginBottom: '0.5rem' }}>
+            ✅ المنتجات المختارة ({featuredProducts.length})
+          </h4>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+            {featuredProducts.map(p => (
+              <div key={p.id} style={{
+                display: 'flex', alignItems: 'center', gap: '0.4rem',
+                background: 'rgba(18,116,67,0.06)', borderRadius: '8px',
+                padding: '0.3rem 0.6rem', fontSize: '0.85rem'
+              }}>
+                <img src={safeProductUrl(p.imageUrl)} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
+                  onError={e => { e.target.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><rect fill="#127443" width="28" height="28"/><text fill="#FFF" font-size="12" x="14" y="18" text-anchor="middle">T</text></svg>'); }} />
+                <span>{p.name}</span>
+                <button onClick={() => toggleFeatured(p.id)} style={{
+                  background: 'none', border: 'none', color: '#dc2626', cursor: 'pointer',
+                  fontSize: '1rem', lineHeight: 1, padding: '0 0.2rem'
+                }}>✕</button>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Search & add products */}
+      <input value={searchQ} onChange={e => setSearchQ(e.target.value)}
+        placeholder="🔍 ابحث عن منتج لإضافته..."
+        style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '10px', border: '1px solid #d1d5db', marginBottom: '0.75rem', fontSize: '0.9rem' }} />
+
+      {otherProducts.length === 0 ? (
+        <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>لا توجد نتائج</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', maxHeight: '400px', overflowY: 'auto' }}>
+          {otherProducts.slice(0, 100).map(p => (
+            <div key={p.id} onClick={() => toggleFeatured(p.id)} style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.6rem',
+              borderRadius: '8px', cursor: 'pointer', transition: 'background 0.15s',
+            }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(18,116,67,0.04)'}
+               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              <img src={safeProductUrl(p.imageUrl)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }}
+                onError={e => { e.target.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect fill="#127443" width="32" height="32"/><text fill="#FFF" font-size="14" x="16" y="21" text-anchor="middle">T</text></svg>'); }} />
+              <span style={{ fontSize: '0.9rem', flex: 1 }}>{p.name}</span>
+              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.category}</span>
+              <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.price?.toFixed(2)} ر.س</span>
+              <button style={{
+                background: '#127443', color: 'white', border: 'none', borderRadius: '6px',
+                padding: '0.25rem 0.6rem', fontSize: '0.8rem', cursor: 'pointer'
+              }}>+ إضافة</button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
