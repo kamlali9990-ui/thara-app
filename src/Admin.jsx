@@ -20,6 +20,7 @@ const AdminStats = lazy(() => import('./components/admin/AdminStats'));
 const PermissionManager = lazy(() => import('./components/admin/PermissionManager'));
 const AdminInstructions = lazy(() => import('./components/admin/AdminInstructions'));
 const AdminDiagnostics = lazy(() => import('./components/admin/AdminDiagnostics'));
+const DriverOrders = lazy(() => import('./components/admin/DriverOrders'));
 
 
 function playNewOrderBeep() {
@@ -273,51 +274,7 @@ export default function Admin() {
       </div>
     );
     if (activeTab === 'myactivity') {
-      const myOrders = orders.filter(o => o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id));
-      const completed = myOrders.filter(o => o.status === 'مكتمل');
-      const active = myOrders.filter(o => o.status !== 'مكتمل' && o.status !== 'ملغي');
-      const revenue = completed.reduce((s, o) => s + Number(o.total || 0), 0);
-      return (
-        <div style={{ padding: '1rem' }}>
-          <h2 className="admin-section-title">🏍️ نشاطي</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            {[
-              { label: 'إجمالي الطلبات', value: myOrders.length },
-              { label: 'قيد التوصيل', value: active.length },
-              { label: 'تم التوصيل', value: completed.length },
-              { label: 'إيرادات', value: revenue.toFixed(0) + ' ر.س' },
-            ].map(c => (
-              <div key={c.label} className="admin-stat-card-bg">
-                <div className="admin-stat-label">{c.label}</div>
-                <div className="admin-stat-value">{c.value}</div>
-              </div>
-            ))}
-          </div>
-          <div className="admin-orders-list">
-            {myOrders.length === 0 ? (
-              <div className="admin-empty-state">لا توجد طلبات مسندة إليك بعد.</div>
-            ) : (
-              myOrders.map(order => (
-                <div key={order.id} className="admin-card order-card" style={{ marginBottom: '0.75rem' }}>
-                  <div className="admin-card-header">
-                    <div>
-                      <strong>طلب رقم:</strong> #{order.id.slice(-6)} <br/>
-                      <small>{order.date ? new Date(order.date).toLocaleString('ar-SA') : ''}</small>
-                    </div>
-                    <div style={{ textAlign: 'left' }}>
-                      <strong>الإجمالي:</strong> {order.total?.toFixed(2)} ر.س<br/>
-                      <span className={`order-badge ${order.status === 'مكتمل' ? 'badge-done' : order.status === 'في الطريق' ? 'badge-route' : order.status === 'جاهز للتوصيل' ? 'badge-ready' : 'badge-new'}`}
-                        style={{ fontSize: '0.75rem', display: 'inline-block', marginTop: '0.25rem' }}>
-                        {order.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      );
+      return <DriverOrders />;
     }
     if (activeTab === 'staff') return <StaffManager />;
     if (activeTab === 'cleanup') return <AdminCleanup currentStaff={currentStaff} />;
