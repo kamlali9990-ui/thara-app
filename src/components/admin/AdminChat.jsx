@@ -234,7 +234,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
                 {activeThread && typingUsers[activeThread.email || activeThread.orderId] && (
                   <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
                     <div className="admin-bubble-sender">العميل</div>
-                    <div className="admin-bubble-text" style={{ fontStyle: 'italic', color: '#94a3b8' }}>يكتب...</div>
+                    <div className="admin-bubble-text" style={{ fontStyle: 'italic', color: 'var(--admin-text-muted)' }}>يكتب...</div>
                   </div>
                 )}
               </div>
@@ -242,7 +242,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }) {
               <div className="admin-chat-input-area">
                 {audio.recording ? (
                   <>
-                    <span style={{ color: '#ef4444', fontSize: '0.8rem', padding: '0 0.3rem' }}>{audio.formatTime(audio.recordingTime)}</span>
+                    <span style={{ color: 'var(--admin-danger)', fontSize: '0.8rem', padding: '0 0.3rem' }}>{audio.formatTime(audio.recordingTime)}</span>
                     <button className="admin-chat-mic-btn recording" onClick={handleVoiceRecord} title="إيقاف التسجيل">⏹</button>
                   </>
                 ) : (

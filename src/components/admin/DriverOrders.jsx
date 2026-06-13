@@ -196,15 +196,12 @@ export default function DriverOrders() {
       <div key={order.id} className={`admin-card order-card ${getStatusClass(order.status)} ${isExpanded ? 'order-card-expanded' : ''} is-driver-view`}>
         <div className={`order-compact ${isExpanded ? 'order-compact-open' : ''}`} onClick={() => toggleExpand(order.id)}>
           <div className="order-compact-status">
-            <span className="order-status-pill">
-              <span className="order-status-icon">{meta.icon}</span>
-              <span className="order-status-label">{meta.label}</span>
-            </span>
+            <span className="order-status-icon-sm">{meta.icon}</span>
           </div>
           <div className="order-compact-main">
             <span className="order-compact-id">#{order.id.slice(-6)}</span>
+            <span className="order-compact-label">{meta.label}</span>
             <span className="order-compact-time">{timeAgo(order.date)}</span>
-            {order.phone && <span className="order-compact-phone" dir="ltr">{order.phone}</span>}
             {order.deliveryAddress && <span className="order-compact-addr" title={order.deliveryAddress}>📍{order.deliveryAddress.slice(0, 18)}{order.deliveryAddress.length > 18 ? '…' : ''}</span>}
           </div>
           <div className="order-compact-total">

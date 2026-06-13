@@ -268,9 +268,9 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   };
 
   const PAGI_BTN = (disabled, label) => ({
-    padding: '0.4rem 0.8rem', borderRadius: 8, border: '0.5px solid rgba(255,255,255,0.15)',
-    background: disabled ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.1)',
-    color: disabled ? 'rgba(255,255,255,0.3)' : '#e2e8f0',
+    padding: '0.4rem 0.8rem', borderRadius: 8, border: '0.5px solid var(--admin-border)',
+    background: disabled ? 'transparent' : 'var(--admin-highlight-bg)',
+    color: disabled ? 'var(--admin-text-muted)' : 'var(--admin-text)',
     cursor: disabled ? 'default' : 'pointer',
     fontFamily: 'inherit', fontSize: '0.85rem'
   });
@@ -282,21 +282,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flex: '1', maxWidth: '400px', margin: '0 1rem' }}>
           <input type="text" placeholder="🔍 بحث عن صنف للبدء في تعديله..."
             value={searchQuery} onChange={e => { setSearchQuery(e.target.value); setPage(1); }}
-            style={{ 
-              width: '100%', 
-              background: 'rgba(18, 116, 67, 0.2)', 
-              border: '1px solid rgba(18, 116, 67, 0.6)', 
-              borderRadius: '10px', 
-              padding: '0.6rem 1rem', 
-              color: '#fff', 
-              fontSize: '0.9rem', 
-              fontFamily: 'inherit', 
-              outline: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-              transition: 'all 0.3s ease'
-            }} 
-            onFocus={e => { e.target.style.border = '1px solid #fbbf24'; e.target.style.boxShadow = '0 0 10px rgba(251,191,36,0.3)'; }}
-            onBlur={e => { e.target.style.border = '1px solid rgba(18, 116, 67, 0.6)'; e.target.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)'; }}
+            className="admin-product-search"
           />
         </div>
         {canManageProducts && <button className="btn" onClick={() => { setShowImport(!showImport); setPreviewRows([]); }}>استيراد</button>}
@@ -304,42 +290,42 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
 
       {canManageProducts && showImport && (
         <div className="admin-card" style={{ marginBottom: '1rem' }}>
-          <h3 style={{ marginBottom: '0.75rem', color: '#f1f5f9', fontSize: '1rem' }}>استيراد منتجات</h3>
+          <h3 style={{ marginBottom: '0.75rem', color: 'var(--admin-text)', fontSize: '1rem' }}>استيراد منتجات</h3>
           <div style={{ marginBottom: '0.75rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', color: '#94a3b8', fontSize: '0.85rem' }}>رفع ملف</label>
-            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} style={{ color: '#e2e8f0' }} />
+            <label style={{ display: 'block', marginBottom: '0.25rem', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>رفع ملف</label>
+            <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} style={{ color: 'var(--admin-text)' }} />
           </div>
           <div style={{ marginBottom: '0.75rem' }}>
-            <label style={{ display: 'block', marginBottom: '0.25rem', color: '#94a3b8', fontSize: '0.85rem' }}>أو لصق (اسم، قسم، سعر، مخزون، وحدة، صورة)</label>
-            <textarea rows={3} style={{ width: '100%', background: 'rgba(0,0,0,0.35)', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: 8, padding: '0.5rem', color: '#e2e8f0', fontFamily: 'inherit', fontSize: '0.85rem', boxSizing: 'border-box' }}
+            <label style={{ display: 'block', marginBottom: '0.25rem', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>أو لصق (اسم، قسم، سعر، مخزون، وحدة، صورة)</label>
+            <textarea rows={3} style={{ width: '100%', background: 'var(--admin-input-bg)', border: '0.5px solid var(--admin-border)', borderRadius: 8, padding: '0.5rem', color: 'var(--admin-text)', fontFamily: 'inherit', fontSize: '0.85rem', boxSizing: 'border-box' }}
               placeholder={"أرز بسمتي\tمواد غذائية\t40\t50\tكيس"} onBlur={e => e.target.value.trim() && handlePaste(e.target.value)} />
           </div>
           {previewRows.length > 0 && (
             <>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{previewRows.length} منتج:</p>
+              <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem', marginBottom: '0.5rem' }}>{previewRows.length} منتج:</p>
               <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: '0.75rem' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                  <thead><tr style={{ color: '#94a3b8', borderBottom: '0.5px solid rgba(255,255,255,0.12)' }}>
+                  <thead><tr style={{ color: 'var(--admin-text-muted)', borderBottom: '0.5px solid var(--admin-border)' }}>
                     <th style={{ padding: '0.3rem', textAlign: 'right' }}>الاسم</th><th style={{ padding: '0.3rem', textAlign: 'right' }}>القسم</th>
                     <th style={{ padding: '0.3rem', textAlign: 'left' }}>السعر</th><th style={{ padding: '0.3rem', textAlign: 'left' }}>المخزون</th>
                   </tr></thead>
                   <tbody>{previewRows.slice(0, 100).map(r => (
-                    <tr key={r._row} style={{ borderBottom: '0.5px solid rgba(255,255,255,0.06)' }}>
-                      <td style={{ padding: '0.3rem', color: '#e2e8f0' }}>{r.name || '—'}</td>
-                      <td style={{ padding: '0.3rem', color: '#94a3b8' }}>{r.category || '—'}</td>
-                      <td style={{ padding: '0.3rem', color: '#fbbf24', textAlign: 'left' }}>{r.price || '—'}</td>
+                    <tr key={r._row} style={{ borderBottom: '0.5px solid var(--admin-border)' }}>
+                      <td style={{ padding: '0.3rem', color: 'var(--admin-text)' }}>{r.name || '—'}</td>
+                      <td style={{ padding: '0.3rem', color: 'var(--admin-text-muted)' }}>{r.category || '—'}</td>
+                      <td style={{ padding: '0.3rem', color: 'var(--admin-warning)', textAlign: 'left' }}>{r.price || '—'}</td>
                       <td style={{ padding: '0.3rem', textAlign: 'left' }}>{r.stock_quantity || '—'}</td>
                     </tr>
                   ))}</tbody>
                 </table>
-                {previewRows.length > 100 && <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.3rem' }}>و {previewRows.length - 100} أخرى...</p>}
+                {previewRows.length > 100 && <p style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem', marginTop: '0.3rem' }}>و {previewRows.length - 100} أخرى...</p>}
               </div>
               {importing && importProgress.total > 0 && (
                 <div style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{ flex: 1, height: 6, background: 'rgba(255,255,255,0.1)', borderRadius: 3, overflow: 'hidden' }}>
-                    <div style={{ width: `${(importProgress.current / importProgress.total) * 100}%`, height: '100%', background: 'linear-gradient(90deg,#22c55e,#16a34a)', borderRadius: 3, transition: 'width 0.3s' }} />
+                  <div style={{ flex: 1, height: 6, background: 'var(--admin-highlight-bg)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ width: `${(importProgress.current / importProgress.total) * 100}%`, height: '100%', background: 'linear-gradient(90deg,var(--admin-success),var(--admin-accent))', borderRadius: 3, transition: 'width 0.3s' }} />
                   </div>
-                  <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>{importProgress.current} / {importProgress.total}</span>
+                  <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.8rem' }}>{importProgress.current} / {importProgress.total}</span>
                 </div>
               )}
               <button className="btn" onClick={doImport} disabled={importing}>{importing ? 'جاري الاستيراد...' : `استيراد ${previewRows.length} منتج`}</button>
@@ -477,7 +463,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       {pageCount > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', padding: '1rem', marginTop: '0.5rem' }}>
           <button style={PAGI_BTN(page <= 1, '→ السابق')} disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>→ السابق</button>
-          <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+          <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
             {page} / {pageCount}
           </span>
           <button style={PAGI_BTN(page >= pageCount, 'التالي ←')} disabled={page >= pageCount} onClick={() => setPage(p => Math.min(pageCount, p + 1))}>التالي ←</button>

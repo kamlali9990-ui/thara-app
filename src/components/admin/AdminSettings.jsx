@@ -55,7 +55,6 @@ export default function AdminSettings() {
     saveBannerUrl(url);
   };
 
-  // ---- Backup & Restore ----
   const exportProducts = async () => {
     try {
       const { data, error } = await supabase.from('products').select('*').order('id');
@@ -121,27 +120,27 @@ export default function AdminSettings() {
       <h2 className="admin-section-title">⚙️ إعدادات الصفحة الرئيسية</h2>
 
       <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
-        <h3 style={{ marginBottom: '1rem', color: '#f1f5f9', fontSize: '1.05rem' }}>صورة البنر الرئيسي</h3>
+        <h3 style={{ marginBottom: '1rem', color: 'var(--admin-text)', fontSize: '1.05rem' }}>صورة البنر الرئيسي</h3>
 
         <div className="banner-preview" style={{
           width: '100%', maxWidth: 500, marginBottom: '1.25rem', borderRadius: 16,
-          overflow: 'hidden', background: 'rgba(0,0,0,0.2)', border: '1px solid rgba(255,255,255,0.1)'
+          overflow: 'hidden', background: 'var(--admin-highlight-bg)', border: '1px solid var(--admin-border)'
         }}>
           <img src={previewUrl} alt="البنر" style={{
             width: '100%', display: 'block', aspectRatio: '2/1', objectFit: 'cover',
-            background: '#0a5c34'
+            background: 'var(--admin-accent)'
           }} onError={(e) => { e.target.src = `${BASE}123.jpg`; }} />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.4rem', color: '#94a3b8', fontSize: '0.85rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
             رفع صورة جديدة
           </label>
           <CloudinaryUpload onUpload={handleUpload} onError={() => showToast('فشل رفع الصورة', 'error')} />
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.4rem', color: '#94a3b8', fontSize: '0.85rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
             أو أدخل رابط الصورة مباشرة
           </label>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -149,15 +148,15 @@ export default function AdminSettings() {
               placeholder="https://example.com/banner.jpg"
               style={{
                 flex: 1, padding: '0.6rem 0.75rem', borderRadius: 10,
-                border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.35)',
-                color: '#e2e8f0', fontSize: '0.85rem', fontFamily: 'inherit', outline: 'none'
+                border: '0.5px solid var(--admin-border)', background: 'var(--admin-input-bg)',
+                color: 'var(--admin-text)', fontSize: '0.85rem', fontFamily: 'inherit', outline: 'none'
               }} />
-            <button onClick={handleUrlSubmit} className="btn" style={{ whiteSpace: 'nowrap' }}>حفظ</button>
+            <button onClick={handleUrlSubmit} className="btn" style={{ whiteSpace: 'nowrap', background: 'var(--admin-accent)', color: 'var(--admin-accent-text)', border: 'none', borderRadius: 8, padding: '0.6rem 1.4rem', cursor: 'pointer', fontFamily: 'inherit' }}>حفظ</button>
           </div>
         </div>
 
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.4rem', color: '#94a3b8', fontSize: '0.85rem' }}>
+          <label style={{ display: 'block', marginBottom: '0.4rem', color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>
             أو اختر من الصور الجاهزة
           </label>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -165,9 +164,9 @@ export default function AdminSettings() {
               <button key={p.label} onClick={() => handlePreset(p.url)}
                 style={{
                   padding: '0.4rem 0.75rem', borderRadius: 8, cursor: 'pointer',
-                  border: `1.5px solid ${p.url === bannerUrl ? '#fbbf24' : 'rgba(255,255,255,0.12)'}`,
-                  background: p.url === bannerUrl ? 'rgba(251,191,36,0.1)' : 'rgba(255,255,255,0.04)',
-                  color: '#e2e8f0', fontSize: '0.8rem', fontFamily: 'inherit'
+                  border: `1.5px solid ${p.url === bannerUrl ? 'var(--admin-warning)' : 'var(--admin-border)'}`,
+                  background: p.url === bannerUrl ? 'rgba(var(--admin-warning-rgb), 0.1)' : 'var(--admin-highlight-bg)',
+                  color: 'var(--admin-text)', fontSize: '0.8rem', fontFamily: 'inherit'
                 }}>
                 {p.label}
               </button>
@@ -175,10 +174,10 @@ export default function AdminSettings() {
           </div>
         </div>
 
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem', marginTop: '0.5rem' }}>
+        <div style={{ borderTop: '1px solid var(--admin-border-subtle)', paddingTop: '1rem', marginTop: '0.5rem' }}>
           <button onClick={handleReset} style={{
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
-            color: '#fca5a5', padding: '0.4rem 1rem', borderRadius: 8, cursor: 'pointer',
+            background: 'rgba(var(--admin-danger-rgb), 0.1)', border: '1px solid rgba(var(--admin-danger-rgb), 0.2)',
+            color: 'var(--admin-danger)', padding: '0.4rem 1rem', borderRadius: 8, cursor: 'pointer',
             fontFamily: 'inherit', fontSize: '0.8rem'
           }}>
             استعادة البنر الافتراضي
@@ -186,43 +185,31 @@ export default function AdminSettings() {
         </div>
       </div>
 
-      {/* ========== Backup & Restore Section ========== */}
       <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
         <h2 className="admin-section-title" style={{ marginBottom: '1rem' }}>💾 النسخ الاحتياطي والاستعادة</h2>
 
-        {/* Products */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '0.75rem 1rem', borderRadius: 12,
-          background: 'rgba(210,180,140,0.06)', border: '1px solid rgba(210,180,140,0.12)',
-          marginBottom: '0.75rem'
-        }}>
+        <div className="admin-settings-backup-card">
           <div>
-            <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '0.9rem' }}>📦 الأصناف</div>
-            <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>تصدير جميع الأصناف مع الفئات والأسعار والمخزون</div>
+            <div className="admin-settings-backup-title">📦 الأصناف</div>
+            <div className="admin-settings-backup-desc">تصدير جميع الأصناف مع الفئات والأسعار والمخزون</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={exportProducts} style={BACKUP_BTN}>تصدير</button>
-            <label style={{ ...BACKUP_BTN, background: 'rgba(201,169,78,0.15)', border: '1px solid rgba(201,169,78,0.3)', cursor: 'pointer' }}>
+            <button onClick={exportProducts} className="admin-settings-backup-btn">تصدير</button>
+            <label className="admin-settings-backup-btn admin-settings-backup-import">
               استيراد
               <input type="file" accept=".json" style={{ display: 'none' }} onChange={e => importProducts(e.target.files[0])} />
             </label>
           </div>
         </div>
 
-        {/* Staff */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          padding: '0.75rem 1rem', borderRadius: 12,
-          background: 'rgba(210,180,140,0.06)', border: '1px solid rgba(210,180,140,0.12)',
-        }}>
+        <div className="admin-settings-backup-card" style={{ marginTop: '0.75rem' }}>
           <div>
-            <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '0.9rem' }}>👥 الموظفين</div>
-            <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>تصدير جميع الموظفين (بدون كلمات المرور)</div>
+            <div className="admin-settings-backup-title">👥 الموظفين</div>
+            <div className="admin-settings-backup-desc">تصدير جميع الموظفين (بدون كلمات المرور)</div>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button onClick={exportStaff} style={BACKUP_BTN}>تصدير</button>
-            <label style={{ ...BACKUP_BTN, background: 'rgba(201,169,78,0.15)', border: '1px solid rgba(201,169,78,0.3)', cursor: 'pointer' }}>
+            <button onClick={exportStaff} className="admin-settings-backup-btn">تصدير</button>
+            <label className="admin-settings-backup-btn admin-settings-backup-import">
               استيراد
               <input type="file" accept=".json" style={{ display: 'none' }} onChange={e => importStaff(e.target.files[0])} />
             </label>
@@ -232,13 +219,6 @@ export default function AdminSettings() {
     </div>
   );
 }
-
-const BACKUP_BTN = {
-  padding: '0.45rem 0.9rem', borderRadius: 8, cursor: 'pointer',
-  fontFamily: 'inherit', fontSize: '0.8rem', fontWeight: 700,
-  background: 'rgba(210,180,140,0.1)', border: '1px solid rgba(210,180,140,0.2)',
-  color: '#e2e8f0', whiteSpace: 'nowrap', transition: 'all 0.2s'
-};
 
 function downloadJSON(data, filename) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

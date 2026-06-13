@@ -11,25 +11,28 @@
 }
 
 .permission-refresh-btn {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--admin-highlight-bg);
+  border: 1px solid var(--admin-border);
   border-radius: 10px;
   padding: 0.4rem 1rem;
   cursor: pointer;
   font-size: 0.85rem;
-  color: var(--text-main);
+  color: var(--admin-text);
+  font-weight: 700;
 }
 
 .permission-subtitle {
   font-size: 0.85rem;
-  color: var(--text-light);
+  color: var(--admin-text-muted);
   margin-bottom: 1.25rem;
+  font-weight: 700;
 }
 
 .permission-loading {
   text-align: center;
   padding: 2rem;
-  color: var(--text-light);
+  color: var(--admin-text-muted);
+  font-weight: 700;
 }
 
 .permission-staff-list {
@@ -39,15 +42,15 @@
 }
 
 .permission-staff-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
   border-radius: 14px;
   overflow: hidden;
   transition: box-shadow 0.2s;
 }
 
 .permission-staff-card.expanded {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px var(--admin-shadow);
 }
 
 .permission-staff-header {
@@ -67,39 +70,40 @@
 }
 
 .permission-staff-name {
-  font-weight: 700;
+  font-weight: 800;
   font-size: 0.95rem;
-  color: var(--text-main);
+  color: var(--admin-text);
 }
 
 .permission-staff-email {
   font-size: 0.78rem;
-  color: var(--text-light);
+  color: var(--admin-text-muted);
   direction: ltr;
   text-align: left;
+  font-weight: 700;
 }
 
 .permission-staff-role {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   padding: 0.2rem 0.6rem;
   border-radius: 20px;
   white-space: nowrap;
 }
 
-.role-admin { background: rgba(18, 116, 67, 0.15); color: #127443; }
-.role-manager { background: rgba(212, 175, 55, 0.2); color: #b8860b; }
-.role-employee { background: rgba(59, 130, 246, 0.15); color: #2563eb; }
-.role-driver { background: rgba(239, 68, 68, 0.15); color: #dc2626; }
+.role-admin { background: rgba(var(--admin-accent-rgb), 0.15); color: var(--admin-accent); }
+.role-manager { background: rgba(var(--admin-warning-rgb), 0.2); color: var(--admin-warning); }
+.role-employee { background: rgba(var(--admin-info-rgb), 0.15); color: var(--admin-info); }
+.role-driver { background: rgba(var(--admin-danger-rgb), 0.15); color: var(--admin-danger); }
 
 .permission-expand-icon {
   font-size: 0.75rem;
-  color: var(--text-light);
+  color: var(--admin-text-muted);
 }
 
 .permission-staff-body {
   padding: 0 1rem 1rem;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--admin-border-subtle);
   padding-top: 0.75rem;
 }
 
@@ -108,13 +112,15 @@
 }
 
 .permission-defaults-btn {
-  background: rgba(59, 130, 246, 0.1);
-  color: var(--text-main);
-  border: 1px solid var(--border);
+  background: var(--admin-highlight-bg);
+  color: var(--admin-text);
+  border: 1px solid var(--admin-border);
   border-radius: 8px;
   padding: 0.35rem 0.75rem;
   font-size: 0.78rem;
   cursor: pointer;
+  font-weight: 700;
+  font-family: inherit;
 }
 
 .permission-defaults-btn:disabled {
@@ -139,7 +145,7 @@
 }
 
 .permission-toggle:hover {
-  background: rgba(0,0,0,0.03);
+  background: var(--admin-highlight-bg);
 }
 
 .permission-toggle input {
@@ -149,8 +155,8 @@
 .permission-toggle-label {
   flex: 1;
   font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-main);
+  font-weight: 700;
+  color: var(--admin-text);
 }
 
 .permission-toggle-switch {
@@ -163,11 +169,11 @@
 }
 
 .permission-toggle.on .permission-toggle-switch {
-  background: #127443;
+  background: var(--admin-accent);
 }
 
 .permission-toggle.off .permission-toggle-switch {
-  background: rgba(0,0,0,0.15);
+  background: var(--admin-border);
 }
 
 .permission-toggle-switch::after {
@@ -178,7 +184,7 @@
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--admin-accent-text);
   transition: transform 0.2s;
   box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
@@ -188,18 +194,18 @@
 }
 
 [data-theme="green-dark"] .permission-staff-card {
-  background: rgba(33, 37, 43, 0.8);
+  background: var(--admin-card-bg);
 }
 
 [data-theme="green-dark"] .permission-toggle:hover {
-  background: rgba(255,255,255,0.04);
+  background: var(--admin-highlight-bg);
 }
 
 [data-theme="green-dark"] .permission-toggle.off .permission-toggle-switch {
-  background: rgba(255,255,255,0.15);
+  background: var(--admin-border);
 }
 
-[data-theme="green-dark"] .role-admin { background: rgba(97, 175, 239, 0.2); color: #61afef; }
-[data-theme="green-dark"] .role-manager { background: rgba(229, 192, 123, 0.2); color: #e5c07b; }
-[data-theme="green-dark"] .role-employee { background: rgba(86, 182, 194, 0.2); color: #56b6c2; }
-[data-theme="green-dark"] .role-driver { background: rgba(224, 108, 117, 0.2); color: #e06c75; }
+[data-theme="green-dark"] .role-admin { background: rgba(var(--admin-accent-rgb), 0.2); color: var(--admin-accent); }
+[data-theme="green-dark"] .role-manager { background: rgba(var(--admin-warning-rgb), 0.2); color: var(--admin-warning); }
+[data-theme="green-dark"] .role-employee { background: rgba(var(--admin-info-rgb), 0.2); color: var(--admin-info); }
+[data-theme="green-dark"] .role-driver { background: rgba(var(--admin-danger-rgb), 0.2); color: var(--admin-danger); }

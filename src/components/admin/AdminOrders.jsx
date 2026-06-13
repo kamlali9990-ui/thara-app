@@ -430,11 +430,11 @@ const handleStatusChange = (order, newStatus) => {
                       {isMe && (
                         <span style={{ fontSize: '0.65rem', marginRight: '0.2rem' }}>
                           {m._failed ? (
-                            <button onClick={() => retrySendMessage(m.id)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '0.65rem' }}>⚠️ إعادة</button>
+                            <button onClick={() => retrySendMessage(m.id)} style={{ color: 'var(--admin-danger)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline', fontSize: '0.65rem' }}>⚠️ إعادة</button>
                           ) : m.status === 'read' ? (
-                            <span title="مقروءة" style={{ color: '#34c759' }}>✓✓</span>
+                            <span title="مقروءة" style={{ color: 'var(--admin-success)' }}>✓✓</span>
                           ) : (
-                            <span title="تم الإرسال" style={{ color: '#94a3b8' }}>✓</span>
+                            <span title="تم الإرسال" style={{ color: 'var(--admin-text-muted)' }}>✓</span>
                           )}
                         </span>
                       )}
@@ -446,14 +446,14 @@ const handleStatusChange = (order, newStatus) => {
               {typingUsers[chatOrder] && (
                 <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
                   <div className="admin-bubble-sender">العميل</div>
-                  <div style={{ fontStyle: 'italic', color: '#94a3b8' }}>يكتب...</div>
+                  <div style={{ fontStyle: 'italic', color: 'var(--admin-text-muted)' }}>يكتب...</div>
                 </div>
               )}
             </div>
             <div className="order-chat-input">
               {audio.recording ? (
                 <>
-                  <span style={{ color: '#ef4444', fontSize: '0.8rem', padding: '0 0.3rem', alignSelf: 'center' }}>{audio.formatTime(audio.recordingTime)}</span>
+                  <span style={{ color: 'var(--admin-danger)', fontSize: '0.8rem', padding: '0 0.3rem', alignSelf: 'center' }}>{audio.formatTime(audio.recordingTime)}</span>
                   <button className="chat-mic-btn recording" onClick={async () => { const blob = await audio.stopRecording(); if (blob && blob.size > 1000) { try { const url = await audio.uploadAudio(blob, chatOrder); const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, makeVoiceText(url), chatOrder, null, currentStaff?.name, o?.phone); } catch (e) { console.error('voice fail', e); } } }} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
                 </>
               ) : (
@@ -469,9 +469,9 @@ const handleStatusChange = (order, newStatus) => {
       )}
       {etaModalOrder && (
         <div className="confirm-overlay" onClick={() => setEtaModalOrder(null)}>
-          <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: '#0a2e1a', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: '#ffffff', fontSize: '1rem' }}>⏱ وقت التوصيل المقدر</p>
-            <p style={{ marginBottom: '1rem', color: '#cbd5e1', fontSize: '0.85rem' }}>
+          <div className="confirm-dialog" onClick={e => e.stopPropagation()} style={{ background: 'var(--admin-card-bg)', border: '1px solid var(--admin-border)' }}>
+            <p style={{ marginBottom: '0.75rem', fontWeight: 700, color: 'var(--admin-text)', fontSize: '1rem' }}>⏱ وقت التوصيل المقدر</p>
+            <p style={{ marginBottom: '1rem', color: 'var(--admin-text-soft)', fontSize: '0.85rem' }}>
               أدخل الوقت المتوقع للتوصيل بالدقائق للطلب #{etaModalOrder.id.slice(-6)}
             </p>
             <input
