@@ -1154,6 +1154,14 @@
 .admin-layout .admin-sidebar-title {
   color: var(--admin-text) !important;
 }
+.admin-sidebar-user {
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  color: var(--admin-accent) !important;
+  padding: 0 1.25rem 0.5rem !important;
+  margin: 0 !important;
+  opacity: 0.85 !important;
+}
 .admin-sidebar-link {
   color: var(--admin-text-soft) !important;
 }

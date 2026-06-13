@@ -324,6 +324,7 @@ export default function Admin() {
       </div>
       <aside className="admin-sidebar">
         <h2 className="admin-sidebar-title">{isDriver ? 'لوحة الكابتن' : 'لوحة التحكم'}</h2>
+        {currentStaff?.name && <p className="admin-sidebar-user">{currentStaff.name}</p>}
         {tabs.map(t => (
           <button key={t.id} className={`admin-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => switchTab(t.id)}>
             <TabIcon name={t.icon} badge={t.badge} />
