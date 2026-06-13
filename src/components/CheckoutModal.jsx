@@ -5,7 +5,7 @@ import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
 import { ordersApi } from '../supabase/orders';
 import { supabase } from '../supabase/client';
-import { SHOP_POS, haversineKm } from '../utils/constants';
+import { SHOP_POS, haversineKm, WHATSAPP_NUM } from '../utils/constants';
 
 function getSavedCheckout(userEmail) {
   try {
@@ -179,6 +179,13 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
               <div style={{textAlign:'center',padding:'0.75rem',background:'#fee2e2',borderRadius:'8px',marginBottom:'0.75rem',color:'#991b1b',fontSize:'0.85rem'}}>
                 {locationError}
               </div>
+            )}
+            {locationError && (
+              <a href={`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent('السلام عليكم، أريد مشاركة موقع التوصيل الخاص بي')}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'0.5rem',width:'100%',padding:'0.85rem',background:'#25D366',borderRadius:'12px',fontSize:'0.95rem',fontWeight:600,color:'#fff',cursor:'pointer',marginBottom:'0.75rem',textDecoration:'none'}}>
+                💬 مشاركة الموقع عبر واتساب
+              </a>
             )}
             {isOutsideService && (
               <div style={{textAlign:'center',padding:'0.85rem',background:'#fee2e2',borderRadius:'8px',marginBottom:'0.75rem',color:'#991b1b',fontSize:'0.9rem',fontWeight:600}}>
