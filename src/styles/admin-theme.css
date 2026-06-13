@@ -11,7 +11,7 @@
   --border: rgba(5, 150, 105, 0.15);
   --border-subtle: rgba(5, 150, 105, 0.08);
   --admin-bg: #ecfdf5;
-  --admin-surface: #ffffff;
+  --admin-surface: linear-gradient(145deg, rgba(5,150,105,0.02), rgba(5,150,105,0.05));
   --admin-border: rgba(5, 150, 105, 0.15);
   --admin-border-subtle: rgba(5, 150, 105, 0.08);
   --admin-shadow: 0 1px 8px rgba(0,0,0,0.06);
@@ -24,18 +24,18 @@
   --admin-accent-gradient: linear-gradient(135deg, #059669, #047857);
   --admin-accent-hover-gradient: linear-gradient(135deg, #047857, #065f46);
   --admin-secondary: #10b981;
-  --admin-sidebar: #ffffff;
+  --admin-sidebar: linear-gradient(145deg, rgba(5,150,105,0.02), rgba(5,150,105,0.05));
   --admin-danger: #c0392b;
   --admin-danger-hover: #a93226;
   --admin-gold: #059669;
   --admin-gold-light: rgba(5, 150, 105, 0.06);
-  --admin-input-bg: #ffffff;
+  --admin-input-bg: rgba(5, 150, 105, 0.03);
   --admin-input-border: rgba(5, 150, 105, 0.2);
-  --admin-input-focus-bg: #ffffff;
+  --admin-input-focus-bg: rgba(5, 150, 105, 0.05);
   --admin-input-focus-shadow: rgba(5, 150, 105, 0.15);
   --admin-bg-solid: #ecfdf5;
   --admin-highlight-bg: rgba(5, 150, 105, 0.08);
-  --admin-product-card-bg: #ffffff;
+  --admin-product-card-bg: linear-gradient(145deg, rgba(5,150,105,0.02), rgba(5,150,105,0.05));
   --auth-bg: #ecfdf5;
   --auth-card-bg: #ffffff;
   --auth-card-shadow: 0 1px 8px rgba(0,0,0,0.06);
@@ -211,7 +211,7 @@
   --border: rgba(255, 255, 255, 0.15);
   --border-subtle: rgba(255, 255, 255, 0.06);
   --admin-bg: #020f08;
-  --admin-surface: rgba(255,255,255,0.1);
+  --admin-surface: linear-gradient(145deg, rgba(16,185,129,0.04), rgba(16,185,129,0.08));
   --admin-border: rgba(255, 255, 255, 0.15);
   --admin-border-subtle: rgba(255, 255, 255, 0.06);
   --admin-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
@@ -224,18 +224,18 @@
   --admin-accent-gradient: linear-gradient(135deg, #10b981, #059669);
   --admin-accent-hover-gradient: linear-gradient(135deg, #059669, #047857);
   --admin-secondary: #ffffff;
-  --admin-sidebar: rgba(2,15,8,0.96);
+  --admin-sidebar: linear-gradient(180deg, rgba(2,15,8,0.98), rgba(2,15,8,0.94));
   --admin-danger: #ef4444;
   --admin-danger-hover: #dc2626;
   --admin-gold: #e2e8f0;
-  --admin-gold-light: rgba(255,255,255,0.08);
-  --admin-input-bg: rgba(255,255,255,0.06);
+  --admin-gold-light: rgba(16,185,129,0.1);
+  --admin-input-bg: rgba(16,185,129,0.05);
   --admin-input-border: rgba(255, 255, 255, 0.2);
-  --admin-input-focus-bg: rgba(255,255,255,0.1);
-  --admin-input-focus-shadow: rgba(255, 255, 255, 0.15);
+  --admin-input-focus-bg: rgba(16,185,129,0.08);
+  --admin-input-focus-shadow: rgba(16, 185, 129, 0.15);
   --admin-bg-solid: #020f08;
-  --admin-highlight-bg: rgba(16, 185, 129, 0.1);
-  --admin-product-card-bg: rgba(255,255,255,0.04);
+  --admin-highlight-bg: rgba(16, 185, 129, 0.15);
+  --admin-product-card-bg: linear-gradient(145deg, rgba(16,185,129,0.04), rgba(16,185,129,0.08));
   --auth-bg: linear-gradient(180deg, #020f08 0%, #052213 50%, #020f08 100%);
   --auth-card-bg: rgba(2,15,8,0.92);
   --auth-card-border: 1px solid rgba(255,255,255,0.15);
@@ -426,7 +426,7 @@
     radial-gradient(ellipse 75% 55% at 100% 0%, rgba(191,219,254,0.4) 0%, transparent 60%),
     radial-gradient(ellipse 60% 45% at 0% 100%, rgba(219,234,254,0.3) 0%, transparent 50%),
     linear-gradient(180deg, #eff6ff 0%, #dbeafe 40%, #bfdbfe 70%, #93c5fd 100%);
-  --admin-surface: rgba(219, 234, 254, 0.7);
+  --admin-surface: linear-gradient(145deg, rgba(219, 234, 254, 0.65), rgba(191, 219, 254, 0.75));
   --admin-border: rgba(30, 64, 175, 0.2);
   --admin-border-subtle: rgba(30, 64, 175, 0.1);
   --admin-shadow: 0 8px 32px rgba(30, 64, 175, 0.08);
@@ -439,18 +439,18 @@
   --admin-accent-gradient: linear-gradient(135deg, #1e40af, #1d4ed8);
   --admin-accent-hover-gradient: linear-gradient(135deg, #1d4ed8, #2563eb);
   --admin-secondary: #ea580c;
-  --admin-sidebar: rgba(219, 234, 254, 0.9);
+  --admin-sidebar: linear-gradient(180deg, rgba(219, 234, 254, 0.92), rgba(191, 219, 254, 0.88));
   --admin-danger: #c0392b;
   --admin-danger-hover: #a93226;
   --admin-gold: #ea580c;
   --admin-gold-light: rgba(234, 88, 12, 0.12);
-  --admin-input-bg: rgba(219, 234, 254, 0.7);
+  --admin-input-bg: rgba(219, 234, 254, 0.6);
   --admin-input-border: rgba(30, 64, 175, 0.2);
-  --admin-input-focus-bg: rgba(219, 234, 254, 0.9);
+  --admin-input-focus-bg: rgba(219, 234, 254, 0.8);
   --admin-input-focus-shadow: rgba(30, 64, 175, 0.15);
   --admin-bg-solid: #eff6ff;
   --admin-highlight-bg: rgba(30, 64, 175, 0.12);
-  --admin-product-card-bg: rgba(219, 234, 254, 0.6);
+  --admin-product-card-bg: linear-gradient(145deg, rgba(219, 234, 254, 0.55), rgba(191, 219, 254, 0.65));
   --auth-bg: linear-gradient(135deg, #1e3a5f, #1e40af, #2563eb);
   --auth-card-bg: rgba(219, 234, 254, 0.9);
   --auth-card-shadow: 0 20px 60px rgba(30, 64, 175, 0.2);
@@ -642,7 +642,7 @@
     radial-gradient(ellipse 75% 55% at 100% 0%, rgba(191,219,254,0.4) 0%, transparent 60%),
     radial-gradient(ellipse 60% 45% at 0% 100%, rgba(219,234,254,0.3) 0%, transparent 50%),
     linear-gradient(180deg, #fff7ed 0%, #ffedd5 40%, #fed7aa 70%, #fdba74 100%);
-  --admin-surface: rgba(254, 243, 199, 0.7);
+  --admin-surface: linear-gradient(145deg, rgba(254, 243, 199, 0.65), rgba(254, 215, 170, 0.75));
   --admin-border: rgba(30, 64, 175, 0.2);
   --admin-border-subtle: rgba(30, 64, 175, 0.1);
   --admin-shadow: 0 8px 32px rgba(30, 64, 175, 0.08);
@@ -655,18 +655,18 @@
   --admin-accent-gradient: linear-gradient(135deg, #ea580c, #c2410c);
   --admin-accent-hover-gradient: linear-gradient(135deg, #c2410c, #9a3412);
   --admin-secondary: #1e40af;
-  --admin-sidebar: rgba(254, 243, 199, 0.9);
+  --admin-sidebar: linear-gradient(180deg, rgba(254, 243, 199, 0.92), rgba(254, 215, 170, 0.88));
   --admin-danger: #c0392b;
   --admin-danger-hover: #a93226;
   --admin-gold: #ea580c;
   --admin-gold-light: rgba(234, 88, 12, 0.15);
-  --admin-input-bg: rgba(254, 243, 199, 0.7);
+  --admin-input-bg: rgba(254, 243, 199, 0.6);
   --admin-input-border: rgba(30, 64, 175, 0.2);
-  --admin-input-focus-bg: rgba(254, 243, 199, 0.9);
+  --admin-input-focus-bg: rgba(254, 243, 199, 0.8);
   --admin-input-focus-shadow: rgba(30, 64, 175, 0.15);
   --admin-bg-solid: #fff7ed;
   --admin-highlight-bg: rgba(234, 88, 12, 0.12);
-  --admin-product-card-bg: rgba(254, 243, 199, 0.6);
+  --admin-product-card-bg: linear-gradient(145deg, rgba(254, 243, 199, 0.55), rgba(254, 215, 170, 0.65));
   --auth-bg: linear-gradient(135deg, #7c2d12, #c2410c, #ea580c);
   --auth-card-bg: rgba(254, 243, 199, 0.9);
   --auth-card-shadow: 0 20px 60px rgba(234, 88, 12, 0.2);
@@ -872,7 +872,7 @@
     radial-gradient(ellipse 75% 55% at 100% 0%, rgba(186,230,253,0.4) 0%, transparent 60%),
     radial-gradient(ellipse 60% 45% at 0% 100%, rgba(224,242,254,0.3) 0%, transparent 50%),
     linear-gradient(180deg, #fdf2f8 0%, #fce7f3 40%, #fbcfe8 70%, #f9a8d4 100%);
-  --admin-surface: rgba(252, 231, 243, 0.7);
+  --admin-surface: linear-gradient(145deg, rgba(252, 231, 243, 0.65), rgba(251, 207, 232, 0.75));
   --admin-border: rgba(56, 189, 248, 0.25);
   --admin-border-subtle: rgba(56, 189, 248, 0.1);
   --admin-shadow: 0 8px 32px rgba(56, 189, 248, 0.12);
@@ -884,18 +884,18 @@
   --admin-accent-text: #1e293b;
   --admin-accent-gradient: linear-gradient(135deg, #38bdf8, #0ea5e9);
   --admin-accent-hover-gradient: linear-gradient(135deg, #0ea5e9, #0284c7);
-  --admin-sidebar: rgba(252, 231, 243, 0.9);
+  --admin-sidebar: linear-gradient(180deg, rgba(252, 231, 243, 0.92), rgba(251, 207, 232, 0.88));
   --admin-danger: #c0392b;
   --admin-danger-hover: #a93226;
   --admin-gold: #db2777;
   --admin-gold-light: rgba(219, 39, 119, 0.12);
-  --admin-input-bg: rgba(252, 231, 243, 0.7);
+  --admin-input-bg: rgba(252, 231, 243, 0.6);
   --admin-input-border: rgba(56, 189, 248, 0.25);
-  --admin-input-focus-bg: rgba(252, 231, 243, 0.9);
+  --admin-input-focus-bg: rgba(252, 231, 243, 0.8);
   --admin-input-focus-shadow: rgba(56, 189, 248, 0.15);
   --admin-bg-solid: #fdf2f8;
   --admin-highlight-bg: rgba(56, 189, 248, 0.12);
-  --admin-product-card-bg: rgba(252, 231, 243, 0.6);
+  --admin-product-card-bg: linear-gradient(145deg, rgba(252, 231, 243, 0.55), rgba(251, 207, 232, 0.65));
   --auth-bg: linear-gradient(135deg, #0c4a6e, #0ea5e9, #38bdf8);
   --auth-card-bg: rgba(252, 231, 243, 0.9);
   --auth-card-shadow: 0 20px 60px rgba(56, 189, 248, 0.2);
@@ -2878,6 +2878,15 @@
 /* Chat time stamp */
 .admin-bubble-time {
   font-size: 0.7rem !important;
+}
+
+/* ─── ALL Admin Text Bold ─── */
+/* Base bold for all admin content — font-weight is inherited */
+.admin-content,
+.driver-orders-wrapper,
+.staff-manager,
+.admin-chat-modal {
+  font-weight: 700 !important;
 }
 
 /* Ensure high contrast text on all surfaces */

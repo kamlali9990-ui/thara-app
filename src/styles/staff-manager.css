@@ -2270,7 +2270,7 @@
 /* Waiting for confirmation badge */
 .driver-status-waiting {
   color: var(--admin-warning);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.85rem;
 }
 
@@ -2298,7 +2298,7 @@
   font-size: 0.85rem !important;
 }
 .order-compact-time {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.72rem !important;
 }
 .order-compact-phone {
@@ -2306,7 +2306,7 @@
   font-size: 0.82rem !important;
 }
 .order-compact-addr {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.72rem !important;
 }
 .order-compact-total {
@@ -2325,11 +2325,11 @@
   font-size: 0.82rem !important;
 }
 .order-info-value {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.82rem !important;
 }
 .order-product-row {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.85rem !important;
 }
 .order-product-qty {
@@ -2362,7 +2362,7 @@
   font-weight: 800 !important;
 }
 .admin-empty-state {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.9rem !important;
 }
 
@@ -2372,12 +2372,12 @@
   font-size: 0.62rem !important;
 }
 .admin-mobile-tab {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 
 /* Sidebar tabs */
 .admin-sidebar-tab {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   font-size: 0.82rem !important;
 }
 .admin-sidebar-tab.active {
@@ -2391,7 +2391,7 @@
 
 /* Product admin */
 .admin-product-form-input {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 .admin-product-name {
   font-weight: 700 !important;
@@ -2403,7 +2403,7 @@
   font-weight: 700 !important;
 }
 .pr-stock {
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 
 /* Order list items */
