@@ -2840,3 +2840,71 @@
 }
 .diag-status-icon.pass { background: rgba(34,197,94,0.15); color: #4ade80; }
 .diag-status-icon.fail { background: rgba(239,68,68,0.15); color: #f87171; }
+
+/* ─── Ensure Readable Text Across All Themes ─── */
+
+/* Base minimum font for admin */
+.admin-content {
+  font-size: 0.85rem !important;
+}
+
+/* Mobile tabs too small → make readable */
+.admin-mobile-tab {
+  font-size: 0.72rem !important;
+}
+.admin-mobile-tab-label {
+  font-size: 0.7rem !important;
+}
+
+/* Order compact info */
+.order-compact-time {
+  font-size: 0.75rem !important;
+}
+.order-compact-phone {
+  font-size: 0.82rem !important;
+}
+.order-compact-addr {
+  font-size: 0.78rem !important;
+}
+.order-compact-footer {
+  font-size: 0.75rem !important;
+}
+
+/* Retry / small labels */
+.admin-retry-btn {
+  font-size: 0.75rem !important;
+}
+
+/* Chat time stamp */
+.admin-bubble-time {
+  font-size: 0.7rem !important;
+}
+
+/* Ensure high contrast text on all surfaces */
+.admin-card,
+.order-compact,
+.order-details,
+.order-info-section,
+.order-products-section {
+  color: var(--admin-text) !important;
+}
+
+/* Comfortable container padding */
+.admin-card.order-card {
+  padding: 0 !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+}
+.order-compact {
+  padding: 0.65rem 0.75rem !important;
+  gap: 0.5rem !important;
+}
+.order-details {
+  padding: 0.85rem 0.75rem !important;
+}
+
+/* Stat cards spacing */
+.admin-stat-card-bg {
+  padding: 0.6rem !important;
+  border-radius: 12px !important;
+}
