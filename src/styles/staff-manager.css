@@ -2524,3 +2524,79 @@
   line-height: 1.6 !important;
   font-weight: 700 !important;
 }
+
+/* ─── Admin Orders ─── */
+.driver-stats-container {
+  display: flex !important;
+  gap: 0.5rem !important;
+  margin-bottom: 1.5rem !important;
+  width: 100% !important;
+}
+.driver-stat-card {
+  flex: 1 !important;
+  padding: 0.75rem 0.25rem !important;
+  text-align: center !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border-radius: 12px !important;
+  background: var(--admin-highlight-bg) !important;
+  border: 1px solid var(--admin-border) !important;
+}
+.driver-stat-card span {
+  font-size: 0.75rem !important;
+  color: var(--admin-text-muted) !important;
+  margin-bottom: 0.25rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+}
+.driver-stat-card strong {
+  font-size: 1.25rem !important;
+  color: var(--admin-text) !important;
+}
+.driver-stat-card.active {
+  border-width: 2px !important;
+}
+.driver-stat-card.active.available {
+  background: rgba(var(--admin-info-rgb), 0.3) !important;
+  border-color: var(--admin-info) !important;
+}
+.driver-stat-card.active.assigned {
+  background: rgba(var(--admin-info-rgb), 0.25) !important;
+  border-color: var(--admin-info) !important;
+}
+.driver-stat-card.active.completed {
+  background: rgba(var(--admin-success-rgb), 0.25) !important;
+  border-color: var(--admin-success) !important;
+}
+
+.driver-sub-title {
+  margin-top: 0.5rem !important;
+  margin-bottom: 1rem !important;
+  color: var(--admin-text-soft) !important;
+  font-weight: 800 !important;
+}
+
+.load-more-btn {
+  background: var(--admin-accent) !important;
+  color: var(--admin-accent-text) !important;
+  border: none !important;
+  padding: 0.6rem 1.5rem !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  font-size: 0.9rem !important;
+  font-weight: 800 !important;
+  font-family: inherit !important;
+}
+.load-more-btn:hover {
+  opacity: 0.85 !important;
+}
+
+.archived-toggle-btn {
+  border-color: var(--admin-text-muted) !important;
+}
+.empty-orders-text {
+  color: var(--admin-text-muted) !important;
+}

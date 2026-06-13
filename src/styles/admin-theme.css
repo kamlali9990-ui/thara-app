@@ -64,6 +64,7 @@
   --admin-warning: #f59e0b;
   --admin-warning-hover: #d97706;
   --admin-info: #3b82f6;
+  --admin-info-rgb: 59, 130, 246;
   --admin-info-hover: #2563eb;
   --admin-status-new-bg: #dbeafe;
   --admin-status-new-text: #1d4ed8;
@@ -267,6 +268,7 @@
   --admin-warning: #fbbf24;
   --admin-warning-hover: #f59e0b;
   --admin-info: #60a5fa;
+  --admin-info-rgb: 96, 165, 250;
   --admin-info-hover: #3b82f6;
   --admin-status-new-bg: rgba(96, 165, 250, 0.2);
   --admin-status-new-text: #93c5fd;
@@ -483,6 +485,7 @@
   --admin-warning: #f59e0b;
   --admin-warning-hover: #d97706;
   --admin-info: #3b82f6;
+  --admin-info-rgb: 59, 130, 246;
   --admin-info-hover: #2563eb;
   --admin-status-new-bg: rgba(59, 130, 246, 0.15);
   --admin-status-new-text: #2563eb;
@@ -701,6 +704,7 @@
   --admin-warning: #f59e0b;
   --admin-warning-hover: #d97706;
   --admin-info: #3b82f6;
+  --admin-info-rgb: 59, 130, 246;
   --admin-info-hover: #2563eb;
   --admin-status-new-bg: rgba(59, 130, 246, 0.15);
   --admin-status-new-text: #2563eb;
@@ -933,6 +937,7 @@
   --admin-warning: #f59e0b;
   --admin-warning-hover: #d97706;
   --admin-info: #2563eb;
+  --admin-info-rgb: 37, 99, 235;
   --admin-info-hover: #1d4ed8;
   --admin-status-new-bg: rgba(37, 99, 235, 0.15);
   --admin-status-new-text: #1d4ed8;

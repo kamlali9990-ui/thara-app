@@ -190,7 +190,7 @@ const handleStatusChange = (order, newStatus) => {
               }
             }
           }}
-          style={{ backgroundColor: '#127443', color: '#fff', fontWeight: 'bold' }}
+          style={{ backgroundColor: 'var(--admin-accent)', color: 'var(--admin-accent-text)' }}
         >
           قبول واستلام الطلب
         </button>
@@ -219,7 +219,7 @@ const handleStatusChange = (order, newStatus) => {
       );
     }
     if (order.status === 'تم التوصيل') {
-      return <span className="driver-status-done" style={{ color: '#fbbf24' }}>بانتظار تأكيد الإدارة</span>;
+      return <span className="driver-status-done" style={{ color: 'var(--admin-warning)' }}>بانتظار تأكيد الإدارة</span>;
     }
     return <span className="driver-status-done">مكتمل</span>;
   };
@@ -242,7 +242,7 @@ const handleStatusChange = (order, newStatus) => {
       <button onClick={() => doUpdate(order, 'قيد التحضير')} className="btn btn-accept" style={{ padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>استلام الطلب</button>
     );
     if (order.status === 'تم التوصيل') return (
-      <button onClick={() => doUpdate(order, 'مكتمل')} className="btn btn-accept" style={{ background: '#10b981', padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>✅ تأكيد التوصيل</button>
+      <button onClick={() => doUpdate(order, 'مكتمل')} className="btn btn-accept" style={{ background: 'var(--admin-success)', padding: '0.35rem 0.75rem', fontSize: '0.8rem' }}>✅ تأكيد التوصيل</button>
     );
     return (
       <select value={order.status} onChange={e => handleStatusChange(order, e.target.value)} className="order-status-select" style={{ padding: '0.25rem 0.4rem', fontSize: '0.8rem', maxWidth: '130px' }}>
@@ -483,23 +483,24 @@ const handleStatusChange = (order, newStatus) => {
               style={{
                 width: '100%',
                 padding: '0.75rem 1rem',
-                border: '1.5px solid rgba(255,255,255,0.15)',
+                border: '0.5px solid var(--admin-border)',
                 borderRadius: '12px',
                 fontSize: '1.1rem',
                 fontFamily: 'inherit',
-                background: 'rgba(0,0,0,0.3)',
-                color: '#ffffff',
+                background: 'var(--admin-input-bg)',
+                color: 'var(--admin-text)',
                 outline: 'none',
                 marginBottom: '1rem',
                 boxSizing: 'border-box',
-                textAlign: 'center'
+                textAlign: 'center',
+                fontWeight: 800
               }}
             />
             <div className="confirm-actions">
-              <button className="confirm-btn confirm-yes" onClick={confirmEtaModal} style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#451a03', fontWeight: 800 }}>
+              <button className="confirm-btn confirm-yes" onClick={confirmEtaModal} style={{ background: 'var(--admin-accent)', color: 'var(--admin-accent-text)', fontWeight: 800 }}>
                 تأكيد وبدء التوصيل
               </button>
-              <button className="confirm-btn confirm-no" onClick={() => setEtaModalOrder(null)} style={{ background: 'rgba(255,255,255,0.1)', color: '#ffffff' }}>
+              <button className="confirm-btn confirm-no" onClick={() => setEtaModalOrder(null)} style={{ background: 'var(--admin-highlight-bg)', color: 'var(--admin-text)' }}>
                 إلغاء
               </button>
             </div>
@@ -508,20 +509,20 @@ const handleStatusChange = (order, newStatus) => {
       )}
       <h2 className="admin-section-title orders-title">{isDriver ? 'طلبات التوصيل' : 'إدارة الطلبات'}</h2>
       {isDriver ? (
-        <div className="driver-stats-container" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', width: '100%' }}>
-          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: activeDriverTab === 'available' ? 'rgba(37, 99, 235, 0.4)' : 'rgba(37, 99, 235, 0.15)', borderColor: activeDriverTab === 'available' ? '#3b82f6' : 'rgba(37, 99, 235, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setActiveDriverTab('available')}>
-            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+        <div className="driver-stats-container">
+          <div className={`driver-stat-card${activeDriverTab === 'available' ? ' active available' : ''}`} onClick={() => setActiveDriverTab('available')}>
+            <span>
               متاحة {(stats.newOrders + stats.preparing) > 0 && <span className="bell-ring">🔔</span>}
             </span>
-            <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.newOrders + stats.preparing}</strong>
+            <strong>{stats.newOrders + stats.preparing}</strong>
           </div>
-          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: activeDriverTab === 'assigned' ? 'rgba(139, 92, 246, 0.4)' : 'rgba(139, 92, 246, 0.15)', borderColor: activeDriverTab === 'assigned' ? '#c084fc' : 'rgba(139, 92, 246, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setActiveDriverTab('assigned')}>
-            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>مكلف بها</span>
-            <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.onRoute}</strong>
+          <div className={`driver-stat-card${activeDriverTab === 'assigned' ? ' active assigned' : ''}`} onClick={() => setActiveDriverTab('assigned')}>
+            <span>مكلف بها</span>
+            <strong>{stats.onRoute}</strong>
           </div>
-          <div className="admin-stat-card" style={{ flex: '1', backgroundColor: activeDriverTab === 'completed' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(16, 185, 129, 0.15)', borderColor: activeDriverTab === 'completed' ? '#34d399' : 'rgba(16, 185, 129, 0.3)', padding: '0.75rem 0.25rem', textAlign: 'center', alignItems: 'center', cursor: 'pointer', transition: 'all 0.2s' }} onClick={() => setActiveDriverTab('completed')}>
-            <span style={{ fontSize: '0.75rem', color: '#fff', marginBottom: '0.25rem' }}>مكتملة</span>
-            <strong style={{ fontSize: '1.25rem', color: '#fff' }}>{stats.completed}</strong>
+          <div className={`driver-stat-card${activeDriverTab === 'completed' ? ' active completed' : ''}`} onClick={() => setActiveDriverTab('completed')}>
+            <span>مكتملة</span>
+            <strong>{stats.completed}</strong>
           </div>
         </div>
       ) : (
@@ -538,10 +539,10 @@ const handleStatusChange = (order, newStatus) => {
         <div className="driver-tab-content" style={{ minHeight: '300px' }}>
           {activeDriverTab === 'available' && (
             <>
-              <h3 className="driver-sub-title" style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#3b82f6', fontWeight: 'bold' }}>📦 طلبات متوفرة ومتاحة للتوصيل ({orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length})</h3>
+              <h3 className="driver-sub-title">📦 طلبات متوفرة ومتاحة للتوصيل ({orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length})</h3>
               <div className="admin-orders-list">
                 {orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).length === 0 ? (
-                  <div className="empty-orders" style={{ color: '#fff' }}>لا توجد طلبات متوفرة للتوصيل حالياً.</div>
+                  <div className="empty-orders">لا توجد طلبات متوفرة للتوصيل حالياً.</div>
                 ) : (
                   orders.filter(o => o.status !== 'مكتمل' && !o.assignedDriverId).map(order => renderOrderCard(order))
                 )}
@@ -551,10 +552,10 @@ const handleStatusChange = (order, newStatus) => {
 
           {activeDriverTab === 'assigned' && (
             <>
-              <h3 className="driver-sub-title" style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#c084fc', fontWeight: 'bold' }}>🏍️ طلباتي المكلف بها حالياً ({orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length})</h3>
+              <h3 className="driver-sub-title">🏍️ طلباتي المكلف بها حالياً ({orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length})</h3>
               <div className="admin-orders-list">
                 {orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).length === 0 ? (
-                  <div className="empty-orders" style={{ color: '#fff' }}>لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
+                  <div className="empty-orders">لا توجد لديك طلبات جارية مكلف بها حالياً.</div>
                 ) : (
                   orders.filter(o => o.status !== 'مكتمل' && o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id)).map(order => renderOrderCard(order))
                 )}
@@ -564,10 +565,10 @@ const handleStatusChange = (order, newStatus) => {
 
           {activeDriverTab === 'completed' && (
             <>
-              <h3 className="driver-sub-title" style={{ marginTop: '0.5rem', marginBottom: '1rem', color: '#34d399', fontWeight: 'bold' }}>✅ أرشيف الطلبات المكتملة ({completedOrders.length})</h3>
+              <h3 className="driver-sub-title">✅ أرشيف الطلبات المكتملة ({completedOrders.length})</h3>
               <div className="admin-orders-list completed-orders-list">
                 {completedOrders.length === 0 ? (
-                  <div className="empty-orders" style={{ color: '#fff' }}>لا توجد طلبات مكتملة.</div>
+                  <div className="empty-orders">لا توجد طلبات مكتملة.</div>
                 ) : (
                   completedOrders.map(order => renderOrderCard(order, { compact: true }))
                 )}
@@ -584,7 +585,7 @@ const handleStatusChange = (order, newStatus) => {
           {activeOrders.length > activeVisible && (
             <div style={{ textAlign: 'center', margin: '1rem 0' }}>
               <button onClick={() => setActiveVisible(prev => prev + ORDERS_PAGE_SIZE)}
-                style={{ background: '#127443', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                className="load-more-btn">
                 تحميل المزيد ({activeOrders.length - activeVisible} متبقي)
               </button>
             </div>
@@ -606,7 +607,7 @@ const handleStatusChange = (order, newStatus) => {
               {completedOrders.length > completedVisible && (
                 <div style={{ textAlign: 'center', margin: '1rem 0' }}>
                   <button onClick={() => setCompletedVisible(prev => prev + ORDERS_PAGE_SIZE)}
-                    style={{ background: '#127443', color: '#fff', border: 'none', padding: '0.6rem 1.5rem', borderRadius: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    className="load-more-btn">
                     تحميل المزيد ({completedOrders.length - completedVisible} متبقي)
                   </button>
                 </div>
@@ -619,16 +620,15 @@ const handleStatusChange = (order, newStatus) => {
       {staffRole === 'admin' && (
         <div className="completed-orders-section" style={{ marginTop: '0.75rem' }}>
           <button
-            className="completed-toggle-btn"
+            className="completed-toggle-btn archived-toggle-btn"
             onClick={() => setShowArchived(prev => !prev)}
-            style={{ borderColor: '#64748b' }}
           >
             {showArchived ? '▾' : '▸'} 📦 أرشيف الطلبات ({archivedOrders.length})
           </button>
           {showArchived && (
             <div className="admin-orders-list completed-orders-list">
               {archivedOrders.length === 0 ? (
-                <div className="empty-orders" style={{ color: '#64748b' }}>لا توجد طلبات في الأرشيف.</div>
+                <div className="empty-orders empty-orders-text">لا توجد طلبات في الأرشيف.</div>
               ) : (
                 archivedOrders.map(order => (
                   <div key={order.id} style={{ position: 'relative' }}>
