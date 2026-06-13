@@ -2,6 +2,7 @@ import { memo, useContext, useEffect, useState, useRef } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import useAudioRecorder, { isVoiceMessage, getVoiceUrl, makeVoiceText } from '../hooks/useAudioRecorder';
 import VoiceMessage from '../components/VoiceMessage';
+import { parseOrderLocation, getMapLinks } from '../utils/location';
 
 const STATUS_LABELS = {
   'جديد': { text: '🕐 بانتظار الاستلام', icon: '📋' },
@@ -176,6 +177,23 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
                     <strong>📍 العنوان:</strong> {order.deliveryAddress}
                   </div>
                 )}
+                {(() => {
+                  const coords = parseOrderLocation(order.location);
+                  if (!coords) return null;
+                  const links = getMapLinks(coords);
+                  return (
+                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.5rem' }}>
+                      <strong>📍 موقع الاستلام:</strong>
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.2rem', direction: 'ltr', textAlign: 'left' }}>
+                        {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}
+                      </div>
+                      <a href={links.googleDir} target="_blank" rel="noopener noreferrer"
+                        style={{ display: 'inline-block', marginTop: '0.3rem', color: '#22c55e', fontSize: '0.85rem', textDecoration: 'none' }}>
+                        🗺️ فتح في Google Maps
+                      </a>
+                    </div>
+                  );
+                })()}
                 {order.notes && (
                   <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
                     <strong>📝 ملاحظات:</strong> {order.notes}

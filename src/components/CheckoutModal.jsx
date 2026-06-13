@@ -41,7 +41,11 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const feeFetchRef = useRef(0);
   const locatedRef = useRef(false);
   const [locationSource, setLocationSource] = useState(''); // 'gps' | 'ip' | ''
-  const geoOptions = { enableHighAccuracy: true, timeout: 15000 };
+  const geoOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+  const watchIdRef = useRef(null);
+  const clearWatch = () => {
+    if (watchIdRef.current != null) { navigator.geolocation.clearWatch(watchIdRef.current); watchIdRef.current = null; }
+  };
   const locateByIP = async () => {
     try {
       const r = await fetch('https://ip-api.com/json/?fields=lat,lon,status');
@@ -76,7 +80,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     }
     setLocationError('');
     setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
+    clearWatch();
+    watchIdRef.current = navigator.geolocation.watchPosition(
       onLocateSuccess,
       async () => {
         const ok = await locateByIP();
@@ -94,7 +99,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
       if (p.state === 'denied') { locateByIP(); return; }
     }).catch(() => {});
     setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(onLocateSuccess, () => { setIsLocating(false); locateByIP(); }, geoOptions);
+    watchIdRef.current = navigator.geolocation.watchPosition(onLocateSuccess, () => { setIsLocating(false); locateByIP(); }, geoOptions);
+    return () => clearWatch();
   }, []);
   const MAX_DELIVERY_KM = 15;
   const isOutsideService = position && haversineKm(SHOP_POS, position) > MAX_DELIVERY_KM;
@@ -180,13 +186,11 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
                 {locationError}
               </div>
             )}
-            {locationError && (
-              <a href={`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent('السلام عليكم، أريد مشاركة موقع التوصيل الخاص بي')}`}
-                target="_blank" rel="noopener noreferrer"
-                style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'0.5rem',width:'100%',padding:'0.85rem',background:'#25D366',borderRadius:'12px',fontSize:'0.95rem',fontWeight:600,color:'#fff',cursor:'pointer',marginBottom:'0.75rem',textDecoration:'none'}}>
-                💬 مشاركة الموقع عبر واتساب
-              </a>
-            )}
+            <a href={`https://wa.me/${WHATSAPP_NUM}?text=${encodeURIComponent('السلام عليكم، هذا موقع توصيل طلبي')}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{display:'flex',alignItems:'center',justifyContent:'center',gap:'0.5rem',width:'100%',padding:'0.85rem',background:'#25D366',borderRadius:'12px',fontSize:'0.95rem',fontWeight:600,color:'#fff',cursor:'pointer',marginBottom:'0.75rem',textDecoration:'none'}}>
+              💬 أرسل موقعك عبر واتساب لدقة أعلى
+            </a>
             {isOutsideService && (
               <div style={{textAlign:'center',padding:'0.85rem',background:'#fee2e2',borderRadius:'8px',marginBottom:'0.75rem',color:'#991b1b',fontSize:'0.9rem',fontWeight:600}}>
                 🚫 المنطقة خارج نطاق الخدمة — الرجاء الاتصال بنا
