@@ -16,7 +16,7 @@ export default function DriverOrders() {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
-  const [tab, setTab] = useState('active');
+  const [tab, setTab] = useState('available');
   const audio = useAudioRecorder();
   const chatBodyRef = useRef(null);
 
@@ -29,10 +29,16 @@ export default function DriverOrders() {
   };
 
   const myOrders = orders.filter(o => o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id));
-  const active = myOrders.filter(o => o.status !== 'مكتمل' && o.status !== 'ملغي' && o.status !== 'تم التوصيل');
+  const available = orders.filter(o => !o.assignedDriverId && o.status !== 'مكتمل' && o.status !== 'ملغي');
+  const assigned = myOrders.filter(o => o.status !== 'مكتمل' && o.status !== 'ملغي' && o.status !== 'تم التوصيل');
   const completed = myOrders.filter(o => o.status === 'مكتمل');
-  const delivered = myOrders.filter(o => o.status === 'تم التوصيل');
   const revenue = completed.reduce((s, o) => s + Number(o.total || 0), 0);
+
+  const getTabOrders = () => {
+    if (tab === 'available') return available;
+    if (tab === 'assigned') return assigned;
+    return completed;
+  };
 
   const doUpdate = async (order, status) => {
     try {
@@ -40,6 +46,16 @@ export default function DriverOrders() {
       showToast(`تم تحديث الطلب إلى: ${status}`, 'success');
     } catch (err) {
       showToast('فشل التحديث: ' + (err.message || ''), 'error');
+    }
+  };
+
+  const handleClaim = async (order) => {
+    if (!window.confirm('هل أنت متأكد من رغبتك في قبول واستلام هذا الطلب لتوصيله؟')) return;
+    try {
+      await claimOrder(order.id);
+      showToast('تم قبول الطلب بنجاح', 'success');
+    } catch (err) {
+      showToast('فشل قبول الطلب: ' + (err.message || 'خطأ غير معروف'), 'error');
     }
   };
 
@@ -98,6 +114,14 @@ export default function DriverOrders() {
   }, [chatOrder, chatMessages]);
 
   const renderOrderActions = (order) => {
+    if (tab === 'available') {
+      return (
+        <button type="button" className="btn driver-action-btn" onClick={() => handleClaim(order)}
+          style={{ background: 'var(--admin-accent)', color: '#fff' }}>
+          قبول واستلام الطلب
+        </button>
+      );
+    }
     if (order.status === 'جديد') {
       return (
         <button type="button" className="btn driver-action-btn driver-action-accept" onClick={() => doUpdate(order, 'قيد التحضير')}>
@@ -166,6 +190,7 @@ export default function DriverOrders() {
     const meta = getStatusMeta(order.status);
     const coords = parseOrderLocation(order.location);
     const links = coords ? getMapLinks(coords) : null;
+    const isMine = String(order.assignedDriverId) === String(currentStaff?.id);
 
     return (
       <div key={order.id} className={`admin-card order-card ${getStatusClass(order.status)} ${isExpanded ? 'order-card-expanded' : ''} is-driver-view`}>
@@ -265,17 +290,18 @@ export default function DriverOrders() {
     );
   };
 
+  const tabOrders = getTabOrders();
+
   return (
     <div className="driver-orders-wrapper">
       <h2 className="admin-section-title">🏍️ نشاطي</h2>
 
       <div className="driver-orders-stats">
         {[
-          { label: 'إجمالي الطلبات', value: myOrders.length },
-          { label: 'قيد التوصيل', value: active.length },
-          { label: 'تم التوصيل', value: delivered.length },
-          { label: 'مكتمل', value: completed.length },
-          { label: 'إيرادات', value: revenue.toFixed(0) + ' ر.س' },
+          { label: '🆓 متاحة', value: available.length },
+          { label: '📦 مكلف بها', value: assigned.length },
+          { label: '✅ مكتملة', value: completed.length },
+          { label: '💰 إيرادات', value: revenue.toFixed(0) + ' ر.س' },
         ].map(c => (
           <div key={c.label} className="admin-stat-card-bg">
             <div className="admin-stat-label">{c.label}</div>
@@ -285,24 +311,24 @@ export default function DriverOrders() {
       </div>
 
       <div className="driver-orders-tabs">
-        <button className={`admin-sub-tab-btn ${tab === 'active' ? 'active' : ''}`} onClick={() => setTab('active')}>
-          🔄 قيد التوصيل ({active.length})
+        <button className={`admin-sub-tab-btn ${tab === 'available' ? 'active' : ''}`} onClick={() => { setTab('available'); setExpandedOrders(new Set()); }}>
+          🆓 متاحة ({available.length})
         </button>
-        <button className={`admin-sub-tab-btn ${tab === 'delivered' ? 'active' : ''}`} onClick={() => setTab('delivered')}>
-          ✅ تم التوصيل ({delivered.length})
+        <button className={`admin-sub-tab-btn ${tab === 'assigned' ? 'active' : ''}`} onClick={() => { setTab('assigned'); setExpandedOrders(new Set()); }}>
+          📦 مكلف بها ({assigned.length})
         </button>
-        <button className={`admin-sub-tab-btn ${tab === 'completed' ? 'active' : ''}`} onClick={() => setTab('completed')}>
-          ✔️ مكتمل ({completed.length})
+        <button className={`admin-sub-tab-btn ${tab === 'completed' ? 'active' : ''}`} onClick={() => { setTab('completed'); setExpandedOrders(new Set()); }}>
+          ✅ مكتملة ({completed.length})
         </button>
       </div>
 
       <div className="admin-orders-list">
-        {(tab === 'active' ? active : tab === 'delivered' ? delivered : completed).length === 0 ? (
+        {tabOrders.length === 0 ? (
           <div className="admin-empty-state">
-            {tab === 'active' ? 'لا توجد طلبات نشطة حالياً.' : tab === 'delivered' ? 'لا توجد طلبات بانتظار التأكيد.' : 'لا توجد طلبات مكتملة.'}
+            {tab === 'available' ? 'لا توجد طلبات متاحة حالياً.' : tab === 'assigned' ? 'لا توجد طلبات مكلف بها حالياً.' : 'لا توجد طلبات مكتملة.'}
           </div>
         ) : (
-          (tab === 'active' ? active : tab === 'delivered' ? delivered : completed).map(order => renderOrderCard(order))
+          tabOrders.map(order => renderOrderCard(order))
         )}
       </div>
 

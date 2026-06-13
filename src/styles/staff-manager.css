@@ -1925,6 +1925,52 @@
   padding: 0.3rem 0.8rem;
 }
 
+/* Driver order cards in driver view */
+.is-driver-view.order-card {
+  border-radius: 12px;
+  background: var(--admin-card-bg);
+}
+.is-driver-view .driver-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.is-driver-view .driver-action-btn:hover {
+  opacity: 0.85;
+}
+.is-driver-view .order-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.45rem 0.9rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  background: var(--admin-highlight-bg);
+  color: var(--admin-text);
+  transition: background 0.15s;
+}
+.is-driver-view .order-action-btn:hover {
+  background: var(--admin-hover-bg);
+}
+.is-driver-view .order-action-btn.chat {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+}
+.is-driver-view .order-action-btn.print {
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  color: var(--admin-text);
+}
+
 /* Expand icon */
 .order-compact-expand {
   display: flex;
@@ -2228,4 +2274,139 @@
   font-size: 0.85rem;
 }
 
+/* ─── Bold & Clear Fonts across Admin ─── */
+.admin-section-title {
+  font-weight: 800 !important;
+  font-size: 1.2rem !important;
+}
+.admin-stat-value {
+  font-weight: 800 !important;
+  font-size: 1.3rem !important;
+}
+.admin-stat-label {
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+}
+.admin-sub-tab-btn {
+  font-weight: 700 !important;
+}
+.admin-sub-tab-btn.active {
+  font-weight: 800 !important;
+}
+.order-compact-id {
+  font-weight: 800 !important;
+  font-size: 0.85rem !important;
+}
+.order-compact-time {
+  font-weight: 600 !important;
+  font-size: 0.72rem !important;
+}
+.order-compact-phone {
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+}
+.order-compact-addr {
+  font-weight: 600 !important;
+  font-size: 0.72rem !important;
+}
+.order-compact-total {
+  font-weight: 800 !important;
+  font-size: 0.9rem !important;
+}
+.order-status-label {
+  font-weight: 800 !important;
+  font-size: 0.8rem !important;
+}
+.order-status-pill {
+  font-weight: 800 !important;
+}
+.order-info-label {
+  font-weight: 700 !important;
+  font-size: 0.82rem !important;
+}
+.order-info-value {
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+}
+.order-product-row {
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+.order-product-qty {
+  font-weight: 700 !important;
+}
+.driver-action-btn {
+  font-weight: 800 !important;
+  font-size: 1rem !important;
+}
+.order-action-btn {
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+}
+.driver-map-link {
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+}
+.driver-eta {
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+}
+.driver-status-waiting {
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+}
+.admin-chat-send-btn {
+  font-weight: 700 !important;
+}
+.admin-chat-modal-header strong {
+  font-weight: 800 !important;
+}
+.admin-empty-state {
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+}
 
+/* Mobile nav bold */
+.admin-mobile-tab-label {
+  font-weight: 700 !important;
+  font-size: 0.62rem !important;
+}
+.admin-mobile-tab {
+  font-weight: 600 !important;
+}
+
+/* Sidebar tabs */
+.admin-sidebar-tab {
+  font-weight: 600 !important;
+  font-size: 0.82rem !important;
+}
+.admin-sidebar-tab.active {
+  font-weight: 700 !important;
+}
+
+/* Card headers */
+.admin-card-header strong {
+  font-weight: 800 !important;
+}
+
+/* Product admin */
+.admin-product-form-input {
+  font-weight: 600 !important;
+}
+.admin-product-name {
+  font-weight: 700 !important;
+}
+.pr-name {
+  font-weight: 700 !important;
+}
+.pr-price {
+  font-weight: 700 !important;
+}
+.pr-stock {
+  font-weight: 600 !important;
+}
+
+/* Order list items */
+.order-product-name {
+  font-weight: 700 !important;
+}
