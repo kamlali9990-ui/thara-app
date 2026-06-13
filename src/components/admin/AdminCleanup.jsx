@@ -41,11 +41,13 @@ export default function AdminCleanup({ currentStaff }) {
     }
   };
 
+  const ready = confirmText === 'حذف' && selected.length > 0;
+
   return (
     <div>
       <h2 className="admin-section-title">🧹 تنظيف النظام</h2>
       <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1rem' }}>
-        <p style={{ color: '#fca5a5', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: '1.5' }}>
+        <p style={{ color: 'var(--admin-danger)', fontSize: '0.85rem', marginBottom: '1rem', lineHeight: '1.5' }}>
           ⚠️ هذه العملية نهائية ولا يمكن التراجع عنها. سيتم حذف البيانات المحددة بشكل دائم.
         </p>
 
@@ -53,20 +55,14 @@ export default function AdminCleanup({ currentStaff }) {
           {ENTITIES.map(e => {
             const checked = selected.includes(e.id);
             return (
-              <label key={e.id} className="admin-cleanup-item" style={{
-                display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1rem',
-                borderRadius: 12, cursor: 'pointer', userSelect: 'none',
-                background: checked ? 'rgba(239,68,68,0.1)' : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${checked ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                transition: 'all 0.15s'
-              }}>
+              <label key={e.id} className={`admin-cleanup-item${checked ? ' checked' : ''}`}>
                 <input type="checkbox" checked={checked} onChange={() => toggle(e.id)}
-                  style={{ width: '18px', height: '18px', accentColor: '#ef4444' }} />
+                  className="admin-cleanup-checkbox" />
                 <div style={{ flex: 1 }}>
-                  <div style={{ color: '#f1f5f9', fontWeight: 700, fontSize: '0.9rem' }}>
+                  <div style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--admin-text)' }}>
                     {e.icon} {e.label}
                   </div>
-                  <div style={{ color: '#94a3b8', fontSize: '0.75rem' }}>{e.desc}</div>
+                  <div style={{ color: 'var(--admin-text-muted)', fontSize: '0.75rem' }}>{e.desc}</div>
                 </div>
               </label>
             );
@@ -75,42 +71,24 @@ export default function AdminCleanup({ currentStaff }) {
 
         {selected.length > 0 && (
           <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', color: '#ef4444', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
+            <label style={{ display: 'block', color: 'var(--admin-danger)', fontSize: '0.85rem', marginBottom: '0.4rem' }}>
               اكتب "حذف" لتأكيد حذف {selected.map(id => ENTITIES.find(e => e.id === id)?.label).join('، ')}
             </label>
             <input type="text" value={confirmText} onChange={e => setConfirmText(e.target.value)}
               placeholder='اكتب "حذف" هنا'
-              style={{
-                width: '100%', padding: '0.6rem 0.75rem', borderRadius: 10,
-                border: `1px solid ${confirmText === 'حذف' ? '#ef4444' : 'rgba(255,255,255,0.12)'}`,
-                background: 'rgba(0,0,0,0.35)', color: '#e2e8f0',
-                fontSize: '0.85rem', fontFamily: 'inherit', outline: 'none',
-                boxSizing: 'border-box'
-              }} />
+              className={`admin-cleanup-input${confirmText === 'حذف' ? ' confirmed' : ''}`} />
           </div>
         )}
 
-        <button onClick={handleCleanup} disabled={loading || selected.length === 0 || confirmText !== 'حذف'}
-          style={{
-            width: '100%', padding: '0.7rem', borderRadius: 10, cursor: 'pointer',
-            background: confirmText === 'حذف' && selected.length > 0
-              ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
-              : 'rgba(239,68,68,0.15)',
-            border: `1px solid ${confirmText === 'حذف' && selected.length > 0 ? 'rgba(220,38,38,0.5)' : 'rgba(239,68,68,0.15)'}`,
-            color: confirmText === 'حذف' && selected.length > 0 ? '#fff' : '#fca5a5',
-            fontWeight: 700, fontSize: '0.95rem', fontFamily: 'inherit',
-            opacity: loading ? 0.6 : 1, transition: 'all 0.15s'
-          }}>
+        <button onClick={handleCleanup} disabled={loading || !ready}
+          className={`admin-cleanup-btn${ready ? ' active' : ''}`}>
           {loading ? 'جاري الحذف...' : '🧹 تنفيذ الحذف'}
         </button>
 
         {result && (
-          <div style={{ marginTop: '1.5rem', padding: '1rem', borderRadius: 12,
-            background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
-            <div style={{ color: '#4ade80', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-              ✅ تم الحذف بنجاح
-            </div>
-            <div style={{ color: '#e2e8f0', fontSize: '0.85rem', lineHeight: '1.6' }}>
+          <div className="admin-cleanup-result">
+            <div className="admin-cleanup-result-title">✅ تم الحذف بنجاح</div>
+            <div className="admin-cleanup-result-detail">
               {result.orders > 0 && <div>📋 الطلبات: {result.orders}</div>}
               {result.chat_messages > 0 && <div>💬 الرسائل: {result.chat_messages}</div>}
               {result.customers > 0 && <div>👤 المستخدمين: {result.customers}</div>}
