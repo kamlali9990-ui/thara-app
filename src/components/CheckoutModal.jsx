@@ -88,8 +88,11 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(onLocateSuccess, () => { setIsLocating(false); locateByIP(); }, geoOptions);
   }, []);
+  const MAX_DELIVERY_KM = 15;
+  const isOutsideService = position && haversineKm(SHOP_POS, position) > MAX_DELIVERY_KM;
   const clientFee = (() => {
     if (!position) return 0;
+    if (isOutsideService) return 0;
     if (cartTotal >= 100) return 0;
     const d = haversineKm(SHOP_POS, position);
     return d <= 3 ? 5 : d <= 6 ? 10 : d <= 10 ? 15 : 20;
@@ -169,6 +172,11 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
                 {locationError}
               </div>
             )}
+            {isOutsideService && (
+              <div style={{textAlign:'center',padding:'0.85rem',background:'#fee2e2',borderRadius:'8px',marginBottom:'0.75rem',color:'#991b1b',fontSize:'0.9rem',fontWeight:600}}>
+                🚫 المنطقة خارج نطاق الخدمة — الرجاء الاتصال بنا
+              </div>
+            )}
             <button onClick={handleLocate} disabled={isLocating} style={{width:'100%',padding:'0.85rem',border:'2px dashed var(--primary,#127443)',background:'transparent',borderRadius:'12px',fontSize:'1rem',fontWeight:600,color:'var(--primary,#127443)',cursor:'pointer',marginBottom:'0.75rem'}}>
               {isLocating ? 'جاري التحديد...' : '📍 تحديد موقعي'}
             </button>
@@ -239,7 +247,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setShowLoginPrompt(true);
     return;
   }
-  if (!position || !phoneReady) return;
+  if (!position || !phoneReady || isOutsideService) return;
   if (!navigator.onLine) {
     showToast('أنت غير متصل بالإنترنت، يرجى الاتصال أولاً', 'error');
     setSubmitting(false);
@@ -270,7 +278,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return;
   }
   onClose();
-}} disabled={submitting || !position || !phoneReady}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+}} disabled={submitting || !position || !phoneReady || isOutsideService}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
           {!position && !isLocating && !locationError && <div className="checkout-hint-error">يرجى تحديد موقعك بالضغط على زر "تحديد موقعي"</div>}
           {!phoneReady && phone.trim() && <div className="checkout-hint-error">رقم الجوال غير صحيح، يجب أن يبدأ بـ 05 (مثال: 0500000000)</div>}
 
