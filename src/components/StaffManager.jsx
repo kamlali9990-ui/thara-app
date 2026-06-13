@@ -47,7 +47,7 @@ export default function StaffManager() {
   const isAdmin = staffRole === 'admin';
 
   return (
-    <div>
+    <div className="staff-manager">
       <h2 className="admin-section-title staff-title">إدارة الموظفين</h2>
 
       {isAdmin && (
