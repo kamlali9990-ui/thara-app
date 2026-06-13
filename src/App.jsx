@@ -186,7 +186,6 @@ export default function App() {
         unreadNotifs={unreadNotifs}
         theme={theme}
         onMenuClick={() => setIsDrawerOpen(true)}
-        onThemeChange={setTheme}
         onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }}
         siteStats={siteStats}
         hideSearch={showAllView !== null || tab === 'categories'} />

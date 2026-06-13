@@ -31,23 +31,6 @@
 .app-logo-img-new:hover {
   transform: scale(1.05);
 }
-.app-header-side-left {
-  display: flex;
-  align-items: center;
-  margin-right: 0.25rem;
-}
-
-.app-header-side-left .theme-toggle-btn {
-  width: 34px;
-  height: 34px;
-  font-size: 0.85rem;
-}
-
-.app-header-side-left .theme-menu {
-  top: 2.8rem;
-  left: 0;
-  right: auto;
-}
 
 .app-header-new-inner .app-header-icon-btn {
   padding: 0.5rem;
