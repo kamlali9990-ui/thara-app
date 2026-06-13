@@ -247,6 +247,16 @@ export default function DriverOrders() {
                     <a href={links.googleDir} target="_blank" rel="noopener noreferrer" className="driver-map-link google">🗺️ Google Maps</a>
                     <a href={links.osmDir} target="_blank" rel="noopener noreferrer" className="driver-map-link osm">🗺️ OpenStreetMap</a>
                   </div>
+                  <div className="driver-coords-row">
+                    <span className="driver-coords-text">📍 {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
+                    {order.phone && (
+                      <a href={`https://wa.me/${order.phone.replace(/^\+/, '')}?text=${encodeURIComponent('الرجاء تأكيد موقعك على الخريطة: https://maps.google.com/?q=' + coords.lat + ',' + coords.lng)}`}
+                        target="_blank" rel="noopener noreferrer" className="driver-coords-wa"
+                        title="التواصل عبر واتساب لموقع أدق">
+                        📱 التواصل عبر واتساب لموقع أدق
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
 
