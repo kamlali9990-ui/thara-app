@@ -10,13 +10,12 @@ import useAudioRecorder, { isVoiceMessage, getVoiceUrl, makeVoiceText } from '..
 export default function DriverOrders() {
   const {
     orders, updateOrderStatus, chatMessages, sendMessage, currentStaff,
-    allCustomers, staffList, claimOrder, allProducts
+    allProducts
   } = useContext(StoreContext);
 
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
-  const [tab, setTab] = useState('available');
   const audio = useAudioRecorder();
   const chatBodyRef = useRef(null);
 
@@ -28,17 +27,10 @@ export default function DriverOrders() {
     });
   };
 
-  const myOrders = orders.filter(o => o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id));
-  const available = orders.filter(o => !o.assignedDriverId && o.status !== 'مكتمل' && o.status !== 'ملغي');
-  const assigned = myOrders.filter(o => o.status !== 'مكتمل' && o.status !== 'ملغي' && o.status !== 'تم التوصيل');
-  const completed = myOrders.filter(o => o.status === 'مكتمل');
-  const revenue = completed.reduce((s, o) => s + Number(o.total || 0), 0);
-
-  const getTabOrders = () => {
-    if (tab === 'available') return available;
-    if (tab === 'assigned') return assigned;
-    return completed;
-  };
+  const myOrders = orders.filter(o => o.assignedDriverId && String(o.assignedDriverId) === String(currentStaff?.id))
+    .sort((a, b) => new Date(b.date) - new Date(a.date));
+  const activeOrders = myOrders.filter(o => o.status !== 'مكتمل' && o.status !== 'ملغي');
+  const completedOrders = myOrders.filter(o => o.status === 'مكتمل');
 
   const doUpdate = async (order, status) => {
     try {
@@ -46,16 +38,6 @@ export default function DriverOrders() {
       showToast(`تم تحديث الطلب إلى: ${status}`, 'success');
     } catch (err) {
       showToast('فشل التحديث: ' + (err.message || ''), 'error');
-    }
-  };
-
-  const handleClaim = async (order) => {
-    if (!window.confirm('هل أنت متأكد من رغبتك في قبول واستلام هذا الطلب لتوصيله؟')) return;
-    try {
-      await claimOrder(order.id);
-      showToast('تم قبول الطلب بنجاح', 'success');
-    } catch (err) {
-      showToast('فشل قبول الطلب: ' + (err.message || 'خطأ غير معروف'), 'error');
     }
   };
 
@@ -114,14 +96,6 @@ export default function DriverOrders() {
   }, [chatOrder, chatMessages]);
 
   const renderOrderActions = (order) => {
-    if (tab === 'available') {
-      return (
-        <button type="button" className="btn driver-action-btn" onClick={() => handleClaim(order)}
-          style={{ background: 'var(--admin-accent)', color: '#fff' }}>
-          قبول واستلام الطلب
-        </button>
-      );
-    }
     if (order.status === 'جديد') {
       return (
         <button type="button" className="btn driver-action-btn driver-action-accept" onClick={() => doUpdate(order, 'قيد التحضير')}>
@@ -287,47 +261,27 @@ export default function DriverOrders() {
     );
   };
 
-  const tabOrders = getTabOrders();
-
   return (
     <div className="driver-orders-wrapper">
       <h2 className="admin-section-title">🏍️ نشاطي</h2>
 
-      <div className="driver-orders-stats">
-        {[
-          { label: '🆓 متاحة', value: available.length },
-          { label: '📦 مكلف بها', value: assigned.length },
-          { label: '✅ مكتملة', value: completed.length },
-          { label: '💰 إيرادات', value: revenue.toFixed(0) + ' ر.س' },
-        ].map(c => (
-          <div key={c.label} className="admin-stat-card-bg">
-            <div className="admin-stat-label">{c.label}</div>
-            <div className="admin-stat-value">{c.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="driver-orders-tabs">
-        <button className={`admin-sub-tab-btn ${tab === 'available' ? 'active' : ''}`} onClick={() => { setTab('available'); setExpandedOrders(new Set()); }}>
-          🆓 متاحة ({available.length})
-        </button>
-        <button className={`admin-sub-tab-btn ${tab === 'assigned' ? 'active' : ''}`} onClick={() => { setTab('assigned'); setExpandedOrders(new Set()); }}>
-          📦 مكلف بها ({assigned.length})
-        </button>
-        <button className={`admin-sub-tab-btn ${tab === 'completed' ? 'active' : ''}`} onClick={() => { setTab('completed'); setExpandedOrders(new Set()); }}>
-          ✅ مكتملة ({completed.length})
-        </button>
-      </div>
-
+      <h3 className="admin-sub-section-title" style={{marginBottom:'0.75rem'}}>📦 الطلبات المكلف بها ({activeOrders.length})</h3>
       <div className="admin-orders-list">
-        {tabOrders.length === 0 ? (
-          <div className="admin-empty-state">
-            {tab === 'available' ? 'لا توجد طلبات متاحة حالياً.' : tab === 'assigned' ? 'لا توجد طلبات مكلف بها حالياً.' : 'لا توجد طلبات مكتملة.'}
-          </div>
+        {activeOrders.length === 0 ? (
+          <div className="admin-empty-state">لا توجد طلبات مكلف بها حالياً</div>
         ) : (
-          tabOrders.map(order => renderOrderCard(order))
+          activeOrders.map(order => renderOrderCard(order))
         )}
       </div>
+
+      {completedOrders.length > 0 && (
+        <>
+          <h3 className="admin-sub-section-title" style={{marginBottom:'0.75rem',marginTop:'1.5rem'}}>✅ تم التوصيل ({completedOrders.length})</h3>
+          <div className="admin-orders-list">
+            {completedOrders.map(order => renderOrderCard(order))}
+          </div>
+        </>
+      )}
 
       {renderChatModal()}
     </div>
