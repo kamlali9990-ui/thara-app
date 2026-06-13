@@ -1,18 +1,11 @@
-import { memo, useState, useCallback, useContext, useEffect, useRef } from 'react';
+import { memo, useState, useContext, useEffect, useRef } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
 import { ordersApi } from '../supabase/orders';
 import { supabase } from '../supabase/client';
-import { KHAFJI_BOUNDS, SHOP_POS, haversineKm } from '../utils/constants';
-
-const allNeighborhoods = [
-  'العزيزية', 'الفيصلية', 'النهضة', 'الروضة', 'السلام', 'الخالدية', 'اليرموك',
-  'الورود', 'المروج', 'الأندلس', 'الربوة', 'النزهة', 'الفيحاء', 'الزهور',
-  'الواحة', 'الصفا', 'الخليج', 'الشاطئ', 'الدفي', 'السليمانية', 'الناصرية',
-  'قرطبة', 'الشروق', 'المريكبات', 'الخفجي الجديدة',
-];
+import { SHOP_POS, haversineKm } from '../utils/constants';
 
 function getSavedCheckout(userEmail) {
   try {
@@ -37,16 +30,29 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [comingSoonMsg, setComingSoonMsg] = useState('');
   const [phone, setPhone] = useState(customerProfile?.phone || saved.phone || '');
   const [notes, setNotes] = useState('');
-  const [areaResults, setAreaResults] = useState([]);
-  const [areaErr, setAreaErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [loginPassword, setLoginPassword] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState(customerProfile?.delivery_address || saved.deliveryAddress || '');
+  const [isLocating, setIsLocating] = useState(false);
   const [serverFee, setServerFee] = useState(null); // null = loading, -1 = error, 0+ = confirmed
   const feeFetchRef = useRef(0);
+  const locatedRef = useRef(false);
+  useEffect(() => {
+    if (locatedRef.current || !navigator.geolocation) return;
+    locatedRef.current = true;
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setIsLocating(false);
+      },
+      () => { setIsLocating(false); },
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
+  }, []);
   useEffect(() => {
     if (!position) { setServerFee(null); return; }
     if (cartTotal >= 100) { setServerFee(0); return; }
@@ -75,35 +81,6 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return false;
   })();
 
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState(customerProfile?.neighborhood || saved.neighborhood || '');
-
-  const fetchAreaSuggestions = useCallback(async (q) => {
-    const query = String(q || '').trim();
-    if (!query) { setAreaResults([]); setAreaErr(''); return; }
-    setAreaErr('');
-    try {
-      const viewbox = `${KHAFJI_BOUNDS.minLng},${KHAFJI_BOUNDS.maxLat},${KHAFJI_BOUNDS.maxLng},${KHAFJI_BOUNDS.minLat}`;
-      const url = `https://nominatim.openstreetmap.org/search?format=json&limit=6&accept-language=ar&countrycodes=sa&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(query + ' الخفجي')}`;
-      const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
-      const data = await r.json();
-      const mapped = Array.isArray(data) ? data.map(x => ({
-        display: x.display_name,
-        lat: parseFloat(x.lat),
-        lng: parseFloat(x.lon),
-      })).filter(x => Number.isFinite(x.lat) && Number.isFinite(x.lng)) : [];
-      setAreaResults(mapped);
-      if (mapped.length === 0) setAreaErr('لا توجد نتائج داخل الخفجي');
-    } catch {
-      setAreaErr('تعذر البحث حالياً');
-    } finally {
-    }
-  }, []);
-
-  const pickArea = useCallback((r) => {
-    setPosition({ lat: r.lat, lng: r.lng });
-    setAreaResults([]);
-  }, []);
-
   const handleLoginCheckout = async () => {
     const digits = phone.replace(/\D/g, '');
     const valid = digits.startsWith('966') ? digits.length === 12 : digits.startsWith('05') && digits.length === 10;
@@ -114,7 +91,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     try {
       const cleanPhone = phone.trim();
       const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
-      let { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
       if (signInErr) {
         const { data: userData } = await supabase.rpc('create_customer_auth_rpc', {
           p_email: authEmail, p_password: loginPassword, p_username: null
@@ -122,13 +99,9 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         if (!userData?.existing) {
           try { await customersApi.create(authEmail, '', cleanPhone, null); } catch {}
         }
-        const { data: sessData, error: sessErr } = await supabase.rpc('create_customer_session_rpc', { p_email: authEmail });
-        if (!sessErr && sessData?.refresh_token) {
-          const { data: refData } = await supabase.auth.refreshSession({ refresh_token: sessData.refresh_token });
-          signInData = refData;
-        }
       }
-      if (signInData?.user) setUser(signInData.user);
+      const { data: retryData } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
+      if (retryData?.user) setUser(retryData.user);
       setShowLoginPrompt(false);
     } catch {
       setLoginError('حدث خطأ، حاول مرة أخرى');
@@ -150,61 +123,22 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         <div className="checkout-body">
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">1</span> موقع التوصيل</div>
-            <p className="checkout-hint">سيتم تحديد موقعك تلقائياً — يمكنك التعديل بالنقر على الخريطة</p>
-            <div className="checkout-area-search">
-              <select
-                className="checkout-area-select"
-                value={selectedNeighborhood}
-                onChange={async (e) => {
-                  const val = e.target.value;
-                  setSelectedNeighborhood(val);
-                  setDeliveryAddress(val ? `حي ${val}` : '');
-                  if (!val) return;
-                  const query = `${val} الخفجي`;
-                  try {
-                    const viewbox = `${KHAFJI_BOUNDS.minLng},${KHAFJI_BOUNDS.maxLat},${KHAFJI_BOUNDS.maxLng},${KHAFJI_BOUNDS.minLat}`;
-                    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=ar&countrycodes=sa&bounded=1&viewbox=${encodeURIComponent(viewbox)}&q=${encodeURIComponent(query)}`;
-                    const r = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                    const data = await r.json();
-                    if (Array.isArray(data) && data.length > 0) {
-                      const first = data[0];
-                      setPosition({ lat: parseFloat(first.lat), lng: parseFloat(first.lon) });
-                    }
-                  } catch (e) { console.error('[geocode neighborhood]', e); }
-                }}
-              >
-                <option value="">-- اختر الحي --</option>
-                {allNeighborhoods.map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-              {areaErr && <div className="checkout-area-err">{areaErr}</div>}
-              {areaResults.length > 0 && (
-                <div className="checkout-area-results">
-                  {areaResults.map((r, i) => (
-                    <button key={i} type="button" className="checkout-area-item" onClick={() => pickArea(r)}>
-                      {r.display}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <p className="checkout-hint">{isLocating ? 'جاري تحديد موقعك عبر GPS...' : '✓ تم تحديد موقعك تلقائياً'}</p>
             <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
               <KhafjiMap position={position} setPosition={setPosition} />
             </div>
-            {position && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
+            {isLocating && <div className="checkout-confirmed" style={{background:'var(--warning,#f59e0b)'}}>⏳ جاري تحديد موقعك عبر GPS...</div>}
+            {position && !isLocating && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
           </div>
 
-            {deliveryAddress && (
-              <input
-                className="checkout-phone-input"
-                type="text"
-                value={deliveryAddress}
-                onChange={e => setDeliveryAddress(e.target.value)}
-                placeholder="عنوان التوصيل (الشارع، رقم المبنى)"
-                style={{ marginBottom: '0.75rem' }}
-              />
-            )}
+            <input
+              className="checkout-phone-input"
+              type="text"
+              value={deliveryAddress}
+              onChange={e => setDeliveryAddress(e.target.value)}
+              placeholder="عنوان التوصيل (الشارع، رقم المبنى)"
+              style={{ marginBottom: '0.75rem' }}
+            />
             <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">2</span> بيانات التواصل</div>
             <input
@@ -267,13 +201,12 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   }
   if (user?.email) {
     const locStr = position ? JSON.stringify({ lat: position.lat, lng: position.lng }) : '';
-    customersApi.update(user.email, customerProfile?.name || '', phone.trim(), deliveryAddress.trim() || '', selectedNeighborhood, locStr)
+    customersApi.update(user.email, customerProfile?.name || '', phone.trim(), deliveryAddress.trim() || '', '', locStr)
       .catch(() => {});
     saveCheckout(user.email, {
       phone: phone.trim(),
       position,
-      deliveryAddress: deliveryAddress.trim() || null,
-      neighborhood: selectedNeighborhood,
+      deliveryAddress: deliveryAddress.trim() || null
     });
   }
   setSubmitting(true);

@@ -16,11 +16,6 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13, minZoom: 12 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
-    map.on('click', (e) => {
-      setPosition(e.latlng);
-      if (marker.current) marker.current.setLatLng([e.latlng.lat, e.latlng.lng]);
-      else marker.current = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-    });
     inst.current = map;
     return () => { map.remove(); inst.current = null; marker.current = null; };
   }, []);
@@ -73,9 +68,6 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   return (
     <div className="khafji-map-wrap">
       <div ref={mapRef} className="khafji-map" />
-      <button className="locate-btn" onClick={locate} title="تحديد موقعي">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
-      </button>
     </div>
   );
 });
