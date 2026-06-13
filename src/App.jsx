@@ -55,10 +55,6 @@ export default function App() {
     return () => window.removeEventListener('thara:new-offer', handler);
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setTheme(t => t === 'emerald-light' ? 'green-dark' : 'emerald-light');
-  }, [setTheme]);
-
   useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2500); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
@@ -207,7 +203,7 @@ export default function App() {
             setShowAllView={setShowAllView}
             preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
-          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} toggleTheme={toggleTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} onThemeChange={setTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
           </div>
         </div>
 
@@ -230,7 +226,7 @@ export default function App() {
       <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
         user={user} logout={logout} tab={tab} selectedCategory={selectedCategory} onTabChange={switchTab}
         setSelectedCategory={setSelectedCategory}
-        theme={theme} toggleTheme={toggleTheme} />
+        theme={theme} onThemeChange={setTheme} />
 
       {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
         onClose={() => setIsNotifOpen(false)}

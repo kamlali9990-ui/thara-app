@@ -1,8 +1,9 @@
 import { memo, useState } from 'react';
 import { BASE, imgFallback, WHATSAPP_NUM, PHONE, EMAIL_1, SNAPCHAT, logoPath, logoPathDark } from '../utils/constants';
 import TermsOfServiceModal from './TermsOfServiceModal';
+import ThemeToggle from './ThemeToggle';
 
-const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory, onTabChange, setSelectedCategory, theme, toggleTheme }) => {
+const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory, onTabChange, setSelectedCategory, theme, onThemeChange }) => {
   const [showTerms, setShowTerms] = useState(false);
   return (
   <>
@@ -34,9 +35,8 @@ const SideDrawer = memo(({ isOpen, onClose, user, logout, tab, selectedCategory,
           <span>طلباتي</span>
         </button>
         <div className="side-drawer-divider" />
-        <div className="side-drawer-item" onClick={toggleTheme} style={{ cursor: 'pointer' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          <span>{theme === 'light' ? 'المظهر الداكن' : 'المظهر الفاتح'}</span>
+        <div className="side-drawer-item" style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <ThemeToggle currentTheme={theme} onThemeChange={onThemeChange} inline />
         </div>
         <div className="side-drawer-divider" />
         <button className="side-drawer-item" onClick={() => { onClose(); if (navigator.share) { navigator.share({ title: 'أسواق ثراء الشرق ون', text: '🛒 أسواق ثراء الشرق ون — توصيل طلبات السوبرماركت لباب بيتك في الخفجي\n🚀 أهل الخفجي يستاهلون أكثر\nhttps://tharasharqone.com', url: 'https://tharasharqone.com' }).catch(() => window.open('/qr-code.html', '_blank')); } else { window.open('/qr-code.html', '_blank'); } }}>

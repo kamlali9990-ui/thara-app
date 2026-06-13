@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 import { showToast } from './Toast.jsx';
 import InstallGuide from './InstallGuide';
 import CustomerHelp from './CustomerHelp';
+import ThemeToggle from './ThemeToggle';
 
 const ROLE_LABELS = { admin: 'مدير', manager: 'مشرف', driver: 'كابتن', employee: 'موظف' };
 
-const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, toggleTheme, staffRole, currentStaff, orders }) => {
+const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile, theme, onThemeChange, staffRole, currentStaff, orders }) => {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
@@ -258,20 +259,9 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             </div>
           )}
 
-          <div className="acc-theme-card" onClick={toggleTheme} role="button" tabIndex={0}>
+          <div className="acc-theme-card">
             <div className="acc-theme-left">
-              <div className="acc-theme-icon">{theme === 'light' ? '🌙' : '☀️'}</div>
-              <div className="acc-theme-text">
-                <span className="acc-theme-label">{theme === 'light' ? 'المظهر الداكن' : 'المظهر الفاتح'}</span>
-                <span className="acc-theme-sub">{theme === 'light' ? 'بطاقات زجاجية داكنة' : 'المظهر الأبيض الافتراضي'}</span>
-              </div>
-            </div>
-            <div className="acc-toggle-wrap">
-              <div className="acc-toggle-track">
-                <div className="acc-toggle-thumb" />
-                <span className="acc-toggle-icon acc-toggle-sun">☀️</span>
-                <span className="acc-toggle-icon acc-toggle-moon">🌙</span>
-              </div>
+              <ThemeToggle currentTheme={theme} onThemeChange={onThemeChange} inline />
             </div>
           </div>
 
