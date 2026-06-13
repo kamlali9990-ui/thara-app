@@ -8,6 +8,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const inst = useRef(null);
   const marker = useRef(null);
   const locating = useRef(false);
+  const detectedRef = useRef(false);
   const fallbackPos = { lat: 28.4355, lng: 48.4988 };
 
   useEffect(() => {
@@ -30,8 +31,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     if (!position) return;
     syncMarker(position);
   }, [position, syncMarker]);
-  const locate = useCallback(() => {
-    if (position) return;
+  const doLocate = useCallback(() => {
     if (!navigator.geolocation) {
       syncMarker(fallbackPos);
       setPosition(fallbackPos);
@@ -53,10 +53,11 @@ const KhafjiMap = memo(({ position, setPosition }) => {
       },
       { enableHighAccuracy: true, timeout: 15000 }
     );
-  }, [position]);
+  }, []);
   useEffect(() => {
-    if (!inst.current) return;
-    const t = setTimeout(locate, 500);
+    if (!inst.current || detectedRef.current) return;
+    detectedRef.current = true;
+    const t = setTimeout(doLocate, 500);
     return () => clearTimeout(t);
   }, [inst.current]);
   useEffect(() => {
@@ -68,6 +69,9 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   return (
     <div className="khafji-map-wrap">
       <div ref={mapRef} className="khafji-map" />
+      <button className="locate-btn" onClick={doLocate} title="تحديد موقعي">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>
+      </button>
     </div>
   );
 });

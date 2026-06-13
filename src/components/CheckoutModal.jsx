@@ -1,7 +1,6 @@
 import { memo, useState, useContext, useEffect, useRef } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
-import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
 import { ordersApi } from '../supabase/orders';
 import { supabase } from '../supabase/client';
@@ -24,8 +23,7 @@ function saveCheckout(userEmail, data) {
 const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const { user, customerProfile, setUser } = useContext(StoreContext);
   const saved = user?.email ? getSavedCheckout(user.email) : {};
-  const dbLoc = (() => { try { return customerProfile?.location ? JSON.parse(customerProfile.location) : null; } catch { return null; } })();
-  const [position, setPosition] = useState(dbLoc || saved.position || null);
+  const [position, setPosition] = useState(saved.position || null);
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [comingSoonMsg, setComingSoonMsg] = useState('');
   const [phone, setPhone] = useState(customerProfile?.phone || saved.phone || '');
@@ -37,21 +35,44 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [loginError, setLoginError] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState(customerProfile?.delivery_address || saved.deliveryAddress || '');
   const [isLocating, setIsLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
   const [serverFee, setServerFee] = useState(null); // null = loading, -1 = error, 0+ = confirmed
   const feeFetchRef = useRef(0);
   const locatedRef = useRef(false);
+  const geoOptions = { enableHighAccuracy: true, timeout: 15000 };
+  const onLocateSuccess = (pos) => {
+    setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+    setIsLocating(false);
+    setLocationError('');
+  };
+  const handleLocate = () => {
+    if (isLocating) return;
+    if (!navigator.geolocation) {
+      setLocationError('المتصفح لا يدعم خاصية تحديد الموقع');
+      return;
+    }
+    setLocationError('');
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      onLocateSuccess,
+      (err) => {
+        setIsLocating(false);
+        if (err.code === err.PERMISSION_DENIED) {
+          setLocationError('⚠️ لم تسمح بتحديد الموقع — ارجع لإعدادات المتصفح > الموقع > سماح');
+        } else if (err.code === err.TIMEOUT) {
+          setLocationError('⚠️ انتهت مهلة التحديد — تأكد من اتصال GPS أو WiFi');
+        } else {
+          setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
+        }
+      },
+      geoOptions
+    );
+  };
   useEffect(() => {
     if (locatedRef.current || !navigator.geolocation) return;
     locatedRef.current = true;
     setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setIsLocating(false);
-      },
-      () => { setIsLocating(false); },
-      { enableHighAccuracy: true, timeout: 15000 }
-    );
+    navigator.geolocation.getCurrentPosition(onLocateSuccess, () => setIsLocating(false), geoOptions);
   }, []);
   useEffect(() => {
     if (!position) { setServerFee(null); return; }
@@ -123,12 +144,24 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         <div className="checkout-body">
           <div className="checkout-section">
             <div className="checkout-section-title"><span className="checkout-num">1</span> موقع التوصيل</div>
-            <p className="checkout-hint">{isLocating ? 'جاري تحديد موقعك عبر GPS...' : '✓ تم تحديد موقعك تلقائياً'}</p>
-            <div className={`checkout-map ${position ? '' : 'checkout-map-empty'}`}>
-              <KhafjiMap position={position} setPosition={setPosition} />
-            </div>
-            {isLocating && <div className="checkout-confirmed" style={{background:'var(--warning,#f59e0b)'}}>⏳ جاري تحديد موقعك عبر GPS...</div>}
-            {position && !isLocating && <div className="checkout-confirmed">✓ تم تحديد الموقع</div>}
+            {isLocating && (
+              <div style={{textAlign:'center',padding:'0.75rem',background:'#fef3c7',borderRadius:'8px',marginBottom:'0.75rem',color:'#92400e'}}>
+                ⏳ جاري تحديد موقعك عبر GPS...
+              </div>
+            )}
+            {position && !isLocating && (
+              <div style={{textAlign:'center',padding:'0.75rem',background:'#d1fae5',borderRadius:'8px',marginBottom:'0.75rem',color:'#065f46'}}>
+                ✓ تم تحديد موقعك بنجاح
+              </div>
+            )}
+            {locationError && (
+              <div style={{textAlign:'center',padding:'0.75rem',background:'#fee2e2',borderRadius:'8px',marginBottom:'0.75rem',color:'#991b1b',fontSize:'0.85rem'}}>
+                {locationError}
+              </div>
+            )}
+            <button onClick={handleLocate} disabled={isLocating} style={{width:'100%',padding:'0.85rem',border:'2px dashed var(--primary,#127443)',background:'transparent',borderRadius:'12px',fontSize:'1rem',fontWeight:600,color:'var(--primary,#127443)',cursor:'pointer',marginBottom:'0.75rem'}}>
+              {isLocating ? 'جاري التحديد...' : '📍 تحديد موقعي'}
+            </button>
           </div>
 
             <input
@@ -200,8 +233,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return;
   }
   if (user?.email) {
-    const locStr = position ? JSON.stringify({ lat: position.lat, lng: position.lng }) : '';
-    customersApi.update(user.email, customerProfile?.name || '', phone.trim(), deliveryAddress.trim() || '', '', locStr)
+    customersApi.update(user.email, customerProfile?.name || '', phone.trim(), deliveryAddress.trim() || '', '', '')
       .catch(() => {});
     saveCheckout(user.email, {
       phone: phone.trim(),
@@ -226,7 +258,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   }
   onClose();
 }} disabled={submitting || !position || !phoneReady || fee === null}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
-          {!position && <div className="checkout-hint-error">يرجى تحديد موقع التوصيل على الخريطة</div>}
+          {!position && !isLocating && !locationError && <div className="checkout-hint-error">يرجى تحديد موقعك بالضغط على زر "تحديد موقعي"</div>}
 {position && fee === null && <div className="checkout-hint-error">جاري حساب رسوم التوصيل من النظام...</div>}
           {!phoneReady && phone.trim() && <div className="checkout-hint-error">رقم الجوال غير صحيح، يجب أن يبدأ بـ 05 (مثال: 0500000000)</div>}
 
