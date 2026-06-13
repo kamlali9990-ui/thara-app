@@ -681,6 +681,7 @@
 [data-theme="green-dark"] .app-header-icon-btn { color: var(--text-main); }
 [data-theme="green-dark"] .app-header-badge { border-color: rgba(3,15,10,0.92); }
 [data-theme="green-dark"] .app-header-stats { background: rgba(16,185,129,0.08); }
+[data-theme="green-dark"] .app-header-stats-under { color: var(--text-main); }
 
 /* ─── Side Drawer (Dark) ─── */
 [data-theme="green-dark"] .side-drawer {
