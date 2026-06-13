@@ -40,41 +40,60 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [serverFee, setServerFee] = useState(null); // null = loading, -1 = error, 0+ = confirmed
   const feeFetchRef = useRef(0);
   const locatedRef = useRef(false);
+  const [locationSource, setLocationSource] = useState(''); // 'gps' | 'ip' | ''
   const geoOptions = { enableHighAccuracy: true, timeout: 15000 };
+  const locateByIP = async () => {
+    try {
+      const r = await fetch('https://ip-api.com/json/?fields=lat,lon,status');
+      const d = await r.json();
+      if (d.status === 'success') {
+        setPosition({ lat: d.lat, lng: d.lon });
+        setLocationSource('ip');
+        return true;
+      }
+    } catch {}
+    return false;
+  };
   const onLocateSuccess = (pos) => {
     setPosition({ lat: pos.coords.latitude, lng: pos.coords.longitude });
     setIsLocating(false);
     setLocationError('');
+    setLocationSource('gps');
   };
-  const handleLocate = () => {
+  const handleLocate = async () => {
     if (isLocating) return;
     if (!navigator.geolocation) {
-      setLocationError('المتصفح لا يدعم خاصية تحديد الموقع');
+      setIsLocating(true);
+      const ok = await locateByIP();
+      setIsLocating(false);
+      if (!ok) setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
       return;
     }
     setLocationError('');
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       onLocateSuccess,
-      (err) => {
+      async () => {
+        const ok = await locateByIP();
         setIsLocating(false);
-        if (err.code === err.PERMISSION_DENIED) {
-          setLocationError('⚠️ لم تسمح بتحديد الموقع — ارجع لإعدادات المتصفح > الموقع > سماح');
-        } else if (err.code === err.TIMEOUT) {
-          setLocationError('⚠️ انتهت مهلة التحديد — تأكد من اتصال GPS أو WiFi');
-        } else {
-          setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
-        }
+        if (!ok) setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
       },
       geoOptions
     );
   };
   useEffect(() => {
-    if (locatedRef.current || !navigator.geolocation) return;
+    if (locatedRef.current) return;
     locatedRef.current = true;
+    if (!navigator.geolocation) { locateByIP(); return; }
     setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(onLocateSuccess, () => setIsLocating(false), geoOptions);
+    navigator.geolocation.getCurrentPosition(onLocateSuccess, () => { setIsLocating(false); locateByIP(); }, geoOptions);
   }, []);
+  const clientFee = (() => {
+    if (!position) return 0;
+    if (cartTotal >= 100) return 0;
+    const d = haversineKm(SHOP_POS, position);
+    return d <= 3 ? 5 : d <= 6 ? 10 : d <= 10 ? 15 : 20;
+  })();
   useEffect(() => {
     if (!position) { setServerFee(null); return; }
     if (cartTotal >= 100) { setServerFee(0); return; }
@@ -82,19 +101,9 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     const id = ++feeFetchRef.current;
     ordersApi.getDeliveryFee(position.lat, position.lng, cartTotal).then(f => {
       if (id === feeFetchRef.current) setServerFee(f);
-    }).catch(() => {
-      if (id === feeFetchRef.current) setServerFee(-1);
-    });
+    }).catch(() => {});
   }, [position?.lat, position?.lng, cartTotal]);
-  const fee = (() => {
-    if (serverFee >= 0) return serverFee;
-    if (serverFee === -1 || !position) { // fallback or no position
-      if (!position) return 0;
-      const d = haversineKm(SHOP_POS, position);
-      return d <= 3 ? 5 : d <= 6 ? 10 : d <= 10 ? 15 : 20;
-    }
-    return null; // loading
-  })();
+  const fee = serverFee != null ? serverFee : clientFee;
   const phoneReady = (() => {
     const digits = phone.replace(/\D/g, '');
     if (!digits) return false;
@@ -152,7 +161,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             )}
             {position && !isLocating && (
               <div style={{textAlign:'center',padding:'0.75rem',background:'#d1fae5',borderRadius:'8px',marginBottom:'0.75rem',color:'#065f46'}}>
-                ✓ تم تحديد موقعك بنجاح
+                ✓ {locationSource === 'ip' ? 'تم تحديد موقعك تقريباً (حسب عنوان IP)' : 'تم تحديد موقعك بنجاح'}
               </div>
             )}
             {locationError && (
@@ -221,8 +230,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
           </div>
             <div className="checkout-total-box">
             <div className="checkout-total-row"><span>المجموع الفرعي</span><span>{cartTotal.toFixed(2)} ر.س</span></div>
-            <div className="checkout-total-row">{fee === null ? <span>رسوم التوصيل <span className="checkout-free" style={{fontSize:'0.8rem'}}>جاري الحساب...</span></span> : fee === 0 ? <span>رسوم التوصيل <span className="checkout-free">مجاناً</span></span> : <span>رسوم التوصيل</span>}<span>{fee === null ? '...' : fee === 0 ? '0' : fee.toFixed(2)} ر.س</span></div>
-            <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(fee === null ? cartTotal : cartTotal + fee).toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row">{fee === 0 ? <span>رسوم التوصيل <span className="checkout-free">مجاناً</span></span> : <span>رسوم التوصيل</span>}<span>{fee === 0 ? '0' : fee.toFixed(2)} ر.س</span></div>
+            <div className="checkout-total-row checkout-total-final"><span>الإجمالي</span><span>{(cartTotal + fee).toFixed(2)} ر.س</span></div>
           </div>
 <button className="checkout-confirm-btn" onClick={async () => {
   if (submitting) return;
@@ -230,7 +239,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setShowLoginPrompt(true);
     return;
   }
-  if (!position || !phoneReady || fee === null) return;
+  if (!position || !phoneReady) return;
   if (!navigator.onLine) {
     showToast('أنت غير متصل بالإنترنت، يرجى الاتصال أولاً', 'error');
     setSubmitting(false);
@@ -261,9 +270,8 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     return;
   }
   onClose();
-}} disabled={submitting || !position || !phoneReady || fee === null}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
+}} disabled={submitting || !position || !phoneReady}>{submitting ? 'جاري الإرسال...' : 'تأكيد الطلب'}</button>
           {!position && !isLocating && !locationError && <div className="checkout-hint-error">يرجى تحديد موقعك بالضغط على زر "تحديد موقعي"</div>}
-{position && fee === null && <div className="checkout-hint-error">جاري حساب رسوم التوصيل من النظام...</div>}
           {!phoneReady && phone.trim() && <div className="checkout-hint-error">رقم الجوال غير صحيح، يجب أن يبدأ بـ 05 (مثال: 0500000000)</div>}
 
           {/* Login Prompt Modal */}
