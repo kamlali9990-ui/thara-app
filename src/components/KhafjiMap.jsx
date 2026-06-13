@@ -14,7 +14,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   useEffect(() => {
     if (inst.current) return;
     import('leaflet/dist/leaflet.css');
-    const map = L.map(mapRef.current, { center: [28.4355, 48.4988], zoom: 13, minZoom: 12 });
+    const map = L.map(mapRef.current, { center: [20, 0], zoom: 2 });
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
     inst.current = map;

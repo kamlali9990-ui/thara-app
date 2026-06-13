@@ -1,6 +1,7 @@
 import { memo, useState, useContext, useEffect, useRef } from 'react';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
+import KhafjiMap from './KhafjiMap';
 import { customersApi } from '../supabase/customers';
 import { ordersApi } from '../supabase/orders';
 import { supabase } from '../supabase/client';
@@ -162,6 +163,9 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
             <button onClick={handleLocate} disabled={isLocating} style={{width:'100%',padding:'0.85rem',border:'2px dashed var(--primary,#127443)',background:'transparent',borderRadius:'12px',fontSize:'1rem',fontWeight:600,color:'var(--primary,#127443)',cursor:'pointer',marginBottom:'0.75rem'}}>
               {isLocating ? 'جاري التحديد...' : '📍 تحديد موقعي'}
             </button>
+            <div className="checkout-map">
+              <KhafjiMap position={position} setPosition={setPosition} />
+            </div>
           </div>
 
             <input

@@ -1650,7 +1650,7 @@
   justify-content: center; flex-shrink: 0; font-weight: 700;
 }
 .checkout-hint { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.5rem; }
-.checkout-map { height: 160px; border-radius: 12px; overflow: hidden; }
+.checkout-map { height: 250px; border-radius: 12px; overflow: hidden; }
 .checkout-map-empty { border: 1.5px dashed rgba(0,0,0,0.12); }
 .checkout-confirmed { font-size: 0.8rem; color: var(--primary); font-weight: 600; margin-top: 0.4rem; }
 .checkout-outside { font-size: 0.8rem; color: #dc2626; font-weight: 600; margin-top: 0.4rem; padding: 0.4rem; background: #fef2f2; border-radius: 8px; text-align: center; }
