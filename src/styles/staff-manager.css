@@ -1905,3 +1905,327 @@
   stroke: #127443;
 }
 
+/* ─── Driver Orders (نشاطي) ─── */
+.driver-orders-wrapper {
+  padding: 1rem;
+}
+.driver-orders-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.driver-orders-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.driver-orders-tabs .admin-sub-tab-btn {
+  font-size: 0.85rem;
+  padding: 0.3rem 0.8rem;
+}
+
+/* Expand icon */
+.order-compact-expand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  color: var(--admin-text-muted);
+  transition: transform 0.2s, background 0.15s;
+  font-size: 0.7rem;
+  flex-shrink: 0;
+}
+.order-compact-expand.expanded {
+  transform: rotate(180deg);
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+}
+
+/* Driver action button variants */
+.driver-action-accept {
+  background: #f59e0b !important;
+  color: #fff !important;
+}
+.driver-action-accept:hover {
+  background: #d97706 !important;
+}
+.driver-action-route {
+  background: var(--admin-info) !important;
+  color: #fff !important;
+}
+.driver-action-route:hover {
+  background: var(--admin-info-hover) !important;
+}
+.driver-action-done {
+  background: var(--admin-success) !important;
+  color: #fff !important;
+}
+.driver-action-done:hover {
+  background: var(--admin-success-hover) !important;
+}
+
+/* Driver action button wrapper */
+.driver-action-wrap {
+  margin-bottom: 0.6rem;
+}
+
+/* ETA display */
+.driver-eta {
+  font-size: 0.85rem;
+  color: var(--admin-accent);
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+/* Order info section */
+.order-details {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.order-details-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.order-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--admin-highlight-bg);
+  border-radius: 8px;
+}
+.order-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+.order-info-label {
+  font-weight: 700;
+  color: var(--admin-text-muted);
+  white-space: nowrap;
+  min-width: 60px;
+}
+.order-info-value {
+  color: var(--admin-text-soft);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;
+  word-break: break-word;
+}
+.order-info-value a.order-action-link {
+  text-decoration: none;
+  font-size: 1rem;
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+.order-info-value a.order-action-link:hover {
+  opacity: 1;
+}
+
+/* Notes */
+.order-notes {
+  color: var(--admin-danger);
+}
+
+/* Products section */
+.order-products-section {
+  margin-top: 0.25rem;
+}
+.order-products-section h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--admin-text);
+  margin-bottom: 0.3rem;
+}
+.order-product-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.2rem 0;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--admin-border-subtle);
+  color: var(--admin-text-soft);
+}
+.order-product-row:last-child {
+  border-bottom: none;
+}
+.order-product-qty {
+  color: var(--admin-text-muted);
+}
+
+/* Map area */
+.driver-map-wrap {
+  margin-top: 0.5rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.driver-map-links {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+.driver-map-link {
+  flex: 1;
+  text-align: center;
+  padding: 0.35rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.driver-map-link:hover {
+  opacity: 0.85;
+}
+.driver-map-link.google {
+  background: #ea4335;
+  color: #fff;
+}
+.driver-map-link.osm {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+}
+
+/* Action buttons row */
+.order-actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+.order-action-btn {
+  flex: 1;
+  padding: 0.35rem;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.order-action-btn:hover {
+  opacity: 0.85;
+}
+.order-action-btn.chat {
+  background: #6366f1;
+  color: #fff;
+}
+.order-action-btn.print {
+  background: var(--admin-text-muted);
+  color: #fff;
+}
+
+/* Chat modal */
+.admin-chat-modal {
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.admin-chat-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--admin-border);
+  color: var(--admin-text);
+}
+.admin-chat-modal-header strong {
+  font-size: 0.9rem;
+}
+.admin-chat-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--admin-text-muted);
+  padding: 0.2rem;
+  line-height: 1;
+}
+.admin-chat-modal-close:hover {
+  color: var(--admin-text);
+}
+.admin-chat-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.admin-chat-body .admin-bubble {
+  max-width: 80%;
+}
+.admin-chat-input-area {
+  border-top: 1px solid var(--admin-border);
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.4rem;
+}
+.admin-chat-input {
+  flex: 1;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--admin-input-border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: var(--admin-input-bg);
+  color: var(--admin-text);
+  font-family: inherit;
+}
+.admin-chat-input::placeholder {
+  color: var(--admin-text-muted);
+}
+.admin-chat-voice-btn {
+  background: #e5e7eb;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--admin-text);
+  transition: background 0.15s;
+}
+.admin-chat-voice-btn.recording {
+  background: #ef4444 !important;
+  color: #fff;
+  animation: micPulse 1s infinite;
+}
+.admin-chat-send-btn {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  border: none;
+  border-radius: 8px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.admin-chat-send-btn:hover {
+  opacity: 0.85;
+}
+
+/* Waiting for confirmation badge */
+.driver-status-waiting {
+  color: var(--admin-warning);
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+

@@ -7,8 +7,6 @@ import { showToast } from '../Toast.jsx';
 import { printInvoice } from '../../utils/printInvoice.js';
 import useAudioRecorder, { isVoiceMessage, getVoiceUrl, makeVoiceText } from '../../hooks/useAudioRecorder';
 
-const FEATURED_ORDER_KEY = 'thara_featured_ids';
-
 export default function DriverOrders() {
   const {
     orders, updateOrderStatus, chatMessages, sendMessage, currentStaff,
@@ -18,6 +16,7 @@ export default function DriverOrders() {
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const [chatOrder, setChatOrder] = useState(null);
   const [chatText, setChatText] = useState('');
+  const [tab, setTab] = useState('active');
   const audio = useAudioRecorder();
   const chatBodyRef = useRef(null);
 
@@ -101,38 +100,27 @@ export default function DriverOrders() {
   const renderOrderActions = (order) => {
     if (order.status === 'جديد') {
       return (
-        <button type="button" className="btn driver-action-btn" onClick={() => doUpdate(order, 'قيد التحضير')}
-          style={{ background: '#f59e0b', color: '#fff' }}>
+        <button type="button" className="btn driver-action-btn driver-action-accept" onClick={() => doUpdate(order, 'قيد التحضير')}>
           تجهيز الطلب
         </button>
       );
     }
-    if (order.status === 'قيد التحضير') {
+    if (order.status === 'قيد التحضير' || order.status === 'جاهز للتوصيل') {
       return (
-        <button type="button" className="btn driver-action-btn driver-action-route" onClick={() => doUpdate(order, 'في الطريق')}
-          style={{ background: '#3b82f6', color: '#fff' }}>
-          بدء التوصيل
-        </button>
-      );
-    }
-    if (order.status === 'جاهز للتوصيل') {
-      return (
-        <button type="button" className="btn driver-action-btn driver-action-route" onClick={() => doUpdate(order, 'في الطريق')}
-          style={{ background: '#3b82f6', color: '#fff' }}>
+        <button type="button" className="btn driver-action-btn driver-action-route" onClick={() => doUpdate(order, 'في الطريق')}>
           بدء التوصيل
         </button>
       );
     }
     if (order.status === 'في الطريق') {
       return (
-        <button type="button" className="btn driver-action-btn driver-action-done" onClick={() => doUpdate(order, 'تم التوصيل')}
-          style={{ background: '#10b981', color: '#fff' }}>
+        <button type="button" className="btn driver-action-btn driver-action-done" onClick={() => doUpdate(order, 'تم التوصيل')}>
           تم التوصيل
         </button>
       );
     }
     if (order.status === 'تم التوصيل') {
-      return <span style={{ color: '#fbbf24', fontWeight: 600, fontSize: '0.85rem' }}>بانتظار تأكيد الإدارة</span>;
+      return <span className="driver-status-waiting">بانتظار تأكيد الإدارة</span>;
     }
     return null;
   };
@@ -142,17 +130,15 @@ export default function DriverOrders() {
     const orderMsgs = chatMessages.filter(m => m.orderId === chatOrder);
     return (
       <div className="confirm-overlay" onClick={() => setChatOrder(null)}>
-        <div className="admin-chat-modal" onClick={e => e.stopPropagation()}
-          style={{ width: '90%', maxWidth: 400, maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
-          <div className="admin-chat-modal-header" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem', borderBottom: '1px solid #e5e7eb' }}>
+        <div className="admin-chat-modal" onClick={e => e.stopPropagation()}>
+          <div className="admin-chat-modal-header">
             <strong>💬 محادثة الطلب #{chatOrder.slice(-6)}</strong>
-            <button onClick={() => setChatOrder(null)} style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+            <button onClick={() => setChatOrder(null)} className="admin-chat-modal-close">✕</button>
           </div>
-          <div ref={chatBodyRef} className="admin-chat-body" style={{ flex: 1, overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            {orderMsgs.length === 0 && <p style={{ color: '#94a3b8', textAlign: 'center' }}>لا توجد رسائل بعد</p>}
+          <div ref={chatBodyRef} className="admin-chat-body">
+            {orderMsgs.length === 0 && <p className="admin-empty-state" style={{ margin: 0 }}>لا توجد رسائل بعد</p>}
             {orderMsgs.map(m => (
-              <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'} ${m.status === 'read' ? 'read' : ''}`}
-                style={{ alignSelf: m.sender === 'admin' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+              <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
                 {isVoiceMessage(m.text) ? (
                   <VoiceMessage url={getVoiceUrl(m.text)} />
                 ) : (
@@ -161,19 +147,14 @@ export default function DriverOrders() {
               </div>
             ))}
           </div>
-          <div className="admin-chat-input-area" style={{ borderTop: '1px solid #e5e7eb', padding: '0.5rem', display: 'flex', gap: '0.4rem' }}>
-            <button onClick={audio.toggleRecording} className="admin-chat-voice-btn"
-              style={{ background: audio.isRecording ? '#ef4444' : '#e5e7eb', border: 'none', borderRadius: 8, padding: '0.4rem 0.6rem', cursor: 'pointer', fontSize: '0.8rem' }}>
+          <div className="admin-chat-input-area">
+            <button onClick={audio.toggleRecording} className={`admin-chat-voice-btn ${audio.isRecording ? 'recording' : ''}`}>
               {audio.isRecording ? '⬤ تسجيل' : '🎤'}
             </button>
             <input value={chatText} onChange={e => setChatText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') sendChatMessage(); }}
-              placeholder="اكتب رسالة..." className="admin-chat-input"
-              style={{ flex: 1, padding: '0.4rem 0.6rem', border: '1px solid #d1d5db', borderRadius: 8, fontSize: '0.85rem' }} />
-            <button onClick={sendChatMessage} className="admin-chat-send-btn"
-              style={{ background: '#127443', color: '#fff', border: 'none', borderRadius: 8, padding: '0.4rem 0.8rem', cursor: 'pointer', fontSize: '0.8rem' }}>
-              إرسال
-            </button>
+              placeholder="اكتب رسالة..." className="admin-chat-input" />
+            <button onClick={sendChatMessage} className="admin-chat-send-btn">إرسال</button>
           </div>
         </div>
       </div>
@@ -187,9 +168,7 @@ export default function DriverOrders() {
     const links = coords ? getMapLinks(coords) : null;
 
     return (
-      <div key={order.id} className={`admin-card order-card ${getStatusClass(order.status)} ${isExpanded ? 'order-card-expanded' : ''} is-driver-view`}
-        style={{ marginBottom: '0.6rem' }}>
-        {/* Compact strip */}
+      <div key={order.id} className={`admin-card order-card ${getStatusClass(order.status)} ${isExpanded ? 'order-card-expanded' : ''} is-driver-view`}>
         <div className={`order-compact ${isExpanded ? 'order-compact-open' : ''}`} onClick={() => toggleExpand(order.id)}>
           <div className="order-compact-status">
             <span className="order-status-pill">
@@ -204,29 +183,22 @@ export default function DriverOrders() {
             {order.deliveryAddress && <span className="order-compact-addr" title={order.deliveryAddress}>📍{order.deliveryAddress.slice(0, 18)}{order.deliveryAddress.length > 18 ? '…' : ''}</span>}
           </div>
           <div className="order-compact-total">
-            <span className="order-compact-price">{order.total?.toFixed(2)}</span>
-            <span className="order-compact-currency"> ر.س</span>
+            {order.total?.toFixed(2)}<small> ر.س</small>
           </div>
-          <span className={`order-expand-icon ${isExpanded ? 'expanded' : ''}`}>{isExpanded ? '▲' : '▼'}</span>
+          <span className={`order-compact-expand ${isExpanded ? 'expanded' : ''}`}>{isExpanded ? '▲' : '▼'}</span>
         </div>
 
-        {/* Expanded details */}
         {isExpanded && (
           <div className="order-details">
             <div className="order-details-inner">
-              {/* Action button */}
-              <div style={{ marginBottom: '0.6rem' }}>
+              <div className="driver-action-wrap">
                 {renderOrderActions(order)}
               </div>
 
-              {/* ETA */}
               {order.estimatedDelivery && (
-                <div style={{ fontSize: '0.85rem', color: '#127443', marginBottom: '0.5rem', fontWeight: 600 }}>
-                  ⏱ وقت التوصيل المتوقع: {order.estimatedDelivery} دقيقة
-                </div>
+                <div className="driver-eta">⏱ وقت التوصيل المتقدم: {order.estimatedDelivery} دقيقة</div>
               )}
 
-              {/* Customer info */}
               <div className="order-info-section">
                 <div className="order-info-row">
                   <span className="order-info-label">👤 العميل</span>
@@ -255,51 +227,36 @@ export default function DriverOrders() {
                 {order.notes && (
                   <div className="order-info-row">
                     <span className="order-info-label">📝 ملاحظات</span>
-                    <span className="order-info-value" style={{ color: '#dc2626' }}>{order.notes}</span>
+                    <span className="order-info-value order-notes">{order.notes}</span>
                   </div>
                 )}
               </div>
 
-              {/* Products */}
               {order.items && order.items.length > 0 && (
-                <div className="order-products-section" style={{ marginTop: '0.5rem' }}>
-                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.3rem' }}>🛒 المنتجات</h4>
+                <div className="order-products-section">
+                  <h4>🛒 المنتجات</h4>
                   {order.items.map((item, i) => (
-                    <div key={i} className="order-product-row" style={{ display: 'flex', justifyContent: 'space-between', padding: '0.2rem 0', fontSize: '0.85rem', borderBottom: '1px solid #f1f5f9' }}>
+                    <div key={i} className="order-product-row">
                       <span>{item.name}</span>
-                      <span style={{ color: '#64748b' }}>×{item.quantity || 1}</span>
+                      <span className="order-product-qty">×{item.quantity || 1}</span>
                     </div>
                   ))}
                 </div>
               )}
 
-              {/* Map */}
               {coords && (
-                <div style={{ marginTop: '0.5rem', borderRadius: 12, overflow: 'hidden' }}>
+                <div className="driver-map-wrap">
                   <OrderLocationMap location={order.location} />
-                  <div style={{ display: 'flex', gap: '0.4rem', marginTop: '0.3rem' }}>
-                    <a href={links.googleDir} target="_blank" rel="noopener noreferrer" className="order-action-link"
-                      style={{ flex: 1, textAlign: 'center', padding: '0.35rem', background: '#ea4335', color: '#fff', borderRadius: 8, fontSize: '0.8rem', textDecoration: 'none' }}>
-                      🗺️ Google Maps
-                    </a>
-                    <a href={links.osmDir} target="_blank" rel="noopener noreferrer" className="order-action-link"
-                      style={{ flex: 1, textAlign: 'center', padding: '0.35rem', background: '#127443', color: '#fff', borderRadius: 8, fontSize: '0.8rem', textDecoration: 'none' }}>
-                      🗺️ OpenStreetMap
-                    </a>
+                  <div className="driver-map-links">
+                    <a href={links.googleDir} target="_blank" rel="noopener noreferrer" className="driver-map-link google">🗺️ Google Maps</a>
+                    <a href={links.osmDir} target="_blank" rel="noopener noreferrer" className="driver-map-link osm">🗺️ OpenStreetMap</a>
                   </div>
                 </div>
               )}
 
-              {/* Action buttons row */}
-              <div className="order-actions" style={{ display: 'flex', gap: '0.4rem', marginTop: '0.6rem', flexWrap: 'wrap' }}>
-                <button onClick={() => setChatOrder(order.id)} className="btn"
-                  style={{ flex: 1, padding: '0.35rem', fontSize: '0.8rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-                  💬 محادثة
-                </button>
-                <button onClick={() => printInvoice(order, allProducts || [])} className="btn"
-                  style={{ flex: 1, padding: '0.35rem', fontSize: '0.8rem', background: '#64748b', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer' }}>
-                  🖨️ طباعة
-                </button>
+              <div className="order-actions">
+                <button onClick={() => setChatOrder(order.id)} className="order-action-btn chat">💬 محادثة</button>
+                <button onClick={() => printInvoice(order, allProducts || [])} className="order-action-btn print">🖨️ طباعة</button>
               </div>
             </div>
           </div>
@@ -308,14 +265,11 @@ export default function DriverOrders() {
     );
   };
 
-  const [tab, setTab] = useState('active');
-
   return (
-    <div style={{ padding: '1rem' }}>
+    <div className="driver-orders-wrapper">
       <h2 className="admin-section-title">🏍️ نشاطي</h2>
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: '0.75rem', marginBottom: '1rem' }}>
+      <div className="driver-orders-stats">
         {[
           { label: 'إجمالي الطلبات', value: myOrders.length },
           { label: 'قيد التوصيل', value: active.length },
@@ -330,23 +284,18 @@ export default function DriverOrders() {
         ))}
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
-        <button className={`admin-sub-tab-btn ${tab === 'active' ? 'active' : ''}`} onClick={() => setTab('active')}
-          style={{ fontSize: '0.85rem', padding: '0.3rem 0.8rem' }}>
+      <div className="driver-orders-tabs">
+        <button className={`admin-sub-tab-btn ${tab === 'active' ? 'active' : ''}`} onClick={() => setTab('active')}>
           🔄 قيد التوصيل ({active.length})
         </button>
-        <button className={`admin-sub-tab-btn ${tab === 'delivered' ? 'active' : ''}`} onClick={() => setTab('delivered')}
-          style={{ fontSize: '0.85rem', padding: '0.3rem 0.8rem' }}>
+        <button className={`admin-sub-tab-btn ${tab === 'delivered' ? 'active' : ''}`} onClick={() => setTab('delivered')}>
           ✅ تم التوصيل ({delivered.length})
         </button>
-        <button className={`admin-sub-tab-btn ${tab === 'completed' ? 'active' : ''}`} onClick={() => setTab('completed')}
-          style={{ fontSize: '0.85rem', padding: '0.3rem 0.8rem' }}>
+        <button className={`admin-sub-tab-btn ${tab === 'completed' ? 'active' : ''}`} onClick={() => setTab('completed')}>
           ✔️ مكتمل ({completed.length})
         </button>
       </div>
 
-      {/* Orders list */}
       <div className="admin-orders-list">
         {(tab === 'active' ? active : tab === 'delivered' ? delivered : completed).length === 0 ? (
           <div className="admin-empty-state">
