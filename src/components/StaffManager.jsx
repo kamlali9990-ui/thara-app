@@ -69,7 +69,7 @@ export default function StaffManager() {
       )}
 
       <div className="staff-list">
-        {staffList.length === 0 && <p style={{ color: 'var(--text-light)' }}>لا يوجد موظفون بعد.</p>}
+        {staffList.length === 0 && <p style={{ color: 'var(--admin-text-muted)' }}>لا يوجد موظفون بعد.</p>}
         {staffList.map(s => (
           <div key={s.id} className="staff-card">
             {editingId === s.id ? (
@@ -98,7 +98,7 @@ export default function StaffManager() {
                 </div>
                 {isAdmin && (
                   <div className="staff-actions">
-                    <button className="btn" style={{ background: '#f2a900' }}
+                    <button className="btn"
                       onClick={() => { setEditingId(s.id); setEditName(s.name); setEditRole(s.role); setEditPhone(s.phone || ''); }}>
                       تعديل
                     </button>

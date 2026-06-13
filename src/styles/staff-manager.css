@@ -7,23 +7,25 @@
 }
 .staff-input {
   padding: 0.6rem 0.75rem;
-  border: 0.5px solid rgba(255,255,255,0.12);
+  border: 0.5px solid var(--admin-border);
   border-radius: 8px;
   font-family: inherit;
   flex: 1;
   min-width: 150px;
   font-size: 0.95rem;
-  background: rgba(0,0,0,0.35);
-  color: #e2e8f0;
+  background: var(--admin-input-bg);
+  color: var(--admin-text);
+  font-weight: 700 !important;
 }
 .staff-select {
   padding: 0.6rem 0.75rem;
-  border: 0.5px solid rgba(255,255,255,0.12);
+  border: 0.5px solid var(--admin-border);
   border-radius: 8px;
   font-family: inherit;
   font-size: 0.95rem;
-  background: rgba(0,0,0,0.35);
-  color: #e2e8f0;
+  background: var(--admin-input-bg);
+  color: var(--admin-text);
+  font-weight: 700 !important;
 }
 .staff-list {
   display: flex;
@@ -34,10 +36,10 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background: rgba(255,255,255,0.06);
+  background: var(--admin-surface);
   padding: 1rem;
   border-radius: 12px;
-  border: 0.5px solid rgba(255,255,255,0.12);
+  border: 0.5px solid var(--admin-border);
 }
 .staff-info {
   flex: 1;
@@ -46,10 +48,20 @@
   gap: 0.25rem;
   min-width: 0;
 }
+.staff-info strong {
+  color: var(--admin-text);
+  font-weight: 800 !important;
+}
 .staff-email {
-  color: #94a3b8;
+  color: var(--admin-text-muted);
   font-size: 0.9rem;
   line-height: 1.4;
+  font-weight: 700 !important;
+}
+.staff-phone {
+  color: var(--admin-text-soft);
+  font-size: 0.85rem;
+  font-weight: 700 !important;
 }
 .staff-role {
   font-size: 0.85rem;
@@ -57,10 +69,12 @@
   border-radius: 99px;
   display: inline-block;
   width: fit-content;
+  font-weight: 800 !important;
 }
-.staff-role-admin { background: #127443; color: white; }
-.staff-role-manager { background: #f2a900; color: white; }
-.staff-role-employee { background: rgba(255,255,255,0.15); color: #cbd5e1; }
+.staff-role-admin { background: var(--admin-accent); color: var(--admin-accent-text); }
+.staff-role-manager { background: var(--admin-warning); color: #fff; }
+.staff-role-driver { background: var(--admin-info); color: #fff; }
+.staff-role-employee { background: var(--admin-highlight-bg); color: var(--admin-text-soft); }
 .staff-actions {
   display: flex;
   gap: 0.5rem;
@@ -75,25 +89,44 @@
   width: auto;
   min-width: 60px;
   text-align: center;
-  font-weight: 700;
+  font-weight: 800 !important;
+}
+.staff-add-form .btn {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+  font-weight: 800 !important;
+  font-size: 0.92rem;
+  font-family: inherit;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.staff-add-form .btn:hover {
+  opacity: 0.85;
+}
+.staff-card .btn {
+  background: var(--admin-accent);
+  color: var(--admin-accent-text);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 800 !important;
+  font-family: inherit;
+  transition: opacity 0.15s;
+}
+.staff-card .btn:hover {
+  opacity: 0.85;
 }
 .staff-actions .admin-delete-btn {
-  background: #ef4444;
-  color: white;
+  background: var(--admin-danger);
+  color: var(--admin-accent-text);
   border: none;
   cursor: pointer;
 }
 .staff-actions .admin-delete-btn:hover {
-  background: #dc2626;
-}
-.staff-card .btn {
-  background: #f2a900;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-.staff-card .btn:hover {
-  background: #e09e00;
+  opacity: 0.85;
 }
 
 @keyframes splashOut {
