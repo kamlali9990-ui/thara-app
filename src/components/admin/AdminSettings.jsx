@@ -3,7 +3,7 @@ import CloudinaryUpload from './CloudinaryUpload';
 import { showToast } from '../Toast';
 import { BASE } from '../../utils/constants';
 import { supabase } from '../../supabase/client';
-import { sectionCats } from '../../data/categories';
+import { sectionCats, specialSections } from '../../data/categories';
 
 const STORAGE_KEY = 'thara_banner_url';
 const CAT_IMG_PREFIX = 'thara_cat_img_';
@@ -240,7 +240,7 @@ export default function AdminSettings() {
       <div className="admin-card" style={{ padding: '1.5rem', marginTop: '1.5rem' }}>
         <h3 style={{ marginBottom: '1rem', color: 'var(--admin-text)', fontSize: '1.05rem' }}>🖼️ صور الأقسام</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1rem' }}>
-          {sectionCats.map(cat => {
+          {[...sectionCats, ...specialSections].map(cat => {
             const currentImg = catImgs[cat.name] || cat.img;
             return (
               <div key={cat.name} style={{

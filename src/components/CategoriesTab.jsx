@@ -5,7 +5,7 @@ import ProductCard from './ProductCard';
 import RotatingCategoryRow from './RotatingCategoryRow';
 import Breadcrumb from './Breadcrumb';
 
-import { sectionCats, getCategoryImg } from '../data/categories';
+import { sectionCats, getCategoryImg, specialSections } from '../data/categories';
 
 const CategoriesTab = memo(({ setShowAllView, preselectedCat, setPreselectedCat }) => {
   const { allProducts, addToCart, cart, updateCartQty, removeFromCart, mostRequested } = useStore();
@@ -148,12 +148,18 @@ const CategoriesTab = memo(({ setShowAllView, preselectedCat, setPreselectedCat 
       </div>
       <div className="categories-tab-grid">
         {!catSearch.trim() && (
-          <button className="category-tab-card category-offers-card" onClick={() => setShowAllView('offers')}>
-            <div className="category-offers-overlay">
-              <span className="category-offers-icon">🔥</span>
-              <span className="category-offers-label">عروض حصرية</span>
-            </div>
-          </button>
+          (() => {
+            const offersCat = specialSections[0];
+            const offersImg = getCategoryImg(offersCat);
+            return (
+              <button className="category-tab-card" style={{ backgroundColor: offersCat.color, '--cat-color': offersCat.color }} onClick={() => setShowAllView('offers')}>
+                <img src={offersImg} alt={offersCat.name} className="category-tab-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+                <span className="category-tab-emoji" style={{ display: 'none' }}>{offersCat.fallback}</span>
+                <span className="category-tab-name">{offersCat.name}</span>
+                <span className="category-tab-desc">{offersCat.desc}</span>
+              </button>
+            );
+          })()
         )}
         {filtered.length ? filtered.map(cat => (
           <button key={cat.name} className="category-tab-card" style={{ backgroundColor: cat.color, '--cat-color': cat.color }} onClick={() => selectCat(cat)}>

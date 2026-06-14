@@ -16,6 +16,11 @@ export const sectionCats = [
   { name: 'العطور', img: `${BASE}العطور.jpg`, fallback: '🧴', color: '#a855f7', desc: 'عطور ومستحضرات تجميل راقية ومتنوعة' }
 ];
 
+export const specialSections = [
+  { name: 'العروض', img: `${BASE}123.jpg`, fallback: '🔥', color: '#ef4444', desc: 'العروض المميزة اليومية' },
+  { name: 'تشكيلة مميزة', img: `${BASE}123.jpg`, fallback: '⭐', color: '#f59e0b', desc: 'منتجات مختارة بعناية' },
+];
+
 export function getCategoryImg(cat) {
   if (!cat) return '';
   try {
