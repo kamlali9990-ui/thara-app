@@ -7,8 +7,8 @@ import Breadcrumb from './Breadcrumb';
 
 import { sectionCats } from '../data/categories';
 
-const CategoriesTab = memo(({ setShowAllView, onTabChange, preselectedCat, setPreselectedCat }) => {
-  const { allProducts, addToCart, cart, updateCartQty, removeFromCart } = useStore();
+const CategoriesTab = memo(({ setShowAllView, preselectedCat, setPreselectedCat }) => {
+  const { allProducts, addToCart, cart, updateCartQty, removeFromCart, mostRequested } = useStore();
   const allCats = sectionCats;
 
   const [catSearch, setCatSearch] = useState('');
@@ -22,8 +22,6 @@ const CategoriesTab = memo(({ setShowAllView, onTabChange, preselectedCat, setPr
   }, [catSearch, allCats]);
 
   const isProdSearching = prodSearch.trim().length > 0;
-
-  const { mostRequested } = useStore();
 
   const categoryProducts = useMemo(() => {
     if (!selectedCat) return [];

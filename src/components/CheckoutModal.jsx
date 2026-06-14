@@ -63,6 +63,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setIsLocating(false);
     setLocationError('');
     setLocationSource('gps');
+    clearWatch();
   };
   const handleLocate = async () => {
     if (isLocating) return;
@@ -144,7 +145,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     const id = ++feeFetchRef.current;
     ordersApi.getDeliveryFee(position.lat, position.lng, cartTotal).then(f => {
       if (id === feeFetchRef.current) setServerFee(f);
-    }).catch(() => {});
+    }).catch(() => console.warn('[CheckoutModal] getDeliveryFee failed'));
   }, [position?.lat, position?.lng, cartTotal]);
   const fee = serverFee != null ? serverFee : clientFee;
   const phoneReady = (() => {
@@ -156,6 +157,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   })();
 
   const handleLoginCheckout = async () => {
+    if (!navigator.onLine) { setLoginError('أنت غير متصل بالإنترنت'); setLoggingIn(false); return; }
     const digits = phone.replace(/\D/g, '');
     const valid = digits.startsWith('966') ? digits.length === 12 : digits.startsWith('05') && digits.length === 10;
     if (!valid) { setLoginError('رقم الجوال غير صحيح'); return; }
@@ -175,8 +177,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         }
       }
       const { data: retryData } = await supabase.auth.signInWithPassword({ email: authEmail, password: loginPassword });
-      if (retryData?.user) setUser(retryData.user);
-      setShowLoginPrompt(false);
+      if (retryData?.user) { setUser(retryData.user); setShowLoginPrompt(false); }
     } catch {
       setLoginError('حدث خطأ، حاول مرة أخرى');
     } finally {
@@ -231,7 +232,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
           </div>
 
             <input
-              className="checkout-phone-input"
+              className="checkout-input"
               type="text"
               value={deliveryAddress}
               onChange={e => setDeliveryAddress(e.target.value)}

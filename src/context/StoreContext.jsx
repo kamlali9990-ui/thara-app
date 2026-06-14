@@ -228,14 +228,17 @@ export const StoreProvider = ({ children }) => {
     try {
       const supaOrders = await ordersApi.list();
       if (Array.isArray(supaOrders)) {
+        const filtered = !staffRole && user?.email
+          ? supaOrders.filter(o => o.customerEmail === user.email)
+          : supaOrders;
         setOrders(prev => {
           const map = new Map(prev.map(o => [o.id, o]));
-          for (const o of supaOrders) map.set(o.id, { ...map.get(o.id), ...o });
+          for (const o of filtered) map.set(o.id, { ...map.get(o.id), ...o });
           return Array.from(map.values());
         });
       }
     } catch (err) { console.error('[loadOrders]', err); showToast('تعذر تحميل الطلبات', 'error'); }
-  }, [hasSupabase, supabaseReady]);
+  }, [hasSupabase, supabaseReady, staffRole, user?.email]);
 
   const placeOrder = useCallback(async (orderData, deliveryFee = 0) => {
     if (cart.length === 0) {

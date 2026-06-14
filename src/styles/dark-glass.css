@@ -401,6 +401,8 @@
 [data-theme="green-dark"] .checkout-phone-input { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--text-main); }
 [data-theme="green-dark"] .checkout-phone-input:focus { border-color: #fbbf24; }
 [data-theme="green-dark"] .checkout-phone-input[readonly] { background: rgba(0,0,0,0.2); color: var(--text-main); }
+[data-theme="green-dark"] .checkout-input { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--text-main); }
+[data-theme="green-dark"] .checkout-input:focus { border-color: #fbbf24; }
 [data-theme="green-dark"] .checkout-notes-input { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--text-main); }
 [data-theme="green-dark"] .checkout-notes-input:focus { border-color: #fbbf24; }
 [data-theme="green-dark"] .checkout-total-box { background: rgba(255,255,255,0.05); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); border: 0.5px solid rgba(255,255,255,0.06); }
@@ -919,6 +921,7 @@
 [data-theme="green-dark"] .all-products-search-input,
 [data-theme="green-dark"] .app-search-input,
 [data-theme="green-dark"] .checkout-phone-input,
+[data-theme="green-dark"] .checkout-input,
 [data-theme="green-dark"] .checkout-notes-input,
 [data-theme="green-dark"] .acc-input {
   background: rgba(2, 20, 10, 0.85) !important;
@@ -930,12 +933,14 @@
 [data-theme="green-dark"] .all-products-search-input::placeholder,
 [data-theme="green-dark"] .app-search-input::placeholder,
 [data-theme="green-dark"] .checkout-phone-input::placeholder,
+[data-theme="green-dark"] .checkout-input::placeholder,
 [data-theme="green-dark"] .checkout-notes-input::placeholder,
 [data-theme="green-dark"] .acc-input::placeholder,
 [data-theme="green-dark"] .cat-search-input:focus,
 [data-theme="green-dark"] .all-products-search-input:focus,
 [data-theme="green-dark"] .app-search-input:focus,
 [data-theme="green-dark"] .checkout-phone-input:focus,
+[data-theme="green-dark"] .checkout-input:focus,
 [data-theme="green-dark"] .checkout-notes-input:focus,
 [data-theme="green-dark"] .acc-input:focus {
   border-color: #d4af37 !important;

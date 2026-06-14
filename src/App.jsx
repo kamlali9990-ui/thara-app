@@ -168,6 +168,8 @@ export default function App() {
     setTab(t);
   }, [tab]);
 
+  const closeCheckout = useCallback(() => setIsCheckoutOpen(false), []);
+
   if (showSplash) return <SplashScreen />;
 
   return (
@@ -176,7 +178,7 @@ export default function App() {
       <OfflineBanner />
       <InstallPrompt />
       <NotificationPermissionPrompt />
-      <AppHeader cartCount={cartCount} user={user} logout={logout}
+      <AppHeader cartCount={cartCount}
         onCartOpen={() => setIsCartOpen(true)} tab={tab}
         searchQuery={searchQuery} setSearchQuery={setSearchQuery}
         unreadNotifs={unreadNotifs}
@@ -192,10 +194,9 @@ export default function App() {
             products={products} addToCart={addToCart} cart={cart} />
         ) : (
         <div className={`app-slide ${slideDir === 'left' ? 'slide-in-left' : 'slide-in-right'}`}>
-          {tab === 'home' && <HomeTab key="home" products={products}
+          {tab === 'home' && <HomeTab key="home"
             addToCart={addToCart} cart={cart} searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-            setShowAllView={setShowAllView}
-            onSelectCategory={(cat) => { setPreselectedCat(cat); switchTab('categories'); }} />}
+            setShowAllView={setShowAllView} />}
         </div>
         )}
         <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
@@ -221,7 +222,7 @@ export default function App() {
         updateCartQty={updateCartQty} removeFromCart={removeFromCart}
         onClose={() => setIsCartOpen(false)} onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />}
 
-      {isCheckoutOpen && <CheckoutModal cartTotal={cartTotal} onClose={() => setIsCheckoutOpen(false)} placeOrder={placeOrder} />}
+      {isCheckoutOpen && <CheckoutModal cartTotal={cartTotal} onClose={closeCheckout} placeOrder={placeOrder} />}
 
       <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
         user={user} logout={logout} tab={tab} selectedCategory={selectedCategory} onTabChange={switchTab}

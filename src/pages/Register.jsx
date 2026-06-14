@@ -28,6 +28,11 @@ export default function Register() {
       setError('رقم الجوال مطلوب');
       return;
     }
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (!/^05\d{8}$/.test(cleanPhone)) {
+      setError('رقم الجوال غير صحيح. يجب أن يبدأ بـ 05 ويتكون من 10 أرقام');
+      return;
+    }
     if (username && username.length < 3) {
       setError('اسم المستخدم يجب أن يكون 3 أحرف على الأقل');
       return;

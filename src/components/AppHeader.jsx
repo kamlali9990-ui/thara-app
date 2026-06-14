@@ -3,7 +3,7 @@ import { BASE, imgFallback, logoPath, logoPathDark } from '../utils/constants';
 
 const isSearching = (q) => q?.trim().length > 0;
 
-const AppHeader = memo(({ cartCount, user, onCartOpen, tab, searchQuery, setSearchQuery, unreadNotifs, onMenuClick, onNotifClick, theme, siteStats, hideSearch }) => (
+const AppHeader = memo(({ cartCount, onCartOpen, tab, searchQuery, setSearchQuery, unreadNotifs, onMenuClick, onNotifClick, theme, siteStats, hideSearch }) => (
   <header className="app-header-new">
     <div className="app-header-new-inner">
       <button className="app-header-icon-btn" onClick={onMenuClick} aria-label="القائمة">

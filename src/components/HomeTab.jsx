@@ -15,7 +15,7 @@ function isValidBannerUrl(url) {
   return false;
 }
 
-const HomeTab = memo(({ products, addToCart, cart, searchQuery, setSearchQuery, setShowAllView, onSelectCategory }) => {
+const HomeTab = memo(({ addToCart, cart, searchQuery, setSearchQuery, setShowAllView }) => {
   const { instantResults, allProducts, loading } = useStore();
   const [showBanner, setShowBanner] = useState(true);
   const [showDeliveryInfo, setShowDeliveryInfo] = useState(false);

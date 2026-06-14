@@ -14,7 +14,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   useEffect(() => {
     if (inst.current) return;
     import('leaflet/dist/leaflet.css');
-    const map = L.map(mapRef.current, { center: [20, 0], zoom: 2 });
+    const map = L.map(mapRef.current, { center: [fallbackPos.lat, fallbackPos.lng], zoom: 14 });
     L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
     inst.current = map;
@@ -59,7 +59,7 @@ const KhafjiMap = memo(({ position, setPosition }) => {
     detectedRef.current = true;
     const t = setTimeout(doLocate, 500);
     return () => clearTimeout(t);
-  }, [inst.current]);
+  }, []);
   useEffect(() => {
     if (typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => inst.current?.invalidateSize());

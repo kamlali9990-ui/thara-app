@@ -1808,6 +1808,13 @@
 }
 .checkout-phone-input:focus { border-color: var(--primary); }
 .checkout-phone-input[readonly] { background: #f8fafc; color: var(--text-main); cursor: default; }
+.checkout-input {
+  width: 100%; padding: 0.75rem 1rem; border: 1.5px solid rgba(0,0,0,0.08);
+  border-radius: 12px; font-family: inherit; font-size: 1rem; font-weight: 600;
+  text-align: center; background: white; transition: border-color 0.2s; outline: none;
+  box-sizing: border-box;
+}
+.checkout-input:focus { border-color: var(--primary); }
 .checkout-notes-input {
   width: 100%;
   margin-top: 0.6rem;

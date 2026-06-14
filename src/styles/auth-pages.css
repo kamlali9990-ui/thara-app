@@ -745,7 +745,7 @@
   background: rgba(0,0,0,0.35);
   border: 0.5px solid rgba(255,255,255,0.12);
   border-radius: 8px;
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem 0.75rem 0.5rem 2rem;
   color: #e2e8f0;
   font-family: inherit;
   font-size: 0.85rem;
@@ -1079,7 +1079,7 @@
   background: var(--admin-input-bg);
   border: 1px solid var(--admin-input-border);
   border-radius: 8px;
-  padding: 0.4rem 0.6rem;
+  padding: 0.4rem 0.6rem 0.4rem 2.2rem;
   color: var(--admin-text);
   font-family: inherit;
   font-size: 0.78rem;

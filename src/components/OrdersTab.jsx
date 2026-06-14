@@ -130,7 +130,7 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
       {orders.map(order => {
         const isExpanded = expandedOrder === order.id;
         const statusInfo = STATUS_LABELS[order.status] || { text: order.status, icon: '' };
-        const isNewOrder = order.status === 'جديد' && (Date.now() - new Date(order.date).getTime() < 2 * 60 * 1000);
+        const isNewOrder = order.status === 'جديد' && order.date && (Date.now() - new Date(order.date).getTime() < 2 * 60 * 1000);
         
         return (
           <div key={order.id} className={`order-card-mini ${isExpanded ? 'expanded' : ''}`} onClick={() => setExpandedOrder(isExpanded ? null : order.id)} style={{ cursor: 'pointer' }}>
@@ -188,8 +188,12 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
                         {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}
                       </div>
                       <a href={links.googleDir} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'inline-block', marginTop: '0.3rem', color: '#22c55e', fontSize: '0.85rem', textDecoration: 'none' }}>
-                        🗺️ فتح في Google Maps
+                        style={{ display: 'inline-block', marginTop: '0.3rem', color: '#22c55e', fontSize: '0.85rem', textDecoration: 'none', marginLeft: '0.75rem' }}>
+                        🗺️ Google Maps
+                      </a>
+                      <a href={links.osmView} target="_blank" rel="noopener noreferrer"
+                        style={{ color: '#22c55e', fontSize: '0.85rem', textDecoration: 'none' }}>
+                        🗺️ OpenStreetMap
                       </a>
                     </div>
                   );
