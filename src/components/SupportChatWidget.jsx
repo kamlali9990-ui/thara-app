@@ -30,15 +30,17 @@ const SupportChatWidget = memo(() => {
     }).length;
   }, [chatMessages, user, customerProfile, lastOpenedSupport, isOpen]);
 
+  // Mark unread admin msgs when opening chat AND when new ones arrive while chat is open
   useEffect(() => {
-    if (isOpen) {
-      const nowStr = new Date().toISOString();
-      localStorage.setItem('thara_support_last_opened', nowStr);
-      setLastOpenedSupport(nowStr);
-      const unreadIds = supportMessages.filter(m => m.sender === 'admin' && m.status !== 'read').map(m => m.id);
-      if (unreadIds.length > 0) markMessagesAsRead(unreadIds);
+    if (!isOpen || !user) return;
+    const nowStr = new Date().toISOString();
+    const unreadIds = supportMessages.filter(m => m.sender === 'admin' && m.status !== 'read').map(m => m.id);
+    if (unreadIds.length > 0) {
+      markMessagesAsRead(unreadIds);
+      localStorage.setItem('thara_notif_last_opened', nowStr);
+      try { window.dispatchEvent(new CustomEvent('thara:notif-updated')); } catch {}
     }
-  }, [isOpen, supportMessages]);
+  }, [isOpen, supportMessages, user, markMessagesAsRead]);
 
   useEffect(() => {
     if (chatBodyRef.current) {
@@ -52,6 +54,13 @@ const SupportChatWidget = memo(() => {
     const finalText = voiceUrl ? makeVoiceText(voiceUrl) : msg;
     sendMessage('customer', finalText, null, null, null, customerProfile?.phone);
     setInputText('');
+    const nowStr = new Date().toISOString();
+    localStorage.setItem('thara_support_last_opened', nowStr);
+    localStorage.setItem('thara_notif_last_opened', nowStr);
+    setLastOpenedSupport(nowStr);
+    const unreadIds = supportMessages.filter(m => m.sender === 'admin' && m.status !== 'read').map(m => m.id);
+    if (unreadIds.length > 0) markMessagesAsRead(unreadIds);
+    try { window.dispatchEvent(new CustomEvent('thara:notif-updated')); } catch {}
   };
 
   const handleVoiceRecord = async () => {
@@ -223,7 +232,9 @@ const SupportChatWidget = memo(() => {
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder="اكتب استفسارك هنا..."
                 />
-                <button onClick={() => handleSend()}>إرسال</button>
+                <button className="chat-send-btn" onClick={() => handleSend()}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
               </div>
             </>
           )}

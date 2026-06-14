@@ -122,7 +122,9 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
               <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
                   onKeyDown={e => { if (e.key === 'Enter') { sendMessage('customer', chatText, chatOrder, null, null, customerProfile?.phone); setChatText(''); } }}
                 placeholder="اكتب رسالة..." />
-              <button onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder, null, null, customerProfile?.phone); setChatText(''); } }}>إرسال</button>
+              <button className="chat-send-btn" onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder, null, null, customerProfile?.phone); setChatText(''); } }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
             </div>
           </div>
         </div>

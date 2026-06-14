@@ -141,7 +141,20 @@ export default function App() {
 
   const cartCount = (cart || []).reduce((s, i) => s + i.qty, 0);
   const userOrders = (orders || []).filter(o => o.customerEmail === user?.email);
-  const notifLastOpened = (() => { try { return localStorage.getItem('thara_notif_last_opened') || ''; } catch (e) { console.error('read notifLastOpened', e); return ''; } })();
+  const [notifLastOpened, setNotifLastOpened] = useState(() => {
+    try { return localStorage.getItem('thara_notif_last_opened') || ''; } catch { return ''; }
+  });
+  useEffect(() => {
+    const handler = () => {
+      try { setNotifLastOpened(localStorage.getItem('thara_notif_last_opened') || ''); } catch {}
+    };
+    window.addEventListener('thara:notif-updated', handler);
+    window.addEventListener('storage', handler);
+    return () => {
+      window.removeEventListener('thara:notif-updated', handler);
+      window.removeEventListener('storage', handler);
+    };
+  }, []);
   const unreadNotifs = useMemo(() => {
     if (!user) return 0;
     const relevant = (chatMessages || []).filter(m =>

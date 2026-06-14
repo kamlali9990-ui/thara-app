@@ -8,7 +8,8 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
   try { notifLastOpened = window.localStorage.getItem('thara_notif_last_opened') || ''; } catch {}
   const filteredMsgs = useMemo(() => {
     if (!user) return [];
-    return chatMessages.filter(m => (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) && m.sender !== 'customer' && (!m.time || m.time > notifLastOpened));
+    const lastTime = notifLastOpened ? new Date(notifLastOpened).getTime() : 0;
+    return chatMessages.filter(m => (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) && m.sender !== 'customer' && (!lastTime || (m.timestamp && new Date(m.timestamp).getTime() > lastTime)));
   }, [chatMessages, user, customerProfile, notifLastOpened]);
   const allDriverMsgs = useMemo(() => {
     if (!user) return [];
@@ -16,7 +17,10 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }) =
   }, [chatMessages, user, customerProfile]);
 
   React.useEffect(() => {
-    try { window.localStorage.setItem('thara_notif_last_opened', new Date().toISOString()); } catch {}
+    try {
+      window.localStorage.setItem('thara_notif_last_opened', new Date().toISOString());
+      window.dispatchEvent(new CustomEvent('thara:notif-updated'));
+    } catch {}
   }, []);
 
   return (
