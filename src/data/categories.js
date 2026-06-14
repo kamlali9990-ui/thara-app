@@ -1,5 +1,7 @@
 import { BASE } from '../utils/constants';
 
+const CAT_IMG_PREFIX = 'thara_cat_img_';
+
 export const sectionCats = [
   { name: 'مواد غذائية', img: `${BASE}cat_canned.jpg`, fallback: '🥫', color: '#10b981', desc: 'معلبات ومواد غذائية أساسية لأطباقك اليومية' },
   { name: 'منظفات', img: `${BASE}cat_vegetables.jpg`, fallback: '🧹', color: '#fbbf24', desc: 'منظفات ومستلزمات العناية بالمنزل ونظافته' },
@@ -13,3 +15,12 @@ export const sectionCats = [
   { name: 'مواد البناء', img: `${BASE}cat_hardware.jpg`, fallback: '🔧', color: '#f97316', desc: 'أدوات بناء ومعدات صيانة منزلية أساسية' },
   { name: 'العطور', img: `${BASE}العطور.jpg`, fallback: '🧴', color: '#a855f7', desc: 'عطور ومستحضرات تجميل راقية ومتنوعة' }
 ];
+
+export function getCategoryImg(cat) {
+  if (!cat) return '';
+  try {
+    const stored = localStorage.getItem(CAT_IMG_PREFIX + cat.name);
+    if (stored) return stored;
+  } catch {}
+  return cat.img;
+}

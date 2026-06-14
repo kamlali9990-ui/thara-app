@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import ProductCard from './ProductCard';
 
-import { sectionCats } from '../data/categories';
+import { sectionCats, getCategoryImg } from '../data/categories';
 
 const CategorySection = memo(({ category, products, addToCart, cart, onViewAll }) => {
   const catInfo = sectionCats.find(c => c.name === category) || { img: '', fallback: '📦' };
@@ -11,11 +11,11 @@ const CategorySection = memo(({ category, products, addToCart, cart, onViewAll }
     <div className="home-section-card category-section-card">
       <div className="category-section-header">
         <div className="category-section-header-img-wrap">
-          {catInfo.img ? (
-            <img src={catInfo.img} alt={category} className="category-section-header-img"
+          {getCategoryImg(catInfo) ? (
+            <img src={getCategoryImg(catInfo)} alt={category} className="category-section-header-img"
               onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
           ) : null}
-          <span className="category-section-header-fallback" style={{ display: catInfo.img ? 'none' : 'flex' }}>
+          <span className="category-section-header-fallback" style={{ display: getCategoryImg(catInfo) ? 'none' : 'flex' }}>
             {catInfo.fallback}
           </span>
         </div>

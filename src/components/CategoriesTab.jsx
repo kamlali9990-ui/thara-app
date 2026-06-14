@@ -5,7 +5,7 @@ import ProductCard from './ProductCard';
 import RotatingCategoryRow from './RotatingCategoryRow';
 import Breadcrumb from './Breadcrumb';
 
-import { sectionCats } from '../data/categories';
+import { sectionCats, getCategoryImg } from '../data/categories';
 
 const CategoriesTab = memo(({ setShowAllView, preselectedCat, setPreselectedCat }) => {
   const { allProducts, addToCart, cart, updateCartQty, removeFromCart, mostRequested } = useStore();
@@ -157,7 +157,7 @@ const CategoriesTab = memo(({ setShowAllView, preselectedCat, setPreselectedCat 
         )}
         {filtered.length ? filtered.map(cat => (
           <button key={cat.name} className="category-tab-card" style={{ backgroundColor: cat.color, '--cat-color': cat.color }} onClick={() => selectCat(cat)}>
-            <img src={cat.img} alt={cat.name} className="category-tab-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+            <img src={getCategoryImg(cat)} alt={cat.name} className="category-tab-img" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
             <span className="category-tab-emoji" style={{ display: 'none' }}>{cat.fallback}</span>
             <span className="category-tab-name">{cat.name}</span>
             <span className="category-tab-desc">{cat.desc}</span>
