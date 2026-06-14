@@ -11,14 +11,41 @@ const KhafjiMap = memo(({ position, setPosition }) => {
   const detectedRef = useRef(false);
   const fallbackPos = { lat: 28.4355, lng: 48.4988 };
 
+  const setPosRef = useRef(setPosition);
+  setPosRef.current = setPosition;
+
   useEffect(() => {
-    if (inst.current) return;
-    import('leaflet/dist/leaflet.css');
-    const map = L.map(mapRef.current, { center: [fallbackPos.lat, fallbackPos.lng], zoom: 14 });
-    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' }).addTo(map);
-    inst.current = map;
-    return () => { map.remove(); inst.current = null; marker.current = null; };
+    let active = true;
+    import('leaflet/dist/leaflet.css').then(() => {
+      if (!active || inst.current) return;
+      
+      const map = L.map(mapRef.current, { center: [fallbackPos.lat, fallbackPos.lng], zoom: 14 });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(map);
+      
+      // Allow clicking on map to choose location manually
+      map.on('click', (e) => {
+        const p = { lat: e.latlng.lat, lng: e.latlng.lng };
+        setPosRef.current(p);
+      });
+
+      inst.current = map;
+      
+      // Sync initial position if already loaded
+      if (position) {
+        syncMarker(position);
+      }
+    });
+
+    return () => {
+      active = false;
+      if (inst.current) {
+        inst.current.remove();
+        inst.current = null;
+        marker.current = null;
+      }
+    };
   }, []);
   const syncMarker = useCallback((pos) => {
     if (!inst.current) return;
