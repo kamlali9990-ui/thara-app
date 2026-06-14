@@ -25,7 +25,10 @@ export function getCategoryImg(cat) {
   if (!cat) return '';
   try {
     const stored = localStorage.getItem(CAT_IMG_PREFIX + cat.name);
-    if (stored) return stored;
+    if (stored) {
+      const ver = localStorage.getItem(CAT_IMG_PREFIX + 'ver_' + cat.name);
+      return ver ? stored + (stored.includes('?') ? '&' : '?') + 'v=' + ver : stored;
+    }
   } catch {}
   return cat.img;
 }

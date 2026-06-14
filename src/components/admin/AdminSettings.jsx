@@ -33,9 +33,16 @@ export default function AdminSettings() {
       if (data) {
         const updates = {};
         for (const row of data) {
+          if (row.key.endsWith('_ver')) continue;
           const name = row.key.replace('cat_img_', '');
           updates[name] = row.value;
           localStorage.setItem(CAT_IMG_PREFIX + name, row.value);
+        }
+        for (const row of data) {
+          if (row.key.endsWith('_ver')) {
+            const name = row.key.replace('cat_img__ver', '').replace('cat_img_', '');
+            if (name) localStorage.setItem(CAT_IMG_PREFIX + 'ver_' + name, row.value);
+          }
         }
         setCatImgs(prev => ({ ...prev, ...updates }));
       }
@@ -143,11 +150,15 @@ export default function AdminSettings() {
 
   const saveCatImage = async (catName, url) => {
     const key = 'cat_img_' + catName;
+    const verKey = key + '_ver';
+    const ver = Date.now().toString();
     localStorage.setItem(CAT_IMG_PREFIX + catName, url);
+    localStorage.setItem(CAT_IMG_PREFIX + 'ver_' + catName, ver);
     setCatImgs(prev => ({ ...prev, [catName]: url }));
     window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url } }));
     try {
       await supabase.from('settings').upsert({ key, value: url }, { onConflict: 'key' });
+      await supabase.from('settings').upsert({ key: verKey, value: ver }, { onConflict: 'key' });
     } catch (e) {
       console.warn('Failed to sync cat img to DB:', e);
     }
@@ -156,11 +167,14 @@ export default function AdminSettings() {
 
   const resetCatImage = async (catName) => {
     const key = 'cat_img_' + catName;
+    const verKey = key + '_ver';
     localStorage.removeItem(CAT_IMG_PREFIX + catName);
+    localStorage.removeItem(CAT_IMG_PREFIX + 'ver_' + catName);
     setCatImgs(prev => { const n = { ...prev }; delete n[catName]; return n; });
     window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: null } }));
     try {
       await supabase.from('settings').delete().eq('key', key);
+      await supabase.from('settings').delete().eq('key', verKey);
     } catch (e) {
       console.warn('Failed to delete cat img from DB:', e);
     }
