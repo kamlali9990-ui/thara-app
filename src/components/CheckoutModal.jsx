@@ -48,10 +48,10 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   };
   const locateByIP = async () => {
     try {
-      const r = await fetch('https://ip-api.com/json/?fields=lat,lon,status');
+      const r = await fetch('https://ipapi.co/json/');
       const d = await r.json();
-      if (d.status === 'success') {
-        setPosition({ lat: d.lat, lng: d.lon });
+      if (d.latitude && d.longitude) {
+        setPosition({ lat: d.latitude, lng: d.longitude });
         setLocationSource('ip');
         return true;
       }
