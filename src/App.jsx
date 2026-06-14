@@ -18,6 +18,7 @@ import SearchResultsList from './components/SearchResultsList';
 
 import OfflineBanner from './components/OfflineBanner';
 import NotificationPermissionPrompt from './components/NotificationPermissionPrompt';
+import SupportChatWidget from './components/SupportChatWidget';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
 
@@ -232,6 +233,7 @@ export default function App() {
       {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
         onClose={() => setIsNotifOpen(false)}
         orders={orders} onTabChange={switchTab} />}
+      <SupportChatWidget />
     </div>
   );
 }

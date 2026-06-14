@@ -166,15 +166,15 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
             </div>
 
             {isExpanded && (
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
                 {order.paymentMethod && (
-                  <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                    <strong>💳 الدفع:</strong> {order.paymentMethod}
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '0.3rem', fontWeight: 600 }}>
+                    💳 الدفع: {order.paymentMethod}
                   </div>
                 )}
                 {order.deliveryAddress && (
-                  <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                    <strong>📍 العنوان:</strong> {order.deliveryAddress}
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '0.3rem', fontWeight: 600 }}>
+                    📍 العنوان: {order.deliveryAddress}
                   </div>
                 )}
                 {(() => {
@@ -182,30 +182,30 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
                   if (!coords) return null;
                   const links = getMapLinks(coords);
                   return (
-                    <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.5rem' }}>
-                      <strong>📍 موقع الاستلام:</strong>
-                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.2rem', direction: 'ltr', textAlign: 'left' }}>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '0.5rem', fontWeight: 600 }}>
+                      📍 موقع الاستلام:
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.2rem', direction: 'ltr', textAlign: 'left', fontWeight: 400 }}>
                         {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}
                       </div>
                       <a href={links.googleDir} target="_blank" rel="noopener noreferrer"
-                        style={{ display: 'inline-block', marginTop: '0.3rem', color: '#22c55e', fontSize: '0.85rem', textDecoration: 'none', marginLeft: '0.75rem' }}>
+                        style={{ display: 'inline-block', marginTop: '0.3rem', color: 'var(--primary)', fontSize: '0.85rem', textDecoration: 'none', marginLeft: '0.75rem', fontWeight: 700 }}>
                         🗺️ Google Maps
                       </a>
                       <a href={links.osmView} target="_blank" rel="noopener noreferrer"
-                        style={{ color: '#22c55e', fontSize: '0.85rem', textDecoration: 'none' }}>
+                        style={{ color: 'var(--primary)', fontSize: '0.85rem', textDecoration: 'none', fontWeight: 700 }}>
                         🗺️ OpenStreetMap
                       </a>
                     </div>
                   );
                 })()}
                 {order.notes && (
-                  <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                    <strong>📝 ملاحظات:</strong> {order.notes}
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '0.3rem', fontWeight: 600 }}>
+                    📝 ملاحظات: {order.notes}
                   </div>
                 )}
                 {order.phone && (
-                  <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '0.3rem' }}>
-                    <strong>📞 رقم الجوال:</strong> {order.phone}
+                  <div style={{ fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '0.3rem', fontWeight: 600 }}>
+                    📞 رقم الجوال: {order.phone}
                   </div>
                 )}
                 {order.status !== 'مكتمل' && order.status !== 'ملغي' && (

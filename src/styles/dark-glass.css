@@ -429,6 +429,57 @@
 [data-theme="green-dark"] .chat-win-input button { background: #fbbf24; color: #78350f; }
 [data-theme="green-dark"] .chat-fab { background: #fbbf24; box-shadow: 0 4px 16px rgba(251,191,36,0.3); }
 
+/* ─── Order Chat Dialog Dark ─── */
+[data-theme="green-dark"] .order-chat-dialog {
+  background: rgba(5,5,5,0.97);
+  border-color: rgba(255,255,255,0.06);
+}
+[data-theme="green-dark"] .order-chat-header {
+  background: rgba(0,0,0,0.4);
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+[data-theme="green-dark"] .order-chat-body { background: transparent; }
+[data-theme="green-dark"] .order-chat-input {
+  background: rgba(0,0,0,0.3);
+  border-top-color: rgba(255,255,255,0.06);
+}
+[data-theme="green-dark"] .order-chat-input input {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.06);
+  color: var(--text-main);
+}
+[data-theme="green-dark"] .admin-bubble.admin {
+  background: #fbbf24;
+  color: #78350f;
+}
+[data-theme="green-dark"] .admin-bubble.customer {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-main);
+}
+
+/* ─── Custom Chat Dialog Dark ─── */
+[data-theme="green-dark"] .custom-chat-bubble.me {
+  background: #fbbf24;
+  color: #78350f;
+}
+[data-theme="green-dark"] .custom-chat-bubble.them {
+  background: rgba(255,255,255,0.08);
+  color: var(--text-main);
+}
+[data-theme="green-dark"] .custom-chat-header {
+  background: rgba(0,0,0,0.3);
+  border-bottom-color: rgba(255,255,255,0.06);
+}
+[data-theme="green-dark"] .custom-chat-input {
+  background: rgba(0,0,0,0.3);
+  border-top-color: rgba(255,255,255,0.06);
+}
+[data-theme="green-dark"] .custom-chat-input input {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.06);
+  color: var(--text-main);
+}
+
 /* ─── Share Button ─── */
 [data-theme="green-dark"] .app-share-btn { background: rgba(255,255,255,0.08); }
 [data-theme="green-dark"] .app-share-btn svg { stroke: #fbbf24; }
