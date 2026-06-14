@@ -39,6 +39,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
   const [locationError, setLocationError] = useState('');
   const [serverFee, setServerFee] = useState(null); // null = loading, -1 = error, 0+ = confirmed
   const feeFetchRef = useRef(0);
+  const reverseGeoRef = useRef(0);
   const locatedRef = useRef(false);
   const [locationSource, setLocationSource] = useState(''); // 'gps' | 'ip' | ''
   const geoOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
@@ -147,6 +148,27 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
       if (id === feeFetchRef.current) setServerFee(f);
     }).catch(() => console.warn('[CheckoutModal] getDeliveryFee failed'));
   }, [position?.lat, position?.lng, cartTotal]);
+  // ── Reverse geocoding: auto-fill address from map position ──
+  useEffect(() => {
+    if (!position) return;
+    const id = ++reverseGeoRef.current;
+    const ctrl = new AbortController();
+    (async () => {
+      try {
+        const r = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${position.lat}&lon=${position.lng}&format=json&accept-language=ar&zoom=18&addressdetails=1`,
+          { signal: ctrl.signal, headers: { 'User-Agent': 'TharaApp/1.0' } }
+        );
+        const d = await r.json();
+        if (id !== reverseGeoRef.current) return;
+        const a = d.address || {};
+        const parts = [a.road, a.neighbourhood, a.suburb, a.city || a.town || a.village].filter(Boolean);
+        const label = parts.length ? parts.join('، ') : d.display_name?.split(',').slice(0, 3).join('،') || '';
+        if (label) setDeliveryAddress(label);
+      } catch {}
+    })();
+    return () => ctrl.abort();
+  }, [position?.lat, position?.lng]);
   const fee = serverFee != null ? serverFee : clientFee;
   const phoneReady = (() => {
     const digits = phone.replace(/\D/g, '');
