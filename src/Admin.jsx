@@ -20,6 +20,7 @@ const AdminStats = lazy(() => import('./components/admin/AdminStats'));
 const PermissionManager = lazy(() => import('./components/admin/PermissionManager'));
 const AdminInstructions = lazy(() => import('./components/admin/AdminInstructions'));
 const AdminDiagnostics = lazy(() => import('./components/admin/AdminDiagnostics'));
+const AdminCategoryImages = lazy(() => import('./components/admin/AdminCategoryImages'));
 const DriverOrders = lazy(() => import('./components/admin/DriverOrders'));
 
 
@@ -82,6 +83,7 @@ function TabIcon({ name, badge, size = 22 }) {
     myactivity: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="5" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 17H3v-4M17 17h2v-4"/><path d="M9 17h6"/><path d="M3 10h8V6l4 2 2 4 3-1"/></svg>,
     instructions: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
     diagnostics: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
+    images: <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>,
   };
   return (
     <span className="admin-nav-icon">
@@ -199,6 +201,9 @@ export default function Admin() {
     if (hasPermission('manage_products') || hasPermission('manage_offers')) {
       items.push({ id: 'store', label: 'المتجر', icon: 'store' });
     }
+    if (hasPermission('manage_products') || hasPermission('manage_offers')) {
+      items.push({ id: 'images', label: 'صور الأقسام', icon: 'images' });
+    }
     if (hasPermission('manage_settings')) {
       items.push({ id: 'settings', label: 'الإعدادات', icon: 'settings' });
     }
@@ -243,6 +248,13 @@ export default function Admin() {
       </div>
     );
     if (activeTab === 'chat' && hasPermission('manage_chat')) return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />;
+    if (activeTab === 'images') return (
+      <div className="admin-store-section">
+        <Suspense fallback={<div className="admin-loading">جاري التحميل...</div>}>
+          <AdminCategoryImages />
+        </Suspense>
+      </div>
+    );
     if (activeTab === 'settings') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
