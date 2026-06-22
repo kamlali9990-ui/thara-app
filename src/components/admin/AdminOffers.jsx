@@ -204,7 +204,7 @@ export default function AdminOffers({ staffRole, products, updateProduct }) {
                       value={hasPriceEdit ? editPrices[product.id] : (product.offerPrice || '')}
                       onChange={e => {
                         const v = e.target.value.replace(/[^0-9.]/g, '');
-                        setEditPrices(prev => ({ ...prev, [product.id]: v === '' ? '' : parseFloat(v) || 0 }));
+                        setEditPrices(prev => ({ ...prev, [product.id]: v === '' ? '' : v }));
                       }}
                       placeholder="سعر العرض"
                     />
