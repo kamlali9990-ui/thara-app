@@ -715,7 +715,7 @@
   margin-bottom: 0.35rem;
 }
 .vertical-products-list .product-card-new-price {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
 }
 .vertical-products-list .product-card-new-unit {
   font-size: 0.72rem;
@@ -782,7 +782,7 @@
   line-height: 1.3;
 }
 .products-horizontal-scroll .product-card-new-price {
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   font-weight: 850;
 }
 .products-horizontal-scroll .product-card-new-cat {
@@ -994,7 +994,7 @@
   display: none;
 }
 .product-card-new-price {
-  font-size: 0.86rem;
+  font-size: 1.4rem;
   font-weight: 950;
   color: var(--primary) !important;
   display: inline;
@@ -1002,7 +1002,7 @@
 }
 .product-card-new-currency {
   display: inline;
-  font-size: 0.58rem;
+  font-size: 1rem;
   font-weight: 750;
   color: var(--text-light);
 }
@@ -1025,7 +1025,7 @@
   text-decoration: line-through;
   color: var(--text-light);
   font-weight: 600;
-  font-size: 0.58rem;
+  font-size: 1rem;
   margin-left: 0.2rem;
   vertical-align: middle;
 }
