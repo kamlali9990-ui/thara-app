@@ -238,31 +238,52 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   };
 
   const CHUNK_SIZE = 500;
+  const UPDATE_CONCURRENCY = 20;
 
   const doImport = async () => {
     if (!previewRows.length) return;
     setImporting(true);
     setImportProgress({ current: 0, total: previewRows.length });
-    const mapped = previewRows.map(r => ({
-      name: String(r.name || '').trim(),
-      category: String(r.category || 'مواد غذائية').trim(),
-      price: Number(r.price) || 0,
-      stock_quantity: Number(r.stock_quantity) || 0,
-      unit: String(r.unit || 'حبة').trim(),
-      imageUrl: '',
-      isOffer: false
-    }));
-    let totalCreated = 0;
-    try {
-      for (let i = 0; i < mapped.length; i += CHUNK_SIZE) {
-        const chunk = mapped.slice(i, i + CHUNK_SIZE);
-        const created = await bulkImportProducts(chunk);
-        totalCreated += created.length;
-        setImportProgress({ current: Math.min(i + CHUNK_SIZE, mapped.length), total: mapped.length });
+
+    const nameMap = {};
+    for (const p of products) {
+      nameMap[p.name.trim().toLowerCase()] = p;
+    }
+
+    const toCreate = [];
+    const toUpdate = [];
+
+    for (const r of previewRows) {
+      const name = String(r.name || '').trim();
+      if (!name) continue;
+      const existing = nameMap[name.toLowerCase()];
+      if (existing) {
+        toUpdate.push({ id: existing.id, name, category: String(r.category || existing.category).trim(), price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || existing.unit).trim() });
+      } else {
+        toCreate.push({ name, category: String(r.category || 'مواد غذائية').trim(), price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || 'حبة').trim(), imageUrl: '', isOffer: false });
       }
-      showToast(`تم استيراد ${totalCreated} منتج بنجاح`, 'success');
+    }
+
+    let updatedCount = 0;
+    let createdCount = 0;
+    const total = toUpdate.length + toCreate.length;
+
+    try {
+      for (let i = 0; i < toUpdate.length; i += UPDATE_CONCURRENCY) {
+        const batch = toUpdate.slice(i, i + UPDATE_CONCURRENCY);
+        await Promise.all(batch.map(item => updateProduct(item.id, { price: item.price, stock_quantity: item.stock_quantity, unit: item.unit, category: item.category })));
+        updatedCount += batch.length;
+        setImportProgress({ current: updatedCount + createdCount, total });
+      }
+      for (let i = 0; i < toCreate.length; i += CHUNK_SIZE) {
+        const chunk = toCreate.slice(i, i + CHUNK_SIZE);
+        const created = await bulkImportProducts(chunk);
+        createdCount += created.length;
+        setImportProgress({ current: updatedCount + createdCount, total });
+      }
+      showToast(`تم تحديث ${updatedCount} منتج وإضافة ${createdCount} منتج جديد`, 'success');
       setPreviewRows([]); setShowImport(false);
-    } catch (err) { showToast(`فشل الاستيراد بعد ${totalCreated} منتج: ` + (err.message || ''), 'error'); }
+    } catch (err) { showToast(`فشل الاستيراد بعد تحديث ${updatedCount} وإضافة ${createdCount}: ` + (err.message || ''), 'error'); }
     setImporting(false);
     setImportProgress({ current: 0, total: 0 });
   };
