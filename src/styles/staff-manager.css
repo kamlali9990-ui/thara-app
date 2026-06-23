@@ -1079,7 +1079,7 @@
 .product-detail-img-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 1.12;
+  aspect-ratio: 0.95;
   background: #f8fafc;
   overflow: hidden;
   border-radius: var(--radius);
@@ -1139,20 +1139,20 @@
   align-items: baseline;
   gap: 0.28rem;
   color: var(--primary);
-  font-size: 1.55rem;
+  font-size: 2rem;
   font-weight: 950;
   line-height: 1;
 }
 .product-detail-old-price {
   color: var(--text-light);
-  font-size: 0.9rem;
+  font-size: 1.15rem;
   font-weight: 700;
   text-decoration: line-through;
 }
 .product-detail-currency,
 .product-detail-unit {
   color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 750;
 }
 .product-detail-add {
