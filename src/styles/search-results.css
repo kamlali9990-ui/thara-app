@@ -85,8 +85,8 @@
 .search-result-meta { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.25rem; }
 .search-result-unit { color: var(--text-light); }
 .search-result-price-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-.search-result-price { font-weight: 900; font-size: 1.3rem; color: var(--primary); }
-.search-result-price .offer-old { text-decoration: line-through; color: var(--text-light); font-weight: 500; font-size: 1rem; margin-left: 0.3rem; }
+.search-result-price { font-weight: 900; font-size: 1.6rem; color: var(--primary); }
+.search-result-price .offer-old { text-decoration: line-through; color: var(--text-light); font-weight: 500; font-size: 1.15rem; margin-left: 0.3rem; }
 .search-result-low-stock { font-size: 0.7rem; color: #ef4444; background: rgba(239,68,68,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; }
 .search-result-action { flex-shrink: 0; }
 .search-result-add-btn {
