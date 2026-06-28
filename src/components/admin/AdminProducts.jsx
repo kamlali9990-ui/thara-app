@@ -188,6 +188,51 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     return CAT_MAP[c] || c;
   };
 
+  const DEFAULT_UNITS = {
+    'مواد غذائية': 'حبة', 'منظفات': 'زجاجة', 'ألعاب': 'حبة',
+    'مكسرات وبهارات': 'علبة', 'أواني': 'حبة', 'خضروات وفواكه': 'كجم',
+    'إلكترونيات': 'حبة', 'مجموعة الأصناف': 'حبة', 'ملابس': 'حبة', 'مواد البناء': 'حبة'
+  };
+
+  const getUnitForCategory = (cat) => DEFAULT_UNITS[cat] || 'حبة';
+
+  const HEADER_KEYS = {
+    name: ['أسم الصنف', 'اسم الصنف', 'الصنف', 'الاسم', 'اسم المنتج'],
+    price: ['سعر البيع', 'السعر', 'سعر'],
+    stock: ['الكمية', 'المخزون', 'كمية', 'مخزون', 'الرصيد'],
+    category: ['اسم المجموعة', 'المجموعة', 'القسم', 'مجموعة', 'التصنيف'],
+    unit: ['الوحدة', 'وحدة', 'unit']
+  };
+
+  const detectHeaderRow = (rows) => {
+    for (let i = 0; i < Math.min(20, rows.length); i++) {
+      const row = rows[i];
+      if (!row) continue;
+      const joined = row.join(' ').trim();
+      if (joined.includes('الصنف') || joined.includes('أسم') || joined.includes('السعر') || joined.includes('المجموعة')) return i;
+    }
+    return 11;
+  };
+
+  const mapColumns = (header) => {
+    const colMap = {};
+    const allKeys = [];
+    for (const [key, keywords] of Object.entries(HEADER_KEYS)) {
+      for (const kw of keywords) allKeys.push({ key, kw });
+    }
+    allKeys.sort((a, b) => b.kw.length - a.kw.length || a.key.localeCompare(b.key));
+    header.forEach((cell, idx) => {
+      const val = String(cell).trim();
+      const first = allKeys.find(({ kw }) => val.includes(kw));
+      if (first && colMap[first.key] === undefined) colMap[first.key] = idx;
+    });
+    colMap.name ??= 1;
+    colMap.price ??= 4;
+    colMap.stock ??= 3;
+    colMap.category ??= 7;
+    return colMap;
+  };
+
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -197,25 +242,21 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       try {
         const wb = XLSX.read(ev.target.result, { type: 'array' });
         const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', header: 1 });
-        let start = -1;
-        for (let i = 0; i < Math.min(20, raw.length); i++) {
-          const row = raw[i];
-          if (row[0] === 'م' || String(row[1] || '').includes('الصنف') || String(row[0] || '').includes('أسم')) {
-            start = i; break;
-          }
-        }
-        if (start === -1) start = 11;
+        const headerRow = detectHeaderRow(raw);
+        const colMap = mapColumns(raw[headerRow] || []);
         const result = [];
-        for (let i = start + 1; i < raw.length; i++) {
+        for (let i = headerRow + 1; i < raw.length; i++) {
           const r = raw[i];
-          if (!r[1] || String(r[1]).trim() === '' || String(r[1]) === 'الإجمالي') continue;
+          const name = String(r[colMap.name] || '').trim();
+          if (!name || name === 'الإجمالي') continue;
+          const category = mapCategory(r[colMap.category] || '');
           result.push({
             _row: i + 1,
-            name: String(r[1] || '').trim(),
-            category: mapCategory(r[7] || ''),
-            price: parseFloat(String(r[4] || '0').replace(/,/g, '')) || 0,
-            stock_quantity: parseInt(String(r[3] || '0').replace(/,/g, ''), 10) || 0,
-            unit: String(r[2] || 'حبة').trim(),
+            name,
+            category,
+            price: parseFloat(String(r[colMap.price] || '0').replace(/,/g, '')) || 0,
+            stock_quantity: parseInt(String(r[colMap.stock] || '0').replace(/,/g, ''), 10) || 0,
+            unit: colMap.unit !== undefined ? String(r[colMap.unit] || 'حبة').trim() : getUnitForCategory(category),
             imageUrl: ''
           });
         }
