@@ -30,10 +30,12 @@ export function safeProductUrl(url, name) {
   const s = url.trim();
   if (!s) return logoPath;
   if (isBlockedImageUrl(s) || s.includes('unsplash.com')) return logoPath;
+  if (s.startsWith('/')) return s;
   if (s.startsWith('http://')) return 'https://' + s.slice(7);
   if (s.startsWith('//')) return 'https:' + s;
   if (s.startsWith('http')) return s;
-  return 'https://' + s;
+  if (s.includes('/')) return 'https://' + s;
+  return logoPath;
 }
 
 export function cleanProductImages(products) {
