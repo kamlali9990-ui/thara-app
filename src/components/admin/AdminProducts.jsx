@@ -310,7 +310,10 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       if (!name) continue;
       const existing = nameMap[name.toLowerCase()];
       if (existing) {
-        toUpdate.push({ id: existing.id, name, category: String(r.category || existing.category).trim(), price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || existing.unit).trim() });
+        const updates = { id: existing.id, name, category: String(r.category || existing.category).trim(), price: Number(r.price) || 0, unit: String(r.unit || existing.unit).trim() };
+        const s = Number(r.stock_quantity) || 0;
+        if (s > 0) updates.stock_quantity = s;
+        toUpdate.push(updates);
       } else {
         const cat = String(r.category || 'مواد غذائية').trim();
         toCreate.push({ name, category: cat, price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || 'حبة').trim(), imageUrl: getCatImageUrl(cat), isOffer: false });
@@ -324,7 +327,11 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
     try {
       for (let i = 0; i < toUpdate.length; i += UPDATE_CONCURRENCY) {
         const batch = toUpdate.slice(i, i + UPDATE_CONCURRENCY);
-        await Promise.all(batch.map(item => updateProduct(item.id, { price: item.price, stock_quantity: item.stock_quantity, unit: item.unit, category: item.category })));
+        await Promise.all(batch.map(item => {
+          const upd = { price: item.price, unit: item.unit, category: item.category };
+          if (item.stock_quantity !== undefined) upd.stock_quantity = item.stock_quantity;
+          return updateProduct(item.id, upd);
+        }));
         updatedCount += batch.length;
         setImportProgress({ current: updatedCount + createdCount, total });
       }
