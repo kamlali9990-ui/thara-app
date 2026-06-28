@@ -83,7 +83,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
     setLocationError('');
     setIsLocating(true);
     clearWatch();
-    watchIdRef.current = navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
       onLocateSuccess,
       async () => {
         const ok = await locateByIP();
@@ -117,7 +117,7 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
         } catch {}
       }
       setIsLocating(true);
-      watchIdRef.current = navigator.geolocation.watchPosition(
+      navigator.geolocation.getCurrentPosition(
         onLocateSuccess,
         async () => {
           const ok = await locateByIP();
@@ -128,7 +128,6 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
       );
     };
     doAutoLocate();
-    return () => clearWatch();
   }, []);
   const MAX_DELIVERY_KM = 15;
   const isOutsideService = position && haversineKm(SHOP_POS, position) > MAX_DELIVERY_KM;

@@ -70,7 +70,7 @@ export default function DriverOrders() {
   const sendChatMessage = async () => {
     if (!chatText.trim() && !audio.recordedBlob) return;
     try {
-      await sendMessage({ orderId: chatOrder, text: chatText.trim(), sender: 'admin' });
+      await sendMessage({ orderId: chatOrder, text: chatText.trim(), sender: currentStaff?.role === 'driver' ? 'driver' : 'admin' });
       setChatText('');
       audio.clearRecording();
     } catch (err) {

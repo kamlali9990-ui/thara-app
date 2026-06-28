@@ -2,9 +2,13 @@ import React, { useState } from 'react';
 import { supabase } from '../../supabase/client';
 import { showToast } from '../Toast.jsx';
 
-export default function AdminUsers({ staffRole, customers, loadCustomers }) {
+const PAGE_SIZE = 50;
+
+export default function AdminUsers({ staffRole, customers }) {
   const isAdmin = staffRole === 'admin';
   const [resettingEmail, setResettingEmail] = useState(null);
+  const [searchQ, setSearchQ] = useState('');
+  const [page, setPage] = useState(0);
 
   const handleResetPassword = async (email) => {
     if (!window.confirm(`إرسال رابط إعادة تعيين كلمة المرور إلى ${email}؟`)) return;
@@ -21,15 +25,26 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }) {
     setResettingEmail(null);
   };
 
-  React.useEffect(() => { loadCustomers(); }, [loadCustomers]);
+  const q = searchQ.trim().toLowerCase();
+  const filtered = q
+    ? customers.filter(c => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q) || (c.phone || '').includes(q))
+    : customers;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
+  const safePage = Math.min(page, totalPages - 1);
+  const pageCustomers = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
 
   if (!customers.length) return <div><h2 className="admin-section-title users-title">المستخدمين</h2><p style={{ color: 'var(--admin-text-muted)', fontWeight: 700 }}>لا يوجد مستخدمين مسجلين.</p></div>;
 
   return (
     <div>
-      <h2 className="admin-section-title users-title">المستخدمين ({customers.length})</h2>
+      <h2 className="admin-section-title users-title">المستخدمين ({filtered.length})</h2>
+
+      <input value={searchQ} onChange={e => { setSearchQ(e.target.value); setPage(0); }}
+        placeholder="🔍 ابحث بالاسم أو البريد أو الجوال..."
+        style={{ width: '100%', maxWidth: 400, padding: '0.5rem 0.75rem', borderRadius: 8, border: '0.5px solid var(--admin-border)', background: 'var(--admin-input-bg)', color: 'var(--admin-text)', fontSize: '0.85rem', fontFamily: 'inherit', outline: 'none', marginBottom: '1rem', display: 'block' }} />
+
       <div className="admin-orders-list">
-        {customers.map(c => (
+        {pageCustomers.map(c => (
           <div key={c.id} className="admin-card">
             <div className="admin-card-header" style={{ alignItems: 'center' }}>
               <div>
@@ -64,6 +79,20 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }) {
           </div>
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', alignItems: 'center' }}>
+          <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={safePage === 0}
+            style={{ padding: '0.4rem 0.8rem', borderRadius: 6, border: '0.5px solid var(--admin-border)', background: 'var(--admin-highlight-bg)', color: 'var(--admin-text)', cursor: 'pointer', fontFamily: 'inherit' }}>
+            السابق
+          </button>
+          <span style={{ color: 'var(--admin-text-muted)', fontSize: '0.85rem' }}>{safePage + 1} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={safePage >= totalPages - 1}
+            style={{ padding: '0.4rem 0.8rem', borderRadius: 6, border: '0.5px solid var(--admin-border)', background: 'var(--admin-highlight-bg)', color: 'var(--admin-text)', cursor: 'pointer', fontFamily: 'inherit' }}>
+            التالي
+          </button>
+        </div>
+      )}
     </div>
   );
 }

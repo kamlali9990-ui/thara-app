@@ -1,0 +1,72 @@
+/* ==================== APP CONTENT ==================== */
+.app-content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 60px; }
+
+/* ==================== Empty States ==================== */
+.empty-orders { color: var(--text-main); }
+.cart-empty { text-align: center; color: #64748b; }
+.search-no-results { padding: 2rem; text-align: center; }
+.empty-chat { text-align: center; color: var(--text-light); margin-top: 2rem; }
+.no-products { padding: 2rem; text-align: center; grid-column: 1 / -1; color: var(--text-light); }
+.no-products-card { grid-column: 1 / -1; padding: 1.5rem; text-align: center; color: var(--text-light); font-size: 0.9rem; }
+.tab-empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 2rem; text-align: center; color: var(--text-light); }
+.tab-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.tab-empty-state h3 { margin-bottom: 0.5rem; color: var(--text-main); }
+
+/* ==================== Breadcrumb ==================== */
+.breadcrumb { display: flex; align-items: center; gap: 6px; padding: 10px 16px 0; font-size: 0.85rem; overflow-x: auto; white-space: nowrap; scrollbar-width: none; }
+.breadcrumb::-webkit-scrollbar { display: none; }
+.breadcrumb-item { display: inline-flex; align-items: center; gap: 6px; }
+.breadcrumb-sep { color: var(--text-muted, #94a3b8); font-size: 0.75rem; }
+.breadcrumb-link { background: none; border: none; color: var(--primary, #059669); font-size: 0.85rem; font-weight: 500; cursor: pointer; padding: 2px 4px; border-radius: 6px; font-family: var(--font-family); transition: background 0.2s; }
+.breadcrumb-link:hover { background: rgba(5, 150, 105, 0.08); }
+.breadcrumb-current { color: var(--text-main, #1e293b); font-weight: 600; font-size: 0.85rem; }
+
+/* ==================== OFFER TAG ==================== */
+.offer-tag { position: absolute; top: 0.5rem; right: 0.5rem; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.7rem; font-weight: 800; z-index: 5; box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); animation: offerPulse 2s ease-in-out infinite; }
+@keyframes offerPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* ==================== Payment Methods ==================== */
+.payment-group { background: #f8fafc; padding: 1rem; border-radius: 8px; border: 1px solid var(--border); }
+.payment-label { font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem; direction: ltr; text-align: right; }
+
+/* ==================== Khafji Map ==================== */
+.map-container { height: 250px; width: 100%; border-radius: 12px; overflow: hidden; }
+.map-container-placed { border: 2px solid var(--primary); }
+.map-container-empty { border: 2px dashed #cbd5e1; }
+.location-confirmed { margin-top: 0.5rem; color: var(--primary); font-weight: bold; font-size: 0.9rem; }
+
+/* ==================== Order Summary ==================== */
+.khafji-map-inner { height: 100%; width: 100%; }
+.order-summary { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.order-summary-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+.order-summary-row.delivery { color: green; }
+.order-summary-total { display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border); font-size: 1.25rem; font-weight: bold; }
+.order-confirm-btn { width: 100%; margin-top: 1.5rem; padding: 1rem; font-size: 1.1rem; }
+
+/* ==================== Order & Product Admin ==================== */
+.order-total-text { color: #fbbf24; font-weight: bold; }
+.order-status-select { margin-top: 0.5rem; padding: 0.45rem 0.55rem; border-radius: 6px; border: 1px solid var(--admin-border); background: var(--admin-input-bg); color: var(--admin-text); font-size: 0.92rem; font-weight: 650; }
+.order-status-select option { background: var(--admin-bg-solid); color: var(--admin-text); }
+.order-items-list { margin-top: 0.5rem; padding-right: 1.5rem; color: #94a3b8; }
+
+/* ==================== iOS TAB BAR ==================== */
+.app-tabbar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom, 0); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); background: rgba(255,255,255,0.88); border-top: 0.5px solid rgba(0,0,0,0.08); }
+.app-tab { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 0.4rem 0 0.3rem; background: none; border: none; font-family: inherit; cursor: pointer; color: var(--text-light); transition: color 0.15s; gap: 0.2rem; position: relative; }
+.app-tab.active { color: var(--primary); }
+.app-tab svg { width: 26px; height: 26px; stroke-width: 2.2; transition: all 0.15s; }
+.app-tab.active svg { stroke-width: 3.2; }
+.app-tab-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.03em; }
+
+/* ==================== HEADER NOTIFICATION BADGE ==================== */
+.app-header-actions { display: flex; align-items: center; gap: 0.5rem; }
+.app-header-notif-btn { position: relative; }
+.app-header-badge { position: absolute; top: -2px; right: -4px; background: #ff3b30; color: white; font-size: 0.65rem; font-weight: 800; min-width: 18px; height: 18px; border-radius: 99px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(255, 59, 48, 0.4); border: 1.5px solid white; padding: 0 4px; line-height: 1; }
+.app-header-stats { display: flex; align-items: center; gap: 0.25rem; background: rgba(16, 185, 129, 0.12); padding: 0.15rem 0.5rem; border-radius: 99px; font-size: 0.6rem; font-weight: 700; color: var(--primary); white-space: nowrap; line-height: 1; }
+.app-header-stat-item { display: inline-flex; align-items: center; gap: 0.15rem; }
+.app-header-stat-divider { color: rgba(128, 128, 128, 0.4); font-size: 0.55rem; }
+
+/* ==================== SEARCH BAR FIX ==================== */
+.app-search-hometab { padding: 0.5rem 1rem 1rem; position: relative; max-width: 600px; margin: 0 auto; border-radius: 99px; }
+.app-search-hometab .app-search-input { width: 100%; padding: 0.8rem 1rem 0.8rem 2.75rem; border: 1.5px solid rgba(18, 116, 67, 0.12); border-radius: 99px; font-family: inherit; font-size: 0.95rem; background: white; color: #1a202c; outline: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); transition: all 0.2s ease; }
+.app-search-hometab .app-search-input:focus { border-color: var(--primary); box-shadow: 0 4px 15px rgba(18, 116, 67, 0.1); }
+.app-search-hometab .app-search-icon { position: absolute; left: 2rem; top: 45%; transform: translateY(-50%); color: #a0aec0; pointer-events: none; }

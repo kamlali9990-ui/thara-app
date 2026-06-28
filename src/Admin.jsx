@@ -201,9 +201,6 @@ export default function Admin() {
     if (hasPermission('manage_products') || hasPermission('manage_offers')) {
       items.push({ id: 'store', label: 'المتجر', icon: 'store' });
     }
-    if (hasPermission('manage_products') || hasPermission('manage_offers')) {
-      items.push({ id: 'images', label: 'صور الأقسام', icon: 'images' });
-    }
     if (hasPermission('manage_settings')) {
       items.push({ id: 'settings', label: 'الإعدادات', icon: 'settings' });
     }
@@ -248,13 +245,6 @@ export default function Admin() {
       </div>
     );
     if (activeTab === 'chat' && hasPermission('manage_chat')) return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />;
-    if (activeTab === 'images') return (
-      <div className="admin-store-section">
-        <Suspense fallback={<div className="admin-loading">جاري التحميل...</div>}>
-          <AdminCategoryImages />
-        </Suspense>
-      </div>
-    );
     if (activeTab === 'settings') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
@@ -379,6 +369,7 @@ function FeaturedManager({ allProducts }) {
     const next = featured.includes(id) ? featured.filter(i => i !== id) : [...featured, id];
     setFeatured(next);
     localStorage.setItem('thara_featured_ids', JSON.stringify(next));
+    supabase.from('settings').upsert({ key: 'featured_ids', value: JSON.stringify(next) }, { onConflict: 'key' }).catch(() => {});
     window.dispatchEvent(new Event('thara:featured-changed'));
     showToast(featured.includes(id) ? 'تمت إزالة المنتج من التشكيلة' : 'تمت إضافة المنتج للتشكيلة');
   };

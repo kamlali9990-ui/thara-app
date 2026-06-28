@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { supabase } from '../../supabase/client';
 import { cleanupApi } from '../../supabase/cleanup';
 import { showToast } from '../Toast';
 
@@ -13,6 +14,7 @@ const ENTITIES = [
 export default function AdminCleanup({ currentStaff }) {
   const [selected, setSelected] = useState([]);
   const [confirmText, setConfirmText] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -24,6 +26,14 @@ export default function AdminCleanup({ currentStaff }) {
   const handleCleanup = async () => {
     if (selected.length === 0) { showToast('اختر على الأقل عنصرًا واحدًا للحذف', 'warning'); return; }
     if (confirmText !== 'حذف') { showToast('اكتب "حذف" لتأكيد العملية', 'warning'); return; }
+    if (!password) { showToast('الرجاء إدخال كلمة المرور لتأكيد الهوية', 'warning'); return; }
+    try {
+      const user = (await supabase.auth.getUser()).data.user;
+      if (user?.email) {
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email: user.email, password });
+        if (signInError) { showToast('كلمة المرور غير صحيحة', 'error'); return; }
+      }
+    } catch { showToast('فشل التحقق من الهوية', 'error'); return; }
     setLoading(true);
     setResult(null);
     try {
@@ -31,6 +41,7 @@ export default function AdminCleanup({ currentStaff }) {
       setResult(res);
       showToast('تم التنظيف بنجاح', 'success');
       setConfirmText('');
+      setPassword('');
       localStorage.removeItem('thara_chat');
       localStorage.removeItem('thara_orders');
       localStorage.removeItem('thara_cart');
@@ -42,7 +53,7 @@ export default function AdminCleanup({ currentStaff }) {
     }
   };
 
-  const ready = confirmText === 'حذف' && selected.length > 0;
+  const ready = confirmText === 'حذف' && selected.length > 0 && password.length > 0;
 
   return (
     <div>
@@ -78,6 +89,12 @@ export default function AdminCleanup({ currentStaff }) {
             <input type="text" value={confirmText} onChange={e => setConfirmText(e.target.value)}
               placeholder='اكتب "حذف" هنا'
               className={`admin-cleanup-input${confirmText === 'حذف' ? ' confirmed' : ''}`} />
+            <label style={{ display: 'block', color: 'var(--admin-danger)', fontSize: '0.85rem', marginBottom: '0.4rem', marginTop: '0.75rem' }}>
+              أدخل كلمة مرور حسابك لتأكيد الهوية
+            </label>
+            <input type="password" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="كلمة المرور"
+              className={`admin-cleanup-input${password.length > 0 ? ' confirmed' : ''}`} />
           </div>
         )}
 

@@ -47,19 +47,21 @@ const HomeTab = memo(({ addToCart, cart, searchQuery, setSearchQuery, setShowAll
   }, [allProducts, featuredVer]);
 
   useEffect(() => {
-    supabase
-      .from('settings')
-      .select('value')
-      .eq('key', 'banner_url')
-      .maybeSingle()
+    supabase.from('settings').select('value').eq('key', 'banner_url').maybeSingle()
       .then(({ data }) => {
         const val = data?.value;
         if (isValidBannerUrl(val)) {
           localStorage.setItem(BANNER_STORAGE_KEY, val);
           setBannerSrc(val);
         }
-      })
-      .catch((e) => console.error('[banner fetch]', e));
+      }).catch((e) => console.error('[banner fetch]', e));
+    supabase.from('settings').select('value').eq('key', 'featured_ids').maybeSingle()
+      .then(({ data }) => {
+        if (data?.value) {
+          localStorage.setItem('thara_featured_ids', data.value);
+          window.dispatchEvent(new Event('thara:featured-changed'));
+        }
+      }).catch(() => {});
   }, []);
 
   useEffect(() => {

@@ -171,6 +171,9 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }) {
         if (key === 'banner_url') {
           try { localStorage.setItem('thara_banner_url', value); } catch (e) { /* ignore */ }
           window.dispatchEvent(new Event('thara:banner-changed'));
+        } else if (key === 'featured_ids') {
+          try { localStorage.setItem('thara_featured_ids', value); } catch (e) { /* ignore */ }
+          window.dispatchEvent(new Event('thara:featured-changed'));
         } else if (key.startsWith('cat_img_') && !key.endsWith('_ver')) {
           const catName = key.replace('cat_img_', '');
           try { localStorage.setItem('thara_cat_img_' + catName, value); } catch (e) { /* ignore */ }
