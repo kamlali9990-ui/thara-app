@@ -4,11 +4,21 @@ import { StoreContext } from '../../context/StoreContext';
 import { categories } from '../../data/mockData';
 import { showToast } from '../Toast.jsx';
 import CloudinaryUpload from './CloudinaryUpload';
-import { safeProductUrl, logoPath } from '../../utils/constants';
+import { safeProductUrl, logoPath, BASE } from '../../utils/constants';
 
 const ADMIN_LOGO = logoPath;
 const PAGE_SIZE = 50;
 const ALL_CATS = categories.filter(c => c !== 'الكل' && c !== 'العروض');
+
+const CAT_IMAGES = {
+  'مواد غذائية': 'cat_canned.jpg', 'منظفات': 'cat_vegetables.jpg',
+  'إلكترونيات': 'الكترونيات.jpg', 'أواني': 'اواني.jpg',
+  'مكسرات وبهارات': 'cat_canned.jpg', 'خضروات وفواكه': 'Getty.webp',
+  'ألعاب': 'العاب.jpg', 'مجموعة الأصناف': 'cat_dairy.jpg',
+  'ملابس': 'ملابس.jpg', 'مواد البناء': 'cat_hardware.jpg',
+  'العطور': 'العطور.jpg'
+};
+const getCatImageUrl = (cat) => `${BASE}${CAT_IMAGES[cat] || 'cat_canned.jpg'}`;
 
 function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteProduct }) {
   const isAdmin = staffRole === 'admin';
@@ -257,7 +267,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
             price: parseFloat(String(r[colMap.price] || '0').replace(/,/g, '')) || 0,
             stock_quantity: parseInt(String(r[colMap.stock] || '0').replace(/,/g, ''), 10) || 0,
             unit: colMap.unit !== undefined ? String(r[colMap.unit] || 'حبة').trim() : getUnitForCategory(category),
-            imageUrl: ''
+            imageUrl: getCatImageUrl(category)
           });
         }
         setPreviewRows(result);
@@ -272,7 +282,8 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       const rows = String(text).trim().split('\n').map((line, i) => {
         const parts = line.split('\t');
         if (parts.length < 2) parts.push(...line.split(','));
-        return { _row: i + 1, name: parts[0], category: mapCategory(parts[1]), price: parseFloat(parts[2]) || 0, stock_quantity: parseInt(parts[3], 10) || 0, unit: parts[4] || 'حبة', imageUrl: parts[5] || '' };
+        const category = mapCategory(parts[1]);
+        return { _row: i + 1, name: parts[0], category, price: parseFloat(parts[2]) || 0, stock_quantity: parseInt(parts[3], 10) || 0, unit: parts[4] || 'حبة', imageUrl: parts[5] || getCatImageUrl(category) };
       });
       setPreviewRows(rows);
     } catch { showToast('فشل تحليل النص', 'error'); }
@@ -301,7 +312,8 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       if (existing) {
         toUpdate.push({ id: existing.id, name, category: String(r.category || existing.category).trim(), price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || existing.unit).trim() });
       } else {
-        toCreate.push({ name, category: String(r.category || 'مواد غذائية').trim(), price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || 'حبة').trim(), imageUrl: '', isOffer: false });
+        const cat = String(r.category || 'مواد غذائية').trim();
+        toCreate.push({ name, category: cat, price: Number(r.price) || 0, stock_quantity: Number(r.stock_quantity) || 0, unit: String(r.unit || 'حبة').trim(), imageUrl: getCatImageUrl(cat), isOffer: false });
       }
     }
 
