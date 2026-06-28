@@ -7,6 +7,7 @@ const ENTITIES = [
   { id: 'chat_messages', label: 'الرسائل', icon: '💬', desc: 'حذف جميع محادثات العملاء' },
   { id: 'customers', label: 'المستخدمين', icon: '👤', desc: 'حذف جميع حسابات العملاء' },
   { id: 'staff', label: 'الموظفين', icon: '👥', desc: 'حذف جميع الموظفين (ما عدا حسابك)' },
+  { id: 'products', label: 'المنتجات', icon: '📦', desc: 'حذف جميع المنتجات (لإعادة الاستيراد)' },
 ];
 
 export default function AdminCleanup({ currentStaff }) {

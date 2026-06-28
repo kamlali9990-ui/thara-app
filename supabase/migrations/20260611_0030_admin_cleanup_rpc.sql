@@ -10,6 +10,7 @@ DECLARE
   v_order_count INT := 0;
   v_customer_count INT := 0;
   v_staff_count INT := 0;
+  v_product_count INT := 0;
 BEGIN
   IF 'chat_messages' = ANY(p_entities) THEN
     DELETE FROM chat_messages WHERE TRUE;
@@ -31,11 +32,17 @@ BEGIN
     GET DIAGNOSTICS v_staff_count = ROW_COUNT;
   END IF;
 
+  IF 'products' = ANY(p_entities) THEN
+    DELETE FROM products WHERE TRUE;
+    GET DIAGNOSTICS v_product_count = ROW_COUNT;
+  END IF;
+
   v_counts := jsonb_build_object(
     'chat_messages', v_chat_count,
     'orders', v_order_count,
     'customers', v_customer_count,
-    'staff', v_staff_count
+    'staff', v_staff_count,
+    'products', v_product_count
   );
 
   RETURN v_counts;
