@@ -67,11 +67,22 @@ const HomeTab = memo(({ addToCart, cart, searchQuery, setSearchQuery, setShowAll
       const src = localStorage.getItem(BANNER_STORAGE_KEY) || '';
       setBannerSrc(src);
     };
+    const handlerCrossDevice = () => {
+      supabase.from('settings').select('value').eq('key', 'banner_url').maybeSingle()
+        .then(({ data }) => {
+          const val = data?.value;
+          if (isValidBannerUrl(val)) {
+            localStorage.setItem(BANNER_STORAGE_KEY, val);
+            setBannerSrc(val);
+          }
+        })
+        .catch(() => { /* ignore */ });
+    };
     window.addEventListener('storage', handler);
-    window.addEventListener('thara:banner-changed', handler);
+    window.addEventListener('thara:banner-changed', handlerCrossDevice);
     return () => {
       window.removeEventListener('storage', handler);
-      window.removeEventListener('thara:banner-changed', handler);
+      window.removeEventListener('thara:banner-changed', handlerCrossDevice);
     };
   }, []);
 

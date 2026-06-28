@@ -77,6 +77,20 @@ export const productsApi = {
       .select();
     if (error) throw error;
     return (data || []).map(mapProduct);
+  },
+
+  subscribe(onChange) {
+    try {
+      return supabase
+        .channel('products-stream')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'products' }, (payload) => {
+          onChange(payload);
+        })
+        .subscribe();
+    } catch (e) {
+      console.warn('products subscribe failed:', e);
+      return { unsubscribe: () => {} };
+    }
   }
 };
 
@@ -96,7 +110,7 @@ function toProductRow(product) {
   return row;
 }
 
-function mapProduct(p) {
+export function mapProduct(p) {
   return {
     id: String(p.id),
     name: p.name,

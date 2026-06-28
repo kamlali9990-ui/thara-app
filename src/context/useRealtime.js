@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { chatApi } from '../supabase/chat.js';
 import { ordersApi } from '../supabase/orders.js';
+import { productsApi, mapProduct } from '../supabase/products.js';
+import { supabase } from '../supabase/client';
 
 function playNotificationSound() {
   try {
@@ -140,4 +142,42 @@ export function useMarkRead({ hasSupabase, supabaseReady, setChatMessages }) {
     setChatMessages(prev => prev.map(m => messageIds.includes(m.id) ? { ...m, status: 'read' } : m));
   };
   return { markMessagesAsRead };
+}
+
+export function useRealtimeProducts({ hasSupabase, supabaseReady, setProducts }) {
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    const channel = productsApi.subscribe((payload) => {
+      if (payload.eventType === 'INSERT') {
+        setProducts(prev => [mapProduct(payload.new), ...prev]);
+      } else if (payload.eventType === 'UPDATE') {
+        setProducts(prev => prev.map(p => p.id === String(payload.new.id) ? mapProduct(payload.new) : p));
+      } else if (payload.eventType === 'DELETE') {
+        setProducts(prev => prev.filter(p => p.id !== String(payload.old.id)));
+      }
+    });
+    return () => { try { channel.unsubscribe(); } catch (e) { console.error('products unsub', e); } };
+  }, [hasSupabase, supabaseReady, setProducts]);
+}
+
+export function useRealtimeSettings({ hasSupabase, supabaseReady }) {
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    const channel = supabase
+      .channel('settings-stream')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, (payload) => {
+        if (payload.eventType === 'DELETE') return;
+        const { key, value } = payload.new;
+        if (key === 'banner_url') {
+          try { localStorage.setItem('thara_banner_url', value); } catch (e) { /* ignore */ }
+          window.dispatchEvent(new Event('thara:banner-changed'));
+        } else if (key.startsWith('cat_img_') && !key.endsWith('_ver')) {
+          const catName = key.replace('cat_img_', '');
+          try { localStorage.setItem('thara_cat_img_' + catName, value); } catch (e) { /* ignore */ }
+          window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: value } }));
+        }
+      })
+      .subscribe();
+    return () => { try { channel.unsubscribe(); } catch (e) { console.error('settings unsub', e); } };
+  }, [hasSupabase, supabaseReady]);
 }

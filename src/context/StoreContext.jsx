@@ -10,7 +10,7 @@ import { supabase } from '../supabase/client';
 import { showToast } from '../components/Toast.jsx';
 import { cleanProductImages } from '../utils/constants.js';
 import { usePersistence, useAuthListener, useLocalStorageSave } from './usePersistence.js';
-import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead } from './useRealtime.js';
+import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead, useRealtimeProducts, useRealtimeSettings } from './useRealtime.js';
 import { subscribePush, unsubscribePush } from '../utils/pushNotifications.js';
 import { usePermissions } from './usePermissions.js';
 
@@ -63,6 +63,8 @@ export const StoreProvider = ({ children }) => {
   useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading });
   useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, setChatMessages });
   useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOrders });
+  useRealtimeProducts({ hasSupabase, supabaseReady, setProducts });
+  useRealtimeSettings({ hasSupabase, supabaseReady });
 
   const [typingUsers, setTypingUsers] = useState({});
   const { sendTyping, typingTimeouts } = useTypingIndicator({ hasSupabase, supabaseReady, user, setTypingUsers });
