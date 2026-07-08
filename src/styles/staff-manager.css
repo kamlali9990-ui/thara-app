@@ -2673,3 +2673,52 @@
   border: 1px solid rgba(var(--admin-warning-rgb), 0.3) !important;
   cursor: pointer !important;
 }
+
+/* ── Driver Location Sharing ── */
+.order-action-btn.share-location {
+  background: #22c55e;
+  color: #fff;
+}
+.order-action-btn.share-location:hover {
+  background: #16a34a;
+}
+.order-action-btn.stop-sharing {
+  background: #ef4444;
+  color: #fff;
+}
+.order-action-btn.stop-sharing:hover {
+  background: #dc2626;
+}
+.driver-location-sharing {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 8px;
+  color: #22c55e;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.driver-location-dot {
+  width: 10px;
+  height: 10px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: location-dot-pulse 1.5s infinite;
+}
+@keyframes location-dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+.driver-location-error {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  font-size: 0.8rem;
+}

@@ -1044,6 +1044,8 @@ CREATE POLICY "typing_delete_policy" ON typing_events
 
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS estimated_delivery INTEGER;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS assigned_driver_id BIGINT REFERENCES staff(id) ON DELETE SET NULL;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS driver_lat NUMERIC;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS driver_lng NUMERIC;
 
 CREATE OR REPLACE FUNCTION public.current_staff_id()
 RETURNS BIGINT
@@ -1140,6 +1142,44 @@ BEGIN
 END;
 $$;
 GRANT EXECUTE ON FUNCTION public.claim_order_rpc TO authenticated;
+
+-- Driver live location update
+CREATE OR REPLACE FUNCTION public.update_driver_location_rpc(
+  p_order_id BIGINT,
+  p_lat NUMERIC,
+  p_lng NUMERIC
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  result JSON;
+  caller_id BIGINT;
+  caller_role TEXT;
+  cur_assigned BIGINT;
+BEGIN
+  SELECT id, role INTO caller_id, caller_role
+  FROM staff WHERE lower(email) = lower(auth.jwt() ->> 'email') LIMIT 1;
+  IF caller_role IS NULL THEN
+    RAISE EXCEPTION 'Staff only';
+  END IF;
+  IF caller_role != 'driver' THEN
+    RAISE EXCEPTION 'Driver only';
+  END IF;
+  SELECT assigned_driver_id INTO cur_assigned FROM orders WHERE id = p_order_id;
+  IF cur_assigned IS NULL OR cur_assigned != caller_id THEN
+    RAISE EXCEPTION 'You are not assigned to this order';
+  END IF;
+  UPDATE orders
+  SET driver_lat = p_lat, driver_lng = p_lng
+  WHERE id = p_order_id
+  RETURNING row_to_json(orders)::JSON INTO result;
+  RETURN result;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.update_driver_location_rpc TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.update_order_status_rpc(
   p_order_id BIGINT,

@@ -1,0 +1,262 @@
+import { useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { StoreContext } from './context/StoreContext';
+import InstallPrompt from './components/InstallPrompt';
+import CheckoutModal from './components/CheckoutModal';
+import CartScreen from './components/CartScreen';
+import SideDrawer from './components/SideDrawer';
+import NotifPanel from './components/NotifPanel';
+import SplashScreen from './components/SplashScreen';
+import UpdateBanner from './components/UpdateBanner';
+import AppHeader from './components/AppHeader';
+import AppTabbar from './components/AppTabbar';
+import HomeTab from './components/HomeTab';
+import CategoriesTab from './components/CategoriesTab';
+import OrdersTab from './components/OrdersTab';
+import AccountTab from './components/AccountTab';
+import AllProductsView from './components/AllProductsView';
+import SearchResultsList from './components/SearchResultsList';
+import OfflineBanner from './components/OfflineBanner';
+import NotificationPermissionPrompt from './components/NotificationPermissionPrompt';
+import SupportChatWidget from './components/SupportChatWidget';
+import { BASE } from './utils/constants';
+import { useTheme } from './utils/theme';
+
+export default function App() {
+  const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
+    searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
+    placeOrder, user, logout, orders,
+    customerProfile, updateCustomerProfile, loadOrders,
+    chatMessages, staffRole, currentStaff, siteStats, instantResults, loading } = useContext(StoreContext);
+
+  const [tab, setTab] = useState('home');
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
+  const splashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [splashReady, setSplashReady] = useState(false);
+
+  useEffect(() => {
+    if (!loading && splashReady) {
+      splashTimerRef.current = setTimeout(() => setShowSplash(false), 400);
+      return () => clearTimeout(splashTimerRef.current!);
+    }
+  }, [loading, splashReady]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSplashReady(true), 100);
+    return () => clearTimeout(t);
+  }, []);
+  const [slideDir, setSlideDir] = useState('left');
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [showAllView, setShowAllView] = useState<any>(null);
+  const [preselectedCat, setPreselectedCat] = useState<any>(null);
+  const [prevTab, setPrevTab] = useState('home');
+  const [tabKey, setTabKey] = useState(0);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { name } = (e as CustomEvent).detail || {};
+      try {
+        if (Notification.permission === 'granted') {
+          new Notification('🔥 عرض جديد في أسواق ثراء الشرق ون!', { body: `اطلع على ${name || 'العرض الجديد'} الآن`, icon: BASE + 'icon-192.png' });
+        }
+      } catch (e) { console.error('new-offer notification error', e); }
+    };
+    window.addEventListener('thara:new-offer', handler as EventListener);
+    return () => window.removeEventListener('thara:new-offer', handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().catch((e: any) => console.error('Notif permission request failed', e));
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        if (!('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+        const order = (e as any).detail;
+        if (!order) return;
+        let body = '';
+        if (order.status === 'قيد التحضير') body = 'تم استلام طلبك وجاري تجهيزه';
+        else if (order.status === 'جاهز للتوصيل') body = 'طلبك جاهز بانتظار الكابتن';
+      else if (order.status === 'في الطريق') {
+          const eta = order.estimatedDelivery;
+          body = eta ? `الكابتن في الطريق — الوصول خلال ${eta} دقيقة` : 'الكابتن في الطريق إليك';
+        } else if (order.status === 'تم التوصيل') body = 'تم توصيل طلبك ✓، بانتظار تأكيد الإدارة';
+        else if (order.status === 'مكتمل') body = '🎉 تم التوصيل بنجاح';
+        else body = `تحديث الطلب: ${order.status}`;
+        new Notification('أسواق ثراء الشرق ون', { body, tag: 'thara-order', lang: 'ar', icon: BASE + 'cart-icon-192.png' });
+      } catch (e) { console.error('order-status notification error', e); }
+    };
+    window.addEventListener('thara:order-status', handler as EventListener);
+    return () => window.removeEventListener('thara:order-status', handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      try {
+        if (!('Notification' in window)) return;
+        if (Notification.permission !== 'granted') return;
+        const msg = (e as any).detail;
+        if (!msg || !msg.sender || msg.sender === 'customer') return;
+        const preview = msg?.text ? (msg.text.length > 80 ? msg.text.slice(0, 80) + '...' : msg.text) : 'رسالة صوتية';
+        new Notification('رد من المتجر', { body: preview, tag: 'thara-msg-' + (msg?.id || 'x'), icon: BASE + 'cart-icon-192.png', lang: 'ar' });
+      } catch (e) { console.error('new-message notification error', e); }
+    };
+    window.addEventListener('thara:new-message', handler as EventListener);
+    return () => window.removeEventListener('thara:new-message', handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | null = null;
+    let isOriginal = true;
+    const originalTitle = document.title;
+
+    const handleNewMessage = () => {
+      if (document.hidden) {
+        if (interval) clearInterval(interval);
+        interval = setInterval(() => {
+          document.title = isOriginal ? '💬 رسالة دعم جديدة...' : originalTitle;
+          isOriginal = !isOriginal;
+        }, 1000);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        if (interval) {
+          clearInterval(interval);
+          interval = null;
+        }
+        document.title = originalTitle;
+      }
+    };
+
+    window.addEventListener('thara:new-message', handleNewMessage);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('thara:new-message', handleNewMessage);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      if (interval) clearInterval(interval);
+      document.title = originalTitle;
+    };
+  }, []);
+
+  const cartCount = (cart || []).reduce((s, i) => s + i.qty, 0);
+  const userOrders = (orders || []).filter(o => o.customerEmail === user?.email);
+  const [notifLastOpened, setNotifLastOpened] = useState(() => {
+    try { return localStorage.getItem('thara_notif_last_opened') || ''; } catch { return ''; }
+  });
+  useEffect(() => {
+    const handler = () => {
+      try { setNotifLastOpened(localStorage.getItem('thara_notif_last_opened') || ''); } catch {}
+    };
+    window.addEventListener('thara:notif-updated', handler);
+    window.addEventListener('storage', handler);
+    return () => {
+      window.removeEventListener('thara:notif-updated', handler);
+      window.removeEventListener('storage', handler);
+    };
+  }, []);
+  const unreadNotifs = useMemo(() => {
+    if (!user) return 0;
+    const relevant = (chatMessages || []).filter(m =>
+      (m.customerEmail === user.email || (customerProfile?.phone && m.customerPhone === customerProfile.phone)) &&
+      m.sender !== 'customer'
+    );
+    if (!notifLastOpened) return relevant.length;
+    const lastTime = new Date(notifLastOpened).getTime();
+    return relevant.filter(m => {
+      const msgTime = (m as any).timestamp ? new Date((m as any).timestamp).getTime() : 0;
+      return msgTime > lastTime;
+    }).length;
+  }, [chatMessages, user, customerProfile, notifLastOpened]);
+
+  const switchTab = useCallback((t: string) => {
+    if (t === 'cart') { setIsCartOpen(true); return; }
+    const order = ['home', 'categories', 'orders', 'account'];
+    const curIdx = order.indexOf(tab);
+    const nextIdx = order.indexOf(t);
+    if (nextIdx === -1) return;
+    if (curIdx === nextIdx) { setTabKey(k => k + 1); return; }
+    if (t !== 'home') setShowAllView(null);
+    setSlideDir(nextIdx > curIdx ? 'left' : 'right');
+    setPrevTab(tab);
+    setTab(t);
+  }, [tab]);
+
+  const closeCheckout = useCallback(() => setIsCheckoutOpen(false), []);
+
+  if (showSplash) return <SplashScreen />;
+
+  return (
+    <div className="app-wrapper">
+      <UpdateBanner />
+      <OfflineBanner />
+      <InstallPrompt />
+      <NotificationPermissionPrompt />
+      <AppHeader cartCount={cartCount}
+        onCartOpen={() => setIsCartOpen(true)} tab={tab}
+        searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+        unreadNotifs={unreadNotifs}
+        theme={theme}
+        onMenuClick={() => setIsDrawerOpen(true)}
+        onNotifClick={() => { setIsDrawerOpen(false); setIsNotifOpen(o => !o); }}
+        siteStats={siteStats}
+        hideSearch={showAllView !== null || tab === 'categories'} />
+
+        <div className={`app-content ${tab === 'home' && !showAllView ? '' : 'app-content-nohome'}`}>
+        {showAllView ? (
+          <AllProductsView view={showAllView} onBack={() => setShowAllView(null)}
+            products={products} addToCart={addToCart} cart={cart} />
+        ) : (
+        <div className={`app-slide ${slideDir === 'left' ? 'slide-in-left' : 'slide-in-right'}`}>
+          {tab === 'home' && <HomeTab key="home"
+            addToCart={addToCart} cart={cart} searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+            setShowAllView={setShowAllView} />}
+        </div>
+        )}
+        <div className={`app-slide ${slideDir === 'right' ? 'slide-in-right' : 'slide-in-left'}`}>
+          {tab === 'categories' && <CategoriesTab key={`categories-${tabKey}`}
+            setShowAllView={setShowAllView}
+            preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
+          {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} onThemeChange={setTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
+          </div>
+        </div>
+
+      <AppTabbar tab={tab} onTabChange={switchTab} cartCount={cartCount} onCartOpen={() => setIsCartOpen(true)} />
+
+      {searchQuery.trim() && (
+        <div className="global-search-overlay" onClick={() => setSearchQuery('')}>
+          <div className="global-search-content" onClick={(e) => e.stopPropagation()}>
+            <SearchResultsList results={instantResults} addToCart={addToCart} cart={cart} searchQuery={searchQuery} />
+          </div>
+        </div>
+      )}
+
+      {isCartOpen && <CartScreen cart={cart} cartTotal={cartTotal} cartCount={cartCount}
+        updateCartQty={updateCartQty} removeFromCart={removeFromCart}
+        onClose={() => setIsCartOpen(false)} onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />}
+
+      {isCheckoutOpen && <CheckoutModal cartTotal={cartTotal} onClose={closeCheckout} placeOrder={placeOrder} />}
+
+      <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
+        user={user} logout={logout} tab={tab} selectedCategory={selectedCategory} onTabChange={switchTab}
+        setSelectedCategory={setSelectedCategory}
+        theme={theme} onThemeChange={setTheme} />
+
+      {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
+        onClose={() => setIsNotifOpen(false)}
+        orders={orders} onTabChange={switchTab} />}
+      <SupportChatWidget />
+    </div>
+  );
+}
