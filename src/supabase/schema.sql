@@ -185,7 +185,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION public.confirm_auth_user(p_email TEXT, p_password TEXT DEFAULT '123456')
+CREATE OR REPLACE FUNCTION public.confirm_auth_user(p_email TEXT, p_password TEXT)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -415,12 +415,16 @@ SET search_path = public, auth, extensions
 AS $$
 DECLARE
   v_user_id UUID;
+  v_created_at TIMESTAMPTZ;
   v_session_id UUID;
   v_refresh_token TEXT;
 BEGIN
-  SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = lower(trim(p_email)) LIMIT 1;
+  SELECT id, created_at INTO v_user_id, v_created_at FROM auth.users WHERE lower(email) = lower(trim(p_email)) LIMIT 1;
   IF v_user_id IS NULL THEN
     RAISE EXCEPTION 'User not found';
+  END IF;
+  IF now() - v_created_at > interval '5 minutes' THEN
+    RAISE EXCEPTION 'Session can only be created within 5 minutes of signup — use normal login';
   END IF;
   v_session_id := extensions.gen_random_uuid();
   INSERT INTO auth.sessions (id, user_id, created_at, updated_at, factor_id, aal)
@@ -1468,14 +1472,17 @@ SET search_path = public, auth, extensions
 AS $$
 DECLARE
   found_email TEXT;
-  result JSON;
+  existing_user_id UUID;
 BEGIN
   SELECT email INTO found_email FROM staff WHERE lower(email) = lower(p_identifier) OR phone = p_identifier LIMIT 1;
   IF found_email IS NULL THEN
     RETURN json_build_object('staff_exists', false, 'fixed', false);
   END IF;
-  result := public.confirm_auth_user(found_email, p_password);
-  RETURN json_build_object('staff_exists', true, 'fixed', true, 'user', result);
+  SELECT id INTO existing_user_id FROM auth.users WHERE email = found_email LIMIT 1;
+  IF existing_user_id IS NOT NULL THEN
+    RETURN json_build_object('staff_exists', true, 'fixed', false, 'reason', 'auth user already exists — use admin panel to reset password');
+  END IF;
+  RETURN json_build_object('staff_exists', true, 'fixed', true, 'user', public.confirm_auth_user(found_email, p_password));
 END;
 $$;
 GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO anon, authenticated;
@@ -1485,7 +1492,7 @@ GRANT EXECUTE ON FUNCTION public.ensure_staff_auth_user TO anon, authenticated;
 -- تمنح authenticated صلاحية استخدام العدّادات والجداول
 -- =============================================
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO authenticated;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO authenticated;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE ON SEQUENCES TO authenticated;
 /* @@SEED_END@@ */

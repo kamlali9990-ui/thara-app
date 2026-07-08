@@ -17,10 +17,7 @@ const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 if (SENTRY_DSN) {
   Sentry.init({
     dsn: SENTRY_DSN,
-    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration({
-      maskAllText: false,
-      blockAllMedia: false,
-    })],
+    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
     tracesSampleRate: 0.2,
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
