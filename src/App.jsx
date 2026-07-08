@@ -1,4 +1,4 @@
-import { useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import { useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { StoreContext } from './context/StoreContext';
 import InstallPrompt from './components/InstallPrompt';
 import CheckoutModal from './components/CheckoutModal';
@@ -28,12 +28,26 @@ export default function App() {
     searchQuery, setSearchQuery, selectedCategory, setSelectedCategory,
     placeOrder, user, logout, orders,
     customerProfile, updateCustomerProfile, loadOrders,
-    chatMessages, staffRole, currentStaff, siteStats, instantResults } = useContext(StoreContext);
+    chatMessages, staffRole, currentStaff, siteStats, instantResults, loading } = useContext(StoreContext);
 
   const [tab, setTab] = useState('home');
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const splashTimerRef = useRef(null);
+  const [splashReady, setSplashReady] = useState(false);
+
+  useEffect(() => {
+    if (!loading && splashReady) {
+      splashTimerRef.current = setTimeout(() => setShowSplash(false), 400);
+      return () => clearTimeout(splashTimerRef.current);
+    }
+  }, [loading, splashReady]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSplashReady(true), 100);
+    return () => clearTimeout(t);
+  }, []);
   const [slideDir, setSlideDir] = useState('left');
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -55,8 +69,6 @@ export default function App() {
     window.addEventListener('thara:new-offer', handler);
     return () => window.removeEventListener('thara:new-offer', handler);
   }, []);
-
-  useEffect(() => { const t = setTimeout(() => setShowSplash(false), 2500); return () => clearTimeout(t); }, []);
 
   useEffect(() => {
     if (!('Notification' in window)) return;

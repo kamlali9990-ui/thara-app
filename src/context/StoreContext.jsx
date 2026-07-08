@@ -512,24 +512,6 @@ export const StoreProvider = ({ children }) => {
       }
     }
 
-    // ملجأ احتياطي: إنشاء/إصلاح حساب الموظف في auth.users
-    // يدعم البريد الإلكتروني ورقم الجوال
-    if (supabase) {
-      try {
-        const { data: fixResult, error: rpcError } = await supabase.rpc('ensure_staff_auth_user', {
-          p_identifier: normalized, p_password: password
-        });
-        if (!rpcError && fixResult?.fixed) {
-          const staffEmail = fixResult.user?.email || (isEmail ? normalized.toLowerCase() : normalized);
-          return await authApi.signIn(staffEmail, password).then(data => {
-            setUser(data.user);
-            return data;
-          });
-        }
-        if (rpcError) console.warn('ensure_staff_auth_user RPC failed:', rpcError.message);
-      } catch (e) { console.error('[login] ensure_staff_auth_user', e); }
-    }
-
     throw new Error('المعرف أو كلمة المرور غير صحيحة');
   }, []);
 
