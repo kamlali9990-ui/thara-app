@@ -37,13 +37,13 @@ export default function App() {
 
   useEffect(() => {
     if (!loading && splashReady) {
-      splashTimerRef.current = setTimeout(() => setShowSplash(false), 400);
+      splashTimerRef.current = setTimeout(() => setShowSplash(false), 2800);
       return () => clearTimeout(splashTimerRef.current!);
     }
   }, [loading, splashReady]);
 
   useEffect(() => {
-    const t = setTimeout(() => setSplashReady(true), 100);
+    const t = setTimeout(() => setSplashReady(true), 200);
     return () => clearTimeout(t);
   }, []);
   const [slideDir, setSlideDir] = useState('left');
