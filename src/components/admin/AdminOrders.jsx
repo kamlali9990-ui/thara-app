@@ -23,6 +23,7 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
   const [etaModalOrder, setEtaModalOrder] = useState(null);
   const [activeVisible, setActiveVisible] = useState(ORDERS_PAGE_SIZE);
   const [completedVisible, setCompletedVisible] = useState(ORDERS_PAGE_SIZE);
+  const [archivedVisible, setArchivedVisible] = useState(ORDERS_PAGE_SIZE);
   const [etaModalValue, setEtaModalValue] = useState('30');
   const [expandedOrders, setExpandedOrders] = useState(new Set());
   const chatBodyRef = useRef(null);
@@ -632,21 +633,28 @@ const handleStatusChange = (order, newStatus) => {
               {archivedOrders.length === 0 ? (
                 <div className="empty-orders empty-orders-text">لا توجد طلبات في الأرشيف.</div>
               ) : (
-                archivedOrders.map(order => (
-                  <div key={order.id} style={{ position: 'relative' }}>
-                    {renderOrderCard(order, { compact: true })}
-                    <div style={{ padding: '0 0.75rem 0.75rem', marginTop: '-0.5rem' }}>
-                      <button type="button" className="chat-order-btn" onClick={async () => {
-                        try {
-                          await restoreOrder(order.id);
-                          showToast('تم استعادة الطلب', 'success');
-                        } catch (err) {
-                          showToast('فشل استعادة الطلب', 'error');
-                        }
-                      }}>↩️ استعادة الطلب</button>
+                <>
+                  {archivedOrders.slice(0, archivedVisible).map(order => (
+                    <div key={order.id} style={{ position: 'relative' }}>
+                      {renderOrderCard(order, { compact: true })}
+                      <div style={{ padding: '0 0.75rem 0.75rem', marginTop: '-0.5rem' }}>
+                        <button type="button" className="chat-order-btn" onClick={async () => {
+                          try {
+                            await restoreOrder(order.id);
+                            showToast('تم استعادة الطلب', 'success');
+                          } catch (err) {
+                            showToast('فشل استعادة الطلب', 'error');
+                          }
+                        }}>↩️ استعادة الطلب</button>
+                      </div>
                     </div>
-                  </div>
-                ))
+                  ))}
+                  {archivedOrders.length > archivedVisible && (
+                    <button className="load-more-btn" style={{ margin: '0.75rem auto', display: 'block' }} onClick={() => setArchivedVisible(prev => prev + ORDERS_PAGE_SIZE)}>
+                      تحميل المزيد ({archivedOrders.length - archivedVisible} متبقي)
+                    </button>
+                  )}
+                </>
               )}
             </div>
           )}

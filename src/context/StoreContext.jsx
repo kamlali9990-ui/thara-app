@@ -1,18 +1,19 @@
 import React, { createContext, useContext, useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { mockProducts } from '../data/mockData';
-import { productsApi } from '../supabase/products.js';
-import { ordersApi } from '../supabase/orders.js';
 import { chatApi } from '../supabase/chat.js';
-import { authApi } from '../supabase/auth.js';
-import { staffApi } from '../supabase/staff.js';
-import { customersApi } from '../supabase/customers.js';
 import { supabase } from '../supabase/client';
-import { showToast } from '../components/Toast.jsx';
 import { cleanProductImages } from '../utils/constants.js';
 import { usePersistence, useAuthListener, useLocalStorageSave } from './usePersistence.js';
 import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead, useRealtimeProducts, useRealtimeSettings } from './useRealtime.js';
 import { subscribePush, unsubscribePush } from '../utils/pushNotifications.js';
 import { usePermissions } from './usePermissions.js';
+import { getProductPrice } from './storeHelpers.js';
+import { useCartActions } from './useCartActions.js';
+import { useOrderActions } from './useOrderActions.js';
+import { useProductActions } from './useProductActions.js';
+import { useStaffActions } from './useStaffActions.js';
+import { useCustomerActions } from './useCustomerActions.js';
+import { useAuthActions } from './useAuthActions.js';
 
 export const StoreContext = createContext();
 
@@ -166,222 +167,13 @@ export const StoreProvider = ({ children }) => {
   }, [searchQuery, products]);
 
   // --- Cart Actions ---
-  const getProductPrice = (p) => p.isOffer && p.offerPrice != null ? p.offerPrice : p.price;
+  const { addToCart, removeFromCart, updateCartQty, cartTotal } = useCartActions({ products, cart, setCart });
 
-  const getStock = (productId) => {
-    const p = products.find(x => x.id === productId);
-    return p ? p.stock_quantity : 999;
-  };
-
-  const addToCart = (product) => {
-    setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
-      const newQty = existing ? existing.qty + 1 : 1;
-      const stock = getStock(product.id);
-      if (newQty > stock) {
-        showToast(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`, 'warning');
-        return prev;
-      }
-      if (existing) {
-        return prev.map(item => item.id === product.id ? { ...item, qty: newQty } : item);
-      }
-      if (!localStorage.getItem('pwa-install-cart-triggered')) {
-        window.dispatchEvent(new CustomEvent('cart-install-trigger'));
-      }
-      return [...prev, { ...product, qty: 1, currentPrice: getProductPrice(product) }];
-    });
-  };
-
-  const removeFromCart = (id) => setCart(prev => prev.filter(item => item.id !== id));
-
-  const updateCartQty = (id, delta) => {
-    setCart(prev => prev.map(item => {
-      if (item.id === id) {
-        const newQty = Math.max(1, item.qty + delta);
-        const stock = getStock(id);
-        if (newQty > stock) {
-          showToast(`الكمية المطلوبة تتجاوز المتوفر (المتوفر: ${stock})`, 'warning');
-          return item;
-        }
-        return { ...item, qty: newQty };
-      }
-      return item;
-    }));
-  };
-
-  const cartTotal = useMemo(() => {
-    return cart.reduce((total, item) => total + ((item.currentPrice ?? 0) * (item.qty ?? 0)), 0);
-  }, [cart]);
-
-  // --- Loyalty Points ---
-  const addLoyaltyPoints = useCallback(async (total) => {
-    if (!user || !hasSupabase) return;
-    const points = Math.floor(total);
-    if (points <= 0) return;
-    try {
-      const updated = await customersApi.addPoints(user.email, points);
-      if (updated) setCustomerProfile(updated);
-    } catch (err) { console.error('[addLoyaltyPoints]', err); }
-  }, [user, hasSupabase]);
+  // --- Customer & Loyalty ---
+  const { loadCustomers, updateCustomerProfile, addLoyaltyPoints } = useCustomerActions({ hasSupabase, user, setAllCustomers, setCustomerProfile });
 
   // --- Order Actions ---
-  const loadOrders = useCallback(async () => {
-    if (!hasSupabase || !supabaseReady) return;
-    try {
-      const supaOrders = await ordersApi.list();
-      if (Array.isArray(supaOrders)) {
-        const filtered = !staffRole && user?.email
-          ? supaOrders.filter(o => o.customerEmail === user.email)
-          : supaOrders;
-        setOrders(prev => {
-          const map = new Map(prev.map(o => [o.id, o]));
-          for (const o of filtered) map.set(o.id, { ...map.get(o.id), ...o });
-          return Array.from(map.values());
-        });
-      }
-    } catch (err) { console.error('[loadOrders]', err); showToast('تعذر تحميل الطلبات', 'error'); }
-  }, [hasSupabase, supabaseReady, staffRole, user?.email]);
-
-  const placeOrder = useCallback(async (orderData, deliveryFee = 0) => {
-    if (cart.length === 0) {
-      throw new Error('لا يمكن إرسال طلب بدون منتجات');
-    }
-    const overStock = cart.filter(item => {
-      const p = products.find(x => x.id === item.id);
-      return p && item.qty > p.stock_quantity;
-    });
-    if (overStock.length > 0) {
-      throw new Error(`بعض المنتجات غير متوفرة بالكمية المطلوبة: ${overStock.map(i => i.name || i.id).join('، ')}`);
-    }
-
-    const newOrder = {
-      id: Date.now().toString(),
-      date: new Date().toISOString(),
-      items: [...cart],
-      total: cartTotal + deliveryFee,
-      status: 'جديد',
-      customerEmail: user?.email || null,
-      deliveryFee: deliveryFee,
-      ...orderData
-    };
-
-    if (hasSupabase && supabaseReady) {
-      try {
-        const createdOrder = await ordersApi.create(newOrder);
-        setOrders(prev => [createdOrder, ...prev]);
-        setCart([]);
-        addLoyaltyPoints(newOrder.total);
-        const updatedProducts = await productsApi.list().catch(() => null);
-        if (updatedProducts) setProducts(cleanProductImages(updatedProducts));
-        return createdOrder;
-      } catch (err) {
-        throw err;
-      }
-    }
-
-    setOrders(prev => [newOrder, ...prev]);
-    setCart([]);
-    addLoyaltyPoints(newOrder.total);
-    setProducts(prev => prev.map(p => {
-      const inCart = cart.find(c => c.id === p.id);
-      return inCart ? { ...p, stock_quantity: Math.max(0, p.stock_quantity - inCart.qty) } : p;
-    }));
-    return newOrder;
-  }, [cart, cartTotal, hasSupabase, supabaseReady, user, addLoyaltyPoints, products]);
-
-  const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'تم التوصيل', 'مكتمل'];
-
-  const getStatusIndex = (s) => STATUS_ORDER.indexOf(s);
-
-  const isValidStatusTransition = (current, next) => {
-    if (next === 'ملغي') return true;
-    const ci = getStatusIndex(current);
-    const ni = getStatusIndex(next);
-    if (ci === -1 || ni === -1) return false;
-    // Allow forward moves and one step backward (manager corrections).
-    return ni >= ci - 1;
-  };
-
-  const updateOrderStatus = useCallback(async (orderId, newStatus, eta) => {
-    const order = orders.find(o => o.id === orderId);
-    if (order && !isValidStatusTransition(order.status, newStatus)) {
-      throw new Error('لا يمكن إرجاع الطلب أكثر من خطوة واحدة');
-    }
-    const isAccepting = order && order.status === 'جديد' && newStatus === 'قيد التحضير';
-    let updatedFromServer = null;
-    if (hasSupabase && supabaseReady) {
-      try {
-        updatedFromServer = await ordersApi.updateStatus(orderId, newStatus, eta);
-      } catch (err) {
-        throw err;
-      }
-    }
-    setOrders(prev => prev.map(o => {
-      if (o.id !== orderId) return o;
-      const base = updatedFromServer ? { ...o, ...updatedFromServer } : { ...o };
-      base.status = newStatus;
-      if (eta !== undefined && eta !== null) base.estimatedDelivery = Number(eta);
-      if (isAccepting && currentStaff && !base.acceptedBy) {
-        base.acceptedBy = { id: currentStaff.id, name: currentStaff.name, email: currentStaff.email };
-      }
-      return base;
-    }));
-  }, [hasSupabase, supabaseReady, orders, currentStaff]);
-
-  const archiveOrder = useCallback(async (orderId) => {
-    if (hasSupabase && supabaseReady) {
-      try {
-        const archived = await ordersApi.archiveOrder(orderId);
-        setOrders(prev => prev.filter(o => o.id !== orderId));
-        setArchivedOrders(prev => archived ? [archived, ...prev] : prev);
-      } catch (err) {
-        throw err;
-      }
-    }
-  }, [hasSupabase, supabaseReady]);
-
-  const restoreOrder = useCallback(async (orderId) => {
-    if (hasSupabase && supabaseReady) {
-      try {
-        const restored = await ordersApi.restoreOrder(orderId);
-        setArchivedOrders(prev => prev.filter(o => o.id !== orderId));
-        if (restored) setOrders(prev => [restored, ...prev]);
-      } catch (err) {
-        throw err;
-      }
-    }
-  }, [hasSupabase, supabaseReady]);
-
-  const loadArchivedOrders = useCallback(async () => {
-    if (!hasSupabase || !supabaseReady) return;
-    try {
-      const archived = await ordersApi.listArchived();
-      if (Array.isArray(archived)) setArchivedOrders(archived);
-    } catch (err) { console.error('[loadArchivedOrders]', err); }
-  }, [hasSupabase, supabaseReady]);
-
-  // --- Driver assignment (admin/manager) ---
-  const loadDrivers = useCallback(async () => {
-    if (!hasSupabase || !supabaseReady) return;
-    try {
-      const list = await staffApi.listDrivers();
-      setDrivers(Array.isArray(list) ? list : []);
-    } catch (err) { console.error('[loadDrivers]', err); showToast('تعذر تحميل قائمة الكباتن', 'error'); }
-  }, [hasSupabase, supabaseReady]);
-
-  const assignDriverToOrder = useCallback(async (orderId, driverId) => {
-    if (!hasSupabase || !supabaseReady) throw new Error('Supabase غير مهيأ');
-    const updated = await ordersApi.assignDriver(orderId, driverId);
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o));
-    return updated;
-  }, [hasSupabase, supabaseReady]);
-
-  const claimOrder = useCallback(async (orderId) => {
-    if (!hasSupabase || !supabaseReady) throw new Error('Supabase غير مهيأ');
-    const updated = await ordersApi.claim(orderId);
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...updated } : o));
-    return updated;
-  }, [hasSupabase, supabaseReady]);
+  const { loadOrders, placeOrder, updateOrderStatus, archiveOrder, restoreOrder, loadArchivedOrders, loadDrivers, assignDriverToOrder, claimOrder } = useOrderActions({ hasSupabase, supabaseReady, staffRole, user, currentStaff, products, cart, cartTotal, setOrders, setCart, setProducts, setArchivedOrders, setDrivers, addLoyaltyPoints });
 
   // Load drivers list when an admin/manager is ready
   useEffect(() => {
@@ -390,63 +182,7 @@ export const StoreProvider = ({ children }) => {
   }, [supabaseReady, staffRole, loadDrivers]);
 
   // --- Product CRUD ---
-  const addProduct = useCallback(async (product) => {
-    let newProduct = { ...product };
-    if (hasSupabase && supabaseReady) {
-      try {
-        const created = await productsApi.create(product);
-        newProduct = created;
-      } catch (err) {
-        showToast('فشل إضافة المنتج لقاعدة البيانات: ' + (err.message || err), 'error');
-        throw err;
-      }
-    } else {
-      newProduct.id = Date.now().toString();
-    }
-    setProducts(prev => [newProduct, ...prev]);
-    return newProduct;
-  }, [hasSupabase, supabaseReady]);
-
-  const updateProduct = useCallback(async (id, updated) => {
-    if (hasSupabase && supabaseReady) {
-      try {
-        await productsApi.update(id, updated);
-      } catch (err) {
-        showToast('فشل تعديل المنتج في قاعدة البيانات: ' + (err.message || err), 'error');
-        throw err;
-      }
-    }
-    setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updated } : p));
-  }, [hasSupabase, supabaseReady]);
-
-  const deleteProduct = useCallback(async (id) => {
-    if (hasSupabase && supabaseReady) {
-      try {
-        await productsApi.remove(id);
-      } catch (err) {
-        showToast('فشل حذف المنتج من قاعدة البيانات: ' + (err.message || err), 'error');
-        throw err;
-      }
-    }
-    setProducts(prev => prev.filter(p => p.id !== id));
-  }, [hasSupabase, supabaseReady]);
-
-  const bulkImportProducts = useCallback(async (products) => {
-    if (!products.length) return [];
-    if (hasSupabase && supabaseReady) {
-      try {
-        const created = await productsApi.bulkCreate(products);
-        setProducts(prev => [...created, ...prev]);
-        return created;
-      } catch (err) {
-        showToast('فشل استيراد المنتجات لقاعدة البيانات: ' + (err.message || err), 'error');
-        throw err;
-      }
-    }
-    const localProducts = products.map(p => ({ ...p, id: Date.now().toString() + Math.random() }));
-    setProducts(prev => [...localProducts, ...prev]);
-    return localProducts;
-  }, [hasSupabase, supabaseReady]);
+  const { addProduct, updateProduct, deleteProduct, bulkImportProducts } = useProductActions({ hasSupabase, supabaseReady, setProducts });
 
   // --- Chat ---
   const sendMessage = useCallback(async (sender, text, orderId, customerEmail, senderName, customerPhone) => {
@@ -491,46 +227,7 @@ export const StoreProvider = ({ children }) => {
   }, [chatMessages]);
 
   // --- Auth Actions ---
-  const login = useCallback(async (identifier, password) => {
-    if (!hasSupabase) throw new Error('Supabase غير مهيأ');
-
-    const normalized = String(identifier || '').trim();
-    const isEmail = normalized.includes('@');
-
-    // محاولة تسجيل الدخول المباشر للموظفين (للبريد الإلكتروني فقط)
-    if (isEmail) {
-      try {
-        const data = await authApi.signIn(normalized, password);
-        setUser(data.user);
-        return data;
-      } catch (err) {
-        if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
-          try { await authApi.signOut(); } catch (e) { console.error('[login] signOut after invalid token', e); }
-          setUser(null); setStaffRole(null); setCurrentStaff(null); setCustomerProfile(null);
-        }
-        if (err?.message !== 'Invalid login credentials') throw err;
-      }
-    }
-
-    throw new Error('المعرف أو كلمة المرور غير صحيحة');
-  }, []);
-
-  const logout = useCallback(async () => {
-    try { if (hasSupabase) await authApi.signOut(); } catch (e) { console.error('[logout]', e); }
-    setUser(null);
-    setStaffRole(null);
-    setCurrentStaff(null);
-    setCustomerProfile(null);
-  }, []);
-
-  // --- Customers Management ---
-  const loadCustomers = useCallback(async () => {
-    if (!hasSupabase) return;
-    try {
-      const list = await customersApi.list();
-      setAllCustomers(list);
-    } catch (err) { console.error('[loadCustomers]', err); showToast('تعذر تحميل قائمة العملاء', 'error'); }
-  }, []);
+  const { login, logout } = useAuthActions({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading });
 
   // Load customers list on init if staff
   useEffect(() => {
@@ -540,39 +237,7 @@ export const StoreProvider = ({ children }) => {
   }, [supabaseReady, staffRole, loadCustomers]);
 
   // --- Staff Management ---
-  const loadStaff = useCallback(async () => {
-    if (!hasSupabase) return;
-    try {
-      const list = await staffApi.list();
-      setStaffList(list);
-    } catch (err) { console.error('[loadStaff]', err); showToast('تعذر تحميل قائمة الموظفين', 'error'); }
-  }, []);
-
-  const addStaff = useCallback(async (staffMember) => {
-    const created = await staffApi.create(staffMember);
-    setStaffList(prev => [created, ...prev]);
-    return created;
-  }, []);
-
-  const updateStaff = useCallback(async (id, updates) => {
-    const updated = await staffApi.update(id, updates);
-    setStaffList(prev => prev.map(s => s.id === id ? { ...s, ...updated } : s));
-    return updated;
-  }, []);
-
-  const removeStaff = useCallback(async (id) => {
-    await staffApi.remove(id);
-    setStaffList(prev => prev.filter(s => s.id !== id));
-  }, []);
-
-  const updateCustomerProfile = useCallback(async (name, phone, username, realEmail) => {
-    if (!user) return;
-    try {
-      const updated = await customersApi.update(user.email, name, phone, null, null, null, username, realEmail);
-      setCustomerProfile(updated);
-      return updated;
-    } catch (err) { console.error('[updateCustomerProfile]', err); showToast('تعذر تحديث الملف الشخصي', 'error'); return null; }
-  }, [user]);
+  const { loadStaff, addStaff, updateStaff, removeStaff } = useStaffActions({ hasSupabase, setStaffList });
 
   return (
     <StoreContext.Provider value={{

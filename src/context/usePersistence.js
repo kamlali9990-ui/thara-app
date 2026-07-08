@@ -1,5 +1,4 @@
 import { useEffect, useRef } from 'react';
-import { storage } from '../utils/storage.js';
 import { productsApi } from '../supabase/products.js';
 import { ordersApi } from '../supabase/orders.js';
 import { chatApi } from '../supabase/chat.js';

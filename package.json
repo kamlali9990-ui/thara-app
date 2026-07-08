@@ -17,7 +17,8 @@
     "setup": "npm install && npm run supabase:link",
     "deploy:push": "node scripts/deploy-edge-function.cjs send-push",
     "deploy:cloudinary": "node scripts/deploy-edge-function.cjs cloudinary-sign",
-    "deploy:otp": "node scripts/deploy-edge-function.cjs send-otp"
+    "deploy:otp": "node scripts/deploy-edge-function.cjs send-otp",
+    "lint": "eslint src/"
   },
   "dependencies": {
     "@sentry/browser": "^10.56.0",
@@ -39,6 +40,7 @@
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.1",
     "jimp": "^1.6.1",
     "jsdom": "^29.1.1",
     "qrcode": "^1.5.4",

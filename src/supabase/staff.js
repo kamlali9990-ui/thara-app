@@ -1,6 +1,5 @@
 import { supabase } from './client';
 
-export const STAFF_DEFAULT_PASSWORD = import.meta.env.VITE_STAFF_DEFAULT_PASSWORD;
 const CACHE_KEY = 'thara_staff_cache';
 
 function getCache() {
@@ -76,13 +75,12 @@ export const staffApi = {
         p_email: normalizedEmail,
         p_name: staffMember.name,
         p_role: staffMember.role,
-        p_password: STAFF_DEFAULT_PASSWORD,
         p_phone: staffMember.phone || null
       });
       if (data) {
         const parsed = typeof data === 'string' ? JSON.parse(data) : data;
-        updateCache(parsed);
-        return parsed;
+        updateCache(parsed.staff || parsed);
+        return { ...(parsed.staff || parsed), tempPassword: parsed.password || '' };
       }
     } catch (err) { console.error('create staff error:', err); throw err; }
     const temp = { id: Date.now(), ...staffMember, created_at: new Date().toISOString() };

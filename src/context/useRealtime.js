@@ -25,7 +25,7 @@ function playNotificationSound() {
   } catch (e) { console.error('playNotificationSound', e); }
 }
 
-export function useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, setChatMessages }) {
+export function useRealtimeChat({ hasSupabase, supabaseReady, staffRole, _user, setChatMessages }) {
   useEffect(() => {
     if (!hasSupabase || !supabaseReady) return;
     const sub = chatApi.subscribe(null, null, (msg) => {

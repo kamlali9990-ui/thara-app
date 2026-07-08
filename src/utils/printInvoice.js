@@ -62,7 +62,7 @@ function generateCashierHtml(order, ctx) {
   const customerId = customer?.id ? String(customer.id).padStart(5, '0') : '—';
   const dateStr = formatDate(order.date);
 
-  const itemRows = items.map((item, i) => `
+  const itemRows = items.map((item) => `
     <tr>
       <td style="text-align:center;padding:3px 2px;font-size:11px;border-bottom:1px dashed #444;">${item.qty}</td>
       <td style="padding:3px 2px;font-size:11px;border-bottom:1px dashed #444;">${item.name}</td>

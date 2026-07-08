@@ -4,6 +4,8 @@ import Breadcrumb from './Breadcrumb';
 import { useStore } from '../context/StoreContext';
 import { sectionCats } from '../data/categories';
 
+const PAGE_SIZE = 20;
+
 const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
   const { updateCartQty, removeFromCart } = useStore();
   const catNames = sectionCats.map(c => c.name);
@@ -21,6 +23,8 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
     const q = catSearch.trim().toLowerCase();
     return base.filter(p => p.name.includes(q));
   }, [view, products, catSearch]);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleProducts = filtered.slice(0, visibleCount);
   return (
     <div className="all-products-view">
       <div className="all-products-header">
@@ -43,7 +47,7 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
           {filtered.length === 0 && (
             <div className="search-results-empty">لا توجد منتجات تطابق بحثك</div>
           )}
-          {filtered.map(product => {
+          {visibleProducts.map(product => {
             const cartItem = cart?.find(item => item.id === product.id);
             const cartQty = cartItem?.qty || 0;
             const outOfStock = product.stock_quantity === 0;
@@ -95,7 +99,7 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
         </div>
       ) : (
         <div className={`all-products-grid ${view === 'offers' ? 'offers-grid' : ''}`}>
-          {filtered.map(product => (
+          {visibleProducts.map(product => (
             <ProductCard key={product.id} product={product} addToCart={addToCart} cart={cart} />
           ))}
           {filtered.length === 0 && (
@@ -103,6 +107,13 @@ const AllProductsView = memo(({ view, onBack, products, addToCart, cart }) => {
               <p>لا توجد منتجات</p>
             </div>
           )}
+        </div>
+      )}
+      {filtered.length > visibleCount && (
+        <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+          <button className="load-more-btn" onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}>
+            تحميل المزيد ({filtered.length - visibleCount} متبقي)
+          </button>
         </div>
       )}
     </div>

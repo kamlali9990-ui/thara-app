@@ -9,7 +9,7 @@ vi.mock('../../supabase/client', () => {
 });
 
 const mockRpc = (await import('../../supabase/client')).__mockRpc;
-const { staffApi, STAFF_DEFAULT_PASSWORD } = await import('../../supabase/staff');
+const { staffApi } = await import('../../supabase/staff');
 
 describe('staffApi', () => {
   beforeEach(() => {
@@ -53,13 +53,12 @@ describe('staffApi', () => {
 
   describe('create', () => {
     it('calls RPC with normalized email', async () => {
-      mockRpc.mockResolvedValue({ data: { id: 4, email: 'new@a.com', name: 'New', role: 'employee' }, error: null });
+      mockRpc.mockResolvedValue({ data: { staff: { id: 4, email: 'new@a.com', name: 'New', role: 'employee' }, password: 'abc123' }, error: null });
       await staffApi.create({ email: '  NEW@A.COM ', name: 'New', role: 'employee' });
       expect(mockRpc).toHaveBeenCalledWith('create_staff_rpc', {
         p_email: 'new@a.com',
         p_name: 'New',
         p_role: 'employee',
-        p_password: STAFF_DEFAULT_PASSWORD,
         p_phone: null,
       });
     });

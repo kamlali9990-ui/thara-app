@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { StoreContext } from '../context/StoreContext';
-import { STAFF_DEFAULT_PASSWORD } from '../supabase/staff';
 import { showToast } from './Toast.jsx';
 
 export default function StaffManager() {
@@ -21,8 +20,8 @@ export default function StaffManager() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !name.trim()) return;
     try {
-      await addStaff({ email: normalizedEmail, name: name.trim(), role, phone: phone.trim() || null });
-      showToast(`تمت إضافة الموظف بنجاح. كلمة المرور المبدئية: ${STAFF_DEFAULT_PASSWORD}`, 'success');
+      const added = await addStaff({ email: normalizedEmail, name: name.trim(), role, phone: phone.trim() || null });
+      showToast(`تمت إضافة الموظف بنجاح. كلمة المرور المبدئية: ${added.tempPassword}`, 'success');
       setEmail(''); setName(''); setRole('employee'); setPhone('');
     } catch (err) {
       const msg = err.message || '';

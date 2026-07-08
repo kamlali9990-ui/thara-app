@@ -67,7 +67,7 @@ export async function subscribePush(userEmail, userRole) {
   }
 }
 
-export async function unsubscribePush(userEmail) {
+export async function unsubscribePush(_userEmail) {
   try {
     const reg = await getSWRegistration();
     let endpoint = null;

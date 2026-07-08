@@ -82,10 +82,11 @@ BEGIN
 END;
 $$;
 
-DROP FUNCTION IF EXISTS public.create_staff_rpc(TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS public.create_staff_rpc(TEXT, TEXT, TEXT, TEXT);
+DROP FUNCTION IF EXISTS public.create_staff_rpc(TEXT, TEXT, TEXT, TEXT, TEXT);
 
 CREATE OR REPLACE FUNCTION public.create_staff_rpc(
-  p_email TEXT, p_name TEXT, p_role TEXT, p_password TEXT DEFAULT '123456', p_phone TEXT DEFAULT NULL
+  p_email TEXT, p_name TEXT, p_role TEXT, p_phone TEXT DEFAULT NULL
 )
 RETURNS JSON
 LANGUAGE plpgsql
@@ -96,6 +97,7 @@ DECLARE
   result JSON;
   user_id UUID;
   pw_hash TEXT;
+  generated_pw TEXT;
 BEGIN
   IF NOT public.is_staff(ARRAY['admin']) THEN
     RAISE EXCEPTION 'Unauthorized: admin only';
@@ -106,9 +108,11 @@ BEGIN
     END IF;
   END IF;
 
+  generated_pw := encode(extensions.gen_random_bytes(6), 'hex');
+
   SELECT id INTO user_id FROM auth.users WHERE lower(email) = lower(p_email) LIMIT 1;
   IF user_id IS NULL THEN
-    pw_hash := extensions.crypt(p_password, extensions.gen_salt('bf'));
+    pw_hash := extensions.crypt(generated_pw, extensions.gen_salt('bf'));
     user_id := extensions.gen_random_uuid();
     INSERT INTO auth.users (
       instance_id, id, aud, role, email, encrypted_password,
@@ -135,7 +139,7 @@ BEGIN
   VALUES (lower(trim(p_email)), p_name, p_role, NULLIF(p_phone, ''))
   ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, role = EXCLUDED.role, phone = COALESCE(NULLIF(p_phone, ''), staff.phone)
   RETURNING row_to_json(staff)::JSON INTO result;
-  RETURN result;
+  RETURN json_build_object('staff', result, 'password', generated_pw);
 END;
 $$;
 

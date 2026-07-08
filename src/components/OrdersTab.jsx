@@ -54,6 +54,9 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
     }
   }, [chatOrder, chatMessages]);
 
+  const PAGE_SIZE = 20;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const visibleOrders = orders.slice(0, visibleCount);
   if (!orders.length) return (
     <div className="empty-tab">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -129,7 +132,7 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
           </div>
         </div>
       )}
-      {orders.map(order => {
+      {visibleOrders.map(order => {
         const isExpanded = expandedOrder === order.id;
         const statusInfo = STATUS_LABELS[order.status] || { text: order.status, icon: '' };
         const isNewOrder = order.status === 'جديد' && order.date && (Date.now() - new Date(order.date).getTime() < 2 * 60 * 1000);
@@ -229,6 +232,13 @@ const OrdersTab = memo(({ orders, loadOrders }) => {
           </div>
         );
       })}
+      {orders.length > visibleCount && (
+        <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+          <button className="load-more-btn" onClick={() => setVisibleCount(prev => prev + PAGE_SIZE)}>
+            تحميل المزيد ({orders.length - visibleCount} متبقي)
+          </button>
+        </div>
+      )}
     </div>
   );
 });

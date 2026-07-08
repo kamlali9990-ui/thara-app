@@ -22,6 +22,7 @@
 - **`.\src\Admin.jsx`**: Admin dashboard implementation for managing orders, products, and staff roles.
 - **`.\src\components\`**: Reusable UI components (e.g., `.\src\components\InstallPrompt.jsx`, `.\src\components\ErrorBoundary.jsx`).
 - **`.\src\context\StoreContext.jsx`**: Centralized state management using React Context API for products, cart, user authentication, and orders.
+- **`.\src\context\storeHelpers.js`**: Pure utility functions extracted from StoreContext (getProductPrice, getStock, STATUS_ORDER helpers).
 - **`.\src\supabase\`**: Supabase client configuration and database interaction logic.
 - **`.\src\data\mockData.js`**: Fallback and initial data structures for products and categories.
 - **`.\public\`**: Static assets and PWA-specific files like `.\public\sw.js` and `.\public\manifest.json`.
@@ -30,6 +31,7 @@
 - **Development**: `npm run dev` (Starts Vite dev server)
 - **Production Build**: `npm run build` (Outputs to `dist/`)
 - **Preview Build**: `npm run preview` (Locally preview production build)
+- **Lint**: `npm run lint` (ESLint, single run)
 - **Run tests**: `npm test` (Vitest, single run)
 - **Watch tests**: `npm run test:watch` (Vitest, watch mode)
 - **Setup on new machine**: `npm run setup` (Installs deps + links Supabase project)
