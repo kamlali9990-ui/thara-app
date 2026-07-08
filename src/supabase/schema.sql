@@ -264,8 +264,11 @@ CREATE TABLE IF NOT EXISTS customers (
   delivery_address TEXT DEFAULT '',
   neighborhood TEXT DEFAULT '',
   location TEXT DEFAULT '',
+  username TEXT DEFAULT '',
+  real_email TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_customers_real_email ON customers(real_email);
 
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 
@@ -293,7 +296,13 @@ CREATE POLICY "customers_delete_deny" ON customers
   FOR DELETE USING (false);
 
 -- RPC bypass RLS للتسجيل — ينشئ سجل عميل بعد الاشتراك
-CREATE OR REPLACE FUNCTION public.create_customer_rpc(p_email TEXT, p_name TEXT, p_phone TEXT)
+CREATE OR REPLACE FUNCTION public.create_customer_rpc(
+  p_email TEXT,
+  p_name TEXT,
+  p_phone TEXT,
+  p_username TEXT DEFAULT NULL,
+  p_real_email TEXT DEFAULT NULL
+)
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -307,9 +316,13 @@ BEGIN
       RAISE EXCEPTION 'رقم الجوال مستخدم مسبقاً';
     END IF;
   END IF;
-  INSERT INTO customers (email, name, phone)
-  VALUES (p_email, p_name, p_phone)
-  ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name, phone = EXCLUDED.phone
+  INSERT INTO customers (email, name, phone, username, real_email)
+  VALUES (p_email, p_name, p_phone, NULLIF(TRIM(COALESCE(p_username, '')), ''), NULLIF(TRIM(COALESCE(p_real_email, '')), ''))
+  ON CONFLICT (email) DO UPDATE SET
+    name = EXCLUDED.name,
+    phone = EXCLUDED.phone,
+    username = COALESCE(NULLIF(TRIM(COALESCE(EXCLUDED.username, '')), ''), customers.username),
+    real_email = COALESCE(NULLIF(TRIM(COALESCE(EXCLUDED.real_email, '')), ''), customers.real_email)
   RETURNING row_to_json(customers)::JSON INTO result;
   RETURN result;
 END;
@@ -445,7 +458,9 @@ CREATE OR REPLACE FUNCTION public.update_customer_rpc(
   p_phone TEXT,
   p_delivery_address TEXT DEFAULT NULL,
   p_neighborhood TEXT DEFAULT NULL,
-  p_location TEXT DEFAULT NULL
+  p_location TEXT DEFAULT NULL,
+  p_username TEXT DEFAULT NULL,
+  p_real_email TEXT DEFAULT NULL
 )
 RETURNS JSON
 LANGUAGE plpgsql
@@ -470,7 +485,12 @@ BEGIN
     phone = COALESCE(p_phone, phone),
     delivery_address = COALESCE(p_delivery_address, delivery_address),
     neighborhood = COALESCE(p_neighborhood, neighborhood),
-    location = COALESCE(p_location, location)
+    location = COALESCE(p_location, location),
+    username = COALESCE(p_username, username),
+    real_email = CASE
+      WHEN p_real_email IS NOT NULL THEN NULLIF(TRIM(p_real_email), '')
+      ELSE real_email
+    END
   WHERE email = p_email
   RETURNING row_to_json(customers)::JSON INTO result;
   RETURN result;
@@ -481,6 +501,79 @@ GRANT EXECUTE ON FUNCTION public.create_customer_rpc TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.update_customer_rpc TO authenticated;
 GRANT EXECUTE ON FUNCTION public.create_customer_auth_rpc TO anon, authenticated;
+
+-- RPC لتحديد البريد المسجل به العميل (للدخول)
+CREATE OR REPLACE FUNCTION public.resolve_customer_login(p_identifier TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  found_auth_email TEXT;
+  normalized_iden TEXT;
+BEGIN
+  normalized_iden := lower(trim(p_identifier));
+
+  SELECT COALESCE(real_email, email) INTO found_auth_email FROM customers
+  WHERE email = normalized_iden
+     OR phone = p_identifier
+     OR lower(username) = normalized_iden
+     OR lower(real_email) = normalized_iden
+     OR CAST(id AS TEXT) = normalized_iden
+  LIMIT 1;
+
+  RETURN found_auth_email;
+END;
+$$;
+
+-- RPC للبحث عن العميل ببريده الإلكتروني الحقيقي (لصفحة نسيت كلمة المرور)
+CREATE OR REPLACE FUNCTION public.find_customer_by_real_email_rpc(p_real_email TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  found_auth_email TEXT;
+BEGIN
+  SELECT COALESCE(real_email, email) INTO found_auth_email FROM customers
+  WHERE lower(real_email) = lower(trim(p_real_email))
+  LIMIT 1;
+  RETURN found_auth_email;
+END;
+$$;
+
+-- RPC لإعادة تعيين كلمة مرور العميل مباشرة (للمسؤول فقط)
+CREATE OR REPLACE FUNCTION public.admin_reset_customer_password_rpc(p_customer_email TEXT, p_new_password TEXT)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, auth, extensions
+AS $$
+DECLARE
+  v_user_id UUID;
+  pw_hash TEXT;
+BEGIN
+  IF NOT public.is_staff(ARRAY['admin']) THEN
+    RAISE EXCEPTION 'Unauthorized: admin only';
+  END IF;
+
+  SELECT id INTO v_user_id FROM auth.users WHERE lower(email) = lower(trim(p_customer_email)) LIMIT 1;
+  IF v_user_id IS NULL THEN
+    RETURN json_build_object('success', false, 'message', 'المستخدم غير موجود');
+  END IF;
+
+  pw_hash := extensions.crypt(p_new_password, extensions.gen_salt('bf', 10));
+  UPDATE auth.users SET encrypted_password = pw_hash, updated_at = now() WHERE id = v_user_id;
+
+  RETURN json_build_object('success', true, 'email', lower(trim(p_customer_email)));
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.resolve_customer_login TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.find_customer_by_real_email_rpc TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_reset_customer_password_rpc TO authenticated;
 
 -- RPC لتأكيد البريد الإلكتروني (حل مشكلة 500 في goTrue)
 CREATE OR REPLACE FUNCTION public.confirm_email_rpc(p_email TEXT)

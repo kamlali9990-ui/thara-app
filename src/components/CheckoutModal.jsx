@@ -1,4 +1,5 @@
 import { memo, useState, useContext, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { StoreContext } from '../context/StoreContext';
 import { showToast } from './Toast.jsx';
 import KhafjiMap from './KhafjiMap';
@@ -371,7 +372,10 @@ const CheckoutModal = memo(({ cartTotal, onClose, placeOrder }) => {
                   {loggingIn ? 'جاري...' : 'تسجيل الدخول وإتمام الطلب'}
                 </button>
                 <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.75rem' }}>
-                  نسيت كلمة المرور؟ <strong style={{ color: 'var(--primary, #127443)' }}>تواصل مع الإدارة لاسترجاعها</strong>
+                  نسيت كلمة المرور؟{' '}
+                  <Link to="/forgot-password" style={{ color: 'var(--primary, #127443)', fontWeight: 700, textDecoration: 'none' }}>
+                    استرجاعها
+                  </Link>
                 </p>
               </div>
             </div>

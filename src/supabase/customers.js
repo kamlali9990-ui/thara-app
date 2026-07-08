@@ -2,12 +2,13 @@ import { supabase } from './client';
 import { authApi } from './auth';
 
 export const customersApi = {
-  async create(email, name, phone, username) {
+  async create(email, name, phone, username, realEmail) {
     const { data, error } = await supabase.rpc('create_customer_rpc', {
       p_email: email,
       p_name: name,
       p_phone: phone,
-      p_username: username || null
+      p_username: username || null,
+      p_real_email: realEmail || null
     });
     if (error) throw error;
     return typeof data === 'string' ? JSON.parse(data) : data;
@@ -22,7 +23,7 @@ export const customersApi = {
     return data ? (typeof data === 'string' ? JSON.parse(data) : data) : null;
   },
 
-  async update(email, name, phone, deliveryAddress, neighborhood, location, username) {
+  async update(email, name, phone, deliveryAddress, neighborhood, location, username, realEmail) {
     const { data, error } = await supabase.rpc('update_customer_rpc', {
       p_email: email,
       p_name: name,
@@ -30,7 +31,8 @@ export const customersApi = {
       p_delivery_address: deliveryAddress ?? null,
       p_neighborhood: neighborhood ?? null,
       p_location: location ?? null,
-      p_username: username ?? null
+      p_username: username ?? null,
+      p_real_email: realEmail ?? null
     });
     if (error) throw error;
     return typeof data === 'string' ? JSON.parse(data) : data;
@@ -55,6 +57,14 @@ export const customersApi = {
   async resolveLogin(identifier) {
     const { data, error } = await supabase.rpc('resolve_customer_login', {
       p_identifier: identifier
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  async findByRealEmail(realEmail) {
+    const { data, error } = await supabase.rpc('find_customer_by_real_email_rpc', {
+      p_real_email: realEmail
     });
     if (error) throw error;
     return data;

@@ -80,6 +80,9 @@ export function useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrent
       try { savedCallback.current?.(event, u); } catch (e) { console.error('[auth]', e); }
     });
     savedCallback.current = async (event, u) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        return;
+      }
       if (event === 'SIGNED_OUT') {
         setUser(null);
         setStaffRole(null);

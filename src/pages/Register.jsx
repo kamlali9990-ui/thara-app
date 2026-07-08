@@ -7,6 +7,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -45,7 +46,9 @@ export default function Register() {
     try {
       const cleanPhone = phone.trim();
       const cleanUsername = username ? username.trim().toLowerCase() : null;
-      const authEmail = `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
+      const cleanEmail = email ? email.trim().toLowerCase() : '';
+      const hasEmail = cleanEmail && cleanEmail.includes('@');
+      const authEmail = hasEmail ? cleanEmail : `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
       const { data: userData, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
         p_email: authEmail, p_password: password, p_username: cleanUsername
       });
@@ -56,7 +59,7 @@ export default function Register() {
         return;
       }
       try {
-        await customersApi.create(authEmail, name, cleanPhone, cleanUsername);
+        await customersApi.create(authEmail, name, cleanPhone, cleanUsername, hasEmail ? cleanEmail : null);
       } catch {
         console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
       }
@@ -105,6 +108,12 @@ export default function Register() {
             <label>اسم المستخدم (اختياري)</label>
             <input type="text" value={username} onChange={e => setUsername(e.target.value)}
               placeholder="my_username" className="auth-input" dir="ltr" />
+          </div>
+
+          <div className="auth-field">
+            <label>البريد الإلكتروني <span style={{ fontWeight: 400, color: '#94a3b8' }}>(اختياري - لاستعادة كلمة المرور)</span></label>
+            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="example@email.com" className="auth-input" dir="ltr" autoComplete="email" />
           </div>
 
           <div className="auth-field">

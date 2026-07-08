@@ -70,6 +70,8 @@ const App = lazyWithRetry(() => import('./App.jsx'), 'App')
 const Login = lazyWithRetry(() => import('./pages/Login.jsx'), 'Login')
 const CustomerLogin = lazyWithRetry(() => import('./pages/CustomerLogin.jsx'), 'CustomerLogin')
 const Register = lazyWithRetry(() => import('./pages/Register.jsx'), 'Register')
+const ForgotPassword = lazyWithRetry(() => import('./pages/ForgotPassword.jsx'), 'ForgotPassword')
+const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword.jsx'), 'ResetPassword')
 const Admin = lazyWithRetry(() => import('./Admin.jsx'), 'Admin')
 
 const PageLoader = <div className="loading-screen"><div className="loading-spinner" /><p>جاري التحميل...</p></div>;
@@ -180,6 +182,10 @@ function AuthErrorHandler() {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       try {
+        if (event === 'PASSWORD_RECOVERY') {
+          navigate('/reset-password', { replace: true });
+          return;
+        }
         if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
           if (userRef.current) {
             showToast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مرة أخرى', 'warning');
@@ -251,6 +257,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               <Route path="/" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><App /></Suspense></RouteErrorBoundary>} />
               <Route path="/login" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><CustomerLogin /></Suspense></RouteErrorBoundary>} />
               <Route path="/register" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><Register /></Suspense></RouteErrorBoundary>} />
+              <Route path="/forgot-password" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><ForgotPassword /></Suspense></RouteErrorBoundary>} />
+              <Route path="/reset-password" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><ResetPassword /></Suspense></RouteErrorBoundary>} />
               <Route path="/maintenance" element={<RouteErrorBoundary><MaintenancePanel /></RouteErrorBoundary>} />
               <Route path="/admin/login" element={<RouteErrorBoundary><Suspense fallback={PageLoader}><Login /></Suspense></RouteErrorBoundary>} />
               <Route path="/admin/*" element={

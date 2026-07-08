@@ -12,6 +12,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
   const [editName, setEditName] = useState('');
   const [editPhone, setEditPhone] = useState('');
   const [editUsername, setEditUsername] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [saving, setSaving] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -21,19 +22,22 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
   const displayName = customerProfile?.name || user?.email?.split('@')[0] || '';
   const displayPhone = customerProfile?.phone || '';
   const displayUsername = customerProfile?.username || '';
+  const displayEmail = customerProfile?.real_email || '';
+  const isFakeEmail = user?.email?.includes('@thara.app');
   const avatarLetter = (customerProfile?.name || user?.email || '?').charAt(0).toUpperCase();
 
   const startEdit = () => {
     setEditName(customerProfile?.name || '');
     setEditPhone(customerProfile?.phone || '');
     setEditUsername(customerProfile?.username || '');
+    setEditEmail(customerProfile?.real_email || '');
     setEditing(true);
   };
 
   const saveProfile = async () => {
     setSaving(true);
     try {
-      await updateCustomerProfile(editName, editPhone, editUsername || null);
+      await updateCustomerProfile(editName, editPhone, editUsername || null, editEmail || null);
       setEditing(false);
     } catch (err) {
       const m = err?.message || '';
@@ -119,6 +123,11 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             <input type="text" value={editUsername} onChange={e => setEditUsername(e.target.value)}
               placeholder="my_username" className="acc-input ltr" dir="ltr" />
           </div>
+          <div className="acc-field">
+            <label>البريد الإلكتروني <span style={{ fontWeight: 400, color: '#94a3b8' }}>(لاستعادة كلمة المرور)</span></label>
+            <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)}
+              placeholder="example@email.com" className="acc-input ltr" dir="ltr" autoComplete="email" />
+          </div>
           <div className="acc-edit-actions">
             <button className="acc-btn acc-btn-primary" onClick={saveProfile} disabled={saving}>
               {saving ? 'جاري الحفظ...' : 'حفظ التعديلات'}
@@ -134,7 +143,7 @@ const AccountTab = memo(({ user, logout, customerProfile, updateCustomerProfile,
             </div>
             <div className="acc-name">{displayName}</div>
             <div className="acc-phone">{displayPhone || 'رقم الجوال غير مضاف'}</div>
-            <div className="acc-email">{user.email?.includes('@thara.app') ? 'البريد الإلكتروني غير مضاف' : user.email}</div>
+            <div className="acc-email">{isFakeEmail ? (displayEmail || 'البريد الإلكتروني غير مضاف') : user.email}</div>
             {displayUsername && <div className="acc-username" style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '-0.25rem' }}>@{displayUsername}</div>}
             {staffRole && (
               <Link to="/admin" className="acc-staff-badge">

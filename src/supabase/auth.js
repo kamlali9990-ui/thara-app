@@ -36,6 +36,21 @@ export const authApi = {
     return data?.user || null;
   },
 
+  async resetPassword(email, redirectTo) {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const { data, error } = await supabase.auth.resetPasswordForEmail(normalizedEmail, {
+      redirectTo: redirectTo || (window.location.origin + (import.meta.env.BASE_URL || '/') + 'reset-password')
+    });
+    if (error) throw error;
+    return data;
+  },
+
+  async updatePassword(newPassword) {
+    const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+    return data;
+  },
+
   onAuthChange(callback) {
     return supabase.auth.onAuthStateChange((event, session) => {
       callback(event, session?.user || null);

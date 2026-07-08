@@ -583,10 +583,10 @@ export const StoreProvider = ({ children }) => {
     setStaffList(prev => prev.filter(s => s.id !== id));
   }, []);
 
-  const updateCustomerProfile = useCallback(async (name, phone, username) => {
+  const updateCustomerProfile = useCallback(async (name, phone, username, realEmail) => {
     if (!user) return;
     try {
-      const updated = await customersApi.update(user.email, name, phone, null, null, null, username);
+      const updated = await customersApi.update(user.email, name, phone, null, null, null, username, realEmail);
       setCustomerProfile(updated);
       return updated;
     } catch (err) { console.error('[updateCustomerProfile]', err); showToast('تعذر تحديث الملف الشخصي', 'error'); return null; }
