@@ -15,12 +15,15 @@ export default function ResetPassword() {
   useEffect(() => {
     const hash = window.location.hash;
     if (hash && (hash.includes('type=recovery') || hash.includes('access_token'))) {
-      supabase.auth.onAuthStateChange((event) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
         if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
           setReady(true);
         }
       });
-      supabase.auth.initialize?.();
+      supabase.auth.getUser().then(({ data }) => {
+        if (data?.user) setReady(true);
+      });
+      return () => subscription.unsubscribe();
     } else {
       setError('رابط إعادة التعيين غير صالح أو منتهي الصلاحية');
     }
