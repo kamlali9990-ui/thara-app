@@ -13,20 +13,22 @@ export default function ResetPassword() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash && (hash.includes('type=recovery') || hash.includes('access_token'))) {
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-        if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
-          setReady(true);
-        }
-      });
-      supabase.auth.getUser().then(({ data }) => {
-        if (data?.user) setReady(true);
-      });
-      return () => subscription.unsubscribe();
-    } else {
-      setError('رابط إعادة التعيين غير صالح أو منتهي الصلاحية');
-    }
+    let cancelled = false;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        if (!cancelled) setReady(true);
+      }
+    });
+    supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled && data?.session) {
+        setReady(true);
+        return;
+      }
+      if (!cancelled && !window.location.hash.includes('type=recovery') && !window.location.hash.includes('access_token')) {
+        setError('رابط إعادة التعيين غير صالح أو منتهي الصلاحية');
+      }
+    });
+    return () => { cancelled = true; subscription.unsubscribe(); };
   }, []);
 
   const handleSubmit = async (e) => {
