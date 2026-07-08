@@ -3,7 +3,9 @@
     { "source": "/admin/:path*", "destination": "/index.html" },
     { "source": "/login", "destination": "/index.html" },
     { "source": "/register", "destination": "/index.html" },
-    { "source": "/maintenance", "destination": "/index.html" }
+    { "source": "/maintenance", "destination": "/index.html" },
+    { "source": "/forgot-password", "destination": "/index.html" },
+    { "source": "/reset-password", "destination": "/index.html" }
   ],
   "headers": [
     {
