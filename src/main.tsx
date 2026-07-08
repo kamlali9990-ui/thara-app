@@ -1,6 +1,6 @@
-import React, { lazy, Suspense, useState, useEffect, useRef } from 'react'
+import React, { lazy, useState, useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext'
@@ -9,7 +9,7 @@ import { ToastProvider } from './components/Toast'
 import MaintenancePage from './components/MaintenancePage'
 import MaintenancePanel from './pages/MaintenancePanel'
 import { supabase } from './supabase/client'
-import { showToast } from './components/Toast'
+
 import * as Sentry from '@sentry/react'
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
@@ -52,8 +52,6 @@ const Admin = lazyWithRetry(() => import('./Admin'), 'Admin')
 function AppRoutes() {
   const { user, staffRole } = useStore();
   const location = useLocation();
-  const navigate = useNavigate();
-  const isStaffPath = location.pathname.startsWith('/admin');
   const isHidden = (['/login', '/register', '/forgot-password', '/reset-password', '/customer/login', '/panel', '/admin'].some(p => location.pathname.startsWith(p)));
 
   const prevPathRef = useRef(location.pathname);
@@ -63,7 +61,6 @@ function AppRoutes() {
 
   return (
     <>
-      {!isStaffPath && !isHidden && location.pathname !== '/reset-password' && <InstallGuide />}
       <Routes>
         <Route path="/" element={user ? <App /> : <App />} />
         <Route path="/login" element={<Login />} />
@@ -126,7 +123,6 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-import InstallGuide from './components/InstallGuide';
 import AddToHomeScreen from './components/AddToHomeScreen';
 import CustomerHelp from './components/CustomerHelp';
 

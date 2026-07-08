@@ -203,6 +203,14 @@
 }
 .side-drawer-logout:hover { background: rgba(229,62,62,0.08); }
 
+/* ─── Install Guide inside Drawer ─── */
+.side-drawer-install-guide-wrap {
+  padding: 0 0.75rem 0.5rem;
+}
+.side-drawer-install-guide-wrap > div {
+  margin-top: 0 !important;
+}
+
 /* ─── Terms of Service Modal ─── */
 .terms-overlay {
   position: fixed;
