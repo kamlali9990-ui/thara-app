@@ -183,7 +183,9 @@ function AuthErrorHandler() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       try {
         if (event === 'PASSWORD_RECOVERY') {
-          navigate('/reset-password', { replace: true });
+          if (!window.location.pathname.includes('/reset-password')) {
+            navigate('/reset-password', { replace: true });
+          }
           return;
         }
         if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
