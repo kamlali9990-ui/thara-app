@@ -144,6 +144,80 @@
   margin-top: 0.75rem;
 }
 
+/* ─── Staff Manager Responsive (Desktop) ─── */
+@media (min-width: 768px) {
+  .staff-add-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .staff-add-form .btn {
+    grid-column: 1 / -1;
+    justify-self: start;
+    min-width: 120px;
+  }
+
+  .staff-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1.25rem;
+  }
+  .staff-info {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .staff-info strong {
+    min-width: 140px;
+  }
+  .staff-email {
+    min-width: 200px;
+  }
+  .staff-card > .staff-input,
+  .staff-card > input[type="email"],
+  .staff-card > input[type="tel"],
+  .staff-card > select {
+    margin: 0;
+  }
+  .staff-actions {
+    gap: 0.4rem;
+  }
+
+  .modal-overlay {
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-content {
+    max-width: 420px;
+    border-radius: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .staff-manager {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .staff-card {
+    grid-template-columns: 1fr 1fr auto;
+    padding: 0.7rem 1rem;
+  }
+  .staff-info strong {
+    min-width: 120px;
+  }
+  .staff-email {
+    min-width: auto;
+  }
+  .staff-add-form {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .staff-add-form .btn {
+    grid-column: auto;
+  }
+}
+
 @keyframes splashOut {
   to { opacity: 0; visibility: hidden; }
 }
