@@ -29,5 +29,9 @@ export function useStaffActions({ hasSupabase, setStaffList }: { hasSupabase: bo
     setStaffList(prev => prev.filter(s => s.id !== id));
   }, [setStaffList]);
 
-  return { loadStaff, addStaff, updateStaff, removeStaff };
+  const resetStaffPassword = useCallback(async (email: string, newPassword: string) => {
+    return await staffApi.resetPassword(email, newPassword);
+  }, []);
+
+  return { loadStaff, addStaff, updateStaff, removeStaff, resetStaffPassword };
 }

@@ -32,6 +32,7 @@ interface StoreContextType {
   addStaff: (staffMember: Partial<StaffMember>) => Promise<any>;
   updateStaff: (id: number, updates: Partial<StaffMember>) => Promise<any>;
   removeStaff: (id: number) => Promise<any>;
+  resetStaffPassword: (email: string, newPassword: string) => Promise<any>;
   allCustomers: Customer[];
   loadCustomers: () => Promise<void>;
   customerProfile: any;
@@ -283,13 +284,13 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     loadCustomers();
   }, [supabaseReady, staffRole, loadCustomers]);
 
-  const { loadStaff, addStaff, updateStaff, removeStaff } = useStaffActions({ hasSupabase, setStaffList });
+  const { loadStaff, addStaff, updateStaff, removeStaff, resetStaffPassword } = useStaffActions({ hasSupabase, setStaffList });
 
   return (
     <StoreContext.Provider value={{
       user, loading, login, logout,
       setUser, setStaffRole, setCurrentStaff, setCustomerProfile,
-      staffRole, currentStaff, staffList, loadStaff, addStaff, updateStaff, removeStaff,
+      staffRole, currentStaff, staffList, loadStaff, addStaff, updateStaff, removeStaff, resetStaffPassword,
       allCustomers, loadCustomers,
       customerProfile, updateCustomerProfile,
       products: filteredProducts,

@@ -131,6 +131,19 @@ export const staffApi = {
     removeFromCache(id);
   },
 
+  async resetPassword(email: string, newPassword: string): Promise<{ success: boolean; message?: string }> {
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-reset-password', {
+        body: { email, newPassword }
+      });
+      if (error) throw error;
+      return data;
+    } catch (e: any) {
+      console.error('[staff resetPassword]', e);
+      throw new Error(e.message || 'فشل تغيير كلمة المرور');
+    }
+  },
+
   async listDrivers(): Promise<StaffMember[]> {
     try {
       const data = await rpc('list_drivers_rpc', {});

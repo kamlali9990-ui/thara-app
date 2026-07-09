@@ -4,15 +4,20 @@ import { showToast } from './Toast';
 import type { StaffMember, StaffRole } from '../types';
 
 export default function StaffManager() {
-  const { staffList, staffRole, loadStaff, addStaff, updateStaff, removeStaff } = useContext(StoreContext);
+  const { staffList, staffRole, loadStaff, addStaff, updateStaff, removeStaff, resetStaffPassword } = useContext(StoreContext);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<StaffRole>('employee');
   const [phone, setPhone] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState<StaffRole>('employee');
   const [editPhone, setEditPhone] = useState('');
+  const [resetPwEmail, setResetPwEmail] = useState('');
+  const [resetPwNewPassword, setResetPwNewPassword] = useState('');
+  const [showResetPw, setShowResetPw] = useState(false);
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => { loadStaff(); }, []);
 
@@ -35,8 +40,30 @@ export default function StaffManager() {
   };
 
   const handleSave = async (id: number) => {
-    await (updateStaff as any)(id, { name: editName, role: editRole, phone: editPhone || null });
+    const updates: any = { name: editName, role: editRole, phone: editPhone || null };
+    if (editEmail) updates.email = editEmail.trim().toLowerCase();
+    await (updateStaff as any)(id, updates);
     setEditingId(null);
+  };
+
+  const handleResetPassword = async () => {
+    if (!resetPwEmail || !resetPwNewPassword) return;
+    if (resetPwNewPassword.length < 6) {
+      showToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+      return;
+    }
+    setResetting(true);
+    try {
+      await (resetStaffPassword as any)(resetPwEmail.trim().toLowerCase(), resetPwNewPassword);
+      showToast('تم تغيير كلمة المرور بنجاح', 'success');
+      setShowResetPw(false);
+      setResetPwEmail('');
+      setResetPwNewPassword('');
+    } catch (err: any) {
+      showToast(err.message || 'فشل تغيير كلمة المرور', 'error');
+    } finally {
+      setResetting(false);
+    }
   };
 
   const handleRemove = async (id: number) => {
@@ -74,7 +101,10 @@ export default function StaffManager() {
           <div key={s.id} className="staff-card">
             {editingId === s.id ? (
               <>
-                <input value={editName} onChange={e => setEditName(e.target.value)} className="staff-input" />
+                <input value={editName} onChange={e => setEditName(e.target.value)} className="staff-input"
+                  placeholder="الاسم" />
+                <input type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)}
+                  placeholder="البريد الإلكتروني" className="staff-input" />
                 <input type="tel" value={editPhone} onChange={e => setEditPhone(e.target.value)}
                   placeholder="رقم الجوال" className="staff-input" />
                 <select value={editRole} onChange={e => setEditRole(e.target.value as StaffRole)} className="staff-select">
@@ -99,8 +129,12 @@ export default function StaffManager() {
                 {isAdmin && (
                   <div className="staff-actions">
                     <button className="btn"
-                      onClick={() => { setEditingId(s.id); setEditName(s.name); setEditRole(s.role); setEditPhone(s.phone || ''); }}>
+                      onClick={() => { setEditingId(s.id); setEditName(s.name); setEditEmail(s.email || ''); setEditRole(s.role); setEditPhone(s.phone || ''); }}>
                       تعديل
+                    </button>
+                    <button className="btn staff-reset-pw-btn"
+                      onClick={() => { setResetPwEmail(s.email); setShowResetPw(true); }}>
+                      تغيير كلمة المرور
                     </button>
                     {s.role !== 'admin' && (
                       <button className="admin-delete-btn" onClick={() => handleRemove(s.id)}>حذف</button>
@@ -112,6 +146,24 @@ export default function StaffManager() {
           </div>
         ))}
       </div>
+      {showResetPw && (
+        <div className="modal-overlay" onClick={() => setShowResetPw(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h3>تغيير كلمة المرور</h3>
+            <p className="staff-reset-email">للموظف: {resetPwEmail}</p>
+            <input type="password" value={resetPwNewPassword} onChange={e => setResetPwNewPassword(e.target.value)}
+              placeholder="كلمة المرور الجديدة" className="staff-input" minLength={6} />
+            <div className="staff-reset-actions">
+              <button className="btn" onClick={handleResetPassword} disabled={resetting}>
+                {resetting ? 'جاري التغيير...' : 'تأكيد'}
+              </button>
+              <button className="admin-delete-btn" onClick={() => { setShowResetPw(false); setResetPwNewPassword(''); }}>
+                إلغاء
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
