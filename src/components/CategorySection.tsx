@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import ProductCard from './ProductCard';
 
-import { sectionCats, getCategoryImg } from '../data/categories';
+import { sectionCats, getCategoryImg, type SectionCat } from '../data/categories';
 import type { Product, CartItem } from '../types';
 
 interface CategorySectionProps {
@@ -13,7 +13,7 @@ interface CategorySectionProps {
 }
 
 const CategorySection = memo<CategorySectionProps>(({ category, products, addToCart, cart, onViewAll }) => {
-  const catInfo = sectionCats.find(c => c.name === category) || { img: '', fallback: '📦' };
+  const catInfo: SectionCat = sectionCats.find(c => c.name === category) || { name: category, img: '', fallback: '📦', color: '', desc: '' };
   const maxDisplay = products.slice(0, 9);
 
   return (

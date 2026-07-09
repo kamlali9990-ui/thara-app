@@ -36,7 +36,7 @@ const SupportChatWidget = memo(() => {
     const nowStr = new Date().toISOString();
     const unreadIds = supportMessages.filter((m: ChatMessage) => m.sender === 'admin' && m.status !== 'read').map(m => m.id);
     if (unreadIds.length > 0) {
-      markMessagesAsRead(unreadIds);
+      (markMessagesAsRead as any)(unreadIds);
       localStorage.setItem('thara_notif_last_opened', nowStr);
       try { window.dispatchEvent(new CustomEvent('thara:notif-updated')); } catch {}
     }
@@ -52,14 +52,14 @@ const SupportChatWidget = memo(() => {
     const msg = voiceUrl || inputText.trim();
     if (!msg) return;
     const finalText = voiceUrl ? makeVoiceText(voiceUrl) : msg;
-    sendMessage('customer', finalText, null, null, null, customerProfile?.phone);
+    sendMessage('customer', finalText, undefined, undefined, undefined, customerProfile?.phone);
     setInputText('');
     const nowStr = new Date().toISOString();
     localStorage.setItem('thara_support_last_opened', nowStr);
     localStorage.setItem('thara_notif_last_opened', nowStr);
     setLastOpenedSupport(nowStr);
     const unreadIds = supportMessages.filter((m: ChatMessage) => m.sender === 'admin' && m.status !== 'read').map(m => m.id);
-    if (unreadIds.length > 0) markMessagesAsRead(unreadIds);
+    if (unreadIds.length > 0) (markMessagesAsRead as any)(unreadIds);
     try { window.dispatchEvent(new CustomEvent('thara:notif-updated')); } catch {}
   };
 
@@ -67,7 +67,7 @@ const SupportChatWidget = memo(() => {
     if (audio.recording) {
       const blob = await audio.stopRecording();
       if (blob && blob.size > 1000) {
-        try { const url = await audio.uploadAudio(blob, null); handleSend(url); }
+        try { const url = await audio.uploadAudio(blob, undefined); handleSend(url); }
         catch (e) { console.error('voice upload fail', e); }
       }
     } else {
@@ -79,7 +79,7 @@ const SupportChatWidget = memo(() => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(e.target.value);
-    sendTyping(null, user?.email);
+    sendTyping('', user?.email);
   };
 
   const adminIsTyping = user && typingUsers[user.email] && supportMessages.length > 0;
@@ -194,7 +194,7 @@ const SupportChatWidget = memo(() => {
                   const isConsecutive = prev && prev.sender === m.sender;
                   return (
                   <div key={m.id} className={`chat-bubble ${m.sender === 'customer' ? 'me' : 'them'}${isConsecutive ? ' consecutive' : ''}`}>
-                    <div>{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text)} /> : m.text}</div>
+                    <div>{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text ?? '')!} /> : m.text ?? ''}</div>
                     <div className="chat-time">
                       {m.sender === 'customer' && <StatusIcon status={m.status} failed={m._failed} />}
                       {m.time}

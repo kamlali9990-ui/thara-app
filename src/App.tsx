@@ -1,25 +1,26 @@
-import { useContext, useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { useContext, useState, useCallback, useEffect, useMemo, useRef, lazy, Suspense } from 'react';
 import { StoreContext } from './context/StoreContext';
 import InstallPrompt from './components/InstallPrompt';
-import CheckoutModal from './components/CheckoutModal';
-import CartScreen from './components/CartScreen';
-import SideDrawer from './components/SideDrawer';
-import NotifPanel from './components/NotifPanel';
 import SplashScreen from './components/SplashScreen';
 import UpdateBanner from './components/UpdateBanner';
 import AppHeader from './components/AppHeader';
 import AppTabbar from './components/AppTabbar';
-import HomeTab from './components/HomeTab';
-import CategoriesTab from './components/CategoriesTab';
-import OrdersTab from './components/OrdersTab';
-import AccountTab from './components/AccountTab';
-import AllProductsView from './components/AllProductsView';
 import SearchResultsList from './components/SearchResultsList';
 import OfflineBanner from './components/OfflineBanner';
 import NotificationPermissionPrompt from './components/NotificationPermissionPrompt';
 import SupportChatWidget from './components/SupportChatWidget';
 import { BASE } from './utils/constants';
 import { useTheme } from './utils/theme';
+
+const CheckoutModal = lazy(() => import('./components/CheckoutModal'));
+const CartScreen = lazy(() => import('./components/CartScreen'));
+const SideDrawer = lazy(() => import('./components/SideDrawer'));
+const NotifPanel = lazy(() => import('./components/NotifPanel'));
+const HomeTab = lazy(() => import('./components/HomeTab'));
+const CategoriesTab = lazy(() => import('./components/CategoriesTab'));
+const OrdersTab = lazy(() => import('./components/OrdersTab'));
+const AccountTab = lazy(() => import('./components/AccountTab'));
+const AllProductsView = lazy(() => import('./components/AllProductsView'));
 
 export default function App() {
   const { products, cart, addToCart, removeFromCart, updateCartQty, cartTotal,
@@ -198,6 +199,7 @@ export default function App() {
 
   return (
     <div className="app-wrapper">
+      <Suspense fallback={null}>
       <UpdateBanner />
       <OfflineBanner />
       <InstallPrompt />
@@ -228,7 +230,7 @@ export default function App() {
             setShowAllView={setShowAllView}
             preselectedCat={preselectedCat} setPreselectedCat={setPreselectedCat} />}
           {tab === 'orders' && <OrdersTab key="orders" orders={userOrders} loadOrders={loadOrders} />}
-          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile} theme={theme} onThemeChange={setTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
+          {tab === 'account' && <AccountTab key="account" user={user} logout={logout} customerProfile={customerProfile} updateCustomerProfile={updateCustomerProfile as any} theme={theme} onThemeChange={setTheme} staffRole={staffRole} currentStaff={currentStaff} orders={userOrders} />}
           </div>
         </div>
 
@@ -246,17 +248,18 @@ export default function App() {
         updateCartQty={updateCartQty} removeFromCart={removeFromCart}
         onClose={() => setIsCartOpen(false)} onCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />}
 
-      {isCheckoutOpen && <CheckoutModal cartTotal={cartTotal} onClose={closeCheckout} placeOrder={placeOrder} />}
+      {isCheckoutOpen && <CheckoutModal cartTotal={cartTotal} onClose={closeCheckout} placeOrder={async (data: any, fee: number) => { await placeOrder(data, fee); }} />}
 
       <SideDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)}
         user={user} logout={logout} tab={tab} selectedCategory={selectedCategory} onTabChange={switchTab}
-        setSelectedCategory={setSelectedCategory}
+        setSelectedCategory={(cat: string | null) => setSelectedCategory(cat ?? 'الكل')}
         theme={theme} onThemeChange={setTheme} />
 
       {isNotifOpen && <NotifPanel user={user} chatMessages={chatMessages}
         onClose={() => setIsNotifOpen(false)}
         orders={orders} onTabChange={switchTab} />}
       <SupportChatWidget />
+      </Suspense>
     </div>
   );
 }

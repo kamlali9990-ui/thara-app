@@ -117,7 +117,7 @@ export function useTypingIndicator({ hasSupabase, supabaseReady, user, setTyping
     if (!hasSupabase || !supabaseReady) return;
     const email = user?.email;
     if (!email) return;
-    const sub = chatApi.subscribeTyping(null, null, ({ userEmail, orderId, isTyping }: any) => {
+    const sub = chatApi.subscribeTyping('', '', ({ userEmail, orderId, isTyping }: any) => {
       if (userEmail === email) return;
       const tkey = orderId || userEmail;
       setTypingUsers(prev => {

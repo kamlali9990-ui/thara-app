@@ -11,11 +11,9 @@ vi.mock('../../supabase/client', () => {
     update: vi.fn(() => mockBuilder),
     delete: vi.fn(() => mockBuilder),
   };
-  Object.assign(mockBuilder, {
-    then(onFulfilled) { return Promise.resolve(mockBuilder._resolveValue).then(onFulfilled); },
-    catch(onRejected) { return Promise.resolve(mockBuilder._resolveValue).catch(onRejected); },
-    _resolveValue: { data: [], error: null },
-  });
+  (mockBuilder as any).then = (onFulfilled: any) => Promise.resolve((mockBuilder as any)._resolveValue).then(onFulfilled);
+  (mockBuilder as any).catch = (onRejected: any) => Promise.resolve((mockBuilder as any)._resolveValue).catch(onRejected);
+  (mockBuilder as any)._resolveValue = { data: [], error: null };
   return {
     supabase: {
       from: vi.fn(() => mockBuilder),
@@ -27,7 +25,7 @@ vi.mock('../../supabase/client', () => {
   };
 });
 
-const { __mockBuilder: builder } = await import('../../supabase/client');
+const builder = (await import('../../supabase/client') as any).__mockBuilder;
 const { productsApi } = await import('../../supabase/products');
 
 describe('productsApi', () => {

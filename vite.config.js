@@ -33,7 +33,8 @@ export default defineConfig(({ mode }) => {
     test: {
       globals: true,
       environment: 'jsdom',
-      setupFiles: ['./src/test/setup.js'],
+      setupFiles: ['./src/test/setup.ts'],
+      exclude: ['e2e/**', 'node_modules/**'],
     },
     define: {
       'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL),

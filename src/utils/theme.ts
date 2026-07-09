@@ -18,7 +18,7 @@ export function useTheme() {
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
     const t = THEMES.find(t => t.id === theme) || THEMES[0];
-    const meta = document.querySelector('meta[name="theme-color"]');
+    const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
     if (meta) meta.content = t.metaColor;
   }, [theme]);
 

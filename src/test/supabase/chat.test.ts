@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../supabase/client', () => {
-  const builder = {
+  const builder: any = {
     select: vi.fn(() => builder),
     eq: vi.fn(() => builder),
     is: vi.fn(() => builder),
@@ -13,8 +13,8 @@ vi.mock('../../supabase/client', () => {
     single: vi.fn(() => builder),
   };
   Object.assign(builder, {
-    then(onFulfilled) { return Promise.resolve(builder._resolveValue).then(onFulfilled); },
-    catch(onRejected) { return Promise.resolve(builder._resolveValue).catch(onRejected); },
+    then(onFulfilled: any) { return Promise.resolve(builder._resolveValue).then(onFulfilled); },
+    catch(onRejected: any) { return Promise.resolve(builder._resolveValue).catch(onRejected); },
     _resolveValue: { data: [], error: null },
   });
 
@@ -32,8 +32,8 @@ vi.mock('../../supabase/client', () => {
   };
 });
 
-const { supabase } = await import('../../supabase/client');
-const builder = supabase.from();
+import { supabase } from '../../supabase/client';
+const builder: any = (supabase as any).from();
 
 describe('chatApi', () => {
   beforeEach(() => {
@@ -45,8 +45,8 @@ describe('chatApi', () => {
     it('filters by orderId when provided', async () => {
       builder._resolveValue = { data: [{ id: 1, sender: 'customer', text: 'hi', created_at: new Date().toISOString() }], error: null };
       const { chatApi } = await import('../../supabase/chat');
-      await chatApi.list(42);
-      expect(builder.eq).toHaveBeenCalledWith('order_id', 42);
+      await chatApi.list('42');
+      expect(builder.eq).toHaveBeenCalledWith('order_id', '42');
     });
 
     it('filters by customerEmail with null order_id', async () => {
@@ -68,10 +68,10 @@ describe('chatApi', () => {
     it('builds correct payload', async () => {
       builder._resolveValue = { data: { id: 10, sender: 'admin', text: 'hello', status: 'sent', created_at: new Date().toISOString() }, error: null };
       const { chatApi } = await import('../../supabase/chat');
-      const result = await chatApi.send('admin', 'hello', 5, 'c@c.com', 'Admin', '966500000000');
+      const result = await chatApi.send('admin', 'hello', '5', 'c@c.com', 'Admin', '966500000000');
       expect(builder.insert).toHaveBeenCalledWith([{
         sender: 'admin', text: 'hello', status: 'sent',
-        order_id: 5, customer_email: 'c@c.com',
+        order_id: '5', customer_email: 'c@c.com',
         sender_name: 'Admin', customer_phone: '966500000000',
       }]);
       expect(result.sender).toBe('admin');
@@ -88,9 +88,9 @@ describe('chatApi', () => {
     it('updates status to read', async () => {
       builder._resolveValue = { data: null, error: null };
       const { chatApi } = await import('../../supabase/chat');
-      await chatApi.markAsRead([1, 2, 3]);
+      await chatApi.markAsRead(['1', '2', '3']);
       expect(builder.update).toHaveBeenCalled();
-      expect(builder.in).toHaveBeenCalledWith('id', [1, 2, 3]);
+      expect(builder.in).toHaveBeenCalledWith('id', ['1', '2', '3']);
       expect(builder.eq).toHaveBeenCalledWith('status', 'sent');
     });
   });
@@ -98,12 +98,12 @@ describe('chatApi', () => {
   describe('subscribe', () => {
     it('creates channel with order id filter', async () => {
       const { chatApi } = await import('../../supabase/chat');
-      chatApi.subscribe(42, null, vi.fn());
+      chatApi.subscribe('42', null, vi.fn());
       expect(supabase.channel).toHaveBeenCalled();
     });
 
     it('returns noop on error', async () => {
-      supabase.channel.mockImplementation(() => { throw new Error('fail'); });
+      (supabase.channel as any).mockImplementation(() => { throw new Error('fail'); });
       const { chatApi } = await import('../../supabase/chat');
       const ch = chatApi.subscribe(null, null, vi.fn());
       expect(typeof ch.unsubscribe).toBe('function');
@@ -115,7 +115,7 @@ describe('mapMessage', () => {
   it('maps fields correctly', async () => {
     builder._resolveValue = { data: [{ id: 5, sender: 'customer', text: 'مرحبا', order_id: 3, customer_email: 'c@c.com', customer_phone: '9665', sender_name: 'أحمد', status: 'read', read_at: '2025-01-01T00:00:00Z', created_at: '2025-01-01T00:00:00Z' }], error: null };
     const { chatApi } = await import('../../supabase/chat');
-    const msgs = await chatApi.list(3);
+    const msgs = await chatApi.list('3');
     const m = msgs[0];
     expect(m.id).toBe('5');
     expect(m.sender).toBe('customer');

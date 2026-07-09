@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { BASE, imgFallback, logoPath, logoPathDark } from '../utils/constants';
 import type { SiteStats } from '../types';
 
-const isSearching = (q?: string): boolean => q?.trim().length > 0;
+const isSearching = (q?: string): boolean => (q ?? '').trim().length > 0;
 
 interface AppHeaderProps {
   cartCount: number;

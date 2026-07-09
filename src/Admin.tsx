@@ -6,7 +6,8 @@ import { showToast } from './components/Toast';
 import ThemeToggle from './components/ThemeToggle';
 import { useTheme } from './utils/theme';
 import { safeProductUrl } from './utils/constants';
-import type { Product } from './types';
+import { optimizeCloudinaryUrl } from './utils/images';
+import type { Product, StaffRole } from './types';
 
 const AdminOrders = lazy(() => import('./components/admin/AdminOrders'));
 const AdminProducts = lazy(() => import('./components/admin/AdminProducts'));
@@ -153,7 +154,7 @@ export default function Admin() {
       const { data } = await supabase.auth.getUser();
       const email = data?.user?.email;
       if (currentPassword) {
-        const { error: signInError } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
+        const { error: signInError } = await supabase.auth.signInWithPassword({ email: email ?? '', password: currentPassword });
         if (signInError) { showToast('كلمة المرور الحالية غير صحيحة', 'error'); setPasswordLoading(false); return; }
       }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
@@ -217,10 +218,10 @@ export default function Admin() {
   const renderTabContent = () => {
     if (activeTab === 'orders') return (
       <AdminOrders
-        orders={orders} updateOrderStatus={updateOrderStatus}
-        staffRole={staffRole} currentStaff={currentStaff}
+        orders={orders} updateOrderStatus={updateOrderStatus as any}
+        staffRole={staffRole ?? ''} currentStaff={currentStaff}
         isDriver={isDriver} drivers={drivers}
-        assignDriverToOrder={assignDriverToOrder} claimOrder={claimOrder}
+        assignDriverToOrder={assignDriverToOrder as any} claimOrder={claimOrder}
         allCustomers={allCustomers} staffList={staffList}
         hasPermission={hasPermission}
       />
@@ -233,17 +234,17 @@ export default function Admin() {
           {hasPermission('manage_offers') && <button className={`admin-sub-tab-btn ${storeTab === 'offers' ? 'active' : ''}`} onClick={() => setStoreTab('offers')}>🏷️ العروض</button>}
         </div>
         {storeTab === 'products' && hasPermission('manage_products') ? (
-          <AdminProducts staffRole={staffRole} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} hasPermission={hasPermission} />
+          <AdminProducts staffRole={staffRole ?? ''} products={allProducts} addProduct={addProduct} updateProduct={updateProduct} deleteProduct={deleteProduct} hasPermission={hasPermission} />
         ) : null}
         {storeTab === 'featured' ? (
           <FeaturedManager allProducts={allProducts || []} />
         ) : null}
         {storeTab === 'offers' && hasPermission('manage_offers') ? (
-          <AdminOffers staffRole={staffRole} products={allProducts} updateProduct={updateProduct} hasPermission={hasPermission} />
+          <AdminOffers staffRole={staffRole ?? ''} products={allProducts} updateProduct={updateProduct} hasPermission={hasPermission} />
         ) : null}
       </div>
     );
-    if (activeTab === 'chat' && hasPermission('manage_chat')) return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage} allCustomers={allCustomers} />;
+    if (activeTab === 'chat' && hasPermission('manage_chat')) return <AdminChat chatMessages={chatMessages} sendMessage={sendMessage as any} allCustomers={allCustomers} />;
     if (activeTab === 'settings') return (
       <div className="admin-store-section">
         <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
@@ -255,7 +256,7 @@ export default function Admin() {
         </div>
         {settingsTab === 'main' && <AdminSettings />}
         {settingsTab === 'permissions' && <PermissionManager />}
-        {settingsTab === 'users' && <AdminUsers staffRole={staffRole} customers={allCustomers} loadCustomers={loadCustomers} />}
+        {settingsTab === 'users' && <AdminUsers staffRole={staffRole ?? ''} customers={allCustomers} loadCustomers={loadCustomers} />}
         {settingsTab === 'stats' && <AdminStats />}
         {settingsTab === 'profile' && (
           <div className="admin-profile-section">
@@ -279,7 +280,7 @@ export default function Admin() {
     }
     if (activeTab === 'staff') return <StaffManager />;
     if (activeTab === 'cleanup') return <AdminCleanup currentStaff={currentStaff} />;
-    if (activeTab === 'instructions') return <AdminInstructions staffRole={staffRole} />;
+    if (activeTab === 'instructions') return <AdminInstructions staffRole={staffRole ?? 'customer' as StaffRole} />;
     if (activeTab === 'diagnostics') return <AdminDiagnostics />;
     return null;
   };
@@ -368,7 +369,7 @@ function FeaturedManager({ allProducts }: { allProducts: any[] }) {
     const next = featured.includes(id) ? featured.filter((i: any) => i !== id) : [...featured, id];
     setFeatured(next);
     localStorage.setItem('thara_featured_ids', JSON.stringify(next));
-    supabase.from('settings').upsert({ key: 'featured_ids', value: JSON.stringify(next) }, { onConflict: 'key' }).catch(() => {});
+    (async () => { await supabase.from('settings').upsert({ key: 'featured_ids', value: JSON.stringify(next) }, { onConflict: 'key' }); })();
     window.dispatchEvent(new Event('thara:featured-changed'));
     showToast(featured.includes(id) ? 'تمت إزالة المنتج من التشكيلة' : 'تمت إضافة المنتج للتشكيلة');
   };
@@ -395,7 +396,7 @@ function FeaturedManager({ allProducts }: { allProducts: any[] }) {
                 background: 'rgba(18,116,67,0.06)', borderRadius: '8px',
                 padding: '0.3rem 0.6rem', fontSize: '0.85rem'
               }}>
-                <img src={safeProductUrl(p.imageUrl)} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
+                <img src={optimizeCloudinaryUrl(safeProductUrl(p.imageUrl), 80)} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover' }}
                   onError={(e: any) => { e.target.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28"><rect fill="#127443" width="28" height="28"/><text fill="#FFF" font-size="12" x="14" y="18" text-anchor="middle">T</text></svg>'); }} />
                 <span>{p.name}</span>
                 <button onClick={() => toggleFeatured(p.id)} style={{
@@ -422,7 +423,7 @@ function FeaturedManager({ allProducts }: { allProducts: any[] }) {
               borderRadius: '8px', cursor: 'pointer', transition: 'background 0.15s',
             }} onMouseEnter={(e: any) => e.currentTarget.style.background = 'rgba(18,116,67,0.04)'}
                onMouseLeave={(e: any) => e.currentTarget.style.background = 'transparent'}>
-              <img src={safeProductUrl(p.imageUrl)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }}
+              <img src={optimizeCloudinaryUrl(safeProductUrl(p.imageUrl), 80)} alt="" style={{ width: 32, height: 32, borderRadius: 6, objectFit: 'cover' }}
                 onError={(e: any) => { e.target.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect fill="#127443" width="32" height="32"/><text fill="#FFF" font-size="14" x="16" y="21" text-anchor="middle">T</text></svg>'); }} />
               <span style={{ fontSize: '0.9rem', flex: 1 }}>{p.name}</span>
               <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{p.category}</span>

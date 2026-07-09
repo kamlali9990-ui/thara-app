@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
 import { productImgError } from '../utils/constants';
+import { optimizeCloudinaryUrl } from '../utils/images';
 
 const ProductCardMini = memo(({ product, addToCart }: { product: any; addToCart: (p: any) => void }) => {
   const [added, setAdded] = useState(false);
@@ -16,8 +17,8 @@ const ProductCardMini = memo(({ product, addToCart }: { product: any; addToCart:
       <div className="mini-card-img-wrap">
         {product.isOffer && <span className="mini-card-badge-offer">%</span>}
         {outOfStock && <span className="product-badge-out">نفذ</span>}
-        <img src={product.imageUrl} alt={product.name} className="mini-card-img" loading="lazy"
-          onError={productImgError} />
+        <img src={optimizeCloudinaryUrl(product.imageUrl, 200)} alt={product.name} className="mini-card-img" loading="lazy"
+          onError={productImgError as any} />
         {!outOfStock && (
           <button className={`mini-card-add ${added ? 'added' : ''}`} onClick={handleAdd}>
             {added ? (

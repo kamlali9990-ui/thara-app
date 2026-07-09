@@ -58,7 +58,7 @@ const STEPS: DiagnosticStep[] = [
   {
     id: 'pwa', label: 'تثبيت التطبيق',
     check: () => window.matchMedia('(display-mode: standalone)').matches,
-    fix: () => { window.dispatchEvent(new CustomEvent('show-pwa-install-prompt')); },
+    fix: () => { window.dispatchEvent(new CustomEvent('show-pwa-install-prompt')); return true; },
     chrome: 'افتح القائمة ⋮ ← تثبيت التطبيق',
     safari: 'مشاركة ← إضافة للشاشة الرئيسية',
     edge: 'افتح القائمة ⋯ ← تثبيت التطبيق',

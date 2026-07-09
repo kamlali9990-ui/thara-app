@@ -5,6 +5,7 @@ import { categories } from '../../data/mockData';
 import { showToast } from '../Toast';
 import CloudinaryUpload from './CloudinaryUpload';
 import { safeProductUrl, logoPath, BASE } from '../../utils/constants';
+import { optimizeCloudinaryUrl } from '../../utils/images';
 import type { Product } from '../../types';
 
 const ADMIN_LOGO = logoPath;
@@ -30,12 +31,13 @@ interface FormState {
   imageUrl: string;
 }
 
-function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteProduct }: {
+function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteProduct, hasPermission }: {
   staffRole: string;
   products: Product[];
   addProduct: (data: any) => Promise<void>;
   updateProduct: (id: number, data: any) => Promise<void>;
   deleteProduct: (id: number) => Promise<void>;
+  hasPermission?: (perm: string) => boolean;
 }) {
   const isAdmin = staffRole === 'admin';
   const isManager = staffRole === 'manager';
@@ -262,12 +264,18 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const XLSX = await import('xlsx');
+    const ExcelJS = await import('exceljs');
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
-        const wb = XLSX.read(ev.target!.result, { type: 'array' });
-        const raw: any[][] = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', header: 1 });
+        const wb = new ExcelJS.Workbook();
+        await wb.xlsx.load(ev.target!.result as ArrayBuffer);
+        const ws = wb.worksheets[0];
+        if (!ws) { showToast('الملف لا يحتوي على أية أوراق', 'error'); return; }
+        const raw: any[][] = [];
+        ws.eachRow((row: any, _rowNum: number) => {
+          raw.push((row.values as any[]).slice(1));
+        });
         const headerRow = detectHeaderRow(raw);
         const colMap = mapColumns(raw[headerRow] || []);
         const result = [];
@@ -353,8 +361,8 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
       }
       for (let i = 0; i < toCreate.length; i += CHUNK_SIZE) {
         const chunk = toCreate.slice(i, i + CHUNK_SIZE);
-        const created = await bulkImportProducts(chunk);
-        createdCount += created.length;
+        const created = await (bulkImportProducts as any)(chunk);
+        createdCount += (created as any).length || 0;
         setImportProgress({ current: updatedCount + createdCount, total });
       }
       showToast(`تم تحديث ${updatedCount} منتج وإضافة ${createdCount} منتج جديد`, 'success');
@@ -500,7 +508,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
           <div key={p.id} id={`pr-${p.id}`} className={`admin-product-row${editingId === p.id ? ' editing' : ''}`}>
             {editingId === p.id ? (
               <>
-                <img src={safeProductUrl(p.imageUrl) || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if ((e.target as HTMLImageElement).src !== ADMIN_LOGO) (e.target as HTMLImageElement).src = ADMIN_LOGO; }} />
+                <img src={optimizeCloudinaryUrl(safeProductUrl(p.imageUrl), 80) || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if ((e.target as HTMLImageElement).src !== ADMIN_LOGO) (e.target as HTMLImageElement).src = ADMIN_LOGO; }} />
                 <div className="pr-edit-inline">
                   <div className="pr-edit-field" style={{ flex: '2', minWidth: '80px' }}>
                     <label className="pr-edit-label">الاسم</label>
@@ -539,7 +547,7 @@ function AdminProducts({ staffRole, products, addProduct, updateProduct, deleteP
               </>
             ) : (
               <>
-                <img src={safeProductUrl(p.imageUrl) || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if ((e.target as HTMLImageElement).src !== ADMIN_LOGO) (e.target as HTMLImageElement).src = ADMIN_LOGO; }} />
+                <img src={optimizeCloudinaryUrl(safeProductUrl(p.imageUrl), 80) || ADMIN_LOGO} alt="" className="pr-img" loading="lazy" onError={(e) => { if ((e.target as HTMLImageElement).src !== ADMIN_LOGO) (e.target as HTMLImageElement).src = ADMIN_LOGO; }} />
                 <span className="pr-name">{p.name}</span>
                 <span className="pr-cat">{p.category}</span>
                 <span className="pr-price">{p.price?.toFixed(2)}</span>

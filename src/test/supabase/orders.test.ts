@@ -10,8 +10,8 @@ vi.mock('../../supabase/client', () => {
     update: vi.fn(() => builder),
   };
   Object.assign(builder, {
-    then(onFulfilled) { return Promise.resolve(builder._resolveValue).then(onFulfilled); },
-    catch(onRejected) { return Promise.resolve(builder._resolveValue).catch(onRejected); },
+    then(onFulfilled: any) { return Promise.resolve((builder as any)._resolveValue).then(onFulfilled); },
+    catch(onRejected: any) { return Promise.resolve((builder as any)._resolveValue).catch(onRejected); },
     _resolveValue: { data: [], error: null },
   });
 
@@ -32,7 +32,9 @@ vi.mock('../../supabase/client', () => {
 });
 
 const { supabase } = await import('../../supabase/client');
-const builder = supabase.from();
+const builder = supabase.from('') as any;
+const mockRpc = supabase.rpc as any;
+const mockChannel = supabase.channel as any;
 
 describe('ordersApi', () => {
   beforeEach(() => {
@@ -58,7 +60,7 @@ describe('ordersApi', () => {
 
   describe('create', () => {
     it('calls secure RPC with order data', async () => {
-      supabase.rpc.mockResolvedValue({ data: mockOrderRow(3), error: null });
+      mockRpc.mockResolvedValue({ data: mockOrderRow(3), error: null });
       const { ordersApi } = await import('../../supabase/orders');
       const result = await ordersApi.create({ items: [{ id: 1, qty: 2 }], paymentMethod: 'cash', location: 'test' });
       expect(supabase.rpc).toHaveBeenCalledWith('create_order_secure', expect.objectContaining({
@@ -71,7 +73,7 @@ describe('ordersApi', () => {
 
   describe('updateStatus', () => {
     it('calls RPC with status and optional ETA', async () => {
-      supabase.rpc.mockResolvedValue({ data: mockOrderRow(4), error: null });
+      mockRpc.mockResolvedValue({ data: mockOrderRow(4), error: null });
       const { ordersApi } = await import('../../supabase/orders');
       await ordersApi.updateStatus(4, 'completed');
       expect(supabase.rpc).toHaveBeenCalledWith('update_order_status_rpc', { p_order_id: 4, p_status: 'completed', p_eta: null });
@@ -80,14 +82,14 @@ describe('ordersApi', () => {
 
   describe('assignDriver', () => {
     it('assigns a driver to order', async () => {
-      supabase.rpc.mockResolvedValue({ data: { ...mockOrderRow(5), assigned_driver_id: 10 }, error: null });
+      mockRpc.mockResolvedValue({ data: { ...mockOrderRow(5), assigned_driver_id: 10 }, error: null });
       const { ordersApi } = await import('../../supabase/orders');
       await ordersApi.assignDriver(5, 10);
       expect(supabase.rpc).toHaveBeenCalledWith('assign_driver_to_order', { p_order_id: 5, p_driver_id: 10 });
     });
 
     it('unassigns driver when id is null', async () => {
-      supabase.rpc.mockResolvedValue({ data: mockOrderRow(6), error: null });
+      mockRpc.mockResolvedValue({ data: mockOrderRow(6), error: null });
       const { ordersApi } = await import('../../supabase/orders');
       await ordersApi.assignDriver(6, null);
       expect(supabase.rpc).toHaveBeenCalledWith('assign_driver_to_order', { p_order_id: 6, p_driver_id: null });
@@ -96,7 +98,7 @@ describe('ordersApi', () => {
 
   describe('claim', () => {
     it('driver claims an order', async () => {
-      supabase.rpc.mockResolvedValue({ data: mockOrderRow(7), error: null });
+      mockRpc.mockResolvedValue({ data: mockOrderRow(7), error: null });
       const { ordersApi } = await import('../../supabase/orders');
       await ordersApi.claim(7);
       expect(supabase.rpc).toHaveBeenCalledWith('claim_order_rpc', { p_order_id: 7 });
@@ -112,7 +114,7 @@ describe('ordersApi', () => {
     });
 
     it('returns noop on error', async () => {
-      supabase.channel.mockImplementation(() => { throw new Error('no rt'); });
+      mockChannel.mockImplementation(() => { throw new Error('no rt'); });
       const { ordersApi } = await import('../../supabase/orders');
       const channel = ordersApi.subscribe(vi.fn());
       expect(typeof channel.unsubscribe).toBe('function');
@@ -156,6 +158,6 @@ describe('mapOrder', () => {
   });
 });
 
-function mockOrderRow(id) {
+function mockOrderRow(id: number) {
   return { id, created_at: new Date().toISOString(), items: '[]', total: 0, status: 'pending', payment_method: 'cash' };
 }

@@ -22,9 +22,10 @@ export default function MaintenancePanel() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user && user.email === ADMIN_EMAIL) {
         setAuthorized(true);
-        supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle()
-          .then(({ data }) => setMaintenance(data?.value === 'true'))
-          .catch(() => {});
+        (async () => {
+          const { data } = await supabase.from('settings').select('value').eq('key', 'maintenance_mode').maybeSingle();
+          setMaintenance(data?.value === 'true');
+        })();
       } else {
         setAuthorized(false);
       }

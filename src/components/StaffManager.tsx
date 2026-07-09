@@ -21,7 +21,7 @@ export default function StaffManager() {
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !name.trim()) return;
     try {
-      const added = await addStaff({ email: normalizedEmail, name: name.trim(), role, phone: phone.trim() || null });
+      const added: any = await (addStaff as any)({ email: normalizedEmail, name: name.trim(), role, phone: phone.trim() || null });
       showToast(`تمت إضافة الموظف بنجاح. كلمة المرور المبدئية: ${added.tempPassword}`, 'success');
       setEmail(''); setName(''); setRole('employee'); setPhone('');
     } catch (err: any) {
@@ -35,13 +35,13 @@ export default function StaffManager() {
   };
 
   const handleSave = async (id: number) => {
-    await updateStaff(id, { name: editName, role: editRole, phone: editPhone || null });
+    await (updateStaff as any)(id, { name: editName, role: editRole, phone: editPhone || null });
     setEditingId(null);
   };
 
   const handleRemove = async (id: number) => {
     if (!window.confirm('تأكيد حذف هذا الموظف؟')) return;
-    await removeStaff(id);
+    await (removeStaff as any)(id);
   };
 
   const isAdmin = staffRole === 'admin';

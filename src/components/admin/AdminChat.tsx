@@ -96,7 +96,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }: {
   useEffect(() => {
     if (!activeThread) return;
     const unreadIds = activeMessages.filter((m: ChatMessage) => m.sender === 'customer' && m.status !== 'read').map(m => m.id);
-    if (unreadIds.length > 0) markMessagesAsRead(unreadIds);
+    if (unreadIds.length > 0) (markMessagesAsRead as any)(unreadIds);
   }, [activeThread, activeMessages, markMessagesAsRead]);
 
   useEffect(() => {
@@ -122,9 +122,9 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }: {
     if (!msg || !activeThread) return;
     const finalText = voiceUrl ? makeVoiceText(voiceUrl) : msg;
     if (activeThread.orderId) {
-      sendMessage('admin', finalText, activeThread.orderId, null, currentStaff?.name, activeThread.phone);
+      sendMessage('admin', finalText, activeThread.orderId, null, currentStaff?.name ?? null, activeThread.phone);
     } else if (activeThread.email) {
-      sendMessage('admin', finalText, null, activeThread.email, currentStaff?.name, activeThread.phone);
+      sendMessage('admin', finalText, null, activeThread.email, currentStaff?.name ?? null, activeThread.phone);
     }
     setText('');
   };
@@ -134,7 +134,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }: {
       const blob = await audio.stopRecording();
       if (blob && blob.size > 1000 && activeThread) {
         try {
-          const url = await audio.uploadAudio(blob, activeThread.orderId);
+          const url = await audio.uploadAudio(blob, activeThread.orderId ?? undefined);
           handleSend(url);
         } catch (e) { console.error('voice upload fail', e); }
       }
@@ -230,7 +230,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }: {
                   return (
                   <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}${isConsecutive ? ' consecutive' : ''}`}>
                     {!isConsecutive && <div className="admin-bubble-sender">{m.sender === 'admin' ? (m.senderName || 'أنت') : (m.senderName || 'العميل')}</div>}
-                    <div className="admin-bubble-text">{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text)} /> : m.text}</div>
+                    <div className="admin-bubble-text">{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text ?? '') ?? ''} /> : m.text}</div>
                     <div className="admin-bubble-time">
                       {m.sender === 'admin' && (
                         <span className="admin-bubble-status">
@@ -247,7 +247,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }: {
                     </div>
                   </div>
                 );})}
-                {activeThread && typingUsers[activeThread.email || activeThread.orderId] && (
+                {activeThread && typingUsers[(activeThread.email || activeThread.orderId) ?? ''] && (
                   <div className="admin-bubble customer" style={{ opacity: 0.6 }}>
                     <div className="admin-bubble-sender">العميل</div>
                     <div className="admin-bubble-text" style={{ fontStyle: 'italic', color: 'var(--admin-text-muted)' }}>يكتب...</div>
@@ -265,7 +265,7 @@ export default function AdminChat({ chatMessages, sendMessage, allCustomers }: {
                   <button className={`admin-chat-mic-btn${audio.recording ? ' recording' : ''}`} onClick={handleVoiceRecord} title="تسجيل رسالة صوتية">🎤</button>
                 )}
                 <input type="text" value={text}
-                  onChange={e => { setText(e.target.value); if (activeThread?.email) sendTyping(null, activeThread.email); }}
+                  onChange={e => { setText(e.target.value); if (activeThread?.email) sendTyping(activeThread.orderId ?? '', activeThread.email); }}
                   onKeyDown={e => e.key === 'Enter' && handleSend()}
                   placeholder="اكتب رسالتك..." className="admin-chat-input" />
                 <button className="btn" onClick={() => handleSend()} disabled={!text.trim() && !audio.recording}>إرسال</button>

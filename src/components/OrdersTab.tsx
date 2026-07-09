@@ -124,15 +124,15 @@ const OrdersTab = memo(({ orders, loadOrders }: OrdersTabProps) => {
               {audio.recording ? (
                 <>
                   <span style={{ color: '#ef4444', fontSize: '0.8rem', padding: '0 0.3rem', alignSelf: 'center' }}>{audio.formatTime(audio.recordingTime)}</span>
-                  <button className="chat-mic-btn recording" onClick={async () => { const blob: Blob | null = await audio.stopRecording(); if (blob && blob.size > 1000) { try { const url = await audio.uploadAudio(blob, chatOrder); sendMessage('customer', makeVoiceText(url), chatOrder, null, null, customerProfile?.phone); } catch (e) { console.error('voice fail', e); } } }} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
+                  <button className="chat-mic-btn recording" onClick={async () => { const blob: Blob | null = await audio.stopRecording(); if (blob && blob.size > 1000) { try { const url = await audio.uploadAudio(blob, chatOrder); sendMessage('customer', makeVoiceText(url), chatOrder, undefined, undefined, customerProfile?.phone); } catch (e) { console.error('voice fail', e); } } }} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
                 </>
               ) : (
                 <button className="chat-mic-btn" onClick={async () => { try { await audio.startRecording(); } catch (e: any) { if (e.message === 'permission_denied') alert('الرجاء السماح بتسجيل الصوت في إعدادات المتصفح'); } }} title="تسجيل رسالة صوتية" style={{ alignSelf: 'center' }}>🎤</button>
               )}
-              <input type="text" value={chatText} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setChatText(e.target.value); sendTyping(chatOrder!, null); }}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { sendMessage('customer', chatText, chatOrder!, null, null, customerProfile?.phone); setChatText(''); } }}
+              <input type="text" value={chatText} onChange={(e: React.ChangeEvent<HTMLInputElement>) => { setChatText(e.target.value); sendTyping(chatOrder!, undefined); }}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => { if (e.key === 'Enter') { sendMessage('customer', chatText, chatOrder!, undefined, undefined, customerProfile?.phone); setChatText(''); } }}
                 placeholder="اكتب رسالة..." />
-              <button className="chat-send-btn" onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder!, null, null, customerProfile?.phone); setChatText(''); } }}>
+              <button className="chat-send-btn" onClick={() => { if (chatText.trim()) { sendMessage('customer', chatText, chatOrder!, undefined, undefined, customerProfile?.phone); setChatText(''); } }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </div>

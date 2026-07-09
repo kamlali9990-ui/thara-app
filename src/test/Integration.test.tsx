@@ -5,14 +5,14 @@ import { useStore } from '../context/StoreContext';
 
 // Mock context
 vi.mock('../context/StoreContext', () => ({
-  StoreContext: { Provider: ({ children }) => children },
+  StoreContext: { Provider: ({ children }: { children: React.ReactNode }) => children },
   useStore: vi.fn(),
-  StoreProvider: ({ children }) => children,
+  StoreProvider: ({ children }: { children: React.ReactNode }) => children,
 }));
 
 describe('useStore (mocked)', () => {
   it('returns default values when mocked', () => {
-    useStore.mockReturnValue({ products: [], cart: [], user: null });
+    vi.mocked(useStore).mockReturnValue({ products: [], cart: [], user: null } as any);
     const { products, cart, user } = useStore();
     expect(products).toEqual([]);
     expect(cart).toEqual([]);
@@ -20,7 +20,7 @@ describe('useStore (mocked)', () => {
   });
 
   it('allows overriding return values', () => {
-    useStore.mockReturnValue({ products: [{ id: 1, name: 'Test' }], cart: [{ id: 1, qty: 2 }] });
+    vi.mocked(useStore).mockReturnValue({ products: [{ id: 1, name: 'Test' }], cart: [{ id: 1, qty: 2 }] } as any);
     const { products, cart } = useStore();
     expect(products).toHaveLength(1);
     expect(cart[0].qty).toBe(2);
@@ -50,7 +50,7 @@ describe('searchQuery sanitization', () => {
       { id: 1, name: 'حليب', category: 'dairy' },
       { id: 2, name: 'عصير', category: 'drinks' },
     ];
-    const cat = 'dairy';
+    const cat: string = 'dairy';
     const result = products.filter(p => cat === 'الكل' || p.category === cat);
     expect(result).toHaveLength(1);
   });
@@ -90,7 +90,7 @@ describe('cart calculations', () => {
 
   it('updates quantity for existing item', () => {
     const newCart = cart.map(i => i.id === 1 ? { ...i, qty: 5 } : i);
-    expect(newCart.find(i => i.id === 1).qty).toBe(5);
+    expect(newCart.find(i => i.id === 1)!.qty).toBe(5);
   });
 
   it('removes item from cart', () => {

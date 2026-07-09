@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { productImgError } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
+import { optimizeCloudinaryUrl } from '../utils/images';
 import { addRecentlyViewed } from '../utils/recentlyViewed';
 import type { Product, CartItem } from '../types';
 
@@ -50,8 +51,8 @@ const ProductCard = memo(({ product, addToCart, cart }: { product: any; addToCar
         {product.isOffer && <span className="product-badge-offer">%</span>}
         {outOfStock && <span className="product-badge-out">نفذ</span>}
         {lowStock && <span className="product-badge-low">بقية {product.stock_quantity}</span>}
-        <img src={product.imageUrl} alt={product.name} className="product-card-new-img" loading="lazy"
-          onError={productImgError} />
+        <img src={optimizeCloudinaryUrl(product.imageUrl, 400)} alt={product.name} className="product-card-new-img" loading="lazy"
+          onError={productImgError as any} />
         {!outOfStock && (
           <div className="product-card-new-actions">
             {cartQty > 0 ? (
@@ -100,7 +101,7 @@ const ProductCard = memo(({ product, addToCart, cart }: { product: any; addToCar
               {product.isOffer && <span className="product-detail-offer">عرض</span>}
               {outOfStock && <span className="product-detail-stock out">نفذ</span>}
               {lowStock && <span className="product-detail-stock low">بقية {product.stock_quantity}</span>}
-              <img src={product.imageUrl} alt={product.name} className="product-detail-img" onError={productImgError} />
+              <img src={optimizeCloudinaryUrl(product.imageUrl, 600)} alt={product.name} className="product-detail-img" onError={productImgError as any} />
             </div>
             <div className="product-detail-body">
               <div className="product-detail-category">{product.category}</div>

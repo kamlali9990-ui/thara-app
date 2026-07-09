@@ -8,9 +8,10 @@ export interface Product {
   image?: string;
   stock_quantity: number;
   isOffer?: boolean;
-  offer_price?: number;
+  offerPrice?: number;
   description?: string;
   unit?: string;
+  imageUrl?: string;
 }
 
 export interface CartItem {
@@ -19,6 +20,7 @@ export interface CartItem {
   qty: number;
   price?: number;
   image?: string;
+  currentPrice?: number;
 }
 
 export interface Order {
@@ -69,6 +71,9 @@ export interface Customer {
   phone?: string;
   location?: string;
   loyalty_points?: number;
+  username?: string;
+  real_email?: string;
+  created_at?: string;
 }
 
 export interface ChatMessage {
@@ -80,6 +85,8 @@ export interface ChatMessage {
   customerPhone?: string;
   senderName?: string;
   time: string;
+  timestamp?: string;
+  readAt?: string;
   status?: string;
   _failed?: boolean;
 }

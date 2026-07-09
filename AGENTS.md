@@ -44,8 +44,8 @@
 
 ## Coding Style & Naming Conventions
 - **Framework**: React 18 with Vite. Uses Functional Components and Hooks.
-- **Language**: TypeScript (`.ts`/`.tsx`) — migration complete as of Jul 2026. Test files remain `.js`/`.jsx` with `allowJs: true`, `checkJs: false`.
-- **tsconfig**: `"strict": false` (gradual), `"target": "ES2020"`, `"jsx": "react-jsx"`, `"moduleResolution": "bundler"`.
+- **Language**: Fully TypeScript (`.ts`/`.tsx`) — migration complete as of Jul 2026.
+- **tsconfig**: `"strict": true`, `"target": "ES2020"`, `"jsx": "react-jsx"`, `"moduleResolution": "bundler"`.
 - **Types**: `src/types/index.ts` — `Order`, `Product`, `CartItem`, `StaffMember`, `Customer`, `ChatMessage`, `OrderStatus`, `StaffRole`.
 - **Imports**: No file extensions in import paths (Vite resolves `.ts` > `.tsx` > `.js` > `.jsx` automatically).
 - **Styling**: Vanilla CSS in `.\src\index.css`. RTL (Right-to-Left) is enforced via `dir="rtl"` in `.\index.html`.

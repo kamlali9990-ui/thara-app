@@ -18,22 +18,25 @@
     "deploy:push": "node scripts/deploy-edge-function.cjs send-push",
     "deploy:cloudinary": "node scripts/deploy-edge-function.cjs cloudinary-sign",
     "deploy:otp": "node scripts/deploy-edge-function.cjs send-otp",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@sentry/browser": "^10.56.0",
     "@sentry/react": "^10.56.0",
     "@supabase/supabase-js": "^2.106.2",
     "cloudinary": "^2.10.0",
+    "exceljs": "^4.4.0",
     "leaflet": "^1.9.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-leaflet": "^5.0.0",
-    "react-router-dom": "^7.15.1",
-    "xlsx": "^0.18.5"
+    "react-router-dom": "^7.15.1"
   },
   "devDependencies": {
     "@bubblewrap/cli": "^1.24.1",
+    "@playwright/test": "^1.61.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

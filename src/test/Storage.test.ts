@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { storage } from '../utils/storage';
 
 // Mock IndexedDB
-function createMockIndexedDB() {
+function createMockIndexedDB(): any {
   const store = new Map();
-  const req = { result: null, error: null };
+  const req: { result: any; error: any } = { result: null, error: null };
   return {
     open: vi.fn().mockReturnValue({
       result: {
@@ -45,14 +45,14 @@ describe('storage', () => {
 
   it('falls back to localStorage when IndexedDB is unavailable', async () => {
     const origIndexedDB = globalThis.indexedDB;
-    globalThis.indexedDB = undefined;
+    globalThis.indexedDB = undefined as any;
 
     localStorage.setItem('test-key', JSON.stringify('stored'));
     const val = await storage.get('test-key');
     expect(val).toBe('stored');
 
     await storage.set('test-key', 'new-val');
-    expect(JSON.parse(localStorage.getItem('test-key'))).toBe('new-val');
+    expect(JSON.parse(localStorage.getItem('test-key')!)).toBe('new-val');
 
     await storage.remove('test-key');
     expect(localStorage.getItem('test-key')).toBeNull();

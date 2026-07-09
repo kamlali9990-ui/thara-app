@@ -49,7 +49,7 @@ export function usePersistence({ hasSupabase, setProducts, setOrders, setChatMes
             }
             if (staff) {
               const supaChat = await chatApi.list().catch(() => null);
-              if (supaChat && supaChat.length > 0) setChatMessages(supaChat);
+              if (supaChat && supaChat.length > 0) setChatMessages(supaChat as any);
             }
             if (!staff) {
               try {

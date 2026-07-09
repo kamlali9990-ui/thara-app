@@ -2,6 +2,7 @@ import { memo, useMemo, useState } from 'react';
 import { productImgError } from '../utils/constants';
 import { useStore } from '../context/StoreContext';
 import { sectionCats } from '../data/categories';
+import { optimizeCloudinaryUrl } from '../utils/images';
 import type { CartItem } from '../types';
 
 const SearchResultsList = memo(({ results, addToCart, cart, searchQuery }: {
@@ -56,9 +57,9 @@ const SearchResultsList = memo(({ results, addToCart, cart, searchQuery }: {
         return (
           <div key={product.id} className={`search-result-item ${outOfStock ? 'out-of-stock' : ''}`} style={{ gap: '1rem' }}>
             <img 
-              src={product.imageUrl} 
+              src={optimizeCloudinaryUrl(product.imageUrl, 100)} 
               alt={product.name} 
-              onError={productImgError} 
+              onError={productImgError as any} 
               style={{
                 width: '50px',
                 height: '50px',

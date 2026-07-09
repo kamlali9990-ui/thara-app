@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { showToast } from '../Toast';
+import { optimizeCloudinaryUrl } from '../../utils/images';
 import type { Product } from '../../types';
 
 const CAT_ORDER = ['مواد غذائية', 'منظفات', 'إلكترونيات', 'أواني', 'مكسرات وبهارات', 'خضروات وفواكه', 'ألعاب', 'مجموعة الأصناف', 'ملابس', 'مواد البناء'];
@@ -9,10 +10,11 @@ const CAT_COLORS: Record<string, string> = {
   'ألعاب': '#ec4899', 'مجموعة الأصناف': '#64748b', 'ملابس': '#06b6d4', 'مواد البناء': '#f97316'
 };
 
-export default function AdminOffers({ staffRole, products, updateProduct }: {
+export default function AdminOffers({ staffRole, products, updateProduct, hasPermission }: {
   staffRole: string;
   products: Product[];
   updateProduct: (id: number, data: Partial<Product>) => Promise<void>;
+  hasPermission?: (perm: string) => boolean;
 }) {
   const isAdmin = staffRole === 'admin';
   const isManager = staffRole === 'manager';
@@ -151,7 +153,7 @@ export default function AdminOffers({ staffRole, products, updateProduct }: {
               const isSaving = saving.has(product.id);
               return (
                 <div key={product.id} className="admin-offer-row add-mode">
-                  <img src={(product as any).imageUrl} className="admin-offer-img" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  <img src={optimizeCloudinaryUrl((product as any).imageUrl, 80)} className="admin-offer-img" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                   <div className="admin-offer-info">
                     <div className="admin-offer-name">{product.name}</div>
                     <div className="admin-offer-category">{product.category}</div>
@@ -192,7 +194,7 @@ export default function AdminOffers({ staffRole, products, updateProduct }: {
                 </label>
               )}
               <span className="admin-offer-cat-badge" style={{ background: color }}>{group}</span>
-              <img src={(product as any).imageUrl} className="admin-offer-img" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+              <img src={optimizeCloudinaryUrl((product as any).imageUrl, 80)} className="admin-offer-img" onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               <div className="admin-offer-info">
                 <div className="admin-offer-name">{product.name}</div>
                 <div className="admin-offer-category">{product.category}</div>

@@ -12,7 +12,7 @@ function generateTempPassword() {
   return pwd;
 }
 
-export default function AdminUsers({ staffRole, customers }: { staffRole: string; customers: Customer[] }) {
+export default function AdminUsers({ staffRole, customers, loadCustomers }: { staffRole: string; customers: Customer[]; loadCustomers?: () => void }) {
   const isAdmin = staffRole === 'admin';
   const [resettingEmail, setResettingEmail] = useState<string | null>(null);
   const [resetPasswordInput, setResetPasswordInput] = useState('');

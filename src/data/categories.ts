@@ -2,7 +2,7 @@ import { BASE } from '../utils/constants';
 
 const CAT_IMG_PREFIX = 'thara_cat_img_';
 
-interface SectionCat {
+export interface SectionCat {
   name: string;
   img: string;
   fallback: string;

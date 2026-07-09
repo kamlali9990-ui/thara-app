@@ -73,7 +73,7 @@ const CheckoutModal = memo<CheckoutModalProps>(({ cartTotal, onClose, placeOrder
     setLocationSource('gps');
     clearWatch();
   };
-  const handleLocate = async () => {
+  const handleLocate = async (): Promise<void> => {
     if (isLocating) return;
     if (!navigator.geolocation) {
       setIsLocating(true);
@@ -82,7 +82,7 @@ const CheckoutModal = memo<CheckoutModalProps>(({ cartTotal, onClose, placeOrder
       if (!ok) setLocationError('⚠️ تعذر تحديد موقعك — حاول مرة أخرى');
       return;
     }
-    const perm = navigator.permissions ? await (navigator.permissions as any).query({ name: 'geolocation' }).catch(() => null) : null;
+    const perm = navigator.permissions ? await (navigator.permissions as any).query({ name: 'geolocation' }).catch((): null => null) : null;
     if (perm?.state === 'denied') {
       setLocationError('⚠️ الموقع محظور — اذهب لإعدادات المتصفح > الموقع > سماح');
       return;

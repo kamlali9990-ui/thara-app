@@ -7,7 +7,7 @@ vi.mock('../../supabase/client', () => {
 
 const { customersApi } = await import('../../supabase/customers');
 const { supabase } = await import('../../supabase/client');
-const mockRpc = supabase.rpc;
+const mockRpc = supabase.rpc as any;
 
 describe('customersApi', () => {
   beforeEach(() => { vi.clearAllMocks(); });

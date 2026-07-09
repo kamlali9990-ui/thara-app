@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { productImgError } from '../utils/constants';
+import { optimizeCloudinaryUrl } from '../utils/images';
 import type { CartItem } from '../types';
 
 interface CartScreenProps {
@@ -33,8 +34,8 @@ const CartScreen = memo<CartScreenProps>(({ cart, cartTotal, cartCount, updateCa
           </div>
         ) : cart.map(item => (
           <div key={item.id} className="cart-screen-item">
-            <img src={(item as any).imageUrl} alt={item.name} className="cart-screen-item-img"
-              onError={productImgError} />
+            <img src={optimizeCloudinaryUrl((item as any).imageUrl, 100)} alt={item.name} className="cart-screen-item-img"
+              onError={productImgError as any} />
             <div className="cart-screen-item-info">
               <div className="cart-screen-item-name">{item.name}</div>
               <div className="cart-screen-item-price">{((item as any).currentPrice ?? item.price ?? 0).toFixed(2)} ر.س</div>

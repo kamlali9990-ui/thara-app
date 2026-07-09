@@ -11,13 +11,13 @@ describe('ThemeToggle', () => {
   it('shows sun icon for light themes', () => {
     const { container } = render(<ThemeToggle currentTheme="emerald-light" onThemeChange={() => {}} />);
     const btn = container.querySelector('.theme-toggle-btn');
-    expect(btn.innerHTML).toContain('circle');
+    expect(btn!.innerHTML).toContain('circle');
   });
 
   it('shows moon icon for dark themes', () => {
     const { container } = render(<ThemeToggle currentTheme="green-dark" onThemeChange={() => {}} />);
     const btn = container.querySelector('.theme-toggle-btn');
-    expect(btn.innerHTML).toContain('M21 12.79');
+    expect(btn!.innerHTML).toContain('M21 12.79');
   });
 
   it('opens theme menu on click', () => {

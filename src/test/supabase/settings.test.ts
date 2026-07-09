@@ -7,18 +7,16 @@ vi.mock('../../supabase/client', () => {
     maybeSingle: vi.fn(() => builder),
     upsert: vi.fn(() => builder),
   };
-  Object.assign(builder, {
-    then(onFulfilled) { return Promise.resolve(builder._resolveValue).then(onFulfilled); },
-    catch(onRejected) { return Promise.resolve(builder._resolveValue).catch(onRejected); },
-    _resolveValue: { data: null, error: null },
-  });
+  (builder as any).then = (onFulfilled: any) => Promise.resolve((builder as any)._resolveValue).then(onFulfilled);
+  (builder as any).catch = (onRejected: any) => Promise.resolve((builder as any)._resolveValue).catch(onRejected);
+  (builder as any)._resolveValue = { data: null, error: null };
   return {
     supabase: { from: vi.fn(() => builder) },
     __mockBuilder: builder,
   };
 });
 
-const { supabase } = await import('../../supabase/client');
+const { supabase } = await import('../../supabase/client') as any;
 const builder = supabase.from();
 
 describe('settings', () => {

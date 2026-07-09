@@ -64,7 +64,7 @@ export default function DriverOrders() {
 
   const doUpdate = async (order: Order, status: string) => {
     try {
-      await updateOrderStatus(order.id, status);
+      await updateOrderStatus(order.id, status as any);
       showToast(`تم تحديث الطلب إلى: ${status}`, 'success');
       if (status === 'في الطريق') startSharing(order);
     } catch (err: any) {
@@ -115,9 +115,9 @@ export default function DriverOrders() {
   const sendChatMessage = async () => {
     if (!chatText.trim() && !(audio as any).recordedBlob) return;
     try {
-      await sendMessage({ orderId: chatOrder, text: chatText.trim(), sender: currentStaff?.role === 'driver' ? 'driver' : 'admin' });
+      await sendMessage(currentStaff?.role === 'driver' ? 'driver' : 'admin', chatText.trim(), chatOrder ?? undefined);
       setChatText('');
-      audio.clearRecording();
+      audio.cancelRecording();
     } catch (err) {
       showToast('فشل الإرسال', 'error');
     }
@@ -183,7 +183,7 @@ export default function DriverOrders() {
             {orderMsgs.map((m: ChatMessage) => (
               <div key={m.id} className={`admin-bubble ${m.sender === 'admin' ? 'admin' : 'customer'}`}>
                 {isVoiceMessage(m.text) ? (
-                  <VoiceMessage url={getVoiceUrl(m.text)} />
+                  <VoiceMessage url={getVoiceUrl(m.text ?? '') ?? ''} />
                 ) : (
                   <span>{m.text}</span>
                 )}
@@ -191,8 +191,8 @@ export default function DriverOrders() {
             ))}
           </div>
           <div className="admin-chat-input-area">
-            <button onClick={audio.toggleRecording} className={`admin-chat-voice-btn ${audio.isRecording ? 'recording' : ''}`}>
-              {audio.isRecording ? '⬤ تسجيل' : '🎤'}
+            <button onClick={() => { if (audio.recording) { audio.stopRecording().catch(() => {}); } else { audio.startRecording().catch(() => {}); } }} className={`admin-chat-voice-btn ${audio.recording ? 'recording' : ''}`}>
+              {audio.recording ? '⬤ تسجيل' : '🎤'}
             </button>
             <input value={chatText} onChange={e => setChatText(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter') sendChatMessage(); }}
@@ -289,8 +289,8 @@ export default function DriverOrders() {
                 <div className="driver-map-wrap">
                   <OrderLocationMap lat={coords.lat} lng={coords.lng} />
                   <div className="driver-map-links">
-                    <a href={links.googleDir} target="_blank" rel="noopener noreferrer" className="driver-map-link google">🗺️ Google Maps</a>
-                    <a href={links.osmDir} target="_blank" rel="noopener noreferrer" className="driver-map-link osm">🗺️ OpenStreetMap</a>
+                    <a href={links!.googleDir} target="_blank" rel="noopener noreferrer" className="driver-map-link google">🗺️ Google Maps</a>
+                    <a href={links!.osmDir} target="_blank" rel="noopener noreferrer" className="driver-map-link osm">🗺️ OpenStreetMap</a>
                   </div>
                   <div className="driver-coords-row">
                     <span className="driver-coords-text">📍 {coords.lat.toFixed(6)}, {coords.lng.toFixed(6)}</span>
@@ -307,7 +307,7 @@ export default function DriverOrders() {
 
               <div className="order-actions">
                 <button onClick={() => setChatOrder(order.id)} className="order-action-btn chat">💬 محادثة</button>
-                <button onClick={() => printInvoice(order, allProducts || [])} className="order-action-btn print">🖨️ طباعة</button>
+                <button onClick={() => printInvoice(order as any, allProducts as any)} className="order-action-btn print">🖨️ طباعة</button>
                 {order.status === 'في الطريق' && (
                   <div className="driver-location-sharing">
                     <span className="driver-location-dot"></span>

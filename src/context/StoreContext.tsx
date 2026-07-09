@@ -29,13 +29,13 @@ interface StoreContextType {
   currentStaff: StaffMember | null;
   staffList: StaffMember[];
   loadStaff: () => Promise<void>;
-  addStaff: (email: string, role: StaffRole) => Promise<void>;
-  updateStaff: (id: string, updates: Partial<StaffMember>) => Promise<void>;
-  removeStaff: (id: string) => Promise<void>;
+  addStaff: (staffMember: Partial<StaffMember>) => Promise<any>;
+  updateStaff: (id: number, updates: Partial<StaffMember>) => Promise<any>;
+  removeStaff: (id: number) => Promise<any>;
   allCustomers: Customer[];
   loadCustomers: () => Promise<void>;
   customerProfile: any;
-  updateCustomerProfile: (updates: any) => Promise<void>;
+  updateCustomerProfile: (name: string, phone: string, username: string, realEmail: string) => Promise<any>;
   products: Product[];
   instantResults: Product[];
   mostRequested: Record<string | number, number>;
@@ -48,7 +48,7 @@ interface StoreContextType {
   setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
   selectedCategory: string;
   setSelectedCategory: React.Dispatch<React.SetStateAction<string>>;
-  placeOrder: (items: CartItem[], location: string, phone: string, paymentMethod: string, notes?: string, estimatedDelivery?: number) => Promise<any>;
+  placeOrder: (orderData: any, deliveryFee?: number) => Promise<any>;
   getProductPrice: (product: Product) => number;
   allProducts: Product[];
   orders: Order[];
@@ -124,7 +124,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
 
   usePersistence({ hasSupabase, setProducts, setOrders, setChatMessages, setCart, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setSupabaseReady, setLoading });
   useAuthListener({ hasSupabase, setUser, setStaffRole, setCurrentStaff, setCustomerProfile, setLoading });
-  useRealtimeChat({ hasSupabase, supabaseReady, staffRole, user, setChatMessages });
+  useRealtimeChat({ hasSupabase, supabaseReady, staffRole, _user: user, setChatMessages });
   useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOrders });
   useRealtimeProducts({ hasSupabase, supabaseReady, setProducts });
   useRealtimeSettings({ hasSupabase, supabaseReady });
@@ -241,12 +241,12 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     const tempId = Date.now().toString();
     const msg: ChatMessage = {
       id: tempId,
-      sender,
+      sender: sender as ChatMessage['sender'],
       text,
-      orderId: orderId || null,
+      orderId: orderId ? String(orderId) : undefined,
       customerEmail: emailToUse || null,
       customerPhone: phoneToUse || null,
-      senderName: nameToUse || null,
+      senderName: nameToUse || undefined,
       time: new Date().toLocaleTimeString()
     };
     setChatMessages(prev => {
@@ -255,7 +255,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     });
     if (hasSupabase && supabaseReady) {
       try {
-        const sent = await chatApi.send(sender, text, orderId, emailToUse, nameToUse, phoneToUse);
+        const sent: any = await chatApi.send(sender, text, orderId ? String(orderId) : null, emailToUse, nameToUse, phoneToUse);
         setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, ...sent } : m));
       } catch {
         setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
@@ -268,7 +268,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     if (!msg || !(msg as any)._failed) return;
     setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: false } : m));
     try {
-      const sent = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail, msg.senderName, msg.customerPhone);
+      const sent: any = await chatApi.send(msg.sender, msg.text, msg.orderId, msg.customerEmail, msg.senderName, msg.customerPhone);
       setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, ...sent } : m));
     } catch {
       setChatMessages(prev => prev.map(m => m.id === tempId ? { ...m, _failed: true } : m));
@@ -307,7 +307,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
       chatMessages, sendMessage, typingUsers, sendTyping, markMessagesAsRead, retrySendMessage, refreshOrders: loadOrders, setOrders,
       userPermissions, hasPermission, refreshPermissions,
       siteStats
-    } as StoreContextType}>
+    } as unknown as StoreContextType}>
       {children}
     </StoreContext.Provider>
   );

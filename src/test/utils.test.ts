@@ -53,8 +53,8 @@ describe('constants', () => {
 describe('parseOrderLocation', () => {
   it('parses Lat/Lng text format', () => {
     const result = parseOrderLocation('Lat: 28.419995, Lng: 48.489575');
-    expect(result.lat).toBe(28.419995);
-    expect(result.lng).toBe(48.489575);
+    expect(result!.lat).toBe(28.419995);
+    expect(result!.lng).toBe(48.489575);
   });
 
   it('returns null for invalid location', () => {

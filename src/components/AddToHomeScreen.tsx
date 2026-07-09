@@ -5,11 +5,11 @@ const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg/.test(navigator.use
 const isEdge = /Edg/.test(navigator.userAgent);
 
 interface AddToHomeScreenProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-const AddToHomeScreen = ({ isOpen, onClose }: AddToHomeScreenProps) => {
+const AddToHomeScreen = ({ isOpen = false, onClose = () => {} }: AddToHomeScreenProps) => {
   const BASE = import.meta.env.BASE_URL || '/';
   const [deferredPrompt, setDeferredPrompt] = useState<any>((window as any).__deferredPrompt || null);
 

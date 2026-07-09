@@ -11,7 +11,7 @@ import type { Order, ChatMessage, Customer, StaffMember } from '../../types';
 const STATUS_ORDER = ['جديد', 'قيد التحضير', 'جاهز للتوصيل', 'في الطريق', 'تم التوصيل', 'مكتمل'];
 const ORDERS_PAGE_SIZE = 50;
 
-export default function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder, allCustomers = [], staffList = [] }: {
+export default function AdminOrders({ orders, updateOrderStatus, staffRole, currentStaff, isDriver, drivers, assignDriverToOrder, claimOrder, allCustomers = [], staffList = [], hasPermission }: {
   orders: Order[];
   updateOrderStatus: (id: string, status: string, eta?: number) => void;
   staffRole: string;
@@ -22,6 +22,7 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
   claimOrder: (orderId: string) => Promise<void>;
   allCustomers?: Customer[];
   staffList?: StaffMember[];
+  hasPermission?: (perm: string) => boolean;
 }) {
   const { chatMessages, sendMessage, sendTyping, typingUsers, markMessagesAsRead, retrySendMessage, archiveOrder, restoreOrder, archivedOrders, loadArchivedOrders } = useContext(StoreContext);
   const [etaInputs, setEtaInputs] = useState<Record<string, string>>({});
@@ -69,7 +70,7 @@ export default function AdminOrders({ orders, updateOrderStatus, staffRole, curr
       .filter((m: ChatMessage) => (!m.orderId || m.orderId === chatOrder) && m.sender === 'customer' && m.status !== 'read')
       .map(m => m.id);
     if (unreadIds.length > 0) {
-      markMessagesAsRead(unreadIds);
+      (markMessagesAsRead as any)(unreadIds);
     }
   }, [chatOrder]);
 
@@ -369,7 +370,7 @@ const handleStatusChange = (order: Order, newStatus: string) => {
                 {uc > 0 && <span className="order-card-unread-badge">{uc}</span>}
                 <button type="button" className="chat-order-btn" onClick={() => setChatOrder(order.id)}>💬 محادثة</button>
               </div>
-              <button type="button" className="chat-order-btn" onClick={() => printInvoice(order, { currentStaff, drivers, customers: allCustomers, staffList } as any)}>🖨️ طباعة</button>
+              <button type="button" className="chat-order-btn" onClick={() => printInvoice(order as any, { currentStaff, drivers, customers: allCustomers, staffList })}>🖨️ طباعة</button>
               {staffRole === 'admin' && (
                 <button type="button" className="admin-delete-btn" onClick={() => {
                   setConfirmMsg({
@@ -435,7 +436,7 @@ const handleStatusChange = (order: Order, newStatus: string) => {
                 return (
                   <div key={m.id} className={`admin-bubble ${isMe ? 'admin' : 'customer'}${isConsecutive ? ' consecutive' : ''}`}>
                     {!isConsecutive && <div className="admin-bubble-sender">{getSenderLabel(m)}</div>}
-                    <div>{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text)} /> : m.text}</div>
+                    <div>{isVoiceMessage(m.text) ? <VoiceMessage url={getVoiceUrl(m.text ?? '') ?? ''} /> : m.text}</div>
                     <div className="admin-bubble-time">
                       {isMe && (
                         <span style={{ fontSize: '0.65rem', marginRight: '0.2rem' }}>
@@ -464,15 +465,15 @@ const handleStatusChange = (order: Order, newStatus: string) => {
               {audio.recording ? (
                 <>
                   <span style={{ color: 'var(--admin-danger)', fontSize: '0.8rem', padding: '0 0.3rem', alignSelf: 'center' }}>{audio.formatTime(audio.recordingTime)}</span>
-                  <button className="chat-mic-btn recording" onClick={async () => { const blob = await audio.stopRecording(); if (blob && blob.size > 1000) { try { const url = await audio.uploadAudio(blob, chatOrder); const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, makeVoiceText(url), chatOrder, null, currentStaff?.name, o?.phone); } catch (e) { console.error('voice fail', e); } } }} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
+                  <button className="chat-mic-btn recording" onClick={async () => { const blob = await audio.stopRecording(); if (blob && blob.size > 1000) { try { const url = await audio.uploadAudio(blob, chatOrder); const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, makeVoiceText(url), chatOrder, undefined, currentStaff?.name, o?.phone); } catch (e) { console.error('voice fail', e); } } }} title="إيقاف التسجيل" style={{ alignSelf: 'center' }}>⏹</button>
                 </>
               ) : (
                 <button className="chat-mic-btn" onClick={async () => { try { await audio.startRecording(); } catch (e: any) { if (e.message === 'permission_denied') alert('الرجاء السماح بتسجيل الصوت في إعدادات المتصفح'); } }} title="تسجيل رسالة صوتية" style={{ alignSelf: 'center' }}>🎤</button>
               )}
-              <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, null); }}
-                onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } } }}
+              <input type="text" value={chatText} onChange={e => { setChatText(e.target.value); sendTyping(chatOrder, undefined); }}
+                onKeyDown={e => { if (e.key === 'Enter') { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, undefined, currentStaff?.name, o?.phone); setChatText(''); } } }}
                 placeholder="اكتب رسالة..." />
-              <button className="chat-send-btn" onClick={() => { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, null, currentStaff?.name, o?.phone); setChatText(''); } }}>
+              <button className="chat-send-btn" onClick={() => { if (chatText.trim()) { const o = orders.find(x => x.id === chatOrder); sendMessage(senderRole, chatText, chatOrder, undefined, currentStaff?.name, o?.phone); setChatText(''); } }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </div>

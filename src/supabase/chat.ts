@@ -96,7 +96,7 @@ export const chatApi = {
   },
 
   subscribe(orderId: string | null = null, customerEmail: string | null = null, onMessage: (msg: MappedMessage) => void) {
-    const filter: Record<string, any> = { event: 'INSERT', schema: 'public', table: 'chat_messages' };
+    const filter: { event: 'INSERT'; schema: string; table: string; filter?: string } = { event: 'INSERT', schema: 'public', table: 'chat_messages' };
     if (orderId) {
       filter.filter = `order_id=eq.${orderId}`;
     } else if (customerEmail) {
@@ -105,7 +105,7 @@ export const chatApi = {
     try {
       return supabase
         .channel('chat_messages' + (orderId ? `_${orderId}` : customerEmail ? `_${customerEmail.replace(/[@.]/g, '_')}` : ''))
-        .on('postgres_changes', filter, (payload) => {
+        .on('postgres_changes', filter, (payload: any) => {
           onMessage(mapMessage(payload.new));
         })
         .subscribe();
@@ -116,7 +116,7 @@ export const chatApi = {
   },
 
   subscribeTyping(orderId: string, customerEmail: string, onTyping: (event: MappedTypingEvent) => void) {
-    const filter: Record<string, any> = { event: 'INSERT', schema: 'public', table: 'typing_events' };
+    const filter: { event: 'INSERT'; schema: string; table: string; filter?: string } = { event: 'INSERT', schema: 'public', table: 'typing_events' };
     if (orderId) {
       filter.filter = `order_id=eq.${orderId}`;
     } else if (customerEmail) {
@@ -148,11 +148,11 @@ export const chatApi = {
   },
 
   async subscribeUpdates(onUpdate: (msg: MappedMessage) => void) {
-    const filter: Record<string, any> = { event: 'UPDATE', schema: 'public', table: 'chat_messages' };
+    const filter: { event: 'UPDATE'; schema: string; table: string } = { event: 'UPDATE', schema: 'public', table: 'chat_messages' };
     try {
       return supabase
         .channel('chat_updates')
-        .on('postgres_changes', filter, (payload) => {
+        .on('postgres_changes', filter, (payload: any) => {
           onUpdate(mapMessage(payload.new));
         })
         .subscribe();

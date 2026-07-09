@@ -1,0 +1,201 @@
+﻿src/Admin.tsx(225,9): error TS2322: Type '{ orders: Order[]; updateOrderStatus: (orderId: string | number, newStatus: OrderStatus, eta?: number) => Promise<void>; staffRole: StaffRole; ... 7 more ...; hasPermission: (perm: string) => boolean; }' is not assignable to type 'IntrinsicAttributes & { orders: Order[]; updateOrderStatus: (id: string, status: string, eta?: number) => void; staffRole: string; currentStaff: any; isDriver: boolean; ... 4 more ...; staffList?: StaffMember[]; }'.
+  Property 'hasPermission' does not exist on type 'IntrinsicAttributes & { orders: Order[]; updateOrderStatus: (id: string, status: string, eta?: number) => void; staffRole: string; currentStaff: any; isDriver: boolean; ... 4 more ...; staffList?: StaffMember[]; }'.
+src/Admin.tsx(236,155): error TS2322: Type '{ staffRole: StaffRole; products: Product[]; addProduct: (product: any) => Promise<void>; updateProduct: (productId: string | number, updates: any) => Promise<...>; deleteProduct: (productId: string | number) => Promise<...>; hasPermission: (perm: string) => boolean; }' is not assignable to type 'IntrinsicAttributes & { staffRole: string; products: Product[]; addProduct: (data: any) => Promise<void>; updateProduct: (id: number, data: any) => Promise<...>; deleteProduct: (id: number) => Promise<...>; }'.
+  Property 'hasPermission' does not exist on type 'IntrinsicAttributes & { staffRole: string; products: Product[]; addProduct: (data: any) => Promise<void>; updateProduct: (id: number, data: any) => Promise<...>; deleteProduct: (id: number) => Promise<...>; }'.
+src/Admin.tsx(242,99): error TS2322: Type '{ staffRole: StaffRole; products: Product[]; updateProduct: (productId: string | number, updates: any) => Promise<void>; hasPermission: (perm: string) => boolean; }' is not assignable to type 'IntrinsicAttributes & { staffRole: string; products: Product[]; updateProduct: (id: number, data: Partial<Product>) => Promise<void>; }'.
+  Property 'hasPermission' does not exist on type 'IntrinsicAttributes & { staffRole: string; products: Product[]; updateProduct: (id: number, data: Partial<Product>) => Promise<void>; }'.
+src/Admin.tsx(258,96): error TS2322: Type '{ staffRole: StaffRole; customers: Customer[]; loadCustomers: () => Promise<void>; }' is not assignable to type 'IntrinsicAttributes & { staffRole: string; customers: Customer[]; }'.
+  Property 'loadCustomers' does not exist on type 'IntrinsicAttributes & { staffRole: string; customers: Customer[]; }'. Did you mean 'customers'?
+src/Admin.tsx(371,115): error TS2551: Property 'catch' does not exist on type 'PostgrestFilterBuilder<any, any, any, null, "settings", unknown, "POST">'. Did you mean 'match'?
+src/App.tsx(249,87): error TS2322: Type '(items: CartItem[], location: string, phone: string, paymentMethod: string, notes?: string, estimatedDelivery?: number) => Promise<any>' is not assignable to type '(data: any, fee: number) => Promise<void>'.
+  Target signature provides too few arguments. Expected 4 or more, but got 2.
+src/components/AccountTab.tsx(37,44): error TS2339: Property 'username' does not exist on type 'Customer'.
+src/components/AccountTab.tsx(38,41): error TS2339: Property 'real_email' does not exist on type 'Customer'.
+src/components/AccountTab.tsx(45,38): error TS2339: Property 'username' does not exist on type 'Customer'.
+src/components/AccountTab.tsx(46,35): error TS2339: Property 'real_email' does not exist on type 'Customer'.
+src/components/AccountTab.tsx(227,38): error TS2339: Property 'created_at' does not exist on type 'Customer'.
+src/components/AccountTab.tsx(227,59): error TS2345: Argument of type 'Date' is not assignable to parameter of type 'number'.
+src/components/AccountTab.tsx(227,84): error TS2339: Property 'created_at' does not exist on type 'Customer'.
+src/components/AccountTab.tsx(228,50): error TS2339: Property 'created_at' does not exist on type 'Customer'.
+src/components/admin/AdminChat.tsx(63,32): error TS2339: Property 'timestamp' does not exist on type 'ChatMessage'.
+src/components/admin/AdminChat.tsx(63,61): error TS2339: Property 'timestamp' does not exist on type 'ChatMessage'.
+src/components/admin/AdminChat.tsx(99,31): error TS2554: Expected 2 arguments, but got 1.
+src/components/admin/AdminDiagnostics.tsx(61,5): error TS2322: Type '() => void' is not assignable to type '() => boolean | Promise<boolean>'.
+  Type 'void' is not assignable to type 'boolean | Promise<boolean>'.
+src/components/admin/AdminOffers.tsx(49,99): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/admin/AdminOffers.tsx(59,100): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/admin/AdminOffers.tsx(70,76): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/admin/AdminOffers.tsx(209,79): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/admin/AdminOrders.tsx(72,7): error TS2554: Expected 2 arguments, but got 1.
+src/components/admin/AdminOrders.tsx(372,92): error TS2345: Argument of type 'Order' is not assignable to parameter of type 'InvoiceOrder'.
+  Types of property 'items' are incompatible.
+    Type 'CartItem[]' is not assignable to type 'InvoiceOrderItem[]'.
+      Type 'CartItem' is not assignable to type 'InvoiceOrderItem'.
+        Property 'name' is optional in type 'CartItem' but required in type 'InvoiceOrderItem'.
+src/components/admin/AdminProducts.tsx(357,33): error TS2339: Property 'length' does not exist on type 'void'.
+src/components/admin/DriverOrders.tsx(67,41): error TS2345: Argument of type 'string' is not assignable to parameter of type 'OrderStatus'.
+src/components/admin/DriverOrders.tsx(118,13): error TS2554: Expected 2-6 arguments, but got 1.
+src/components/admin/DriverOrders.tsx(120,13): error TS2339: Property 'clearRecording' does not exist on type '{ recording: boolean; recordingTime: number; startRecording: () => Promise<void>; stopRecording: () => Promise<Blob>; cancelRecording: () => void; uploadAudio: (blob: Blob, orderId?: string) => Promise<...>; formatTime: (seconds: number) => string; }'.
+src/components/admin/DriverOrders.tsx(194,36): error TS2551: Property 'toggleRecording' does not exist on type '{ recording: boolean; recordingTime: number; startRecording: () => Promise<void>; stopRecording: () => Promise<Blob>; cancelRecording: () => void; uploadAudio: (blob: Blob, orderId?: string) => Promise<...>; formatTime: (seconds: number) => string; }'. Did you mean 'stopRecording'?
+src/components/admin/DriverOrders.tsx(194,94): error TS2551: Property 'isRecording' does not exist on type '{ recording: boolean; recordingTime: number; startRecording: () => Promise<void>; stopRecording: () => Promise<Blob>; cancelRecording: () => void; uploadAudio: (blob: Blob, orderId?: string) => Promise<...>; formatTime: (seconds: number) => string; }'. Did you mean 'recording'?
+src/components/admin/DriverOrders.tsx(195,22): error TS2551: Property 'isRecording' does not exist on type '{ recording: boolean; recordingTime: number; startRecording: () => Promise<void>; stopRecording: () => Promise<Blob>; cancelRecording: () => void; uploadAudio: (blob: Blob, orderId?: string) => Promise<...>; formatTime: (seconds: number) => string; }'. Did you mean 'recording'?
+src/components/admin/DriverOrders.tsx(310,53): error TS2345: Argument of type 'Order' is not assignable to parameter of type 'InvoiceOrder'.
+  Types of property 'items' are incompatible.
+    Type 'CartItem[]' is not assignable to type 'InvoiceOrderItem[]'.
+      Type 'CartItem' is not assignable to type 'InvoiceOrderItem'.
+        Property 'name' is optional in type 'CartItem' but required in type 'InvoiceOrderItem'.
+src/components/AllProductsView.tsx(73,51): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/AllProductsView.tsx(74,98): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/CartScreen.tsx(37,15): error TS2322: Type '(e: { target: { src: string; }; }) => void' is not assignable to type 'ReactEventHandler<HTMLImageElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'SyntheticEvent<HTMLImageElement, Event>' is not assignable to type '{ target: { src: string; }; }'.
+      Types of property 'target' are incompatible.
+        Property 'src' is missing in type 'EventTarget' but required in type '{ src: string; }'.
+src/components/CategoriesTab.tsx(96,53): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/CategoriesTab.tsx(97,100): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/components/CategorySection.tsx(23,27): error TS2345: Argument of type 'SectionCat | { img: string; fallback: string; }' is not assignable to parameter of type 'SectionCat'.
+  Type '{ img: string; fallback: string; }' is missing the following properties from type 'SectionCat': name, color, desc
+src/components/CategorySection.tsx(24,38): error TS2345: Argument of type 'SectionCat | { img: string; fallback: string; }' is not assignable to parameter of type 'SectionCat'.
+  Type '{ img: string; fallback: string; }' is missing the following properties from type 'SectionCat': name, color, desc
+src/components/CategorySection.tsx(27,95): error TS2345: Argument of type 'SectionCat | { img: string; fallback: string; }' is not assignable to parameter of type 'SectionCat'.
+  Type '{ img: string; fallback: string; }' is missing the following properties from type 'SectionCat': name, color, desc
+src/components/NotifPanel.tsx(21,190): error TS2339: Property 'timestamp' does not exist on type 'ChatMessage'.
+src/components/NotifPanel.tsx(21,214): error TS2339: Property 'timestamp' does not exist on type 'ChatMessage'.
+src/components/ProductCard.tsx(54,11): error TS2322: Type '(e: { target: { src: string; }; }) => void' is not assignable to type 'ReactEventHandler<HTMLImageElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'SyntheticEvent<HTMLImageElement, Event>' is not assignable to type '{ target: { src: string; }; }'.
+      Types of property 'target' are incompatible.
+        Property 'src' is missing in type 'EventTarget' but required in type '{ src: string; }'.
+src/components/ProductCard.tsx(103,93): error TS2322: Type '(e: { target: { src: string; }; }) => void' is not assignable to type 'ReactEventHandler<HTMLImageElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'SyntheticEvent<HTMLImageElement, Event>' is not assignable to type '{ target: { src: string; }; }'.
+      Types of property 'target' are incompatible.
+        Property 'src' is missing in type 'EventTarget' but required in type '{ src: string; }'.
+src/components/ProductCardMini.tsx(20,11): error TS2322: Type '(e: { target: { src: string; }; }) => void' is not assignable to type 'ReactEventHandler<HTMLImageElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'SyntheticEvent<HTMLImageElement, Event>' is not assignable to type '{ target: { src: string; }; }'.
+      Types of property 'target' are incompatible.
+        Property 'src' is missing in type 'EventTarget' but required in type '{ src: string; }'.
+src/components/QRPrintPage.tsx(13,16): error TS2339: Property 'toCanvas' does not exist on type '{ toDataURL(text: string, options?: Record<string, unknown>): Promise<string>; toString(text: string, options?: Record<string, unknown>): Promise<string>; }'.
+src/components/SearchResultsList.tsx(61,15): error TS2322: Type '(e: { target: { src: string; }; }) => void' is not assignable to type 'ReactEventHandler<HTMLImageElement>'.
+  Types of parameters 'e' and 'event' are incompatible.
+    Type 'SyntheticEvent<HTMLImageElement, Event>' is not assignable to type '{ target: { src: string; }; }'.
+      Types of property 'target' are incompatible.
+        Property 'src' is missing in type 'EventTarget' but required in type '{ src: string; }'.
+src/components/StaffManager.tsx(24,27): error TS2554: Expected 2 arguments, but got 1.
+src/components/StaffManager.tsx(25,72): error TS2339: Property 'tempPassword' does not exist on type 'void'.
+src/components/StaffManager.tsx(38,23): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/StaffManager.tsx(44,23): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/components/SupportChatWidget.tsx(39,7): error TS2554: Expected 2 arguments, but got 1.
+src/components/SupportChatWidget.tsx(62,31): error TS2554: Expected 2 arguments, but got 1.
+src/context/StoreContext.tsx(127,60): error TS2561: Object literal may only specify known properties, but 'user' does not exist in type '{ hasSupabase: boolean; supabaseReady: boolean; staffRole: StaffRole; _user: any; setChatMessages: Dispatch<SetStateAction<ChatMessage[]>>; }'. Did you mean to write '_user'?
+src/context/StoreContext.tsx(244,7): error TS2322: Type 'string' is not assignable to type '"admin" | "driver" | "customer"'.
+src/context/StoreContext.tsx(246,7): error TS2322: Type 'string | number' is not assignable to type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/context/StoreContext.tsx(258,55): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'string'.
+  Type 'number' is not assignable to type 'string'.
+src/context/StoreContext.tsx(259,25): error TS2345: Argument of type '(prev: ChatMessage[]) => (ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; ... 4 more ...; _failed?: boolean; })[]' is not assignable to parameter of type 'SetStateAction<ChatMessage[]>'.
+  Type '(prev: ChatMessage[]) => (ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; ... 4 more ...; _failed?: boolean; })[]' is not assignable to type '(prevState: ChatMessage[]) => ChatMessage[]'.
+    Type '(ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; status: string; readAt: string; time: string; timestamp: string; _failed?: boolean; })[]' is not assignable to type 'ChatMessage[]'.
+      Type 'ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; status: string; readAt: string; time: string; timestamp: string; _failed?: boolean; }' is not assignable to type 'ChatMessage'.
+        Type '{ id: string; sender: string; text: string; orderId: string | null; customerEmail: string | null; customerPhone: string | null; senderName: string | null; status: string; readAt: string | null; time: string; timestamp: string; _failed?: boolean; }' is not assignable to type 'ChatMessage'.
+          Types of property 'sender' are incompatible.
+            Type 'string' is not assignable to type '"admin" | "driver" | "customer"'.
+src/context/StoreContext.tsx(272,23): error TS2345: Argument of type '(prev: ChatMessage[]) => (ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; ... 4 more ...; _failed?: boolean; })[]' is not assignable to parameter of type 'SetStateAction<ChatMessage[]>'.
+  Type '(prev: ChatMessage[]) => (ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; ... 4 more ...; _failed?: boolean; })[]' is not assignable to type '(prevState: ChatMessage[]) => ChatMessage[]'.
+    Type '(ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; status: string; readAt: string; time: string; timestamp: string; _failed?: boolean; })[]' is not assignable to type 'ChatMessage[]'.
+      Type 'ChatMessage | { id: string; sender: string; text: string; orderId: string; customerEmail: string; customerPhone: string; senderName: string; status: string; readAt: string; time: string; timestamp: string; _failed?: boolean; }' is not assignable to type 'ChatMessage'.
+        Type '{ id: string; sender: string; text: string; orderId: string | null; customerEmail: string | null; customerPhone: string | null; senderName: string | null; status: string; readAt: string | null; time: string; timestamp: string; _failed?: boolean; }' is not assignable to type 'ChatMessage'.
+          Types of property 'sender' are incompatible.
+            Type 'string' is not assignable to type '"admin" | "driver" | "customer"'.
+src/context/StoreContext.tsx(289,35): error TS2352: Conversion of type '{ user: any; loading: boolean; login: (identifier: string, password: string) => Promise<any>; logout: () => Promise<void>; setUser: React.Dispatch<any>; setStaffRole: React.Dispatch<React.SetStateAction<StaffRole>>; ... 55 more ...; siteStats: { ...; }; }' to type 'StoreContextType' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'updateStaff' are incompatible.
+    Type '(id: number, updates: Partial<StaffMember>) => Promise<any>' is not comparable to type '(id: string, updates: Partial<StaffMember>) => Promise<void>'.
+      Types of parameters 'id' and 'id' are incompatible.
+        Type 'string' is not comparable to type 'number'.
+src/context/storeHelpers.ts(15,71): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/context/storeHelpers.ts(15,94): error TS2551: Property 'offerPrice' does not exist on type 'Product'. Did you mean 'offer_price'?
+src/context/useCartActions.ts(50,56): error TS2339: Property 'currentPrice' does not exist on type 'CartItem'.
+src/main.tsx(77,8): error TS2739: Type '{}' is missing the following properties from type 'AddToHomeScreenProps': isOpen, onClose
+src/pages/MaintenancePanel.tsx(27,12): error TS2339: Property 'catch' does not exist on type 'PromiseLike<void>'.
+src/supabase/chat.ts(108,13): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '"postgres_changes"' is not assignable to parameter of type '"system"'.
+src/supabase/chat.ts(128,13): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '"postgres_changes"' is not assignable to parameter of type '"system"'.
+src/supabase/chat.ts(155,13): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '"postgres_changes"' is not assignable to parameter of type '"system"'.
+src/test/Integration.test.tsx(15,14): error TS2339: Property 'mockReturnValue' does not exist on type '() => StoreContextType'.
+src/test/Integration.test.tsx(23,14): error TS2339: Property 'mockReturnValue' does not exist on type '() => StoreContextType'.
+src/test/Integration.test.tsx(54,41): error TS2367: This comparison appears to be unintentional because the types '"dairy"' and '"╪º┘ä┘â┘ä"' have no overlap.
+src/test/supabase/auth.test.ts(31,35): error TS2339: Property 'mockResolvedValue' does not exist on type '(credentials: SignInWithPasswordCredentials) => Promise<AuthTokenResponsePassword>'.
+src/test/supabase/auth.test.ts(38,35): error TS2339: Property 'mockResolvedValue' does not exist on type '(credentials: SignInWithPasswordCredentials) => Promise<AuthTokenResponsePassword>'.
+src/test/supabase/auth.test.ts(45,23): error TS2339: Property 'mockResolvedValue' does not exist on type '(credentials: SignUpWithPasswordCredentials) => Promise<AuthResponse>'.
+src/test/supabase/auth.test.ts(54,11): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/auth.test.ts(55,21): error TS2554: Expected 3 arguments, but got 2.
+src/test/supabase/auth.test.ts(62,24): error TS2339: Property 'mockResolvedValue' does not exist on type '(options?: SignOut) => Promise<{ error: AuthError; }>'.
+src/test/supabase/auth.test.ts(70,24): error TS2339: Property 'mockResolvedValue' does not exist on type '(jwt?: string) => Promise<UserResponse>'.
+src/test/supabase/auth.test.ts(76,24): error TS2339: Property 'mockResolvedValue' does not exist on type '(jwt?: string) => Promise<UserResponse>'.
+src/test/supabase/chat.test.ts(16,56): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; eq: Mock<() => { select: Mock<...>; eq: Mock<...>; is: Mock<() => { select: Mock<...>; eq: Mock<...>; is: Mock<...>; order: Mock<() => { select: Mock<...>; ... 7 more ...; single: Mock<...>; }>; ... 4 more ...; single: Mock<...>; }>; ... 5 more ...; single: Mock<...>; }>; .....'.
+src/test/supabase/chat.test.ts(17,56): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; eq: Mock<() => { select: Mock<...>; eq: Mock<...>; is: Mock<() => { select: Mock<...>; eq: Mock<...>; is: Mock<...>; order: Mock<() => { select: Mock<...>; ... 7 more ...; single: Mock<...>; }>; ... 4 more ...; single: Mock<...>; }>; ... 5 more ...; single: Mock<...>; }>; .....'.
+src/test/supabase/chat.test.ts(36,26): error TS2554: Expected 1 arguments, but got 0.
+src/test/supabase/chat.test.ts(41,13): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(46,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(48,26): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/test/supabase/chat.test.ts(49,22): error TS2339: Property 'eq' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(53,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(56,22): error TS2339: Property 'eq' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(57,22): error TS2339: Property 'is' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(61,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(69,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(71,59): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/test/supabase/chat.test.ts(89,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(91,33): error TS2322: Type 'number' is not assignable to type 'string'.
+src/test/supabase/chat.test.ts(91,36): error TS2322: Type 'number' is not assignable to type 'string'.
+src/test/supabase/chat.test.ts(91,39): error TS2322: Type 'number' is not assignable to type 'string'.
+src/test/supabase/chat.test.ts(93,22): error TS2339: Property 'in' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(94,22): error TS2339: Property 'eq' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(101,25): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/test/supabase/chat.test.ts(106,24): error TS2339: Property 'mockImplementation' does not exist on type '(name: string, opts?: RealtimeChannelOptions) => RealtimeChannel'.
+src/test/supabase/chat.test.ts(116,13): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/chat.test.ts(118,37): error TS2345: Argument of type 'number' is not assignable to parameter of type 'string'.
+src/test/supabase/customers.test.ts(17,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(26,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(32,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(40,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(49,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(60,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(68,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/customers.test.ts(74,15): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/orders.test.ts(13,56): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; eq: Mock<() => { select: Mock<...>; eq: Mock<...>; single: Mock<() => { select: Mock<...>; eq: Mock<...>; single: Mock<...>; order: Mock<...>; insert: Mock<...>; update: Mock<...>; }>; order: Mock<...>; insert: Mock<...>; update: Mock<...>; }>; single: Mock<...>; order: Mock...'.
+src/test/supabase/orders.test.ts(14,56): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; eq: Mock<() => { select: Mock<...>; eq: Mock<...>; single: Mock<() => { select: Mock<...>; eq: Mock<...>; single: Mock<...>; order: Mock<...>; insert: Mock<...>; update: Mock<...>; }>; order: Mock<...>; insert: Mock<...>; update: Mock<...>; }>; single: Mock<...>; order: Mock...'.
+src/test/supabase/orders.test.ts(35,26): error TS2554: Expected 1 arguments, but got 0.
+src/test/supabase/orders.test.ts(40,13): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/orders.test.ts(45,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/orders.test.ts(48,22): error TS2339: Property 'eq' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/orders.test.ts(52,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/orders.test.ts(55,22): error TS2339: Property 'eq' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/orders.test.ts(61,20): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/orders.test.ts(74,20): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/orders.test.ts(83,20): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/orders.test.ts(90,20): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/orders.test.ts(99,20): error TS2339: Property 'mockResolvedValue' does not exist on type '<FnName extends string, Args extends any = never, FilterBuilder extends { Row: any; Result: any; RelationName: FnName; Relationships: null; } = { Row: any; Result: any; RelationName: FnName; Relationships: null; }>(fn: FnName, args?: Args, options?: { ...; }) => PostgrestFilterBuilder<...>'.
+src/test/supabase/orders.test.ts(115,24): error TS2339: Property 'mockImplementation' does not exist on type '(name: string, opts?: RealtimeChannelOptions) => RealtimeChannel'.
+src/test/supabase/orders.test.ts(125,13): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/orders.test.ts(149,13): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/products.test.ts(15,60): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; order: Mock<() => { select: Mock<...>; order: Mock<...>; range: Mock<() => { select: Mock<...>; order: Mock<...>; range: Mock<...>; ... 4 more ...; delete: Mock<...>; }>; ... 4 more ...; delete: Mock<...>; }>; ... 5 more ...; delete: Mock<...>; }>; ... 6 more ...; delete: Mo...'.
+src/test/supabase/products.test.ts(16,60): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; order: Mock<() => { select: Mock<...>; order: Mock<...>; range: Mock<() => { select: Mock<...>; order: Mock<...>; range: Mock<...>; ... 4 more ...; delete: Mock<...>; }>; ... 4 more ...; delete: Mock<...>; }>; ... 5 more ...; delete: Mock<...>; }>; ... 6 more ...; delete: Mo...'.
+src/test/supabase/products.test.ts(30,9): error TS2339: Property '__mockBuilder' does not exist on type 'typeof import("D:/ahmed/TharaApp1/src/supabase/client")'.
+src/test/supabase/settings.test.ts(11,56): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; eq: Mock<() => { select: Mock<...>; eq: Mock<...>; maybeSingle: Mock<() => { select: Mock<...>; eq: Mock<...>; maybeSingle: Mock<...>; upsert: Mock<...>; }>; upsert: Mock<...>; }>; maybeSingle: Mock<...>; upsert: Mock<...>; }>; eq: Mock<...>; maybeSingle: Mock<...>; upsert: ...'.
+src/test/supabase/settings.test.ts(12,56): error TS2339: Property '_resolveValue' does not exist on type '{ select: Mock<() => { select: Mock<...>; eq: Mock<() => { select: Mock<...>; eq: Mock<...>; maybeSingle: Mock<() => { select: Mock<...>; eq: Mock<...>; maybeSingle: Mock<...>; upsert: Mock<...>; }>; upsert: Mock<...>; }>; maybeSingle: Mock<...>; upsert: Mock<...>; }>; eq: Mock<...>; maybeSingle: Mock<...>; upsert: ...'.
+src/test/supabase/settings.test.ts(22,26): error TS2554: Expected 1 arguments, but got 0.
+src/test/supabase/settings.test.ts(27,13): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/settings.test.ts(32,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/settings.test.ts(39,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/settings.test.ts(46,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/settings.test.ts(55,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/settings.test.ts(63,15): error TS2339: Property '_resolveValue' does not exist on type 'PostgrestQueryBuilder<any, any, any, string, unknown>'.
+src/test/supabase/staff.test.ts(11,57): error TS2339: Property '__mockRpc' does not exist on type 'typeof import("D:/ahmed/TharaApp1/src/supabase/client")'.
+src/utils/theme.ts(22,20): error TS2339: Property 'content' does not exist on type 'Element'.

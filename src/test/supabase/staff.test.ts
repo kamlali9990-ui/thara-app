@@ -8,7 +8,7 @@ vi.mock('../../supabase/client', () => {
   };
 });
 
-const mockRpc = (await import('../../supabase/client')).__mockRpc;
+const mockRpc = (await import('../../supabase/client') as any).__mockRpc;
 const { staffApi } = await import('../../supabase/staff');
 
 describe('staffApi', () => {
@@ -22,7 +22,7 @@ describe('staffApi', () => {
       mockRpc.mockResolvedValue({ data: [{ id: 1, email: 'a@a.com', name: 'A', role: 'admin' }], error: null });
       const result = await staffApi.list();
       expect(result).toBeDefined();
-      const cached = JSON.parse(localStorage.getItem('thara_staff_cache'));
+      const cached = JSON.parse(localStorage.getItem('thara_staff_cache')!);
       expect(cached.list).toBeDefined();
     });
 
@@ -47,7 +47,7 @@ describe('staffApi', () => {
       localStorage.setItem('thara_staff_cache', JSON.stringify(cachedData));
       mockRpc.mockRejectedValue(new Error('fail'));
       const result = await staffApi.getByEmail('c@c.com');
-      expect(result.id).toBe(3);
+      expect(result!.id).toBe(3);
     });
   });
 
@@ -90,8 +90,8 @@ describe('staffApi', () => {
       mockRpc.mockResolvedValue({ data: null, error: null });
       await staffApi.remove(6);
       expect(mockRpc).toHaveBeenCalledWith('delete_staff_rpc', { p_id: 6 });
-      const cache = JSON.parse(localStorage.getItem('thara_staff_cache'));
-      expect(cache.list.find(s => s.id === 6)).toBeUndefined();
+      const cache = JSON.parse(localStorage.getItem('thara_staff_cache')!);
+      expect(cache.list.find((s: any) => s.id === 6)).toBeUndefined();
     });
   });
 

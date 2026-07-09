@@ -224,7 +224,7 @@ const AccountTab = memo<AccountTabProps>(({ user, logout, customerProfile, updat
                 <div className="acc-info-row">
                   <span className="acc-info-label">تاريخ التسجيل</span>
                   <span className="acc-info-value">
-                    {customerProfile.created_at && !isNaN(new Date(customerProfile.created_at))
+                    {customerProfile.created_at && !isNaN(new Date(customerProfile.created_at).getTime())
                       ? new Date(customerProfile.created_at).toLocaleDateString('ar-SA', { year: 'numeric', month: 'long', day: 'numeric' })
                       : 'غير متاح'}
                   </span>

@@ -93,7 +93,11 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
-      return cached || fetch(event.request).then((response) => {
+      const fetched = fetch(event.request).then((response) => {
+        if (response && response.status === 200) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone)).catch(() => null);
+        }
         return response;
       }).catch(() => {
         if (event.request.destination === 'image') {
@@ -101,6 +105,7 @@ self.addEventListener('fetch', (event) => {
         }
         return new Response('', { status: 503 });
       });
+      return cached || fetched;
     })
   );
 });

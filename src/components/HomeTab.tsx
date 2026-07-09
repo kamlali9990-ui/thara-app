@@ -5,6 +5,7 @@ import { sectionCats } from '../data/categories';
 import { supabase } from '../supabase/client';
 import { PHONE, WHATSAPP_NUM, EMAIL_1, SNAPCHAT } from '../utils/constants';
 import { SkeletonProductCard } from './SkeletonLoader';
+import { optimizeCloudinaryUrl } from '../utils/images';
 import type { Product, CartItem } from '../types';
 
 const BANNER_STORAGE_KEY = 'thara_banner_url';
@@ -129,7 +130,7 @@ const HomeTab = memo(({ addToCart, cart, searchQuery, setSearchQuery, setShowAll
                 <div key={product.id + '-offer-' + idx} className="offer-ticker-item">
                   <div className="offer-ticker-img-wrap">
                     {product.isOffer && <span className="offer-ticker-badge">%</span>}
-                    <img src={product.imageUrl} alt={product.name} className="offer-ticker-img" 
+                    <img src={optimizeCloudinaryUrl(product.imageUrl, 200)} alt={product.name} className="offer-ticker-img" 
                       onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="#127443" width="100" height="100"/><text fill="#FFF" font-family="sans-serif" font-size="20" x="50" y="55" text-anchor="middle">ثرا</text></svg>'); }} />
                   </div>
                   <div className="offer-ticker-info">
@@ -167,7 +168,7 @@ const HomeTab = memo(({ addToCart, cart, searchQuery, setSearchQuery, setShowAll
                   <div key={product.id} className="offer-ticker-item">
                     <div className="offer-ticker-img-wrap">
                       {product.isOffer && <span className="offer-ticker-badge">%</span>}
-                      <img src={product.imageUrl} alt={product.name} className="offer-ticker-img"
+                      <img src={optimizeCloudinaryUrl(product.imageUrl, 200)} alt={product.name} className="offer-ticker-img"
                         onError={(e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect fill="#127443" width="100" height="100"/><text fill="#FFF" font-family="sans-serif" font-size="20" x="50" y="55" text-anchor="middle">ثرا</text></svg>'); }} />
                     </div>
                     <div className="offer-ticker-info">
