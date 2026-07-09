@@ -55,7 +55,7 @@
     "supabase": "^2.101.0",
     "typescript": "5.6",
     "vite": "^5.2.0",
-    "vitest": "^4.1.8",
+    "vitest": "^4.1.10",
     "web-push": "^3.6.7"
   }
 }
