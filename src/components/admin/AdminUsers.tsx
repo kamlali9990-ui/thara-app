@@ -85,10 +85,10 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
         p_delivery_address: '',
         p_neighborhood: '',
         p_location: '',
-        p_username: '',
+        p_username: null,
         p_real_email: null,
       });
-      if (rpcErr) throw new Error(rpcErr.message);
+      if (rpcErr) throw new Error(rpcErr.message || JSON.stringify(rpcErr));
       setDeletingStep('جاري حذف حساب الدخول...');
       const { error: fnErr } = await supabase.functions.invoke('admin-delete-user', {
         body: { email: confirmDelete.email }
