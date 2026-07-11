@@ -42,6 +42,10 @@ export default function Register() {
       setError('اسم المستخدم: أحرف إنجليزية وأرقام و _ . فقط');
       return;
     }
+    if (!email || !email.includes('@')) {
+      setError('البريد الإلكتروني مطلوب لاستعادة كلمة المرور');
+      return;
+    }
     setLoading(true);
     try {
       const cleanPhone = phone.trim();
@@ -114,9 +118,9 @@ export default function Register() {
           </div>
 
           <div className="auth-field">
-            <label>البريد الإلكتروني <span style={{ fontWeight: 400, color: '#94a3b8' }}>(اختياري - لاستعادة كلمة المرور)</span></label>
+            <label>البريد الإلكتروني <span style={{ fontWeight: 400, color: '#ef4444' }}>*</span></label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="example@email.com" className="auth-input" dir="ltr" autoComplete="email" />
+              placeholder="example@email.com" required className="auth-input" dir="ltr" autoComplete="email" />
           </div>
 
           <div className="auth-field">
