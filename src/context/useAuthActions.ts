@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { authApi } from '../supabase/auth';
+import { staffApi } from '../supabase/staff';
 import type { StaffRole } from '../types';
 
 interface UseAuthActionsProps {
@@ -22,6 +23,8 @@ export function useAuthActions({ hasSupabase, setUser, setStaffRole, setCurrentS
       try {
         const data = await authApi.signIn(normalized, password);
         setUser(data.user);
+        const staff = await staffApi.getByEmail(normalized).catch(() => null);
+        if (staff) { setStaffRole(staff.role); setCurrentStaff(staff); }
         return data;
       } catch (err: any) {
         if (err?.message?.includes('Invalid Refresh Token') || err?.message?.includes('Refresh Token Not Found')) {
