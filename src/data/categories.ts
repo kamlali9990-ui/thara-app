@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { BASE } from '../utils/constants';
 
 const CAT_IMG_PREFIX = 'thara_cat_img_';
@@ -39,4 +40,15 @@ export function getCategoryImg(cat: SectionCat): string {
     }
   } catch {}
   return cat.img;
+}
+
+export function useCategoryImg(cat: SectionCat | null): string {
+  const [url, setUrl] = useState(() => cat ? getCategoryImg(cat) : '');
+  useEffect(() => {
+    if (!cat) { setUrl(''); return; }
+    const handler = () => setUrl(getCategoryImg(cat));
+    window.addEventListener('thara:cat-img-changed', handler);
+    return () => window.removeEventListener('thara:cat-img-changed', handler);
+  }, [cat?.name]);
+  return url;
 }

@@ -5,7 +5,7 @@ import ProductCard from './ProductCard';
 import RotatingCategoryRow from './RotatingCategoryRow';
 import Breadcrumb from './Breadcrumb';
 
-import { sectionCats, getCategoryImg, specialSections } from '../data/categories';
+import { sectionCats, specialSections, getCategoryImg } from '../data/categories';
 import type { Product, CartItem } from '../types';
 
 interface CategoriesTabProps {
@@ -21,12 +21,26 @@ const CategoriesTab = memo<CategoriesTabProps>(({ setShowAllView, preselectedCat
   const [catSearch, setCatSearch] = useState('');
   const [selectedCat, setSelectedCat] = useState<any>(null);
   const [prodSearch, setProdSearch] = useState('');
+  const [imgKey, setImgKey] = useState(0);
+  useEffect(() => {
+    const handler = () => setImgKey(k => k + 1);
+    window.addEventListener('thara:cat-img-changed', handler);
+    return () => window.removeEventListener('thara:cat-img-changed', handler);
+  }, []);
 
   const filtered = useMemo(() => {
     if (!catSearch.trim()) return allCats;
     const q = catSearch.trim().toLowerCase();
     return allCats.filter(c => c.name.includes(q) || c.desc.includes(q));
   }, [catSearch, allCats]);
+
+  const offersImg = useMemo(() => getCategoryImg(specialSections[0]), [imgKey]); // eslint-disable-line
+  const catImgMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const c of allCats) map[c.name] = getCategoryImg(c);
+    if (specialSections[0]) map[specialSections[0].name] = offersImg;
+    return map;
+  }, [imgKey]); // eslint-disable-line
 
   const isProdSearching = prodSearch.trim().length > 0;
 
@@ -155,22 +169,16 @@ const CategoriesTab = memo<CategoriesTabProps>(({ setShowAllView, preselectedCat
       </div>
       <div className="categories-tab-grid">
         {!catSearch.trim() && (
-          (() => {
-            const offersCat = specialSections[0];
-            const offersImg = getCategoryImg(offersCat);
-            return (
-              <button className="category-tab-card" style={{ backgroundColor: offersCat.color, '--cat-color': offersCat.color } as any} onClick={() => setShowAllView('offers')}>
-                <img src={offersImg} alt={offersCat.name} className="category-tab-img" onError={(e: any) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
-                <span className="category-tab-emoji" style={{ display: 'none' }}>{offersCat.fallback}</span>
-                <span className="category-tab-name">{offersCat.name}</span>
-                <span className="category-tab-desc">{offersCat.desc}</span>
-              </button>
-            );
-          })()
+          <button className="category-tab-card" style={{ backgroundColor: specialSections[0].color, '--cat-color': specialSections[0].color } as any} onClick={() => setShowAllView('offers')}>
+            <img src={offersImg} alt={specialSections[0].name} className="category-tab-img" onError={(e: any) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+            <span className="category-tab-emoji" style={{ display: 'none' }}>{specialSections[0].fallback}</span>
+            <span className="category-tab-name">{specialSections[0].name}</span>
+            <span className="category-tab-desc">{specialSections[0].desc}</span>
+          </button>
         )}
         {filtered.length ? filtered.map(cat => (
           <button key={cat.name} className="category-tab-card" style={{ backgroundColor: cat.color, '--cat-color': cat.color } as any} onClick={() => selectCat(cat)}>
-            <img src={getCategoryImg(cat)} alt={cat.name} className="category-tab-img" onError={(e: any) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
+            <img src={catImgMap[cat.name] || getCategoryImg(cat)} alt={cat.name} className="category-tab-img" onError={(e: any) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
             <span className="category-tab-emoji" style={{ display: 'none' }}>{cat.fallback}</span>
             <span className="category-tab-name">{cat.name}</span>
             <span className="category-tab-desc">{cat.desc}</span>

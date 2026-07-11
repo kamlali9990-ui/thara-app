@@ -206,10 +206,17 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
         } else if (key === 'featured_ids') {
           try { localStorage.setItem('thara_featured_ids', value); } catch (e) { /* ignore */ }
           window.dispatchEvent(new Event('thara:featured-changed'));
-        } else if (key.startsWith('cat_img_') && !key.endsWith('_ver')) {
-          const catName = key.replace('cat_img_', '');
-          try { localStorage.setItem('thara_cat_img_' + catName, value); } catch (e) { /* ignore */ }
-          window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: value } }));
+        } else if (key.startsWith('cat_img_')) {
+          const catName = key.endsWith('_ver')
+            ? key.replace('cat_img_', '').replace('_ver', '')
+            : key.replace('cat_img_', '');
+          const storageKey = key.endsWith('_ver')
+            ? 'thara_cat_img_ver_' + catName
+            : 'thara_cat_img_' + catName;
+          try { localStorage.setItem(storageKey, value); } catch (e) { /* ignore */ }
+          if (!key.endsWith('_ver')) {
+            window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: value } }));
+          }
         }
       })
       .subscribe();

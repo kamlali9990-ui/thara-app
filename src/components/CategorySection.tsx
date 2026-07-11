@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import ProductCard from './ProductCard';
 
 import { sectionCats, getCategoryImg, type SectionCat } from '../data/categories';
@@ -15,16 +15,23 @@ interface CategorySectionProps {
 const CategorySection = memo<CategorySectionProps>(({ category, products, addToCart, cart, onViewAll }) => {
   const catInfo: SectionCat = sectionCats.find(c => c.name === category) || { name: category, img: '', fallback: '📦', color: '', desc: '' };
   const maxDisplay = products.slice(0, 9);
+  const [imgKey, setImgKey] = useState(0);
+  useEffect(() => {
+    const handler = () => setImgKey(k => k + 1);
+    window.addEventListener('thara:cat-img-changed', handler);
+    return () => window.removeEventListener('thara:cat-img-changed', handler);
+  }, []);
+  const catImg = useMemo(() => getCategoryImg(catInfo), [imgKey, catInfo.name]); // eslint-disable-line
 
   return (
     <div className="home-section-card category-section-card">
       <div className="category-section-header">
         <div className="category-section-header-img-wrap">
-          {getCategoryImg(catInfo) ? (
-            <img src={getCategoryImg(catInfo)} alt={category} className="category-section-header-img"
+          {catImg ? (
+            <img src={catImg} alt={category} className="category-section-header-img"
               onError={(e: any) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }} />
           ) : null}
-          <span className="category-section-header-fallback" style={{ display: getCategoryImg(catInfo) ? 'none' : 'flex' }}>
+          <span className="category-section-header-fallback" style={{ display: catImg ? 'none' : 'flex' }}>
             {catInfo.fallback}
           </span>
         </div>
