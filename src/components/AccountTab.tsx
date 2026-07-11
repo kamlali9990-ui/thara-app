@@ -106,7 +106,7 @@ const AccountTab = memo<AccountTabProps>(({ user, logout, customerProfile, updat
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <h3>تسجيل الدخول</h3>
         <p>سجل دخولك لمتابعة طلباتك والمزيد</p>
-        <Link to="/login" className="btn" style={{ marginTop: '1rem' }}>تسجيل الدخول</Link>
+        <Link to="/customer/login" className="btn" style={{ marginTop: '1rem' }}>تسجيل الدخول</Link>
         <Link to="/register" className="btn btn-ghost" style={{ marginTop: '0.5rem' }}>إنشاء حساب جديد</Link>
       </div>
       <CustomerHelp />

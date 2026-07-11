@@ -170,7 +170,7 @@ const SupportChatWidget = memo(() => {
                 تواصل مع الدعم الفني مباشرة وبخصوصية تامة! يرجى تسجيل الدخول للبدء.
               </p>
               <Link
-                to="/login"
+                to="/customer/login"
                 className="acc-btn acc-btn-primary"
                 onClick={() => setIsOpen(false)}
                 style={{

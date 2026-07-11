@@ -137,7 +137,7 @@ export default function Register() {
         </form>
 
         <div className="auth-footer">
-          لديك حساب بالفعل؟ <Link to="/login">تسجيل الدخول</Link>
+          لديك حساب بالفعل؟ <Link to="/customer/login">تسجيل الدخول</Link>
         </div>
         <div className="auth-back">
           <Link to="/">← العودة للمتجر</Link>

@@ -47,7 +47,7 @@ const NotifPanel = memo(({ user, chatMessages, onClose, orders, onTabChange }: N
             <div className="empty-tab">
               <h3>تسجيل الدخول</h3>
               <p>سجل دخولك لمشاهدة الإشعارات</p>
-              <Link to="/login" className="btn">تسجيل الدخول</Link>
+              <Link to="/customer/login" className="btn">تسجيل الدخول</Link>
             </div>
           ) : filteredMsgs.length === 0 && allDriverMsgs.length === 0 ? (
             <div className="empty-tab">
