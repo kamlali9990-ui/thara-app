@@ -128,12 +128,12 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
 
       {showResetDialog && (
         <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex',
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex',
           alignItems: 'center', justifyContent: 'center', zIndex: 1000
         }} onClick={closeResetDialog}>
           <div style={{
-            background: 'var(--admin-card-bg, #0d3d24)', padding: '2rem', borderRadius: 16,
-            maxWidth: 420, width: '90%', border: '0.5px solid var(--admin-border, rgba(255,255,255,0.12))'
+            background: '#0a2a1a', padding: '2rem', borderRadius: 16,
+            maxWidth: 420, width: '90%', border: '0.5px solid rgba(255,255,255,0.15)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
           }} onClick={e => e.stopPropagation()}>
             <h3 style={{ margin: '0 0 1rem', color: 'var(--admin-text, #f1f5f9)' }}>
               إعادة تعيين كلمة المرور
