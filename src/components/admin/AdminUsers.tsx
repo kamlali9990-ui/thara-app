@@ -21,6 +21,8 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [searchQ, setSearchQ] = useState('');
   const [page, setPage] = useState(0);
+  const [deletingEmail, setDeletingEmail] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Customer | null>(null);
 
   const openResetDialog = (customer: Customer) => {
     setShowResetDialog(customer);
@@ -70,6 +72,23 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
     setGeneratedPassword('');
   };
 
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    setDeletingEmail(confirmDelete.email);
+    try {
+      const { error } = await supabase.functions.invoke('admin-delete-user', {
+        body: { email: confirmDelete.email }
+      });
+      if (error) throw error;
+      showToast('تم حذف المستخدم بنجاح', 'success');
+      setConfirmDelete(null);
+      if (loadCustomers) loadCustomers();
+    } catch (err: any) {
+      showToast('فشل حذف المستخدم: ' + err.message, 'error');
+    }
+    setDeletingEmail(null);
+  };
+
   const q = searchQ.trim().toLowerCase();
   const filtered = q
     ? customers.filter((c: any) => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q) || (c.phone || '').includes(q))
@@ -107,14 +126,24 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
                   <strong style={{ color: 'var(--admin-warning)', fontSize: '1.2rem' }}>{c.loyalty_points ?? 0}</strong>
                 </div>
                 {isAdmin && (
-                  <button
-                    onClick={() => openResetDialog(c)}
-                    disabled={resettingEmail === c.email}
-                    className="btn"
-                    style={{ fontSize: '0.8rem', padding: '0.5rem 0.8rem', whiteSpace: 'nowrap', fontWeight: 700 }}
-                  >
-                    {resettingEmail === c.email ? 'جاري...' : 'إعادة تعيين كلمة المرور'}
-                  </button>
+                  <>
+                    <button
+                      onClick={() => openResetDialog(c)}
+                      disabled={resettingEmail === c.email}
+                      className="btn"
+                      style={{ fontSize: '0.8rem', padding: '0.5rem 0.8rem', whiteSpace: 'nowrap', fontWeight: 700 }}
+                    >
+                      {resettingEmail === c.email ? 'جاري...' : 'إعادة تعيين كلمة المرور'}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(c)}
+                      disabled={deletingEmail === c.email}
+                      className="btn"
+                      style={{ fontSize: '0.8rem', padding: '0.5rem 0.8rem', whiteSpace: 'nowrap', fontWeight: 700, background: '#dc2626', color: '#fff' }}
+                    >
+                      {deletingEmail === c.email ? 'جاري...' : 'حذف'}
+                    </button>
+                  </>
                 )}
               </div>
             </div>
@@ -188,6 +217,34 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center', zIndex: 1001
+        }} onClick={() => setConfirmDelete(null)}>
+          <div style={{
+            background: '#1a0a0a', padding: '2rem', borderRadius: 16,
+            maxWidth: 400, width: '90%', border: '0.5px solid rgba(255,255,255,0.15)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)'
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 0.5rem', color: '#fca5a5' }}>تأكيد حذف المستخدم</h3>
+            <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '1rem' }}>
+              هل أنت متأكد من حذف <strong style={{ color: '#f1f5f9' }}>{confirmDelete.name || confirmDelete.email}</strong>؟
+              <br />لا يمكن التراجع عن هذا الإجراء.
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button onClick={handleDelete} disabled={deletingEmail === confirmDelete.email}
+                className="btn" style={{ flex: 1, fontWeight: 700, padding: '0.6rem', background: '#dc2626', color: '#fff' }}>
+                {deletingEmail === confirmDelete.email ? 'جاري الحذف...' : 'حذف'}
+              </button>
+              <button onClick={() => setConfirmDelete(null)}
+                style={{ padding: '0.6rem 1rem', borderRadius: 8, border: '0.5px solid var(--admin-border, rgba(255,255,255,0.12))', background: 'transparent', color: '#e2e8f0', cursor: 'pointer', fontFamily: 'inherit', fontWeight: 700 }}>
+                إلغاء
+              </button>
+            </div>
           </div>
         </div>
       )}
