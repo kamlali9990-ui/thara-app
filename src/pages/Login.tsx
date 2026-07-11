@@ -112,6 +112,15 @@ export default function Login() {
           <button type="submit" className="auth-btn" disabled={loading}>
             {loading ? 'جاري تسجيل الدخول...' : 'تسجيل الدخول'}
           </button>
+
+          <div style={{ textAlign: 'center', marginTop: '0.75rem' }}>
+            <Link to="/forgot-password" style={{
+              color: 'var(--auth-link, #127443)', textDecoration: 'none',
+              fontSize: '0.85rem', fontWeight: 600
+            }}>
+              نسيت كلمة المرور؟
+            </Link>
+          </div>
         </form>
 
         <div className="auth-back">

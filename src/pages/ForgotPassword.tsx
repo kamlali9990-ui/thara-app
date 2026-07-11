@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { authApi } from '../supabase/auth';
 import { customersApi } from '../supabase/customers';
+import { staffApi } from '../supabase/staff';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -18,13 +19,17 @@ export default function ForgotPassword() {
       if (!cleanEmail || !cleanEmail.includes('@')) {
         throw new Error('يرجى إدخال بريد إلكتروني صحيح');
       }
-      const foundAuthEmail = await customersApi.findByRealEmail(cleanEmail);
-      if (!foundAuthEmail) {
+      const redirectTo = window.location.origin + (import.meta.env.BASE_URL || '/') + 'reset-password';
+      const staff = await staffApi.getByEmail(cleanEmail).catch(() => null);
+      if (staff) {
+        await authApi.resetPassword(cleanEmail, redirectTo);
         setSent(true);
         return;
       }
-      const redirectTo = window.location.origin + (import.meta.env.BASE_URL || '/') + 'reset-password';
-      await authApi.resetPassword(foundAuthEmail, redirectTo);
+      const foundAuthEmail = await customersApi.findByRealEmail(cleanEmail);
+      if (foundAuthEmail) {
+        await authApi.resetPassword(foundAuthEmail, redirectTo);
+      }
       setSent(true);
     } catch (err: any) {
       setError(err.message || 'فشل إرسال رابط إعادة التعيين');
