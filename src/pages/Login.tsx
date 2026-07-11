@@ -45,9 +45,18 @@ export default function Login() {
       }
       navigate('/admin');
     } catch (err: any) {
-      setError(err.message === 'Invalid login credentials'
-        ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة'
-        : 'حدث خطأ أثناء تسجيل الدخول');
+      const msg = err?.message || '';
+      if (msg.includes('Invalid login credentials') || msg.includes('غير صحيحة')) {
+        setError('البريد الإلكتروني أو كلمة المرور غير صحيحة');
+      } else if (msg.includes('rate limit') || msg.includes('429') || msg.includes('Too Many Requests')) {
+        setError('طلبات كثيرة جداً، حاول بعد دقيقة');
+      } else if (msg.includes('Email not confirmed')) {
+        setError('البريد الإلكتروني غير مؤكد، فضلاً تأكد من بريدك');
+      } else if (msg.includes('Invalid Refresh Token')) {
+        setError('انتهت الجلسة، حاول مرة أخرى');
+      } else {
+        setError('حدث خطأ أثناء تسجيل الدخول');
+      }
     } finally {
       setLoading(false);
     }
