@@ -84,8 +84,6 @@ export default function CustomerLogin() {
           body: { email: user.email, newPassword }
         });
         if (pwErr) throw pwErr;
-        const { error: emailErr } = await supabase.auth.updateUser({ email: newEmail });
-        if (emailErr) console.warn('[تحديث الإيميل]', emailErr.message);
       }
       setSetupSuccess(true);
     } catch (err: any) {
@@ -104,9 +102,9 @@ export default function CustomerLogin() {
               <img src={`${import.meta.env.BASE_URL || '/'}logo222.jpg`} alt="" className="auth-logo" />
               <h1>تم التفعيل</h1>
               <p style={{ fontSize: '0.82rem', lineHeight: 1.5 }}>
-                تم حفظ بريدك الإلكتروني. سيصلك رابط تأكيد على <strong style={{ direction: 'ltr', display: 'inline-block' }}>{newEmail}</strong>.
+                تم حفظ بريدك الإلكتروني <strong style={{ direction: 'ltr', display: 'inline-block' }}>{newEmail}</strong>.
                 <br /><br />
-                بعد تأكيد البريد، يمكنك استخدامه لاستعادة كلمة المرور.
+                يمكنك تسجيل الدخول برقم جوالك وكلمة المرور الجديدة.
               </p>
             </div>
             <button className="auth-btn" onClick={() => navigate('/')}>

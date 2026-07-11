@@ -523,7 +523,7 @@ DECLARE
 BEGIN
   normalized_iden := lower(trim(p_identifier));
 
-  SELECT COALESCE(real_email, email) INTO found_auth_email FROM customers
+  SELECT email INTO found_auth_email FROM customers
   WHERE email = normalized_iden
      OR phone = p_identifier
      OR lower(username) = normalized_iden
@@ -536,6 +536,7 @@ END;
 $$;
 
 -- RPC للبحث عن العميل ببريده الإلكتروني الحقيقي (لصفحة نسيت كلمة المرور)
+-- يرجع email الأصلي في auth (وليس real_email)
 CREATE OR REPLACE FUNCTION public.find_customer_by_real_email_rpc(p_real_email TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -545,7 +546,7 @@ AS $$
 DECLARE
   found_auth_email TEXT;
 BEGIN
-  SELECT COALESCE(real_email, email) INTO found_auth_email FROM customers
+  SELECT email INTO found_auth_email FROM customers
   WHERE lower(real_email) = lower(trim(p_real_email))
   LIMIT 1;
   RETURN found_auth_email;
