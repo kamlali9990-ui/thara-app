@@ -19,33 +19,32 @@ Deno.serve(async (req) => {
     }
 
     const emailLower = email.toLowerCase().trim();
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    let authDeleted = false;
 
-    // Find user via GoTrue Admin REST API (filter by email)
-    const findResp = await fetch(
-      `${SUPABASE_URL}/auth/v1/admin/users`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
-          'apikey': SUPABASE_SERVICE_KEY,
-        },
+    // 1. Try to find and delete auth user
+    const findResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+      headers: { 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`, 'apikey': SUPABASE_SERVICE_KEY },
+    });
+    if (findResp.ok) {
+      const findData = await findResp.json();
+      const users: any[] = findData?.users || [];
+      const user = users.find((u: any) => u.email?.toLowerCase().trim() === emailLower);
+      if (user) {
+        const { error: delErr } = await supabase.auth.admin.deleteUser(user.id);
+        if (!delErr) authDeleted = true;
       }
-    );
-    if (!findResp.ok) {
-      return new Response(JSON.stringify({ error: 'فشل الاتصال بخدمة المستخدمين' }), { status: 500, headers: { ...CORS, 'Content-Type': 'application/json' } });
-    }
-    const findData = await findResp.json();
-    const users: any[] = findData?.users || [];
-
-    const user = users.find((u: any) => u.email?.toLowerCase().trim() === emailLower);
-    if (!user) {
-      return new Response(JSON.stringify({ error: 'المستخدم غير موجود' }), { status: 404, headers: { ...CORS, 'Content-Type': 'application/json' } });
     }
 
-    // Delete via admin client
-    const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-    const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id);
-    if (deleteError) throw deleteError;
+    // 2. Delete customer record (may or may not exist)
+    await supabase.from('customers').delete().eq('email', emailLower);
+
+    if (!authDeleted) {
+      // Only customer record was deleted (or neither existed)
+      return new Response(JSON.stringify({ success: true, message: 'تم حذف بيانات العميل' }), {
+        status: 200, headers: { ...CORS, 'Content-Type': 'application/json' },
+      });
+    }
 
     return new Response(JSON.stringify({ success: true, message: 'تم حذف المستخدم بنجاح' }), {
       status: 200, headers: { ...CORS, 'Content-Type': 'application/json' },

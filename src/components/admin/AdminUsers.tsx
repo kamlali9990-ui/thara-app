@@ -76,10 +76,10 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
     if (!confirmDelete) return;
     setDeletingEmail(confirmDelete.email);
     try {
-      const { error } = await supabase.functions.invoke('admin-delete-user', {
+      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
         body: { email: confirmDelete.email }
       });
-      if (error) throw error;
+      if (error) throw new Error(error.message || (data as any)?.error || 'فشل الحذف');
       showToast('تم حذف المستخدم بنجاح', 'success');
       setConfirmDelete(null);
       if (loadCustomers) loadCustomers();
