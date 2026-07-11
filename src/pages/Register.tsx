@@ -50,11 +50,9 @@ export default function Register() {
     try {
       const cleanPhone = phone.trim();
       const cleanUsername = username ? username.trim().toLowerCase() : null;
-      const cleanEmail = email ? email.trim().toLowerCase() : '';
-      const hasEmail = cleanEmail && cleanEmail.includes('@');
-      const authEmail = hasEmail ? cleanEmail : `p${cleanPhone.replace(/[^0-9]/g, '')}@thara.app`;
+      const cleanEmail = email.trim().toLowerCase();
       const { data: userData, error: rpcErr } = await supabase.rpc('create_customer_auth_rpc', {
-        p_email: authEmail, p_password: password, p_username: cleanUsername
+        p_email: cleanEmail, p_password: password, p_username: cleanUsername
       });
       if (rpcErr) throw rpcErr;
       if (userData?.existing) {
@@ -62,14 +60,10 @@ export default function Register() {
         setLoading(false);
         return;
       }
-      try {
-        await customersApi.create(authEmail, name, cleanPhone, cleanUsername, hasEmail ? cleanEmail : null);
-      } catch {
-        console.warn('تم إنشاء الحساب ولكن فشل إنشاء سجل العميل');
-      }
-      const { error: signInErr } = await supabase.auth.signInWithPassword({ email: authEmail, password });
+      await customersApi.create(cleanEmail, name, cleanPhone, cleanUsername, cleanEmail);
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
       if (signInErr) {
-        const { data: sessData, error: sessErr } = await supabase.rpc('create_customer_session_rpc', { p_email: authEmail });
+        const { data: sessData, error: sessErr } = await supabase.rpc('create_customer_session_rpc', { p_email: cleanEmail });
         if (!sessErr && sessData?.refresh_token) {
           await supabase.auth.refreshSession({ refresh_token: sessData.refresh_token });
         }

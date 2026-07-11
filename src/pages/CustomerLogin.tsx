@@ -17,6 +17,7 @@ export default function CustomerLogin() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [setupError, setSetupError] = useState('');
   const [setupLoading, setSetupLoading] = useState(false);
+  const [setupSuccess, setSetupSuccess] = useState(false);
   const navigate = useNavigate();
 
   const isPhoneOnlyEmail = (email: string) =>
@@ -83,9 +84,10 @@ export default function CustomerLogin() {
           body: { email: user.email, newPassword }
         });
         if (pwErr) throw pwErr;
+        const { error: emailErr } = await supabase.auth.updateUser({ email: newEmail });
+        if (emailErr) console.warn('[تحديث الإيميل]', emailErr.message);
       }
-      setShowSetup(false);
-      navigate('/');
+      setSetupSuccess(true);
     } catch (err: any) {
       setSetupError(err.message || 'حدث خطأ، حاول مرة أخرى');
     } finally {
@@ -96,7 +98,22 @@ export default function CustomerLogin() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        {!showSetup ? (
+        {setupSuccess ? (
+          <div className="auth-setup-box">
+            <div className="auth-header">
+              <img src={`${import.meta.env.BASE_URL || '/'}logo222.jpg`} alt="" className="auth-logo" />
+              <h1>تم التفعيل</h1>
+              <p style={{ fontSize: '0.82rem', lineHeight: 1.5 }}>
+                تم حفظ بريدك الإلكتروني. سيصلك رابط تأكيد على <strong style={{ direction: 'ltr', display: 'inline-block' }}>{newEmail}</strong>.
+                <br /><br />
+                بعد تأكيد البريد، يمكنك استخدامه لاستعادة كلمة المرور.
+              </p>
+            </div>
+            <button className="auth-btn" onClick={() => navigate('/')}>
+              الذهاب للمتجر
+            </button>
+          </div>
+        ) : !showSetup ? (
           <>
             <div className="auth-header">
               <img src={`${import.meta.env.BASE_URL || '/'}logo222.jpg`} alt="" className="auth-logo" />
