@@ -200,6 +200,7 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, (payload: any) => {
         if (payload.eventType === 'DELETE') return;
         const { key, value } = payload.new;
+        window.dispatchEvent(new CustomEvent('thara:settings-changed', { detail: { key, value } }));
         if (key === 'banner_url') {
           try { localStorage.setItem('thara_banner_url', value); } catch (e) { /* ignore */ }
           window.dispatchEvent(new Event('thara:banner-changed'));

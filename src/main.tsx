@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 
 import './index.css'
 import { StoreProvider, useStore } from './context/StoreContext'
+import { useForceUpdate } from './context/useForceUpdate'
 import ErrorBoundary from './components/ErrorBoundary'
 import { ToastProvider } from './components/Toast'
 import MaintenancePage from './components/MaintenancePage'
@@ -50,6 +51,7 @@ const ResetPassword = lazyWithRetry(() => import('./pages/ResetPassword'), 'Rese
 const Admin = lazyWithRetry(() => import('./Admin'), 'Admin')
 
 function AppRoutes() {
+  useForceUpdate();
   const { user, staffRole } = useStore();
   const location = useLocation();
   const isHidden = (['/login', '/register', '/forgot-password', '/reset-password', '/customer/login', '/panel', '/admin'].some(p => location.pathname.startsWith(p)));
