@@ -17,6 +17,7 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
   const [resettingEmail, setResettingEmail] = useState<string | null>(null);
   const [resetPasswordInput, setResetPasswordInput] = useState('');
   const [showResetDialog, setShowResetDialog] = useState<Customer | null>(null);
+  const [resetRealEmail, setResetRealEmail] = useState('');
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [searchQ, setSearchQ] = useState('');
   const [page, setPage] = useState(0);
@@ -24,6 +25,7 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
   const openResetDialog = (customer: Customer) => {
     setShowResetDialog(customer);
     setResetPasswordInput(generateTempPassword());
+    setResetRealEmail(customer.real_email || '');
     setGeneratedPassword('');
   };
 
@@ -41,8 +43,18 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
       });
       if (error) throw error;
       if ((data as any)?.success) {
+        if (resetRealEmail && resetRealEmail.includes('@')) {
+          const { error: emailErr } = await supabase.rpc('update_customer_rpc', {
+            p_email: showResetDialog.email,
+            p_name: showResetDialog.name || '',
+            p_phone: showResetDialog.phone || '',
+            p_real_email: resetRealEmail
+          });
+          if (emailErr) console.error('[update real_email]', emailErr);
+          else showToast('تم تحديث البريد الإلكتروني', 'success');
+        }
         setGeneratedPassword(resetPasswordInput);
-        showToast('تم إعادة تعيين كلمة المرور بنجاح', 'success');
+        if (loadCustomers) loadCustomers();
       } else {
         throw new Error((data as any)?.message || 'فشل إعادة التعيين');
       }
@@ -132,6 +144,14 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
             <p style={{ color: 'var(--admin-text-soft, #94a3b8)', fontSize: '0.8rem', marginBottom: '1rem' }}>
               أدخل كلمة مرور مؤقتة للعميل. سيتمكن العميل من تسجيل الدخول بها ثم تغييرها من صفحة الحساب.
             </p>
+            <div className="auth-field">
+              <label style={{ color: 'var(--admin-text, #f1f5f9)' }}>البريد الإلكتروني الحقيقي</label>
+              <input type="email" value={resetRealEmail}
+                onChange={e => setResetRealEmail(e.target.value)}
+                placeholder="name@example.com"
+                className="auth-input" dir="ltr"
+                style={{ background: 'var(--admin-input-bg, rgba(0,0,0,0.35))', color: 'var(--admin-text, #e2e8f0)', border: '0.5px solid var(--admin-border, rgba(255,255,255,0.12))' }} />
+            </div>
             <div className="auth-field">
               <label style={{ color: 'var(--admin-text, #f1f5f9)' }}>كلمة المرور الجديدة</label>
               <input type="text" value={resetPasswordInput}
