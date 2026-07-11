@@ -49,9 +49,19 @@ export default function AdminSettings() {
     };
     loadCatImgs();
   }, []);
+  const [savingBanner, setSavingBanner] = useState(false);
+  const [savingCat, setSavingCat] = useState<string | null>(null);
 
   const saveBannerUrl = async (url: string) => {
+    setSavingBanner(true);
     const finalUrl = url || `${BASE}123.jpg`;
+    try {
+      await preloadImage(finalUrl);
+    } catch {
+      showToast('الصورة غير صالحة أو لا يمكن تحميلها', 'error');
+      setSavingBanner(false);
+      return;
+    }
     localStorage.setItem(STORAGE_KEY, finalUrl);
     window.dispatchEvent(new Event('thara:banner-changed'));
     setBannerUrl(finalUrl);
@@ -61,10 +71,14 @@ export default function AdminSettings() {
         .from('settings')
         .upsert({ key: 'banner_url', value: finalUrl }, { onConflict: 'key' });
       if (error) throw error;
-    } catch (e) {
-      console.warn('Failed to sync banner to DB:', e);
+      await verifySetting('banner_url', finalUrl);
+    } catch (e: any) {
+      showToast('فشل نشر صورة البنر: ' + e.message, 'error');
+      setSavingBanner(false);
+      return;
     }
-    showToast('تم حفظ صورة البنر بنجاح', 'success');
+    setSavingBanner(false);
+    showToast('✅ تم نشر صورة البنر بنجاح', 'success');
   };
 
   const handleUpload = (url: string) => {
@@ -148,21 +162,49 @@ export default function AdminSettings() {
     saveBannerUrl(defaultUrl);
   };
 
+  const preloadImage = (src: string) =>
+    new Promise<void>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error('فشل تحميل الصورة'));
+      img.src = src;
+    });
+
+  const verifySetting = async (key: string, expected: string) => {
+    const { data, error } = await supabase.from('settings').select('value').eq('key', key).single();
+    if (error) throw new Error(`فشل التحقق من النشر: ${error.message}`);
+    if (data?.value !== expected) throw new Error('الصورة المخزنة لا تطابق الصورة المرفوعة');
+  };
+
   const saveCatImage = async (catName: string, url: string) => {
+    setSavingCat(catName);
     const key = 'cat_img_' + catName;
     const verKey = key + '_ver';
     const ver = Date.now().toString();
+    try {
+      await preloadImage(url);
+    } catch {
+      showToast(`الصورة غير صالحة أو لا يمكن تحميلها`, 'error');
+      setSavingCat(null);
+      return;
+    }
     localStorage.setItem(CAT_IMG_PREFIX + catName, url);
     localStorage.setItem(CAT_IMG_PREFIX + 'ver_' + catName, ver);
     setCatImgs(prev => ({ ...prev, [catName]: url }));
     window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url } }));
     try {
-      await supabase.from('settings').upsert({ key, value: url }, { onConflict: 'key' });
-      await supabase.from('settings').upsert({ key: verKey, value: ver }, { onConflict: 'key' });
-    } catch (e) {
-      console.warn('Failed to sync cat img to DB:', e);
+      const { error: err1 } = await supabase.from('settings').upsert({ key, value: url }, { onConflict: 'key' });
+      if (err1) throw err1;
+      const { error: err2 } = await supabase.from('settings').upsert({ key: verKey, value: ver }, { onConflict: 'key' });
+      if (err2) throw err2;
+      await verifySetting(key, url);
+    } catch (e: any) {
+      showToast(`فشل نشر صورة "${catName}": ${e.message}`, 'error');
+      setSavingCat(null);
+      return;
     }
-    showToast(`تم حفظ صورة "${catName}" بنجاح`, 'success');
+    setSavingCat(null);
+    showToast(`✅ تم نشر صورة "${catName}" بنجاح`, 'success');
   };
 
   const resetCatImage = async (catName: string) => {
@@ -173,10 +215,12 @@ export default function AdminSettings() {
     setCatImgs(prev => { const n = { ...prev }; delete n[catName]; return n; });
     window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: null as any } }));
     try {
-      await supabase.from('settings').delete().eq('key', key);
-      await supabase.from('settings').delete().eq('key', verKey);
-    } catch (e) {
-      console.warn('Failed to delete cat img from DB:', e);
+      const { error: del1 } = await supabase.from('settings').delete().eq('key', key);
+      if (del1) throw del1;
+      const { error: del2 } = await supabase.from('settings').delete().eq('key', verKey);
+      if (del2) throw del2;
+    } catch (e: any) {
+      showToast(`فشل حذف صورة "${catName}" من الخادم: ${e.message}`, 'error');
     }
     showToast(`تم استعادة الصورة الافتراضية لـ "${catName}"`, 'success');
   };
@@ -217,7 +261,7 @@ export default function AdminSettings() {
                 border: '0.5px solid var(--admin-border)', background: 'var(--admin-input-bg)',
                 color: 'var(--admin-text)', fontSize: '0.85rem', fontFamily: 'inherit', outline: 'none'
               }} />
-            <button onClick={handleUrlSubmit} className="btn" style={{ whiteSpace: 'nowrap', background: 'var(--admin-accent)', color: 'var(--admin-accent-text)', border: 'none', borderRadius: 8, padding: '0.6rem 1.4rem', cursor: 'pointer', fontFamily: 'inherit' }}>حفظ</button>
+            <button onClick={handleUrlSubmit} disabled={savingBanner} className="btn" style={{ whiteSpace: 'nowrap', background: 'var(--admin-accent)', color: 'var(--admin-accent-text)', border: 'none', borderRadius: 8, padding: '0.6rem 1.4rem', cursor: savingBanner ? 'not-allowed' : 'pointer', opacity: savingBanner ? 0.6 : 1, fontFamily: 'inherit' }}>{savingBanner ? 'جاري النشر...' : 'حفظ'}</button>
           </div>
         </div>
 
@@ -261,8 +305,9 @@ export default function AdminSettings() {
                 background: 'var(--admin-highlight-bg)', borderRadius: 12, padding: '0.75rem',
                 border: '1px solid var(--admin-border)'
               }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--admin-text)' }}>
-                  {cat.fallback} {cat.name}
+                <div style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--admin-text)', display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'space-between' }}>
+                  <span>{cat.fallback} {cat.name}</span>
+                  {savingCat === cat.name && <span style={{ fontSize: '0.7rem', color: 'var(--admin-warning)' }}>جاري النشر...</span>}
                 </div>
                 <img src={currentImg} alt={cat.name}
                   style={{ width: '100%', aspectRatio: '1/1', objectFit: 'cover', borderRadius: 8, marginBottom: '0.5rem', background: cat.color }}
