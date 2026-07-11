@@ -22,6 +22,7 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
   const [searchQ, setSearchQ] = useState('');
   const [page, setPage] = useState(0);
   const [deletingEmail, setDeletingEmail] = useState<string | null>(null);
+  const [deletingStep, setDeletingStep] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<Customer | null>(null);
 
   const openResetDialog = (customer: Customer) => {
@@ -75,11 +76,24 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
   const handleDelete = async () => {
     if (!confirmDelete) return;
     setDeletingEmail(confirmDelete.email);
+    setDeletingStep('جاري حذف بيانات العميل...');
     try {
-      const { data, error } = await supabase.functions.invoke('admin-delete-user', {
+      const { error: rpcErr } = await supabase.rpc('update_customer_rpc', {
+        p_email: confirmDelete.email,
+        p_name: '(تم حذف)',
+        p_phone: '',
+        p_delivery_address: '',
+        p_neighborhood: '',
+        p_location: '',
+        p_username: '',
+        p_real_email: null,
+      });
+      if (rpcErr) throw new Error(rpcErr.message);
+      setDeletingStep('جاري حذف حساب الدخول...');
+      const { error: fnErr } = await supabase.functions.invoke('admin-delete-user', {
         body: { email: confirmDelete.email }
       });
-      if (error) throw new Error(error.message || (data as any)?.error || 'فشل الحذف');
+      if (fnErr) console.error('[del auth]', fnErr);
       showToast('تم حذف المستخدم بنجاح', 'success');
       setConfirmDelete(null);
       if (loadCustomers) loadCustomers();
@@ -87,12 +101,14 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
       showToast('فشل حذف المستخدم: ' + err.message, 'error');
     }
     setDeletingEmail(null);
+    setDeletingStep('');
   };
 
   const q = searchQ.trim().toLowerCase();
+  const visible = customers.filter((c: any) => (c.name || '') !== '(تم حذف)');
   const filtered = q
-    ? customers.filter((c: any) => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q) || (c.phone || '').includes(q))
-    : customers;
+    ? visible.filter((c: any) => (c.name || '').toLowerCase().includes(q) || (c.email || '').toLowerCase().includes(q) || (c.phone || '').includes(q))
+    : visible;
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE) || 1;
   const safePage = Math.min(page, totalPages - 1);
   const pageCustomers = filtered.slice(safePage * PAGE_SIZE, (safePage + 1) * PAGE_SIZE);
@@ -235,6 +251,9 @@ export default function AdminUsers({ staffRole, customers, loadCustomers }: { st
               هل أنت متأكد من حذف <strong style={{ color: '#f1f5f9' }}>{confirmDelete.name || confirmDelete.email}</strong>؟
               <br />لا يمكن التراجع عن هذا الإجراء.
             </p>
+            {deletingEmail === confirmDelete.email && deletingStep && (
+              <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: '0.5rem' }}>{deletingStep}</p>
+            )}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <button onClick={handleDelete} disabled={deletingEmail === confirmDelete.email}
                 className="btn" style={{ flex: 1, fontWeight: 700, padding: '0.6rem', background: '#dc2626', color: '#fff' }}>

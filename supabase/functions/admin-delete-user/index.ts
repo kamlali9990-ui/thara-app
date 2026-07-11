@@ -19,38 +19,45 @@ Deno.serve(async (req) => {
     }
 
     const emailLower = email.toLowerCase().trim();
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
-    let authDeleted = false;
+    const authHeaders = {
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'apikey': SUPABASE_SERVICE_KEY,
+      'Content-Type': 'application/json',
+    };
 
-    // 1. Try to find and delete auth user
-    const findResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
-      headers: { 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`, 'apikey': SUPABASE_SERVICE_KEY },
-    });
+    // 1. Delete auth user if exists
+    const findResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, { headers: authHeaders });
     if (findResp.ok) {
       const findData = await findResp.json();
       const users: any[] = findData?.users || [];
       const user = users.find((u: any) => u.email?.toLowerCase().trim() === emailLower);
       if (user) {
-        const { error: delErr } = await supabase.auth.admin.deleteUser(user.id);
-        if (!delErr) authDeleted = true;
+        await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${user.id}`, {
+          method: 'DELETE', headers: authHeaders,
+        });
       }
     }
 
-    // 2. Delete customer record (may or may not exist)
-    await supabase.from('customers').delete().eq('email', emailLower);
+    // 2. Anonymize customer data via update_customer_rpc (SECURITY DEFINER)
+    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const { error: rpcErr } = await supabase.rpc('update_customer_rpc', {
+      p_email: emailLower,
+      p_name: '(تم حذف)',
+      p_phone: '',
+      p_delivery_address: '',
+      p_neighborhood: '',
+      p_location: '',
+      p_username: '',
+      p_real_email: null,
+    });
+    if (rpcErr) console.error('[update_customer_rpc]', rpcErr.message);
 
-    if (!authDeleted) {
-      // Only customer record was deleted (or neither existed)
-      return new Response(JSON.stringify({ success: true, message: 'تم حذف بيانات العميل' }), {
-        status: 200, headers: { ...CORS, 'Content-Type': 'application/json' },
-      });
-    }
-
-    return new Response(JSON.stringify({ success: true, message: 'تم حذف المستخدم بنجاح' }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200, headers: { ...CORS, 'Content-Type': 'application/json' },
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err instanceof Error ? err.message : 'Internal error' }), {
+    const msg = err instanceof Error ? err.message : String(err);
+    return new Response(JSON.stringify({ error: msg }), {
       status: 500, headers: { ...CORS, 'Content-Type': 'application/json' },
     });
   }
