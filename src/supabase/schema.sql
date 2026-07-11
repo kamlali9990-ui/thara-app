@@ -523,12 +523,17 @@ DECLARE
 BEGIN
   normalized_iden := lower(trim(p_identifier));
 
-  SELECT email INTO found_auth_email FROM customers
-  WHERE email = normalized_iden
-     OR phone = p_identifier
-     OR lower(username) = normalized_iden
-     OR lower(real_email) = normalized_iden
-     OR CAST(id AS TEXT) = normalized_iden
+  SELECT
+    CASE WHEN c.real_email IS NOT NULL AND EXISTS (SELECT 1 FROM auth.users WHERE email = c.real_email)
+         THEN c.real_email
+         ELSE c.email
+    END INTO found_auth_email
+  FROM customers c
+  WHERE c.email = normalized_iden
+     OR c.phone = p_identifier
+     OR lower(c.username) = normalized_iden
+     OR lower(c.real_email) = normalized_iden
+     OR CAST(c.id AS TEXT) = normalized_iden
   LIMIT 1;
 
   RETURN found_auth_email;
@@ -536,7 +541,7 @@ END;
 $$;
 
 -- RPC للبحث عن العميل ببريده الإلكتروني الحقيقي (لصفحة نسيت كلمة المرور)
--- يرجع email الأصلي في auth (وليس real_email)
+-- يرجع الإيميل النشط في auth (يتحقق من auth.users)
 CREATE OR REPLACE FUNCTION public.find_customer_by_real_email_rpc(p_real_email TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -546,8 +551,13 @@ AS $$
 DECLARE
   found_auth_email TEXT;
 BEGIN
-  SELECT email INTO found_auth_email FROM customers
-  WHERE lower(real_email) = lower(trim(p_real_email))
+  SELECT
+    CASE WHEN c.real_email IS NOT NULL AND EXISTS (SELECT 1 FROM auth.users WHERE email = c.real_email)
+         THEN c.real_email
+         ELSE c.email
+    END INTO found_auth_email
+  FROM customers c
+  WHERE lower(c.real_email) = lower(trim(p_real_email))
   LIMIT 1;
   RETURN found_auth_email;
 END;

@@ -214,9 +214,7 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
             ? 'thara_cat_img_ver_' + catName
             : 'thara_cat_img_' + catName;
           try { localStorage.setItem(storageKey, value); } catch (e) { /* ignore */ }
-          if (!key.endsWith('_ver')) {
-            window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: value } }));
-          }
+          window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: catName, url: key.endsWith('_ver') ? null : value } }));
         }
       })
       .subscribe();
