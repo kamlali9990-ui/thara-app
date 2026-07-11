@@ -154,7 +154,11 @@ const AccountTab = memo<AccountTabProps>(({ user, logout, customerProfile, updat
             <div className="acc-avatar-ring">
               <div className="acc-avatar">{avatarLetter}</div>
             </div>
-            <div className="acc-name">{displayName}</div>
+            {staffRole ? (
+              <Link to="/admin" className="acc-name" style={{ textDecoration: 'none', cursor: 'pointer' }}>{displayName}</Link>
+            ) : (
+              <div className="acc-name">{displayName}</div>
+            )}
             <div className="acc-phone">{displayPhone || 'رقم الجوال غير مضاف'}</div>
             <div className="acc-email">{isFakeEmail ? (displayEmail || 'البريد الإلكتروني غير مضاف') : user.email}</div>
             {displayUsername && <div className="acc-username" style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '-0.25rem' }}>@{displayUsername}</div>}
