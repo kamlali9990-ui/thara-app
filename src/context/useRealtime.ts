@@ -195,6 +195,27 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
 }) {
   useEffect(() => {
     if (!hasSupabase || !supabaseReady) return;
+
+    (async () => {
+      const { data } = await supabase
+        .from('settings')
+        .select('key, value')
+        .like('key', 'cat_img_%');
+      if (data) {
+        for (const row of data) {
+          const { key, value } = row;
+          if (key.endsWith('_ver')) {
+            const catName = key.replace('cat_img_', '').replace('_ver', '');
+            try { localStorage.setItem('thara_cat_img_ver_' + catName, value); } catch {}
+          } else {
+            const catName = key.replace('cat_img_', '');
+            try { localStorage.setItem('thara_cat_img_' + catName, value); } catch {}
+          }
+        }
+        window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: '', url: '' } }));
+      }
+    })();
+
     const channel = supabase
       .channel('settings-stream')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'settings' }, (payload: any) => {
