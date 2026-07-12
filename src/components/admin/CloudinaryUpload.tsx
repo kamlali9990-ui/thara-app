@@ -1,8 +1,7 @@
 ﻿import { useRef, useState } from 'react';
 
 const CLOUD_NAME = 'dvnhgvdd1';
-const API_KEY = '475255696212661';
-const SIGN_FUNCTION = `${import.meta.env.BASE_URL || '/'}api/cloudinary-sign`;
+const UPLOAD_PRESET = 'thara_banners';
 
 const MAX_SIZE_BYTES = 5 * 1024 * 1024;
 
@@ -35,26 +34,6 @@ function loadCloudinaryScript(): Promise<boolean> {
   });
 }
 
-async function getSignature(paramsToSign: Record<string, string>) {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-
-  const functionsUrl = supabaseUrl
-    ? supabaseUrl.replace(/\/+$/, '') + '/functions/v1/cloudinary-sign'
-    : SIGN_FUNCTION;
-
-  const res = await fetch(functionsUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(anonKey ? { 'apikey': anonKey, 'Authorization': `Bearer ${anonKey}` } : {}),
-    },
-    body: JSON.stringify(paramsToSign),
-  });
-  if (!res.ok) throw new Error('فشل الحصول على توقيع الرفع');
-  return res.json();
-}
-
 export default function CloudinaryUpload({ onUpload, onError }: {
   onUpload: (url: string, info?: any) => void;
   onError?: (error: any) => void;
@@ -64,7 +43,7 @@ export default function CloudinaryUpload({ onUpload, onError }: {
   const widgetRef = useRef<any>(null);
 
   const openWidget = async () => {
-    if (!(window as any).cloudinary) {
+    if (!(window as any).cloudinary?.createUploadWidget) {
       setLoading(true);
       const loaded = await loadCloudinaryScript();
       setLoading(false);
@@ -79,12 +58,7 @@ export default function CloudinaryUpload({ onUpload, onError }: {
     const myWidget = (window as any).cloudinary.createUploadWidget(
       {
         cloudName: CLOUD_NAME,
-        apiKey: API_KEY,
-        uploadSignature: (callback: (sig: string) => void, paramsToSign: Record<string, string>) => {
-          getSignature(paramsToSign)
-            .then(({ signature }) => callback(signature))
-            .catch(() => { /* widget handles error */ });
-        },
+        uploadPreset: UPLOAD_PRESET,
         sources: ['local', 'camera', 'url'],
         multiple: false,
         maxFiles: 1,
