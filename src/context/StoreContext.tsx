@@ -4,7 +4,7 @@ import { chatApi } from '../supabase/chat';
 import { supabase } from '../supabase/client';
 import { cleanProductImages } from '../utils/constants';
 import { usePersistence, useAuthListener, useLocalStorageSave } from './usePersistence';
-import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead, useRealtimeProducts, useRealtimeSettings } from './useRealtime';
+import { useRealtimeChat, useRealtimeOrders, useTypingIndicator, useMessageStatus, useMarkRead, useRealtimeProducts, useRealtimeSettings, useRealtimeStaff, useRealtimeCustomers, useRealtimePermissions } from './useRealtime';
 import { subscribePush, unsubscribePush } from '../utils/pushNotifications';
 import { usePermissions } from './usePermissions';
 import { getProductPrice } from './storeHelpers';
@@ -129,6 +129,20 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   useRealtimeOrders({ hasSupabase, supabaseReady, staffRole, setOrders });
   useRealtimeProducts({ hasSupabase, supabaseReady, setProducts });
   useRealtimeSettings({ hasSupabase, supabaseReady });
+  useRealtimeStaff({ hasSupabase, supabaseReady, setStaffList });
+  useRealtimeCustomers({ hasSupabase, supabaseReady, setAllCustomers });
+  useRealtimePermissions({ hasSupabase, supabaseReady, currentStaff, refreshPermissions });
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (customerProfile && user?.email && detail.email === user.email) {
+        setCustomerProfile((prev: any) => prev ? { ...prev, ...detail } : prev);
+      }
+    };
+    window.addEventListener('thara:customer-updated', handler);
+    return () => window.removeEventListener('thara:customer-updated', handler);
+  }, [user?.email, customerProfile]);
 
   const [typingUsers, setTypingUsers] = useState<Record<string, boolean>>({});
   const { sendTyping, typingTimeouts } = useTypingIndicator({ hasSupabase, supabaseReady, user, setTypingUsers });

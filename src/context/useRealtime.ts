@@ -3,7 +3,7 @@ import { chatApi } from '../supabase/chat';
 import { ordersApi } from '../supabase/orders';
 import { productsApi, mapProduct } from '../supabase/products';
 import { supabase } from '../supabase/client';
-import type { Order, ChatMessage, StaffRole } from '../types';
+import type { Order, ChatMessage, StaffMember, Customer, StaffRole } from '../types';
 
 function playNotificationSound() {
   try {
@@ -242,4 +242,80 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
       .subscribe();
     return () => { try { channel.unsubscribe(); } catch (e) { console.error('settings unsub', e); } };
   }, [hasSupabase, supabaseReady]);
+}
+
+export function useRealtimeStaff({ hasSupabase, supabaseReady, setStaffList }: {
+  hasSupabase: boolean;
+  supabaseReady: boolean;
+  setStaffList: React.Dispatch<React.SetStateAction<StaffMember[]>>;
+}) {
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    (async () => {
+      const { data } = await supabase.from('staff').select('*');
+      if (data) setStaffList(data as StaffMember[]);
+    })();
+    const channel = supabase
+      .channel('staff-stream')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff' }, (payload: any) => {
+        if (payload.eventType === 'INSERT') {
+          setStaffList(prev => { if (prev.some(s => s.id === payload.new.id)) return prev; return [payload.new, ...prev]; });
+        } else if (payload.eventType === 'UPDATE') {
+          setStaffList(prev => prev.map(s => s.id === payload.new.id ? { ...s, ...payload.new } : s));
+        } else if (payload.eventType === 'DELETE') {
+          setStaffList(prev => prev.filter(s => s.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+    return () => { try { channel.unsubscribe(); } catch (e) { console.error('staff unsub', e); } };
+  }, [hasSupabase, supabaseReady, setStaffList]);
+}
+
+export function useRealtimeCustomers({ hasSupabase, supabaseReady, setAllCustomers }: {
+  hasSupabase: boolean;
+  supabaseReady: boolean;
+  setAllCustomers: React.Dispatch<React.SetStateAction<Customer[]>>;
+}) {
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady) return;
+    (async () => {
+      const { data } = await supabase.from('customers').select('*');
+      if (data) setAllCustomers(data as Customer[]);
+    })();
+    const channel = supabase
+      .channel('customers-stream')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'customers' }, (payload: any) => {
+        if (payload.eventType === 'INSERT') {
+          setAllCustomers(prev => { if (prev.some(c => c.id === payload.new.id)) return prev; return [payload.new, ...prev]; });
+        } else if (payload.eventType === 'UPDATE') {
+          setAllCustomers(prev => prev.map(c => c.id === payload.new.id ? { ...c, ...payload.new } : c));
+          window.dispatchEvent(new CustomEvent('thara:customer-updated', { detail: payload.new }));
+        } else if (payload.eventType === 'DELETE') {
+          setAllCustomers(prev => prev.filter(c => c.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+    return () => { try { channel.unsubscribe(); } catch (e) { console.error('customers unsub', e); } };
+  }, [hasSupabase, supabaseReady, setAllCustomers]);
+}
+
+export function useRealtimePermissions({ hasSupabase, supabaseReady, currentStaff, refreshPermissions }: {
+  hasSupabase: boolean;
+  supabaseReady: boolean;
+  currentStaff: StaffMember | null;
+  refreshPermissions: () => void;
+}) {
+  useEffect(() => {
+    if (!hasSupabase || !supabaseReady || !currentStaff) return;
+    const channel = supabase
+      .channel('permissions-stream')
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'staff_permissions',
+        filter: `staff_id=eq.${currentStaff.id}`
+      }, () => {
+        refreshPermissions();
+      })
+      .subscribe();
+    return () => { try { channel.unsubscribe(); } catch (e) { console.error('permissions unsub', e); } };
+  }, [hasSupabase, supabaseReady, currentStaff?.id, refreshPermissions]);
 }
