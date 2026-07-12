@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     const signature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
 
     return new Response(
-      JSON.stringify({ signature, api_key: API_KEY, timestamp, cloud_name: CLOUD_NAME }),
+      JSON.stringify({ signature, api_key: API_KEY, timestamp: params.timestamp, cloud_name: CLOUD_NAME }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...CORS_HEADERS } },
     )
   } catch (err) {
