@@ -19,10 +19,10 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json()
-    const timestamp = Math.round(Date.now() / 1000)
 
-    const params: Record<string, string> = {
-      timestamp: String(timestamp),
+    const params: Record<string, string> = {}
+    if (!body.timestamp) {
+      params.timestamp = String(Math.round(Date.now() / 1000))
     }
     for (const [k, v] of Object.entries(body)) {
       if (typeof v === 'string' && !['api_key', 'cloud_name', 'signature', 'file'].includes(k)) {
