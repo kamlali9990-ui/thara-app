@@ -131,7 +131,6 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   useRealtimeSettings({ hasSupabase, supabaseReady });
   useRealtimeStaff({ hasSupabase, supabaseReady, setStaffList });
   useRealtimeCustomers({ hasSupabase, supabaseReady, setAllCustomers });
-  useRealtimePermissions({ hasSupabase, supabaseReady, currentStaff, refreshPermissions });
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -150,6 +149,7 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
   const { markMessagesAsRead } = useMarkRead({ hasSupabase, supabaseReady, setChatMessages });
 
   const { permissions: userPermissions, hasPermission, refreshPermissions } = usePermissions(staffRole, user);
+  useRealtimePermissions({ hasSupabase, supabaseReady, currentStaff, refreshPermissions });
   useLocalStorageSave({ supabaseReady, products, orders, chatMessages, cart });
 
   useEffect(() => {
