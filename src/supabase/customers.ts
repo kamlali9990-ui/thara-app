@@ -84,6 +84,10 @@ export const customersApi = {
         const staffEmail = data.user?.email || identifier.trim().toLowerCase();
         return await authApi.signIn(staffEmail, password);
       }
+      if (!error && data?.staff_exists) {
+        const staffEmail = identifier.trim().toLowerCase();
+        return await authApi.signIn(staffEmail, password);
+      }
     }
     throw new Error('بيانات الدخول غير صحيحة');
   }
