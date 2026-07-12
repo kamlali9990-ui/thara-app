@@ -197,11 +197,12 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
     if (!hasSupabase || !supabaseReady) return;
 
     (async () => {
-      const { data } = await supabase
-        .from('settings')
-        .select('key, value')
-        .like('key', 'cat_img_%');
-      if (data) {
+      try {
+        const { data } = await supabase
+          .from('settings')
+          .select('key, value')
+          .like('key', 'cat_img_%');
+        if (!data) return;
         for (const row of data) {
           const { key, value } = row;
           if (key.endsWith('_ver')) {
@@ -213,7 +214,7 @@ export function useRealtimeSettings({ hasSupabase, supabaseReady }: {
           }
         }
         window.dispatchEvent(new CustomEvent('thara:cat-img-changed', { detail: { name: '', url: '' } }));
-      }
+      } catch {}
     })();
 
     const channel = supabase
@@ -252,8 +253,10 @@ export function useRealtimeStaff({ hasSupabase, supabaseReady, setStaffList }: {
   useEffect(() => {
     if (!hasSupabase || !supabaseReady) return;
     (async () => {
-      const { data } = await supabase.from('staff').select('*');
-      if (data) setStaffList(data as StaffMember[]);
+      try {
+        const { data } = await supabase.from('staff').select('*');
+        if (data) setStaffList(data as StaffMember[]);
+      } catch {}
     })();
     const channel = supabase
       .channel('staff-stream')
@@ -279,8 +282,10 @@ export function useRealtimeCustomers({ hasSupabase, supabaseReady, setAllCustome
   useEffect(() => {
     if (!hasSupabase || !supabaseReady) return;
     (async () => {
-      const { data } = await supabase.from('customers').select('*');
-      if (data) setAllCustomers(data as Customer[]);
+      try {
+        const { data } = await supabase.from('customers').select('*');
+        if (data) setAllCustomers(data as Customer[]);
+      } catch {}
     })();
     const channel = supabase
       .channel('customers-stream')

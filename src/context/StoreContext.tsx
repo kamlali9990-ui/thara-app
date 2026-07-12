@@ -189,12 +189,12 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     if (!supabaseReady) return;
     supabase.rpc('get_site_stats').then(({ data, error }: { data: any; error: any }) => {
       if (!error && data) setSiteStats(data);
-    });
+    }).catch(() => {});
     const seen = sessionStorage.getItem('thara_visit_counted');
     if (!seen) {
       supabase.rpc('increment_visit_count').then(({ data }: { data: any }) => {
         if (data != null) setSiteStats(prev => ({ ...prev, visit_count: data }));
-      });
+      }).catch(() => {});
       try { sessionStorage.setItem('thara_visit_counted', '1'); } catch {}
     }
   }, [supabaseReady]);
